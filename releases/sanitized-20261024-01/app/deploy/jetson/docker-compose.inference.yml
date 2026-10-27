@@ -1,0 +1,25 @@
+# Jetson 容器推理：PolicyServer 跑 GPU 容器，串口/摄像头仍归宿主机。
+#   docker compose -f deploy/jetson/docker-compose.inference.yml up -d
+services:
+  policy-server:
+    image: lelab-inference:local
+    container_name: lelab-inference
+    runtime: nvidia                 # setup-container-runtime.sh 已注册
+    network_mode: host              # RobotClient 经 127.0.0.1:8080 直连
+    restart: unless-stopped
+    shm_size: 2gb
+    environment:
+      LEROBOT_POLICY_HOST: 127.0.0.1
+      LEROBOT_POLICY_PORT: "8080"
+      LEROBOT_POLICY_FPS: "30"
+      LEROBOT_POLICY_INFERENCE_LATENCY: "0.033"
+      HF_HOME: /cache/huggingface
+      HF_LEROBOT_HOME: /cache/lerobot
+      HF_HUB_DISABLE_XET: "1"
+    volumes:
+      # 模型只读；缓存可写，日志可写。绝不挂 /dev/ttyACM* /dev/ttyUSB* /dev/video*
+      - /home/nvidia/Desktop/lelab/models:/models:ro
+      - /home/nvidia/.cache/huggingface:/cache/huggingface
+      - /home/nvidia/Desktop/lelab/logs:/logs
+    # 不给 privileged，也不加任何 devices
+    cap_drop: ["ALL"]

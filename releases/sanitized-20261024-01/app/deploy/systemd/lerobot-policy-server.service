@@ -1,0 +1,24 @@
+[Unit]
+Description=LeRobot remote PolicyServer (SSH tunnel only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=trainer
+Group=trainer
+WorkingDirectory=/home/trainer/Desktop/lelab_server/current
+EnvironmentFile=/home/trainer/Desktop/lelab_server/shared/config/train.env
+ExecStart=/home/trainer/Desktop/lelab_server/current/.venv/bin/python -m lerobot.async_inference.policy_server --host=${LEROBOT_POLICY_HOST} --port=${LEROBOT_POLICY_PORT} --fps=${LEROBOT_POLICY_FPS} --inference_latency=${LEROBOT_POLICY_INFERENCE_LATENCY} --obs_queue_timeout=${LEROBOT_POLICY_OBS_QUEUE_TIMEOUT}
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/trainer/Desktop/lelab_server/shared
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -246,3 +246,19 @@ __marimo__/
 # Local experiments and plans may contain private connection information.
 /work/
 /plans/
+
+# Runtime source and deployment templates hidden by the generic Python rules.
+!/releases/*/app/frontend/src/lib/
+!/releases/*/app/frontend/dist/
+!/releases/*/app/frontend/dist/**
+!/releases/*/app/deploy/env/
+
+# Historical transfer checksums describe the original bytes, before Git's
+# line-ending normalization. Generate a fresh manifest for deployment exports.
+/MIGRATION_RESULT.json
+/releases/*/SOURCE_MANIFEST.sha256
+/releases/*/DEPLOYED_SOURCE_SHA256
+
+# Machine inventories and local operating records are not application source.
+/releases/*/app/proj_state.md
+/releases/*/app/run_note.md

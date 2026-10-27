@@ -1,0 +1,34 @@
+# Publication template: 192.0.2.0/24 is reserved for documentation. Replace all example hosts/users in a private servers.toml.
+# Credential-free deployment profile for the LeLab stack.
+#
+# Copy to one of (first match wins):
+#   * $LELAB_SERVERS_CONFIG
+#   * ~/.config/lelab/servers.toml        <- recommended on Jetson/Windows
+#   * <checkout>/deploy/config/servers.toml
+#
+# Environment variables (LELAB_TRAIN_HOST, ...) always override this file, so a
+# systemd unit can point at a different training server without editing it.
+# Never put passwords, tokens or private-key contents in this file.
+
+[train_server]
+# Public SSH endpoint of the GPU training host (Jetson reaches it directly).
+host = "192.0.2.10"
+port = 22
+user = "trainer"
+root = "~/Desktop/lelab_server"
+
+# Dedicated, passphrase-less deployment key authorized only for the dataset
+# staging area, the training command, the model directory and log reads.
+ssh_key = "~/.ssh/id_ed25519_lelab_train"
+
+# Fallback PolicyServer on the training host. It stays on loopback; Jetson
+# forwards it to its own 127.0.0.1:28081 over SSH.
+policy_host = "127.0.0.1"
+policy_port = 28081
+
+[jetson]
+# LAN address of the primary controller (Windows connects here for the tunnel).
+host = "192.0.2.22"
+port = 22
+user = "nvidia"
+root = "~/Desktop/lelab"

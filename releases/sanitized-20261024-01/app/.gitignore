@@ -1,0 +1,178 @@
+# Python-generated files
+__pycache__/
+*.py[cod]
+/build/
+/dist/
+/wheels/
+*.egg-info/
+.eggs/
+*.whl
+
+# Virtual environments.
+# env/ and ENV/ are anchored to the repo root so deploy/env/ (checked-in
+# *.env.example templates) stays trackable.
+.venv/
+venv/
+/env/
+/ENV/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.*
+.env.local
+.env.*.local
+# Real deployment configs (jetson.env, train.env, ...). Templates keep the
+# explicit *.env.example suffix and stay trackable.
+*.env
+# Keep credential-free templates available for deployment and onboarding.
+!.env.example
+!.env.*.example
+!*.env.example
+
+# Machine addresses and credentials are deployment-local, never source files.
+/remote_server.md
+/server_des.md
+
+# Populated deployment profile (servers.example.toml is the committed template)
+/deploy/config/servers.toml
+/.ssh/
+/secrets/
+/credentials/
+.netrc
+.pypirc
+
+# Testing and tool caches
+.coverage
+.coverage.*
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tox/
+.nox/
+.hypothesis/
+.ty_cache/
+htmlcov/
+/coverage/
+/coverage.xml
+/junit.xml
+/test-results/
+/playwright-report/
+
+# Node.js (in case frontend files leak to root)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/package-lock.json
+.npm/
+.pnpm-store/
+.vite/
+.eslintcache
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Local dev / tool state
+.claude/
+.playwright-mcp/
+.superpowers/
+.worktrees/
+outputs/
+# Local smoke runs contain remote inventories, generated scripts, and media.
+/.smoke/
+/.cache/
+/.codex/
+
+# Robot datasets, model weights, sessions, and experiment artifacts.
+# Anchor these to the root so similarly named source/fixture directories stay
+# trackable (e.g. lelab/models or tests/fixtures/datasets).
+/data/
+/datasets/
+/models/
+/checkpoints/
+/jobs/
+/policy_server/
+/calibration/
+/recordings/
+/videos/
+/runs/
+/wandb/
+/.trash/
+/camera_*_test.jpg
+/camera_*_test.png
+
+# Downloaded LeRobot reference copy; use the ../lerobot editable dependency.
+# Keep refer/*.md project notes trackable.
+/refer/lerobot-main/
+/refer/lerobot-main.zip
+
+/docs/
+/PHONE_CAMERA_SETUP.md
+/HTTPS_SETUP.md
+
+# Self-signed dev certs (regenerate per HTTPS_SETUP.md)
+certs/
+
+# frontend/dist/ is intentionally tracked: CI rebuilds and commits it
+# (.github/workflows/build_frontend.yml). Do not add it here.
+# uv.lock and frontend/package-lock.json are also intentionally trackable.
+
+# Private publication backups and credential material.
+/.private/
+/.workbuddy/
+/AGENTS.md
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Deployment-local state; templates remain trackable.
+.workbuddy/
+AGENTS.md
+.private/
+.smoke/
+remote_server.md
+server_des.md
+.env
+.env.*
+*.env
+!*.env.example
+!.env.example
+!*.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_ed25519*
+id_rsa*
+secrets/
+credentials/

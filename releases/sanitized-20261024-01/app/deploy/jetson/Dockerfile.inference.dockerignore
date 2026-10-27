@@ -1,0 +1,19 @@
+# Build context is the project root (~/Desktop/lelab): keep it small, and
+# never ship datasets, runs, caches or credentials into the image.
+app/
+data/
+backups/
+logs/
+shared/
+releases/
+current
+.git/
+.venv/
+__pycache__/
+*.pyc
+*.zip
+*.tar.gz
+refer/
+tests/
+frontend/node_modules
+frontend/dist

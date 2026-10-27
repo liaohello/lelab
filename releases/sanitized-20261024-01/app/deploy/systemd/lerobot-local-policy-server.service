@@ -1,0 +1,26 @@
+[Unit]
+Description=LeRobot Jetson-local PolicyServer
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=nvidia
+Group=nvidia
+SupplementaryGroups=docker
+WorkingDirectory=/home/nvidia/Desktop/lelab/current
+EnvironmentFile=/home/nvidia/Desktop/lelab/shared/config/jetson.env
+ExecStart=/home/nvidia/Desktop/lelab/current/deploy/jetson/run-local-policy-server.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/nvidia/Desktop/lelab/shared
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

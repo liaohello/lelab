@@ -1,0 +1,2 @@
+# Normalize text imports while leaving binary source assets intact.
+* text=auto
