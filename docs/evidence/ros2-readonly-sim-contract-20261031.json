@@ -311,7 +311,9 @@
     "executed": false,
     "reason": "Pi unreachable at 17:02-17:10Z",
     "check_attempted": "2026-10-31T17:14Z",
-    "check_result": "SSH connect timeout; script exited 1 with \"Pi is not reachable via SSH; no remote changes made.\""
+    "check_result": "SSH connect timeout; script exited 1 with \"Pi is not reachable via SSH; no remote changes made.\"",
+    "payload_includes_probe": true,
+    "rollback_preserves_data": "sessions and logs are preserved"
   },
   "export_cancel": {
     "method": "real sleep process registered as export job; POST-like export_cancel called",
