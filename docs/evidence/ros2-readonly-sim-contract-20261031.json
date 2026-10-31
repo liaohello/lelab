@@ -370,5 +370,23 @@
       }
     },
     "note": "Receiver-side rates are Python probe rates, not native driver rates. On Pi run inside the container with default /ascamera topics."
+  },
+  "hardware_profile_rehearsal": {
+    "session_id": "ros_20261031T172216Z_8f66db5c",
+    "profile": "configs/ros2_collection/hardware-readonly-v1.json",
+    "topics_source": "synthetic Pi-like publisher using the real /ascamera topic names, 640x400 bgr8, CameraInfo",
+    "storage": "sqlite3",
+    "bag_size_mib": 42.6,
+    "messages": 126,
+    "duration_s": 3.1,
+    "episodes": 2,
+    "task": "hardware_readonly_observation",
+    "evaluation": "unknown/unlabeled",
+    "status": "raw_ready",
+    "ready": true,
+    "hash_mismatch": [],
+    "upper_sync_verified_files": 7,
+    "training_export_http_status": 409,
+    "note": "This validates the Pi profile and sqlite3 path locally; it is not real Pi camera evidence."
   }
 }
