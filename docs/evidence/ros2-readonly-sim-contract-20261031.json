@@ -474,5 +474,10 @@
       "bag_bytes": 88969948
     },
     "note": "Bag bytes remain dominated by uncompressed 640x480 RGB; message overhead and truth topic flood are reduced."
+  },
+  "clock_jump_guard": {
+    "policy": "hardware_readonly stops the bag on >1s backward or >5s+2*elapsed forward jump; no READY",
+    "test": "tools/ros2_collection/tests/test_recorder_faults.py::test_clock_jump_stops_without_ready",
+    "result": "error=clock_jump, READY absent, manifest status=error"
   }
 }

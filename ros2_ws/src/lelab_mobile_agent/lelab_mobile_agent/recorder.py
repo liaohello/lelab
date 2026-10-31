@@ -107,6 +107,14 @@ class SessionRecorder:
     def _disk_free(self) -> int:
         return shutil.disk_usage(self.root).free
 
+    def note_clock_jump(self, detail: str) -> bool:
+        with self.lock:
+            if self.session_id is None:
+                return False
+            self._set_error("clock_jump", detail, stop_bag=True)
+            self._event("clock_jump", time_ns=None, detail=detail)
+            return True
+
     def _startup_check(self, timeout_s: float = 8.0) -> bool:
         deadline = time.monotonic() + timeout_s
         while time.monotonic() < deadline:

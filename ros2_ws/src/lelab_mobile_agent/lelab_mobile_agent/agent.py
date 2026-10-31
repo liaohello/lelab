@@ -131,6 +131,8 @@ class MobileAgent(Node):
         self.wheel_odom: dict[str, float] = {}
         self.wheel_odom_wall = 0.0
         self.clock_domain = self.runtime.get("clock_domain") or "ros_time"
+        self.last_clock_ns: int | None = None
+        self.last_clock_mono: float | None = None
         self.camera_info_meta: dict[str, Any] = {}
         self.cube: PoseStamped | None = None
         self.container: PoseStamped | None = None
@@ -731,6 +733,7 @@ class MobileAgent(Node):
                     self.episode_max_lift = max(self.episode_max_lift, cube[2])
 
     def _status_tick(self):
+        self._check_clock_jump()
         with self.lock:
             if self.episode_id is not None and not self.read_only:
                 cube = _pose_xyz(self.cube)
@@ -739,6 +742,29 @@ class MobileAgent(Node):
             ages = {topic: (None if wall is None else round(time.monotonic() - wall, 3)) for topic, wall in self.last_rx.items()}
         if self.sessions.session_id is not None:
             self.sessions.poll_health(ages)
+
+    def _check_clock_jump(self):
+        if not self.read_only:
+            return
+        clock_ns = self._sim_ns()
+        now = time.monotonic()
+        with self.lock:
+            previous = self.last_clock_ns
+            previous_wall = self.last_clock_mono
+            self.last_clock_ns = clock_ns
+            self.last_clock_mono = now
+            session_id = self.session_id
+        if previous is None or previous_wall is None or session_id is None:
+            return
+        elapsed = max(0.0, now - previous_wall)
+        backward = clock_ns < previous - 1_000_000_000
+        forward = clock_ns > previous + int((5.0 + 2.0 * elapsed) * 1e9)
+        if not (backward or forward):
+            return
+        detail = f"previous={previous} current={clock_ns} elapsed_wall={elapsed:.3f}s direction={'backward' if backward else 'forward'}"
+        self.get_logger().error(f"clock jump detected: {detail}")
+        self._emit("clock_jump_detected", detail=detail)
+        self.sessions.note_clock_jump(detail)
 
     # ------------------------------------------------------------------ recording
     def _metadata(self) -> dict:
@@ -763,6 +789,7 @@ class MobileAgent(Node):
             "preview_backend": self.preview_backend,
             "record_joint_state_topic": self.record_joint_topic,
             "timestamp_sources": {"event": self.runtime.get("clock_domain", "ros_time"), "ttl": "monotonic_wall_clock"},
+            "clock_jump_policy": "hardware_readonly stops the bag on >1s backward or >5s+2*elapsed forward jump; no READY",
             "command_semantics": {
                 "requested": "operator_or_expert_request",
                 "sent": "gateway_forwarded_target",

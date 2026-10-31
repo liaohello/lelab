@@ -66,6 +66,32 @@ class RecorderFaultTests(unittest.TestCase):
         manifest = (root / "sessions" / "mid_disk_session" / "manifest.json").read_text()
         self.assertIn("disk_low", manifest)
 
+    def test_clock_jump_stops_without_ready(self):
+        root = Path(tempfile.mkdtemp(prefix="lelab_clock_jump_"))
+        profile = {
+            "profile": "clock_jump_fault",
+            "runtime": {"clock_domain": "hardware_system_time"},
+            "task": {"language": "observe"},
+            "recording": {
+                "topics": ["/lelab/events"],
+                "required_topics": [],
+                "min_free_bytes": 1,
+                "raw_storage": "sqlite3",
+            },
+        }
+        session = recorder_module.SessionRecorder(root, profile, SilentLog())
+        with patch.object(recorder_module.subprocess, "Popen", return_value=FakeBagProcess()), \
+             patch.object(session, "_startup_check", return_value=True), \
+             patch.object(session, "_bag_info", return_value=(False, "fake unreadable bag")):
+            session.start_session("clock_jump_session", "observe", {}, 1)
+            self.assertTrue(session.note_clock_jump("backward 120s"))
+            self.assertEqual(session.error, "clock_jump")
+            result = session.stop_session(reason="clock_jump")
+        self.assertEqual(result["status"], "error")
+        self.assertFalse((root / "sessions" / "clock_jump_session" / "READY").exists())
+        manifest = (root / "sessions" / "clock_jump_session" / "manifest.json").read_text()
+        self.assertIn("clock_jump", manifest)
+
 
 if __name__ == "__main__":
     unittest.main()
