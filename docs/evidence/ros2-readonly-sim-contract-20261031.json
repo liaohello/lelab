@@ -21,7 +21,19 @@
       "reset": "403 read-only refusal (agent route)"
     },
     "note": "The ROS graph still has publishers for actuator topics from the simulation agent/watchdog; the read-only node itself publishes none.",
-    "preview_backend": "pillow in test; OpenCV fallback added for camera-only images"
+    "preview_backend": "pillow in test; OpenCV fallback added for camera-only images",
+    "refusal_matrix": {
+      "control/mode": 403,
+      "control/base": 403,
+      "control/arm": 403,
+      "control/gripper": 403,
+      "control/estop": 403,
+      "control/clear_estop": 403,
+      "expert/run": 403,
+      "expert/stop": 403,
+      "task/reset": 403
+    },
+    "refusal_detail": "all responses are read_only_mode; none reaches a ROS publisher or service"
   },
   "sessions": {
     "readonly_two_episodes": {
