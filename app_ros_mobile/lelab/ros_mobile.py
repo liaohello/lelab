@@ -785,6 +785,17 @@ def export_session(session_id: str, include_failed: bool = False) -> dict:
                 raise ExportRejected(f"episode {episode['episode_id']} lacks image/state/base data")
             if not data["events"]:
                 raise ExportRejected(f"episode {episode['episode_id']} has no applied-action events; refusing synthetic action")
+            # Do not fabricate a frame before the first available observation.
+            # If the recorder starts a few milliseconds after the episode marker,
+            # begin at the first moment all measured streams exist.
+            observed_start = max(
+                int(data["images"][0]["stamp"]),
+                int(data["states"][0]["stamp"]),
+                int(data["bases"][0]["stamp"]),
+                int(data["events"][0]["_time_ns"]),
+            )
+            original_start = start
+            start = max(start, observed_start)
             frame_records = []
             count = 0
             t = start
@@ -868,7 +879,8 @@ def export_session(session_id: str, include_failed: bool = False) -> dict:
                 "source": episode.get("source"),
                 "success": episode.get("evaluation", {}).get("success"),
                 "frames": count,
-                "started_time_ns": start,
+                "started_time_ns": original_start,
+                "aligned_start_time_ns": start,
                 "ended_time_ns": end,
                 "frames_detail": frame_records,
             })

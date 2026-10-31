@@ -479,5 +479,18 @@
     "policy": "hardware_readonly stops the bag on >1s backward or >5s+2*elapsed forward jump; no READY",
     "test": "tools/ros2_collection/tests/test_recorder_faults.py::test_clock_jump_stops_without_ready",
     "result": "error=clock_jump, READY absent, manifest status=error"
+  },
+  "export_alignment_fix": {
+    "problem": "first exported frame could predate the first available observation/action; two early attempts failed with source gap/no action",
+    "fix": "start at max(episode start, first image/state/base stamp, first applied action time); original start retained as started_time_ns",
+    "result": {
+      "dataset": "lelab/ros-mobile-20261031t172940z-b34facd6",
+      "frames": 205,
+      "episodes": 1,
+      "camera": "wrist_demo_downward",
+      "export_job": "completed",
+      "worker_validation": "LeRobot SDK validation inside worker passed"
+    },
+    "note": "No future observations or synthetic actions were introduced."
   }
 }
