@@ -416,5 +416,11 @@
       "format": "JPEG 640x480 3 components"
     },
     "note": "Confirms the camera-only Pi image can preview without Pillow; real Pi dependency presence is checked by deploy --check."
+  },
+  "sync_integrity_tests": {
+    "tampered_payload": "rejected as size/sha256 mismatch",
+    "tampered_ready": "rejected as READY manifest hash mismatch",
+    "test_file": "app_ros_mobile/tests/test_ros_mobile_sync.py",
+    "passed": 2
   }
 }
