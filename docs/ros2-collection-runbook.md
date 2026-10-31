@@ -85,8 +85,8 @@ PI=pi@192.168.19.138 tools/ros2_collection/deploy_readonly_agent.sh --rollback
 真实传感器被动核验（只创建订阅，不创建 publisher/client）：
 
 ```bash
-# 在 Pi 容器内运行；默认探测 /ascamera 相机、IMU、关节和 odom 话题
-python3 tools/ros2_collection/probe_real_sensors.py --duration 10 --output /tmp/pi_sensors.json
+# 部署包已包含 probe_real_sensors.py；在 Pi 容器内运行
+docker exec MentorPi bash -lc 'cd /home/ubuntu/lelab_car && python3 probe_real_sensors.py --duration 10 --output /tmp/pi_sensors.json'
 ```
 
 输出包含消息类型、publisher QoS、接收侧速率、header stamp 跨度和图像尺寸/编码。若已知驱动 QoS，可加 `--reliability reliable|best_effort`。该工具已在本地仿真话题上演练通过。

@@ -59,6 +59,7 @@ package_payload() {
   cp -a "$AGENT_SRC/lelab_mobile_agent" "$TMPDIR_LOCAL/"
   mkdir -p "$TMPDIR_LOCAL/config"
   cp "$PROFILE" "$TMPDIR_LOCAL/config/"
+  cp "$REPO_ROOT/tools/ros2_collection/probe_real_sensors.py" "$TMPDIR_LOCAL/"
   cat > "$TMPDIR_LOCAL/run_readonly.sh" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -71,7 +72,7 @@ exec python3 -m lelab_mobile_agent.agent --ros-args \
 SH
   sed -i "s|__REMOTE_DIR__|$REMOTE_DIR|g" "$TMPDIR_LOCAL/run_readonly.sh"
   chmod +x "$TMPDIR_LOCAL/run_readonly.sh"
-  tar -C "$TMPDIR_LOCAL" -czf "$TMPDIR_LOCAL/payload.tar.gz" lelab_mobile_agent config run_readonly.sh
+  tar -C "$TMPDIR_LOCAL" -czf "$TMPDIR_LOCAL/payload.tar.gz" lelab_mobile_agent config probe_real_sensors.py run_readonly.sh
 }
 
 apply() {
@@ -100,7 +101,7 @@ stop() {
 
 rollback() {
   stop
-  remote "docker exec '$CONTAINER' bash -lc 'rm -rf \"$REMOTE_DIR/lelab_mobile_agent\" \"$REMOTE_DIR/config\" \"$REMOTE_DIR/run_readonly.sh\"'"
+  remote "docker exec '$CONTAINER' bash -lc 'rm -rf \"$REMOTE_DIR/lelab_mobile_agent\" \"$REMOTE_DIR/config\" \"$REMOTE_DIR/probe_real_sensors.py\" \"$REMOTE_DIR/run_readonly.sh\"'"
   log "removed deployed code/profile only; $REMOTE_DIR/sessions and logs were preserved"
 }
 
