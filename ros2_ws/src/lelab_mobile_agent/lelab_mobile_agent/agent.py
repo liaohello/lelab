@@ -201,6 +201,8 @@ class MobileAgent(Node):
         self.estop_pub = None
         self.reset_pub = None
         self.record_joint_pub = None
+        self.task_record_pubs: dict[str, Any] = {}
+        self.task_record_last: dict[str, float] = {}
         self.event_pub = self.create_publisher(String, "/lelab/events", 20)
         if self.actuator_outputs:
             self.base_pub = self.create_publisher(Twist, "/lelab/base/cmd_vel_request", 10)
@@ -212,6 +214,8 @@ class MobileAgent(Node):
             if self.record_joint_topic and self.record_joint_hz > 0:
                 self.record_joint_pub = self.create_publisher(JointState, self.record_joint_topic, 10)
                 self.create_timer(1.0 / self.record_joint_hz, self._record_joint_tick)
+            for name in ("cube", "container", "box"):
+                self.task_record_pubs[name] = self.create_publisher(PoseStamped, f"/lelab/recording/{name}_pose", 10)
             self.create_timer(0.02, self._control_tick)
             self.create_subscription(String, "/lelab/safety_state", self._on_safety, 10)
             self.create_subscription(String, "/lelab/applied_command", self._on_applied, 10)
@@ -306,10 +310,15 @@ class MobileAgent(Node):
                 self.last_rx[self.record_joint_topic] = time.monotonic()
 
     def _on_task(self, name: str, msg: PoseStamped):
+        now = time.monotonic()
         with self.lock:
             setattr(self, name, msg)
-            self.task_wall = time.monotonic()
-            self.last_rx[f"/lelab/task/{name}_pose"] = self.task_wall
+            self.task_wall = now
+            self.last_rx[f"/lelab/task/{name}_pose"] = now
+            publisher = self.task_record_pubs.get(name)
+            if publisher is not None and now - self.task_record_last.get(name, 0.0) >= 0.05:
+                self.task_record_last[name] = now
+                publisher.publish(msg)
 
     def _on_image(self, msg: RosImage):
         now = time.monotonic()
@@ -777,6 +786,11 @@ class MobileAgent(Node):
                 "cube": "/lelab/task/cube_pose",
                 "container": "/lelab/task/container_pose",
                 "box": "/lelab/task/box_pose",
+            },
+            "record_task_truth_topics": {
+                "cube": "/lelab/recording/cube_pose",
+                "container": "/lelab/recording/container_pose",
+                "box": "/lelab/recording/box_pose",
             },
         })
         return common

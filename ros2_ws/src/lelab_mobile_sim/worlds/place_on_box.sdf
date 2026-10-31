@@ -112,6 +112,7 @@
         <publish_link_pose>false</publish_link_pose>
         <publish_visual_pose>false</publish_visual_pose>
         <use_pose_vector_msg>false</use_pose_vector_msg>
+        <update_rate>20</update_rate>
         <topic>/model/task_cube/pose</topic>
       </plugin>
     </model>
@@ -145,6 +146,7 @@
         <publish_link_pose>false</publish_link_pose>
         <publish_visual_pose>false</publish_visual_pose>
         <use_pose_vector_msg>false</use_pose_vector_msg>
+        <update_rate>20</update_rate>
         <topic>/model/place_box/pose</topic>
       </plugin>
     </model>

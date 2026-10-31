@@ -59,7 +59,7 @@ curl -s http://127.0.0.1:8110/status | python3 -m json.tool | head
 curl -s -o /tmp/wrist.jpg http://127.0.0.1:8110/preview.jpg
 ```
 
-`/lelab/base/model_odom` 来自 Gazebo `OdometryPublisher`，是模型实际位姿/速度；`/lelab/base/odom` 只是 `MecanumDrive` 轮式诊断，二者不相等是预期现象。`/joint_states` 由 Gazebo 的 `JointStatePublisher` 发布（约 1 kHz，单源）；录制使用 agent 以 50 Hz 重发布的 `/lelab/recording/joint_states`，避免 1 kHz 膨胀。不要同时启动 `joint_state_broadcaster`。
+`/lelab/base/model_odom` 来自 Gazebo `OdometryPublisher`，是模型实际位姿/速度；`/lelab/base/odom` 只是 `MecanumDrive` 轮式诊断，二者不相等是预期现象。`/joint_states` 由 Gazebo 的 `JointStatePublisher` 发布（约 1 kHz，单源）；录制使用 agent 以 50 Hz 重发布的 `/lelab/recording/joint_states`。任务真值 topic 由 Gazebo 以约 900 Hz 发布，录制使用 agent 以 20 Hz 重发布的 `/lelab/recording/{cube,container,box}_pose`；专家/评估仍读原始真值 topic。不要同时启动 `joint_state_broadcaster`。
 
 只读车端（无执行器输出）启动：
 

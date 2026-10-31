@@ -210,14 +210,15 @@
       "/lelab/imu",
       "/lelab/base/pose",
       "/lelab/base/cmd_vel_request",
-      "/lelab/task/cube_pose",
-      "/lelab/task/container_pose",
+      "/lelab/recording/cube_pose",
+      "/lelab/recording/container_pose",
       "/lelab/contacts",
       "/lelab/events",
       "/lelab/safety_state",
       "/lelab/recording/joint_states",
       "/lelab/base/model_odom",
-      "/lelab/base/odom"
+      "/lelab/base/odom",
+      "/lelab/recording/box_pose"
     ],
     "event_topic": "/lelab/events",
     "required_topics": [

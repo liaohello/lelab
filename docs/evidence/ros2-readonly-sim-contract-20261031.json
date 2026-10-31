@@ -455,5 +455,24 @@
       }
     },
     "purpose": "Mesured counts and receiver/bag-derived Hz now travel in session.json and manifest.json without synthesizing missing data."
+  },
+  "truth_recording_throttle": {
+    "problem": "Gazebo PosePublisher ignored update_rate; task truth topics were ~907-909 Hz and dominated message count.",
+    "fix": "agent republishes raw truth at 20 Hz to /lelab/recording/{cube,container,box}_pose; expert/evaluation still use original truth topics.",
+    "before": {
+      "messages": 8028,
+      "duration_s": 2.65,
+      "cube_hz": 907.3,
+      "container_hz": 908.8
+    },
+    "after": {
+      "messages": 3777,
+      "duration_s": 2.97,
+      "cube_hz": 19.5,
+      "container_hz": 19.5,
+      "joint_hz": 48.2,
+      "bag_bytes": 88969948
+    },
+    "note": "Bag bytes remain dominated by uncompressed 640x480 RGB; message overhead and truth topic flood are reduced."
   }
 }
