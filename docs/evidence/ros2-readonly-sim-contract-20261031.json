@@ -324,5 +324,11 @@
     "success": "unknown",
     "status": "raw_ready",
     "ready": true
+  },
+  "web_stale_state": {
+    "backend": "http://127.0.0.1:8001 with fault agent 8116",
+    "fresh": "fps=10.0, stale=false, backend=pillow",
+    "after_publisher_stop": "age_s>=5.9, stale=true; UI shows 画面过期 and 无新图像 5.904 s，仍显示最后一帧",
+    "status": "verified in browser snapshot; image is a local synthetic test topic, not a real camera"
   }
 }
