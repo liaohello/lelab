@@ -21,7 +21,10 @@ from ament_index_python.packages import get_package_share_directory
 from builtin_interfaces.msg import Duration
 from geometry_msgs.msg import PoseStamped, Twist
 from nav_msgs.msg import Odometry
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:  # camera-only images may provide OpenCV instead
+    Image = None
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import CameraInfo, Image as RosImage
@@ -141,6 +144,7 @@ class MobileAgent(Node):
         self.preview_jpeg: bytes | None = None
         self.preview_seq = 0
         self.preview_wall = 0.0
+        self.preview_backend = "pillow" if Image is not None else "unchecked"
         self.depth_meta: dict[str, Any] = {}
         self.lidar_meta: dict[str, Any] = {}
         self.imu_meta: dict[str, Any] = {}
@@ -385,17 +389,29 @@ class MobileAgent(Node):
                 arr = np.frombuffer(data, dtype=np.uint8)
                 if encoding in ("rgb8", "bgr8"):
                     arr = arr.reshape(height, width, 3)
-                    if encoding == "bgr8":
-                        arr = arr[:, :, ::-1]
-                    image = Image.fromarray(arr, "RGB")
                 elif encoding in ("mono8", "8UC1"):
-                    image = Image.fromarray(arr.reshape(height, width), "L")
+                    arr = arr.reshape(height, width)
                 else:
                     continue
-                buf = io.BytesIO()
-                image.save(buf, format="JPEG", quality=78)
+                if Image is not None:
+                    rgb = arr[:, :, ::-1] if encoding == "bgr8" else arr
+                    image = Image.fromarray(rgb, "RGB" if rgb.ndim == 3 else "L")
+                    buf = io.BytesIO()
+                    image.save(buf, format="JPEG", quality=78)
+                    jpeg = buf.getvalue()
+                    backend = "pillow"
+                else:
+                    import cv2
+
+                    bgr = arr[:, :, ::-1] if encoding == "rgb8" else arr
+                    ok, encoded = cv2.imencode(".jpg", bgr, [cv2.IMWRITE_JPEG_QUALITY, 78])
+                    if not ok:
+                        raise RuntimeError("cv2.imencode returned false")
+                    jpeg = encoded.tobytes()
+                    backend = "opencv"
                 with self.lock:
-                    self.preview_jpeg = buf.getvalue()
+                    self.preview_jpeg = jpeg
+                    self.preview_backend = backend
                     self.preview_seq += 1
                     self.preview_wall = stamp
             except Exception as exc:  # noqa: BLE001
@@ -733,6 +749,7 @@ class MobileAgent(Node):
             "required_topics": list(self.profile.get("recording", {}).get("required_topics", [])),
             "camera_topic": self.rgb_topic,
             "camera_info_topic": self.camera_info_topic,
+            "preview_backend": self.preview_backend,
             "record_joint_state_topic": self.record_joint_topic,
             "timestamp_sources": {"event": self.runtime.get("clock_domain", "ros_time"), "ttl": "monotonic_wall_clock"},
         }
@@ -773,7 +790,12 @@ class MobileAgent(Node):
             self.episode_id = None
             self.episode_phases = []
             self.episode_contacts = 0
-        info = self.sessions.start_session(sid, task or self.profile.get("task", {}).get("language", "observe"), self._metadata(), self._sim_ns())
+        try:
+            info = self.sessions.start_session(sid, task or self.profile.get("task", {}).get("language", "observe"), self._metadata(), self._sim_ns())
+        except Exception:
+            with self.lock:
+                self.session_id = None
+            raise
         self._emit("recording_session_started", session_id=sid, task=task, topics=info["topics"])
         return info
 
@@ -1211,6 +1233,7 @@ class MobileAgent(Node):
                     "rgb": {"topic": self.rgb_topic, "fps": image_fps,
                             "age_s": ages.get(self.rgb_topic) if self.rgb_topic else None,
                             "stamp_ns": self.image_stamp_ns, "preview_seq": self.preview_seq,
+                            "preview_backend": self.preview_backend,
                             "stale": (ages.get(self.rgb_topic) is None or ages.get(self.rgb_topic) > 1.5) if self.rgb_topic else True},
                     "camera_info": {**self.camera_info_meta, "topic": self.camera_info_topic,
                                     "age_s": ages.get(self.camera_info_topic) if self.camera_info_topic else None},

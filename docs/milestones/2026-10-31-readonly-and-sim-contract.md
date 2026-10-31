@@ -14,7 +14,8 @@
 | 只读拒绝 | `/control/*`、`/expert/*`、`/task/reset` 返回 403；启停 session 不需要控制 token | acquire 返回 `read_only:true`；base 403；expert 403 |
 | 只读录制 | 使用硬件只读 profile，记录真实传感器 topic 与事件；episode 允许 `success:unknown`、`unlabeled` | `ros_20261031T170156Z_1a91b4ad`，2 episodes，raw_ready |
 | 上位机断连本地收尾 | 车端继续录制，上位机 backend 被杀后直接结束 episode/session | `ros_20261031T170238Z_95697d4f`，`stop_reason=upper-disconnected-local-stop`，README 哈希一致 |
-| 异常录制不 READY | bag 提前退出/被 kill 时置 error，不写 READY | `ros_20261031T155753Z_ee7808e9`，exit=-9，无 READY |
+| 异常录制不 READY | bag 提前退出/被 kill 时置 error，不写 READY；必需流中断、磁盘低同样不写 READY | `ros_20261031T155753Z_ee7808e9`，exit=-9；`ros_20261031T171045Z_970e8861`，`required_stream_missing`，无 READY；磁盘低直接测试 `disk_low` |
+| 启动/清理竞态 | MCAP 启动时文件可为空，改为 bag 文件存在 + 进程存活；启动失败关闭 bag/日志并清理 session 句柄，保留部分 raw | 后续会话正常 raw_ready；失败启动不阻塞下一次 session |
 | 同步完整性 | 暂存 → 解压（拒绝链接）→ size/SHA-256 → READY 哈希 → 原子发布 → 再校验 | 只读 session 7 个文件全部校验；bag `ros2 bag info` 可读 |
 | 训练导出门禁 | 非 simulation、缺 action/关节/base、尺寸不符、stale 超限均拒绝 | 只读 session 返回 HTTP 409；旧失败 session 的缺 action 也被拒绝 |
 | 导出任务隔离/取消 | `/export` 启动独立进程；`/export/status/{id}`、`/export/cancel/{id}` | 两个仿真数据集导出成功；进程不占用 API 事件循环 |
@@ -23,6 +24,7 @@
 | 参数化箱顶放置 | `place_on_box.sdf`（箱顶 0.06 m，世界名保持 `pick_place`）；目标确认阶段；支撑、释放稳定、夹爪撤离判定 | `ros_20261031T165901Z_fa5a85da` success=true，box_top_support=true，retreated=true |
 | 抬升阈值统一 | 两种任务均读取 `task.success_min_lift_m = 0.03`；专家抬升约 0.08 m | tray/box 评估 `lift_threshold_m=0.03` |
 | 仿真数据读回 | 本地 LeRobot SDK 读取 200 帧、9 维 state/action、640×480 RGB；网页 `/datasets` 列出新数据集 | repo `lelab/ros-mobile-20261031t164152z-4a59021d` |
+| Pi 轻量部署路径 | `deploy_readonly_agent.sh` 复用既有容器，支持 check/apply/stop/rollback，不改系统环境；预览支持 Pillow 或 OpenCV | 脚本 `bash -n` 与依赖检查逻辑已验证；未在 Pi 执行（不可达） |
 
 ## 2. 数据与来源
 

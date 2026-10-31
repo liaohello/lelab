@@ -67,7 +67,20 @@ curl -s -o /tmp/wrist.jpg http://127.0.0.1:8110/preview.jpg
 ros2 launch lelab_mobile_agent readonly.launch.py car_root:=/home/pi/lelab_car
 ```
 
-该 launch 只启动 agent，不启动 Gazebo、controller 或 watchdog；默认端口 8110、回环绑定。只读 profile 的相机 topic 必须先由车端核验后填入，否则启动 session 会返回 `camera_topic_unconfigured`。停止仍通过本地 agent 或直接结束进程；退出路径不会发布速度、零速或力矩。
+该 launch 只启动 agent，不启动 Gazebo、controller 或 watchdog；默认端口 8110、回环绑定。只读 profile 的相机 topic 必须先由车端核验后填入，否则启动 session 会返回 `camera_topic_unconfigured`。停止仍通过本地 agent 或直接结束进程；退出路径不会发布速度、零速或力矩。预览编码优先 Pillow，缺 Pillow 时回退 OpenCV；状态里的 `preview_backend` 记录实际后端。
+
+Pi 上不改系统环境、不装 Python 依赖的部署/检查/回退：
+
+```bash
+PI=pi@192.168.19.138 tools/ros2_collection/deploy_readonly_agent.sh --check
+PI=pi@192.168.19.138 tools/ros2_collection/deploy_readonly_agent.sh --apply
+# 上位机经既有 SSH 配置建立隧道，再启动 LeLab
+ssh -N -L 8110:127.0.0.1:8110 pi@192.168.19.138
+PI=pi@192.168.19.138 tools/ros2_collection/deploy_readonly_agent.sh --stop
+PI=pi@192.168.19.138 tools/ros2_collection/deploy_readonly_agent.sh --rollback
+```
+
+脚本默认容器 `MentorPi`、容器内路径 `/home/ubuntu/lelab_car`；认证完全交给用户已有 SSH 配置，不读取或打印凭据。`--rollback` 只删除部署的代码/profile/启动脚本，保留 `sessions/` 和日志。Pi 当前不可达，本脚本尚未在 Pi 实际执行。
 
 停止：在 launch 终端 `Ctrl-C`，再确认 `gz sim`、bridge、agent、watchdog 和控制器没有残留；原始 session 的停止只应在 agent 在线时通过 API 发起。
 

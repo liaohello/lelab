@@ -20,7 +20,8 @@
       "expert": "403 scripted expert is disabled in hardware_readonly mode",
       "reset": "403 read-only refusal (agent route)"
     },
-    "note": "The ROS graph still has publishers for actuator topics from the simulation agent/watchdog; the read-only node itself publishes none."
+    "note": "The ROS graph still has publishers for actuator topics from the simulation agent/watchdog; the read-only node itself publishes none.",
+    "preview_backend": "pillow in test; OpenCV fallback added for camera-only images"
   },
   "sessions": {
     "readonly_two_episodes": {
@@ -253,5 +254,41 @@
     "raw_storage": "sqlite3 (MCAP unavailable)",
     "training_export": false,
     "caveat": "camera extrinsics/optical transform and arm/gripper feedback remain unverified; profile refuses training export"
+  },
+  "recorder_faults": {
+    "required_stream_missing": {
+      "session_id": "ros_20261031T171045Z_970e8861",
+      "method": "read-only agent + synthetic sensor publisher; publisher killed mid-session",
+      "status": "error",
+      "error": "required_stream_missing",
+      "stream_gap_count": 1,
+      "manifest_status": "error",
+      "ready_marker": false,
+      "note": "Session manifest records error and no READY; partial raw and logs retained."
+    },
+    "disk_low": {
+      "method": "direct SessionRecorder with min_free_bytes=1e18",
+      "raised": "disk_low",
+      "error": "disk_low",
+      "ready": false,
+      "note": "No bag process was started; session directory/events retained for diagnosis."
+    },
+    "mcap_startup_regression": {
+      "observed": "old startup check required a non-empty bag file and rejected a healthy zero-byte MCAP at start",
+      "fixed": "existence of a bag_* file plus a live recorder is the readiness signal; stop re-validates with ros2 bag info",
+      "verified": "subsequent sessions reached raw_ready and bag info reported messages"
+    }
+  },
+  "deployment": {
+    "script": "tools/ros2_collection/deploy_readonly_agent.sh",
+    "modes": [
+      "--check",
+      "--apply",
+      "--stop",
+      "--rollback"
+    ],
+    "target": "existing container MentorPi; no system install; SSH auth delegated to user config",
+    "executed": false,
+    "reason": "Pi unreachable at 17:02-17:10Z"
   }
 }

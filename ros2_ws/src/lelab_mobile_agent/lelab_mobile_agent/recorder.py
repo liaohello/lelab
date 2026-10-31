@@ -115,7 +115,10 @@ class SessionRecorder:
                 self.bag_exit_code = self.bag_proc.returncode
                 return False
             if self.bag_dir is not None and self.bag_dir.is_dir():
-                if any(p.is_file() and p.stat().st_size > 0 for p in self.bag_dir.iterdir()):
+                # MCAP may create a zero-byte bag file until the first flush;
+                # existence plus a live recorder is the readiness signal.  The
+                # stop path re-checks the bag with `ros2 bag info`.
+                if any(p.is_file() and p.name.startswith("bag_") for p in self.bag_dir.iterdir()):
                     return True
             time.sleep(0.2)
         return False
@@ -150,6 +153,9 @@ class SessionRecorder:
             (self.session_dir / "episodes").mkdir()
             if self._disk_free() < self.min_free_bytes:
                 self._set_error("disk_low", f"free={self._disk_free()} required={self.min_free_bytes}")
+                self.session_id = None
+                self.session_dir = None
+                self.bag_dir = None
                 raise RuntimeError(self.error)
             topics = list(dict.fromkeys(
                 self.profile["recording"].get("topics", [])
@@ -157,6 +163,9 @@ class SessionRecorder:
             ))
             if not topics:
                 self._set_error("no_topics", "profile recording.topics is empty")
+                self.session_id = None
+                self.session_dir = None
+                self.bag_dir = None
                 raise RuntimeError(self.error)
             cmd = [
                 "ros2", "bag", "record",
@@ -177,6 +186,19 @@ class SessionRecorder:
                     self._set_error("recorder_startup_timeout", "bag directory or file not created", stop_bag=True)
                 else:
                     self._set_error("recorder_startup_failed", f"exit={self.bag_proc.returncode}")
+                if self.bag_proc.poll() is None:
+                    try:
+                        self.bag_proc.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        self.bag_proc.kill()
+                        self.bag_proc.wait(timeout=5)
+                if self.bag_log:
+                    self.bag_log.close()
+                    self.bag_log = None
+                self.bag_proc = None
+                self.session_id = None
+                self.session_dir = None
+                self.bag_dir = None
                 raise RuntimeError(self.error)
             session = {
                 "schema_version": 1,
