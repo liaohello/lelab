@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lelab_mobile_gazebo">
+  <gazebo>
+    <!-- Four-wheel mecanum execution.  The wheel contact surfaces are
+         post-processed by lelab_mobile_sim/scripts/spawn_robot.py to add the
+         45-degree friction directions expected by this system. -->
+    <plugin filename="gz-sim-mecanum-drive-system" name="gz::sim::systems::MecanumDrive">
+      <front_left_joint>wheel_left_front_joint</front_left_joint>
+      <front_right_joint>wheel_right_front_joint</front_right_joint>
+      <back_left_joint>wheel_left_back_joint</back_left_joint>
+      <back_right_joint>wheel_right_back_joint</back_right_joint>
+      <wheel_separation>0.147508</wheel_separation>
+      <wheelbase>0.134510</wheelbase>
+      <wheel_radius>0.0324</wheel_radius>
+      <max_linear_acceleration>2.0</max_linear_acceleration>
+      <max_angular_acceleration>4.0</max_angular_acceleration>
+      <topic>/lelab/base/cmd_vel</topic>
+      <odom_topic>/lelab/base/odom</odom_topic>
+      <tf_topic>/lelab/base/tf</tf_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+      <odom_publish_frequency>50</odom_publish_frequency>
+    </plugin>
+
+    <!-- Single joint-state source for all joints.  gz_ros2_control is
+         deliberately not paired with a joint_state_broadcaster, so joint
+         state, TF and recording all use this measured Gazebo stream. -->
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/lelab/gz_joint_states</topic>
+      <update_rate>50</update_rate>
+    </plugin>
+
+    <!-- The wheel contact model is retained for joint feedback, but the
+         reference chassis is a four-sphere approximation whose normal-load
+         distribution does not reproduce a real mecanum contact patch.  Body
+         velocity is therefore executed by Gazebo's planar velocity control
+         (same command topic) so the collection loop has a deterministic
+         3-DOF base.  This is a simulation-only limitation, not a hardware
+         claim; the arm/gripper/object contact path remains physical. -->
+    <plugin filename="gz-sim-velocity-control-system" name="gz::sim::systems::VelocityControl">
+      <topic>/lelab/base/cmd_vel</topic>
+      <initial_linear>0 0 0</initial_linear>
+      <initial_angular>0 0 0</initial_angular>
+    </plugin>
+
+    <!-- Simulation-only world pose, clearly not a policy observation. -->
+    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+      <publish_model_pose>true</publish_model_pose>
+      <publish_link_pose>false</publish_link_pose>
+      <publish_visual_pose>false</publish_visual_pose>
+      <use_pose_vector_msg>false</use_pose_vector_msg>
+      <topic>/lelab/base/pose</topic>
+    </plugin>
+  </gazebo>
+</robot>

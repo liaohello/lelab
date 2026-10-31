@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>lelab_mobile_agent</name>
+  <version>0.1.0</version>
+  <description>Car-side ROS gateway, watchdog, preview recorder and scripted expert for the LeLab mobile manipulator.</description>
+  <maintainer email="lelab@example.com">LeLab</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>trajectory_msgs</exec_depend>
+  <exec_depend>control_msgs</exec_depend>
+  <exec_depend>ros_gz_interfaces</exec_depend>
+  <exec_depend>rosbag2_py</exec_depend>
+  <exec_depend>python3-pillow</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

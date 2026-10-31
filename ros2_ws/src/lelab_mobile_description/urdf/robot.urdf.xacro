@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="lelab_mobile" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find lelab_mobile_description)/urdf/mecanum.xacro"/>
+  <xacro:include filename="$(find lelab_mobile_description)/urdf/arm.urdf.xacro"/>
+  <xacro:include filename="$(find lelab_mobile_description)/urdf/gripper.urdf.xacro"/>
+  <xacro:include filename="$(find lelab_mobile_description)/urdf/sensors.urdf.xacro"/>
+  <xacro:include filename="$(find lelab_mobile_description)/urdf/ros2_control.urdf.xacro"/>
+  <xacro:include filename="$(find lelab_mobile_description)/urdf/gazebo_sim.urdf.xacro"/>
+</robot>

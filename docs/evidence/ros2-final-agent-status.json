@@ -1,0 +1,67 @@
+{
+  "profile": "gazebo_mecanum_5dof_v1",
+  "control": {
+    "active": false,
+    "client_id": null,
+    "mode": "idle",
+    "expires_in_s": 0.0,
+    "estop_latched": false,
+    "last_reject": null,
+    "leader_arm_available": false
+  },
+  "safety": {
+    "estop": false,
+    "heartbeat_age_s": null,
+    "last_base_age_s": 1.022,
+    "arm_goal_active": false,
+    "gripper_goal_active": false,
+    "forwarded": 39,
+    "rejected": 0,
+    "last_reject": "",
+    "wall_time": 1793456611.2456114
+  },
+  "task_state": {
+    "cube": [
+      0.26,
+      -0.06,
+      0.01999999387458426
+    ],
+    "container": [
+      0.26,
+      0.07,
+      0.0
+    ]
+  },
+  "topics": {
+    "ages_s": {
+      "/clock": 0.001,
+      "/tf": 0.017,
+      "/joint_states": 0.001,
+      "/lelab/wrist/rgb/image_raw": 0.032,
+      "/lelab/base/odom": 0.017,
+      "/lelab/task/cube_pose": 0.001,
+      "/lelab/task/container_pose": 0.0
+    },
+    "missing": []
+  },
+  "recording": {
+    "active": false,
+    "session_id": null,
+    "session_dir": null,
+    "current_episode": null,
+    "episodes": [],
+    "error": null,
+    "ready": false,
+    "episode_id": null,
+    "episode_source": "",
+    "episode_max_lift_m": 0.0,
+    "episode_contacts": 0
+  },
+  "expert": {
+    "running": false,
+    "phase": "idle",
+    "error": null,
+    "started_wall": null,
+    "result": null
+  }
+}

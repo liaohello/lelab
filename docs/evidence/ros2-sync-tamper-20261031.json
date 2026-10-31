@@ -1,0 +1,10 @@
+{
+  "file": "session.json",
+  "expected_sha256": "84279486348ea1650ccbb8f897511e2dc977a73e9385c0962b034afc3d7f644b",
+  "expected_size": 1425,
+  "actual_sha256": "bd19235ce8ec011278a30ad133269459b340810bbe8bb40442042aef6ab7e55f",
+  "actual_size": 1425,
+  "verifier_accepts": false,
+  "rejected": true,
+  "timestamp_wall": 1793456526.259482
+}

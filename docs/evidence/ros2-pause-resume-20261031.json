@@ -1,0 +1,25 @@
+{
+  "pose_before": [
+    -0.098095,
+    0.124823,
+    -0.000497
+  ],
+  "pose_moving": [
+    -0.101195,
+    0.124819,
+    -0.000497
+  ],
+  "pose_during_pause": [
+    -0.101495,
+    0.124819,
+    -0.000497
+  ],
+  "pose_after_resume": [
+    -0.101495,
+    0.124819,
+    -0.000497
+  ],
+  "pause_service": "data: true",
+  "resume_service": "data: true",
+  "expectation": "watchdog wall-clock TTL expires during pause; resume must not replay the old velocity"
+}

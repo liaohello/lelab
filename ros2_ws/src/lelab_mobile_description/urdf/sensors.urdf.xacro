@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lelab_mobile_sensors">
+  <!--
+    The physical camera is mounted on link4 through camera_connect_link and
+    depth_cam_link.  The optical frame keeps the ROS optical convention
+    (x right, y down, z forward) while the Gazebo sensor looks along its own
+    +X axis, following the original mount.
+  -->
+  <!-- Virtual pitch child of the original depth_cam_link.  The camera is
+       still mounted on link4 through the original chain; this rotation only
+       points the wrist view toward the gripper workspace. -->
+  <link name="wrist_camera_tilt_link"/>
+  <joint name="wrist_camera_tilt_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0.55 0"/>
+    <parent link="depth_cam_link"/>
+    <child link="wrist_camera_tilt_link"/>
+  </joint>
+  <link name="wrist_camera_optical_frame"/>
+  <joint name="wrist_camera_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+    <parent link="wrist_camera_tilt_link"/>
+    <child link="wrist_camera_optical_frame"/>
+  </joint>
+
+  <gazebo reference="wrist_camera_tilt_link">
+    <sensor name="wrist_rgbd" type="rgbd_camera">
+      <pose>0 0 0 0 0 0</pose>
+      <always_on>1</always_on>
+      <update_rate>15</update_rate>
+      <visualize>false</visualize>
+      <topic>/lelab/wrist</topic>
+      <gz_frame_id>wrist_camera_optical_frame</gz_frame_id>
+      <camera>
+        <horizontal_fov>1.047</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>10.0</far>
+        </clip>
+      </camera>
+      <depth_camera>
+        <clip>
+          <near>0.05</near>
+          <far>10.0</far>
+        </clip>
+      </depth_camera>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="lidar_frame">
+    <sensor name="lidar" type="gpu_lidar">
+      <topic>/lelab/lidar/scan</topic>
+      <gz_frame_id>lidar_frame</gz_frame_id>
+      <update_rate>10</update_rate>
+      <always_on>1</always_on>
+      <visualize>false</visualize>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>270</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.46263</min_angle>
+            <max_angle>1.46263</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.08</min>
+          <max>10.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="imu_link">
+    <sensor name="imu" type="imu">
+      <topic>/lelab/imu</topic>
+      <gz_frame_id>imu_link</gz_frame_id>
+      <always_on>1</always_on>
+      <update_rate>50</update_rate>
+      <visualize>false</visualize>
+    </sensor>
+  </gazebo>
+</robot>

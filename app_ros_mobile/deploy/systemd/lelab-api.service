@@ -1,0 +1,27 @@
+[Unit]
+Description=LeLab Jetson API and built frontend
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=nvidia
+Group=nvidia
+SupplementaryGroups=dialout video docker
+WorkingDirectory=/home/nvidia/Desktop/lelab/current
+EnvironmentFile=/home/nvidia/Desktop/lelab/shared/config/jetson.env
+ExecStart=/home/nvidia/Desktop/lelab/current/deploy/jetson/run-api.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+KillSignal=SIGINT
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/nvidia/Desktop/lelab/shared
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

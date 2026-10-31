@@ -1,0 +1,30 @@
+{
+  "checked_on": "2026-10-31",
+  "scope": "Independent LeLab preflight tools; no reference-project runtime execution",
+  "synthetic_tests": {
+    "command": "PYTHONPATH=tools/ros2_collection python3 -m unittest discover -s tools/ros2_collection/tests -v",
+    "exit_code": 0,
+    "tests_run": 15,
+    "result": "OK",
+    "fixtures": "Temporary synthetic numeric arrays and RGB JPEGs; not real expert episodes"
+  },
+  "gazebo_source_audit": {
+    "entry": "/home/liaozhengyan/Desktop/resource/uavociety/robot_gazebo/urdf/robot.gazebo.xacro",
+    "tool": "tools/ros2_collection/inspect_sensors.py",
+    "exit_code": 0,
+    "rgb_declaration": true,
+    "depth_declaration": false,
+    "lidar_declaration": true,
+    "imu_declaration": false,
+    "unresolved_includes": 0,
+    "runtime_verified": false
+  },
+  "not_verified": [
+    "Actual expert episode contents",
+    "Physical pick-and-place success",
+    "ROS/Gazebo/RViz execution",
+    "Web preview or robot control integration",
+    "LeRobot export",
+    "Hardware or wireless behavior"
+  ]
+}

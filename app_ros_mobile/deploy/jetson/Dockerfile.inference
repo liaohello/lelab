@@ -1,0 +1,60 @@
+# LeRobot PolicyServer on the Jetson Orin iGPU.
+#
+# Goal: an NVIDIA-built PyTorch that actually contains sm_87 kernels (the
+# host venv's torch 2.11.0+cu128 does not), without touching the host install.
+#
+#   docker build -f deploy/jetson/Dockerfile.inference -t lelab-inference:local deploy
+FROM nvcr.io/nvidia/pytorch:25.06-py3-igpu
+
+ENV PYTHONUNBUFFERED=1 \
+    HF_HUB_DISABLE_XET=1 \
+    HF_HOME=/cache/huggingface \
+    HF_LEROBOT_HOME=/cache/lerobot
+
+# 第一步：lerobot 直接 import 的小依赖（--no-deps 装，避免连带升级 torch）。
+RUN python3 -m pip install --no-cache-dir --no-deps \
+      draccus==0.10.0 \
+      "grpcio>=1.73.1,<2.0.0" \
+      "protobuf>=6.31.1,<7.0.0" \
+      safetensors \
+      einops \
+      termcolor \
+      tqdm \
+      "huggingface_hub>=0.34,<1.0" \
+      av \
+      typing_inspect \
+      "pyyaml>=6.0" \
+      docstring_parser \
+      mergedeep \
+      gymnasium \
+      "datasets>=2.19" \
+      accelerate \
+      "transformers>=4.51,<5.0" \
+      "tokenizers>=0.21" \
+      regex \
+      requests \
+      filelock \
+      packaging \
+      imageio \
+      "pandas>=2.0" \
+      "pyarrow>=14.0"
+
+# 第二步：lerobot 本体用 --no-deps 安装。NGC 镜像里的 torchvision 是预发布版
+# （0.22.0a0+...），pip 会判定它 <0.22.0 从而与 lerobot 的 >=0.22.0 冲突，所以
+# 不走依赖解析，改为显式列出 import 链需要的包（见上面的清单），并由构建期
+# import 自检兜底。
+COPY lerobot /opt/lerobot
+RUN python3 -m pip install --no-cache-dir --no-deps -e /opt/lerobot
+
+# 构建期就暴露缺依赖（不要留到运行时才发现）
+RUN python3 -c "import torch, lerobot.policies, lerobot.async_inference.policy_server; print('import ok', torch.__version__)"
+
+COPY deploy/jetson/entrypoint-inference.sh /usr/local/bin/entrypoint-inference.sh
+COPY deploy/jetson/container-healthcheck.sh /usr/local/bin/container-healthcheck.sh
+RUN chmod +x /usr/local/bin/entrypoint-inference.sh /usr/local/bin/container-healthcheck.sh
+
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD /usr/local/bin/container-healthcheck.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint-inference.sh"]

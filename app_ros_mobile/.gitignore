@@ -1,0 +1,8 @@
+.venv/
+frontend/node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+ruff_cache/
+proj_state.md
+run_note.md

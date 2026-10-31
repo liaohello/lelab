@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1
+# Build context is the Jetson project root containing "current" (LeLab) and
+# "lerobot/current" (the matching LeRobot source release).
+# Example (only after JetPack/L4T compatibility is confirmed):
+#   docker build --build-arg BASE_IMAGE=nvcr.io/nvidia/pytorch:25.04-py3-igpu \
+#     -f current/deploy/jetson/Containerfile -t lelab-jetson:local .
+ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:25.04-py3-igpu
+FROM ${BASE_IMAGE}
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    UV_PROJECT_ENVIRONMENT=/opt/lelab-venv \
+    PATH=/opt/lelab-venv/bin:/root/.local/bin:${PATH}
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg git libgl1 libglib2.0-0 rsync \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY lerobot/current /opt/src/lerobot
+COPY current /opt/src/lelab
+
+# Preserve NVIDIA's JetPack-matched torch stack from the base image. uv must not replace
+# torch, torchvision, or torchcodec with generic Linux wheels.
+RUN python -m venv --system-site-packages /opt/lelab-venv \
+    && python -m pip install --no-cache-dir uv \
+    && uv sync --project /opt/src/lerobot --extra feetech --extra async \
+       --no-install-package torch \
+       --no-install-package torchvision \
+       --no-install-package torchcodec \
+    && uv pip install --python /opt/lelab-venv/bin/python \
+       "fastapi[standard]>=0.115.12" \
+       "websockets>=15.0.1" \
+       "uvicorn>=0.24.0" \
+       "psutil>=5.9.0" \
+    && uv pip install --python /opt/lelab-venv/bin/python --no-deps -e /opt/src/lelab \
+    && python -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"
+
+WORKDIR /opt/src/lelab
+EXPOSE 8000
+ENTRYPOINT ["/opt/lelab-venv/bin/python", "-m", "uvicorn"]
+CMD ["lelab.server:app", "--host", "127.0.0.1", "--port", "8000"]

@@ -1,0 +1,21 @@
+{
+  "bridge_pids": [
+    1528627
+  ],
+  "pose_before": [
+    -0.101495,
+    0.124819,
+    -0.000497
+  ],
+  "pose_moving": [
+    -0.140345,
+    0.124763,
+    -0.000497
+  ],
+  "pose_after_bridge_kill": [
+    -0.140795,
+    0.124763,
+    -0.000497
+  ],
+  "watchdog_fallback": "odometry-stale check triggers a direct gz zero without ros_gz_bridge"
+}

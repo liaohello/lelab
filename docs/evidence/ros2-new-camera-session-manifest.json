@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "session_id": "ros_20261031T140351Z_14a78c2b",
+  "task": "Approach the orange cube, grasp it with the wrist-mounted gripper and place it in the blue container.",
+  "status": "raw_ready",
+  "profile": "gazebo_mecanum_5dof_v1",
+  "metadata": {
+    "agent_version": "0.1.0",
+    "ros_distro": "jazzy",
+    "gazebo_version": "8.10.0",
+    "profile": "gazebo_mecanum_5dof_v1",
+    "profile_sha256": "43328a72202c6b02a59eb5cdf2e45581895ceb516aad6b77073fd986cd931af3",
+    "model_sdf": "/home/liaozhengyan/Desktop/lelab/work/ros2_collection/car/runtime/lelab_mobile.sdf",
+    "model_sdf_sha256": "7b57b44e4b815db984d2deef5e6f32b238d5367f43f5d281f7a74a45759cfbcc",
+    "source": "simulation",
+    "time_domain": "ros_sim_time_plus_wall_clock_for_ttl"
+  },
+  "episodes": [
+    {
+      "episode_id": "ep_1793455443_7d6e97",
+      "source": "scripted_expert",
+      "status": "saved",
+      "started_sim_ns": 100431000000,
+      "ended_sim_ns": 127163000000,
+      "evaluation": {
+        "success": false,
+        "failure_reasons": [
+          "insufficient_lift",
+          "not_inside_container"
+        ],
+        "cube_final": [
+          0.2587335012205801,
+          -0.0663077417602686,
+          0.01999999387456351
+        ],
+        "cube_initial": [
+          0.2548648005986902,
+          -0.059467988257313385,
+          0.023282799866724924
+        ],
+        "container": [
+          0.26,
+          0.07,
+          0.0
+        ],
+        "max_lift_m": 0.027106213590505118,
+        "lift_above_initial_m": 0.0038234137237801932,
+        "gripper_contact_events": 6580,
+        "inside_container": false,
+        "phases": [
+          {
+            "phase": "record_start",
+            "sim_time_ns": 100431000000
+          },
+          {
+            "phase": "reset_task",
+            "sim_time_ns": 100437000000,
+            "wall_time": 1793455443.028598
+          },
+          {
+            "phase": "pre_grasp",
+            "sim_time_ns": 104217000000,
+            "wall_time": 1793455447.6435864
+          },
+          {
+            "phase": "grasp",
+            "sim_time_ns": 107121000000,
+            "wall_time": 1793455450.8359885
+          },
+          {
+            "phase": "lift",
+            "sim_time_ns": 109135000000,
+            "wall_time": 1793455453.4444816
+          },
+          {
+            "phase": "carry_base",
+            "sim_time_ns": 111886000000,
+            "wall_time": 1793455456.7529817
+          },
+          {
+            "phase": "release",
+            "sim_time_ns": 122947000000,
+            "wall_time": 1793455469.2855392
+          },
+          {
+            "phase": "retreat",
+            "sim_time_ns": 124287000000,
+            "wall_time": 1793455470.7535331
+          },
+          {
+            "phase": "complete",
+            "sim_time_ns": 127163000000,
+            "wall_time": 1793455473.9497526
+          }
+        ],
+        "privileged_truth_used_for_scripted_expert_only": true,
+        "timestamp_wall": 1793455473.949916
+      }
+    },
+    {
+      "episode_id": "ep_1793455500_715262",
+      "source": "scripted_expert",
+      "status": "saved",
+      "started_sim_ns": 150202000000,
+      "ended_sim_ns": 168861000000,
+      "evaluation": {
+        "success": true,
+        "failure_reasons": [],
+        "cube_final": [
+          0.2728659221058308,
+          0.0630276246855139,
+          0.022999993874590764
+        ],
+        "cube_initial": [
+          0.2587335012205801,
+          -0.0663077417602686,
+          0.019999993874565376
+        ],
+        "container": [
+          0.26,
+          0.07,
+          0.0
+        ],
+        "max_lift_m": 0.04858060457968816,
+        "lift_above_initial_m": 0.028580610705122782,
+        "gripper_contact_events": 13071,
+        "inside_container": true,
+        "phases": [
+          {
+            "phase": "record_start",
+            "sim_time_ns": 150202000000
+          },
+          {
+            "phase": "reset_task",
+            "sim_time_ns": 150212000000,
+            "wall_time": 1793455500.0466502
+          },
+          {
+            "phase": "pre_grasp",
+            "sim_time_ns": 151912000000,
+            "wall_time": 1793455502.185435
+          },
+          {
+            "phase": "grasp",
+            "sim_time_ns": 154785000000,
+            "wall_time": 1793455505.38608
+          },
+          {
+            "phase": "lift",
+            "sim_time_ns": 156887000000,
+            "wall_time": 1793455507.7313247
+          },
+          {
+            "phase": "carry_base",
+            "sim_time_ns": 159633000000,
+            "wall_time": 1793455511.013047
+          },
+          {
+            "phase": "release",
+            "sim_time_ns": 164702000000,
+            "wall_time": 1793455517.134231
+          },
+          {
+            "phase": "retreat",
+            "sim_time_ns": 166002000000,
+            "wall_time": 1793455518.6099174
+          },
+          {
+            "phase": "complete",
+            "sim_time_ns": 168861000000,
+            "wall_time": 1793455521.7146018
+          }
+        ],
+        "privileged_truth_used_for_scripted_expert_only": true,
+        "timestamp_wall": 1793455521.7147355
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "episodes/ep_1793455443_7d6e97.json",
+      "size": 2893,
+      "sha256": "b11a4009f3a59c43b2a3f3bd48e5b70ff0eede1b9142a742c8ab3164d0e8682c"
+    },
+    {
+      "path": "episodes/ep_1793455500_715262.json",
+      "size": 2814,
+      "sha256": "e4855a9ac7d66fcd611bc705abf4ac6c900a8775a91aadc7cde42a0a18d7b1cc"
+    },
+    {
+      "path": "events.jsonl",
+      "size": 5887,
+      "sha256": "63fe8b0a4808ca9b5fb3e0a20231fb232b564a1ff6813e9c5f215bd01a674479"
+    },
+    {
+      "path": "raw/bag/bag_0.mcap",
+      "size": 2974898675,
+      "sha256": "ee82994a62b8453408456db27eb7a39ad5e0f00e3e264b129fea748508387a6a"
+    },
+    {
+      "path": "raw/bag/metadata.yaml",
+      "size": 15330,
+      "sha256": "ff3097f035ef3f5b5a6c633139a9158c6e3c85d25c6bf2bf623eca41a383deb1"
+    },
+    {
+      "path": "recording.log",
+      "size": 3464,
+      "sha256": "2c7e7c79778f46511b009901b8fb23d9e0b26515559282bdb18a5327366fcd6e"
+    },
+    {
+      "path": "session.json",
+      "size": 1425,
+      "sha256": "84279486348ea1650ccbb8f897511e2dc977a73e9385c0962b034afc3d7f644b"
+    }
+  ],
+  "error": null
+}

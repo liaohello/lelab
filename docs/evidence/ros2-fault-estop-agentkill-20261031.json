@@ -1,0 +1,60 @@
+{
+  "estop": {
+    "pose_before": [
+      -0.066145,
+      0.124869,
+      -0.000497
+    ],
+    "pose_moving": [
+      -0.097545,
+      0.124824,
+      -0.000497
+    ],
+    "pose_after": [
+      -0.097545,
+      0.124824,
+      -0.000497
+    ],
+    "response": [
+      200,
+      {
+        "estop": true,
+        "reason": "fault-test-estop"
+      }
+    ],
+    "mode": "idle",
+    "latched": true,
+    "safety_estop": true,
+    "watchdog_heartbeat_age": 2.041
+  },
+  "agent_kill": {
+    "pids": [
+      "1557652",
+      "1557699",
+      "1558028"
+    ],
+    "pose_before": [
+      -0.097545,
+      0.124824,
+      -0.000497
+    ],
+    "pose_after": [
+      -0.098095,
+      0.124823,
+      -0.000497
+    ]
+  },
+  "acquire": 200,
+  "clear": [
+    200,
+    {
+      "estop": false
+    }
+  ],
+  "release": [
+    200,
+    {
+      "ok": true
+    }
+  ]
+}

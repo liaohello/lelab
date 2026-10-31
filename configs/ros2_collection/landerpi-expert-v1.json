@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "status": "planned_runtime_profile_with_implemented_preflight",
+  "robot": "landerpi_mecanum_5dof_with_gripper",
+  "task": "Approach the cube, pick it up and place it in a container.",
+  "control": {
+    "base_source": "keyboard",
+    "arm_source_initial": "scripted_expert",
+    "arm_source_future": "leader_arm",
+    "leader_hardware_driver": null,
+    "joint_mapping_and_gripper_calibration": null,
+    "replay_to_hardware_enabled": false,
+    "all_sources_require_existing_lelab_lease_and_ros_watchdog": true
+  },
+  "sensors": {
+    "wrist_rgb": {
+      "required": true,
+      "mount_chain": ["link4", "camera_connect_link", "depth_cam_link"],
+      "training_feature": "observation.images.link4_rgb",
+      "planned_ros_topic": "/lelab/wrist/rgb/image_raw",
+      "desired_resolution_wh": [640, 480],
+      "desired_capture_hz": 15,
+      "runtime_verified": false
+    },
+    "wrist_depth": {
+      "record_raw_when_available": true,
+      "training_input_initial": false,
+      "planned_ros_topic": "/lelab/wrist/depth/image_raw",
+      "units": "metres_or_explicitly_declared_millimetres",
+      "gazebo_rgbd_sensor_migration_required": true
+    },
+    "lidar": {
+      "record_raw_when_available": true,
+      "training_input_initial": false,
+      "source_declared_topic": "scan",
+      "runtime_verified": false
+    },
+    "front_rgb": {"required_for_new_profile": false, "preserve_if_present_in_imported_expert_data": true}
+  },
+  "expert_import": {
+    "enabled_for_current_stage": false,
+    "existing_episodes_available": false,
+    "format": "mobilecar_scripted_oracle_episode_npz",
+    "source_backend_expected": "mujoco",
+    "source_backend_runtime_verified": false,
+    "source_fps": "preserve_metadata_fps",
+    "state_dim": 16,
+    "action_dim": 9,
+    "gripper_action_unit": "width_metres",
+    "joint_action_unit": "absolute_user_radians_requires_explicit_gazebo_mapping",
+    "human_demonstration": false,
+    "physical_success_verified_by_preflight": false,
+    "lerobot_export_implemented_in_this_profile": false
+  },
+  "expert_generation": {
+    "status": "deferred_until_gazebo_control_ready",
+    "target_backend": "gazebo",
+    "source_label": "scripted_expert",
+    "requires_verified_model_and_control": true,
+    "record_script_version_seed_and_privileged_inputs": true,
+    "implemented": false
+  }
+}
