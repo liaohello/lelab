@@ -309,7 +309,9 @@
     ],
     "target": "existing container MentorPi; no system install; SSH auth delegated to user config",
     "executed": false,
-    "reason": "Pi unreachable at 17:02-17:10Z"
+    "reason": "Pi unreachable at 17:02-17:10Z",
+    "check_attempted": "2026-10-31T17:14Z",
+    "check_result": "SSH connect timeout; script exited 1 with \"Pi is not reachable via SSH; no remote changes made.\""
   },
   "export_cancel": {
     "method": "real sleep process registered as export job; POST-like export_cancel called",
