@@ -230,7 +230,8 @@
       "state": "UP but NO-CARRIER; ethtool Link detected: no",
       "host_active_interface": "wlp1s0 192.168.31.54/24",
       "pi_subnet": "192.168.19.0/24 has no route on host",
-      "meaning": "The host is no longer on the Pi wired subnet; this is a physical link/power/network state, not a Pi ROS conclusion."
+      "meaning": "The host is no longer on the Pi wired subnet; this is a physical link/power/network state, not a Pi ROS conclusion.",
+      "wifi_subnet_ssh_scan": "192.168.31.0/24 port 22: no hosts answered (0.4s connect timeout); does not prove the Pi is absent behind a firewall"
     }
   },
   "pi_passive_observation": {
@@ -303,5 +304,13 @@
     "status": "canceled",
     "exit_code": -15,
     "process_alive": false
+  },
+  "readonly_task_identity": {
+    "session_id": "ros_20261031T171244Z_4a7264fe",
+    "initial_task": "hardware_readonly_observation",
+    "evaluation_task": "hardware_readonly_observation",
+    "success": "unknown",
+    "status": "raw_ready",
+    "ready": true
   }
 }

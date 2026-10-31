@@ -99,8 +99,9 @@ class MobileAgent(Node):
         sensor_cfg = self.profile.get("sensors", {}).get("wrist_rgb", {})
         self.camera_profile = self.get_parameter("camera_profile").value or sensor_cfg.get("profile_id") or self.runtime.get("camera_profile_default")
         self.camera_extrinsics = (sensor_cfg.get("profiles", {}) or {}).get(self.camera_profile, {})
-        self.task_name = self.get_parameter("task_name").value or "place_in_tray"
-        if self.task_name not in ("place_in_tray", "place_on_box"):
+        default_task = self.profile.get("task", {}).get("id") if self.read_only else "place_in_tray"
+        self.task_name = self.get_parameter("task_name").value or default_task
+        if not self.read_only and self.task_name not in ("place_in_tray", "place_on_box"):
             raise RuntimeError(f"unknown task_name {self.task_name!r}")
         self.rgb_topic = sensor_cfg.get("rgb_topic") or self.profile.get("features", {}).get("image", {}).get("topic")
         self.camera_info_topic = sensor_cfg.get("camera_info_topic")
@@ -745,6 +746,7 @@ class MobileAgent(Node):
             "actuator_outputs": self.actuator_outputs,
             "camera_profile": self.camera_profile,
             "camera_extrinsics": self.camera_extrinsics,
+            "task_name": self.task_name,
             "training_export": bool(self.profile.get("training_export", {}).get("enabled")) and not self.read_only,
             "required_topics": list(self.profile.get("recording", {}).get("required_topics", [])),
             "camera_topic": self.rgb_topic,
@@ -764,7 +766,6 @@ class MobileAgent(Node):
             "gazebo_version": gz_version,
             "model_sdf": str(self.model_sdf), "model_sdf_sha256": model_hash,
             "base_velocity_topic": self.base_topic, "wheel_odometry_topic": self.wheel_topic,
-            "task_name": self.task_name,
             "task_config": self.profile.get("task", {}).get(self.task_name, {}),
             "task_truth_topics": {
                 "cube": "/lelab/task/cube_pose",
@@ -840,7 +841,7 @@ class MobileAgent(Node):
     def _evaluate(self) -> dict:
         if self.read_only:
             return {
-                "success": "unknown", "labels": "unlabeled", "failure_reasons": [],
+                "success": "unknown", "labels": "unlabeled", "task": self.task_name, "failure_reasons": [],
                 "reason": "hardware_readonly_has_no_actuation_or_state_labels",
                 "camera_profile": self.camera_profile,
                 "privileged_truth_used_for_scripted_expert_only": False,
