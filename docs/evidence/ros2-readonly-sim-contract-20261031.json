@@ -401,5 +401,20 @@
     "bug": "new upper backend treated a read-only agent as controllable before its first /status poll",
     "fix": "agent_token_required lazily refreshes /status when no status has been observed",
     "verified": "start-session succeeded through a freshly started backend without control token"
+  },
+  "preview_backend_fallback": {
+    "method": "agent started with a meta-path blocker making PIL unimportable; OpenCV 5.0 available",
+    "status": {
+      "preview_backend": "opencv",
+      "rgb_fps": 13.23,
+      "stale": false,
+      "preview_seq": 102
+    },
+    "preview_http": {
+      "status": 200,
+      "bytes": 10891,
+      "format": "JPEG 640x480 3 components"
+    },
+    "note": "Confirms the camera-only Pi image can preview without Pillow; real Pi dependency presence is checked by deploy --check."
   }
 }
