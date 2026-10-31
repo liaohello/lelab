@@ -297,6 +297,15 @@
       "observed": "old startup check required a non-empty bag file and rejected a healthy zero-byte MCAP at start",
       "fixed": "existence of a bag_* file plus a live recorder is the readiness signal; stop re-validates with ros2 bag info",
       "verified": "subsequent sessions reached raw_ready and bag info reported messages"
+    },
+    "mid_session_disk_low": {
+      "method": "SessionRecorder with a fake bag process; min_free_bytes raised after start",
+      "result": {
+        "error": "disk_low",
+        "manifest_status": "error",
+        "ready_marker": false
+      },
+      "test_file": "tools/ros2_collection/tests/test_recorder_faults.py"
     }
   },
   "deployment": {
