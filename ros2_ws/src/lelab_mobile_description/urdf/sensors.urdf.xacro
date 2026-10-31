@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lelab_mobile_sensors">
+  <xacro:arg name="wrist_camera_pitch" default="0.55"/>
   <!--
     The physical camera is mounted on link4 through camera_connect_link and
     depth_cam_link.  The optical frame keeps the ROS optical convention
@@ -11,7 +12,7 @@
        points the wrist view toward the gripper workspace. -->
   <link name="wrist_camera_tilt_link"/>
   <joint name="wrist_camera_tilt_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0.55 0"/>
+    <origin xyz="0 0 0" rpy="0 $(arg wrist_camera_pitch) 0"/>
     <parent link="depth_cam_link"/>
     <child link="wrist_camera_tilt_link"/>
   </joint>

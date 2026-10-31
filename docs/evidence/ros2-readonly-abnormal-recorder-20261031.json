@@ -1,0 +1,18 @@
+{
+  "session_id": "ros_20261031T155753Z_ee7808e9",
+  "bag_pids": [
+    1739692
+  ],
+  "recording_status": {
+    "active": false,
+    "error": "bag_exited_early",
+    "error_detail": "exit=-9",
+    "ready": false,
+    "bag_exit_code": -9,
+    "bag_readable": false
+  },
+  "ready_file": false,
+  "manifest_status": "error",
+  "manifest_error": "bag_exited_early",
+  "ready_eligible": false
+}

@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-31",
+  "scope": "Local Jazzy/Harmonic simulation and read-only adapter. A passive Pi probe succeeded earlier on 2026-10-31 (real camera topics), but the Pi was unreachable again at 17:02Z; no Pi deployment or Pi recording was completed. Do not treat local results as hardware evidence.",
+  "read_only_agent": {
+    "node": "/lelab_readonly_test",
+    "profile": "readonly_local_sim_sensor_test_v1",
+    "mode": "hardware_readonly",
+    "ros_publishers": [
+      "/lelab/events",
+      "/parameter_events",
+      "/rosout"
+    ],
+    "actuator_publishers_from_agent": [],
+    "camera_topic": "/lelab/wrist/rgb/image_raw",
+    "camera_rate_fps_observed": 13.93,
+    "clock_domain": "local_ros_clock",
+    "refused": {
+      "control/base": "403 readonly hardware mode does not accept actuator commands",
+      "expert": "403 scripted expert is disabled in hardware_readonly mode",
+      "reset": "403 read-only refusal (agent route)"
+    },
+    "note": "The ROS graph still has publishers for actuator topics from the simulation agent/watchdog; the read-only node itself publishes none."
+  },
+  "sessions": {
+    "readonly_two_episodes": {
+      "session_id": "ros_20261031T170156Z_1a91b4ad",
+      "status": "raw_ready",
+      "stop_reason": "normal",
+      "bag_exit_code": 0,
+      "bag_readable": true,
+      "ready_marker": true,
+      "ready_manifest_sha256_matches": true,
+      "manifest_sha256": "48063b79d654dbd03f24b57d6cdf7d168c947f18e638921aed77bdd418434ecb",
+      "files": 7,
+      "hash_mismatch": [],
+      "episodes": [
+        {
+          "episode_id": "ep_1793466118_c0ff6f",
+          "status": "saved",
+          "success": "unknown"
+        },
+        {
+          "episode_id": "ep_1793466119_f4b2f8",
+          "status": "saved",
+          "success": "unknown"
+        }
+      ],
+      "bag_files": [
+        "bag_0.mcap",
+        "metadata.yaml"
+      ],
+      "clock_domain": "local_ros_clock",
+      "required_topics": [
+        "/lelab/wrist/rgb/image_raw"
+      ]
+    },
+    "readonly_upper_disconnect_local_stop": {
+      "session_id": "ros_20261031T170238Z_95697d4f",
+      "status": "raw_ready",
+      "stop_reason": "upper-disconnected-local-stop",
+      "bag_exit_code": 0,
+      "bag_readable": true,
+      "ready_marker": true,
+      "ready_manifest_sha256_matches": true,
+      "manifest_sha256": "f72ce621e8f400f634aee31373388591d20e77ace380071d4b22f1594fd3c714",
+      "files": 6,
+      "hash_mismatch": [],
+      "episodes": [
+        {
+          "episode_id": "ep_1793466160_9c6d9d",
+          "status": "saved",
+          "success": "unknown"
+        }
+      ],
+      "bag_files": [
+        "bag_0.mcap",
+        "metadata.yaml"
+      ],
+      "clock_domain": "local_ros_clock",
+      "required_topics": [
+        "/lelab/wrist/rgb/image_raw"
+      ]
+    },
+    "sim_tray_success": {
+      "session_id": "ros_20261031T164152Z_4a59021d",
+      "status": "raw_ready",
+      "stop_reason": "normal",
+      "bag_exit_code": 0,
+      "bag_readable": true,
+      "ready_marker": true,
+      "ready_manifest_sha256_matches": true,
+      "manifest_sha256": "1214e278e26746f77182850f0f1048f299a9b2a9bc1b6b687d5cd4d4c985d92f",
+      "files": 6,
+      "hash_mismatch": [],
+      "episodes": [
+        {
+          "episode_id": "ep_1793464914_03ffed",
+          "status": "saved",
+          "success": true
+        }
+      ],
+      "bag_files": [
+        "bag_0.mcap",
+        "metadata.yaml"
+      ],
+      "clock_domain": "ros_sim_time",
+      "required_topics": [
+        "/lelab/recording/joint_states",
+        "/lelab/wrist/rgb/image_raw",
+        "/lelab/base/model_odom"
+      ]
+    },
+    "sim_box_success": {
+      "session_id": "ros_20261031T165901Z_fa5a85da",
+      "status": "raw_ready",
+      "stop_reason": "normal",
+      "bag_exit_code": 0,
+      "bag_readable": true,
+      "ready_marker": true,
+      "ready_manifest_sha256_matches": true,
+      "manifest_sha256": "78b6a1fdf93b750ba9d0382a70e3f9b49eb09894db8871014400ec184953aa2a",
+      "files": 6,
+      "hash_mismatch": [],
+      "episodes": [
+        {
+          "episode_id": "ep_1793465943_76af40",
+          "status": "saved",
+          "success": true
+        }
+      ],
+      "bag_files": [
+        "bag_0.mcap",
+        "metadata.yaml"
+      ],
+      "clock_domain": "ros_sim_time",
+      "required_topics": [
+        "/lelab/recording/joint_states",
+        "/lelab/wrist/rgb/image_raw",
+        "/lelab/base/model_odom"
+      ]
+    }
+  },
+  "upper_sync": {
+    "session_id": "ros_20261031T170156Z_1a91b4ad",
+    "verified_files": 7,
+    "manifest_sha256": "48063b79d654dbd03f24b57d6cdf7d168c947f18e638921aed77bdd418434ecb",
+    "export_http_status": 409,
+    "export_detail": "only simulation sessions with action/feedback can be exported for training"
+  },
+  "abnormal_recorder": {
+    "session_id": "ros_20261031T155753Z_ee7808e9",
+    "error": "bag_exited_early",
+    "bag_exit_code": -9,
+    "ready_marker": false,
+    "reference": "docs/evidence/ros2-readonly-abnormal-recorder-20261031.json"
+  },
+  "sim_contract": {
+    "base_state": {
+      "topic": "/lelab/base/model_odom",
+      "source": "gazebo_model_odometry",
+      "wheel_odometry_topic": "/lelab/base/odom",
+      "wheel_odometry_role": "diagnostic_only",
+      "forward_0_05_m_s_2_4s": {
+        "model_pose_after": [
+          0.07132234063955219,
+          4.797294103403709e-05,
+          -0.000393298962736194
+        ],
+        "wheel_pose_after": [
+          0.09020000001416036,
+          1.531025332384627e-11,
+          1.220550793002424e-10
+        ],
+        "peak_model_vx": 0.04999997977943322,
+        "peak_wheel_vx": 0.05000000000012703
+      }
+    },
+    "camera_profiles": {
+      "wrist_demo_downward": {
+        "tilt_rad": 0.55,
+        "dataset": "lelab/ros-mobile-20261031t164152z-4a59021d"
+      },
+      "wrist_original": {
+        "tilt_rad": 0.0,
+        "dataset": "lelab/ros-mobile-20261031t165901z-fa5a85da"
+      }
+    },
+    "place_on_box": {
+      "world": "place_on_box.sdf",
+      "world_name": "pick_place",
+      "box_top_z_m": 0.06,
+      "evaluation": {
+        "success": true,
+        "box_top_support": true,
+        "gripper_retreated": true,
+        "lift_above_initial_m": 0.08042652245787495,
+        "threshold_m": 0.03
+      }
+    }
+  },
+  "datasets": [
+    {
+      "repo_id": "lelab/ros-mobile-20261031t164152z-4a59021d",
+      "frames": 200,
+      "episodes": 1,
+      "camera_profile": "wrist_demo_downward",
+      "base_velocity_source": "gazebo_model_odometry",
+      "sdk_readback": true,
+      "web_listing": true
+    },
+    {
+      "repo_id": "lelab/ros-mobile-20261031t165901z-fa5a85da",
+      "frames": 200,
+      "episodes": 1,
+      "camera_profile": "wrist_original",
+      "base_velocity_source": "gazebo_model_odometry",
+      "sdk_readback": true
+    }
+  ],
+  "raspberry_pi": {
+    "target": "pi@192.168.19.138",
+    "attempted_at": "2026-10-31T17:02Z",
+    "ssh": "connect to host 192.168.19.138 port 22: Connection timed out (BatchMode, no credentials exposed)",
+    "ping": "2 packets transmitted, 0 received, 100% packet loss",
+    "status": "blocked; real camera, real bag, Pi deployment and Pi disconnect test remain unverified"
+  },
+  "pi_passive_observation": {
+    "observed_at": "2026-10-31T15:54Z",
+    "source": "docs/evidence/raspberry-pi-recheck-20261031.json",
+    "container": "MentorPi, ros:humble, Ubuntu 22.04, Python 3.10.12, host network",
+    "sensor_topics_confirmed": {
+      "rgb": "/ascamera/camera_publisher/rgb0/image (640x400 bgr8, ~8.59 Hz receiver-side)",
+      "rgb_camera_info": "/ascamera/camera_publisher/rgb0/camera_info",
+      "depth": "/ascamera/camera_publisher/depth0/image_raw (640x400 mono16, ~11.76 Hz receiver-side)",
+      "imu": "/imu, /imu_corrected, /ros_robot_controller/imu_raw (~46 Hz)",
+      "odom": "/odom (~30 Hz), /odom_raw (~47 Hz command integration, not encoder odometry)",
+      "joint_states": "/joint_states (~20 Hz), /controller_manager/joint_states (~46.8 Hz; servo state is target cache, not verified encoder feedback)"
+    },
+    "camera_snapshot": "work/ros2_collection/pi_assessment_20261031/aurora_rgb.jpg 640x400 sha256=131159372c4a6f503c1439eec9d57cfac09538e5bb1791798d865fddb33d8af9",
+    "mcap": "no MCAP plugin visible; sqlite3 plugin visible",
+    "clock": "Pi wall clock about 2026-04-08 while workstation was 2026-10-31; not synchronized; do not align cross-host wall times",
+    "not_done": [
+      "no deployment",
+      "no Pi bag recording",
+      "no web consumption of real camera",
+      "no upper-disconnect test on Pi"
+    ]
+  },
+  "hardware_readonly_profile": {
+    "file": "configs/ros2_collection/hardware-readonly-v1.json",
+    "rgb_topic_filled_from_probe": true,
+    "raw_storage": "sqlite3 (MCAP unavailable)",
+    "training_export": false,
+    "caveat": "camera extrinsics/optical transform and arm/gripper feedback remain unverified; profile refuses training export"
+  }
+}

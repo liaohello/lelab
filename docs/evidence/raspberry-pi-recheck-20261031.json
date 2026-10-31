@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "artifact_type": "sanitized_reboot_reassessment_summary",
+  "workstation_observation_date_utc": "2026-10-31",
+  "last_workstation_clock_observed_utc": "2026-10-31T15:54:13Z",
+  "target": "pi@192.168.19.138",
+  "previous_assessment": "raspberry-pi-assessment-20261031.json",
+  "trigger": "User rebooted robot and reported SSH restored",
+  "scope": "read-only host/container/source inspection and passive subscriptions to existing ROS sensor publishers",
+  "network": {
+    "path": "wired Ethernet from 192.168.19.137",
+    "ping_sent": 10,
+    "ping_received": 10,
+    "ping_loss_percent": 0,
+    "rtt_ms": {"minimum": 0.227, "average": 0.249, "maximum": 0.338},
+    "ssh_queries": "successful after user reboot",
+    "wifi_performance": "not_tested",
+    "previous_failure_root_cause": "unresolved; recovery after reboot does not identify cause"
+  },
+  "host": {
+    "os": "Debian 12 aarch64, Raspberry Pi 5",
+    "root_df_hT": "/dev/mmcblk0p2 ext4 57G 46G 8.7G 84% /",
+    "available_memory_gib_approx": 6.1,
+    "temperature_c": 49.9,
+    "throttled": "0x0",
+    "active_services": ["ssh", "docker", "containerd", "systemd-timesyncd"],
+    "kernel_error_query": "journalctl read-only query timed out after 5 seconds; no kernel-log conclusion"
+  },
+  "clock": {
+    "pi_utc_reported": "2026-04-08T17:43:35.272122+00:00",
+    "container_utc_reported_in_another_probe": "2026-04-08T17:45:19Z",
+    "workstation_utc_near_first_probe": "2026-10-31T15:44:18Z",
+    "timezone": "Asia/Hong_Kong",
+    "ntp_active": true,
+    "system_clock_synchronized": false,
+    "rtc": "reported near 1970",
+    "status": "large cross-host wall-clock mismatch; not corrected in this assessment",
+    "caution": "Do not subtract workstation and Pi wall times for freshness or alignment. Container shares the host clock; local relative ordering does not prove cross-host synchronization."
+  },
+  "runtime": {
+    "container": "MentorPi",
+    "container_id_prefix": "adb8457c2eec",
+    "image_tag": "ros:humble",
+    "container_os": "Ubuntu 22.04",
+    "python": "3.10.12",
+    "ros_distro": "humble",
+    "network_mode": "host",
+    "default_docker_exec_uid": 0,
+    "observed_driver_uid": 1000,
+    "workspaces": ["/home/ubuntu/ros2_ws", "/home/ubuntu/third_party_ros2/third_party_ws"],
+    "driver_environment_whitelist": {
+      "MACHINE_TYPE": "LanderPi_Mecanum",
+      "DEPTH_CAMERA_TYPE": "aurora",
+      "LIDAR_TYPE": "MS200",
+      "ROS_DOMAIN_ID": "0",
+      "ROS_LOCALHOST_ONLY": "0",
+      "ROS_DISTRO": "humble",
+      "need_compile": "False"
+    },
+    "rmw": "RMW_IMPLEMENTATION not explicitly set in inspected driver environment; an existing daemon selected rmw_fastrtps_cpp. Not a per-node runtime proof.",
+    "existing_autostart": "ros2 launch bringup bringup.launch.py; launch includes controllers, sensors, apps, joystick and init pose; not restarted by this assessment",
+    "web_video_server": "0.0.0.0:8080, existing service",
+    "rosbridge": "0.0.0.0:9090, existing service",
+    "rosbag_cli": "available",
+    "visible_storage_plugins": ["my_test_plugin", "my_read_only_test_plugin", "sqlite3"],
+    "mcap": "not present in visible plugin list or checked package/files; current recorder hardcodes mcap",
+    "use_sim_time": "launch/config sources use false; runtime parameter reads from initial probe could not resolve nodes, so runtime value not verified"
+  },
+  "passive_probe": {
+    "actuator_publishers_or_clients_created": false,
+    "logging": "rosout and external-library logging disabled; parameter services disabled on audit nodes",
+    "qos": "best_effort, volatile, depth 3",
+    "attempt_1": {"default_exec_uid": 0, "duration_s": 14.0454, "sensor_topics_discovered": 20, "received_streams": 0},
+    "attempt_2": {
+      "exec_uid": 1000,
+      "environment": {"HOME": "/home/ubuntu", "ROS_DOMAIN_ID": "0", "ROS_LOCALHOST_ONLY": "0"},
+      "duration_s": 14.0042,
+      "sensor_topics_discovered": 20,
+      "received_stream_count": 12,
+      "streams": {
+        "/ascamera/camera_publisher/rgb0/image": {"messages": 118, "received_rate_hz_approx": 8.59, "width": 640, "height": 400, "encoding": "bgr8", "frame_id": "rgb_camera_link", "bytes_per_frame": 768000},
+        "/ascamera/camera_publisher/depth0/image_raw": {"messages": 163, "received_rate_hz_approx": 11.76, "width": 640, "height": 400, "encoding": "mono16", "frame_id": "depth_camera_link", "bytes_per_frame": 512000},
+        "/ascamera/camera_publisher/ir0/image": {"messages": 188, "received_rate_hz_approx": 13.53, "width": 640, "height": 400, "encoding": "mono8"},
+        "/ascamera/camera_publisher/rgb0/camera_info": {"messages": 206, "received_rate_hz_approx": 14.84, "width": 640, "height": 400, "distortion_model": "plumb_bob"},
+        "/ascamera/camera_publisher/depth0/camera_info": {"messages": 206, "received_rate_hz_approx": 14.84, "width": 640, "height": 400, "distortion_model": "plumb_bob"},
+        "/controller_manager/joint_states": {"messages": 602, "received_rate_hz_approx": 46.79, "joint_names": ["joint1", "joint2", "joint3", "joint4", "joint5", "r_joint"], "gripper_first_position": 1.4660765716752366},
+        "/joint_states": {"messages": 259, "received_rate_hz_approx": 20.06, "includes_wheel_and_mimic_joints": true, "gripper_base_joint_first_position": 0.0},
+        "/imu": {"messages": 597, "received_rate_hz_approx": 46.42},
+        "/imu_corrected": {"messages": 597, "received_rate_hz_approx": 46.42},
+        "/ros_robot_controller/imu_raw": {"messages": 561, "received_rate_hz_approx": 46.35},
+        "/odom": {"messages": 387, "received_rate_hz_approx": 30.04},
+        "/odom_raw": {"messages": 572, "received_rate_hz_approx": 47.24}
+      },
+      "first_rgb_header_ns": 1775670565882000000,
+      "last_rgb_header_ns": 1775670579522000000
+    },
+    "uid_causality": "Matching driver UID and explicit ROS environment produced data after the first attempt did not; UID/shared-memory causality not isolated by a controlled experiment.",
+    "rate_caution": "Receiver-side rates from one short simultaneous multi-topic Python probe. They are not native camera FPS or measured loss rates.",
+    "lidar_only_followup": {"exec_uid": 1000, "duration_s": 10.0135, "scan_messages": 0, "scan_raw_messages": 0, "node_names_discovered": true},
+    "point_cloud": "topic discovered by separate graph query; not subscribed by the passive audit script"
+  },
+  "rgb_snapshot": {
+    "method": "one frame from existing RGB ROS publisher, UID1000 passive subscriber; JPEG encoding only for local inspection",
+    "path": "work/ros2_collection/pi_assessment_20261031/aurora_rgb.jpg",
+    "width": 640,
+    "height": 400,
+    "source_encoding": "bgr8",
+    "header_ns": 1775670672344000000,
+    "jpeg_bytes": 16804,
+    "sha256": "131159372c4a6f503c1439eec9d57cfac09538e5bb1791798d865fddb33d8af9",
+    "web_snapshot_endpoint": "Not validated: initial proxy-affected request returned 502; direct no-proxy request closed without a response. Do not confuse that result with the successful ROS capture."
+  },
+  "source_provenance": {
+    "installed_egg_links": "/home/ubuntu/ros2_ws/install/{controller,ros_robot_controller,servo_controller,sdk}/lib/python3.10/site-packages/*.egg-link -> build/{package} -> src/driver/{package}",
+    "duplicate_source_tree": "/home/ubuntu/ros2_ws/src/hx2/lander_pi/src/driver",
+    "running_loaded_python_modules": "not inspected; installed source mapping is not proof of current in-memory imports",
+    "sha256_matching_pi_driver_copies_and_workstation_resource_lander_pi": {
+      "odom_publisher_node.py": "5c68f11aa7a4e629c004a598833a928d48ba84810279d87efaa717c768d9e761",
+      "mecanum.py": "c44b094d0bad26568fb7946327955131680679c438c1539ab9df1ce550f88fa9",
+      "servo_controller.py": "709e42977ea8c98b0e31a4f58f89f5fdf2e2e83a35589eef1e37a39e2e7c84a4",
+      "ros_robot_controller_sdk.py": "f7c1584b5b1f393041bd86c16c68310d38969c15bf8dfd1f92df10373a6cc504"
+    },
+    "controller_node_copies": "ros_robot_controller_node.py differs between src/driver and hx2 snapshot; use installed source mapping rather than assuming copies interchangeable",
+    "base_chain": "Twist -> ROS MecanumChassis inverse kinematics -> four wheel rps targets -> MotorsState -> serial SDK",
+    "odom_raw": "source integrates cached commands with wall-clock dt, does not integrate lateral position; not encoder odometry",
+    "servo_state": "get_position returns sent-target cache; explicit bus-servo-position read path exists but was not invoked",
+    "watchdog": "no explicit motor command timeout/watchdog or encoder feedback read found in inspected ROS/SDK sources; MCU firmware remains unverified"
+  },
+  "not_performed": ["motion commands", "hardware service calls", "direct serial/camera device access", "firmware flashing", "installation", "bag recording/playback", "time correction", "container/service restart", "network configuration change", "LeLab frontend integration"],
+  "remaining_gates": ["synchronize and document clocks before aligned acquisition", "provide/verify MCAP storage plugin", "diagnose absent lidar samples", "calibrate camera optical transforms and depth units", "map gripper joint naming/units and distinguish target cache from feedback", "implement hardware-readonly adapter and integrity fixes", "verify recording/sync/frontend in next phase"],
+  "concurrent_workspace_changes": "End-of-assessment git status showed additional uncommitted agent/recorder/setup/runtime-profile/hardware-readonly/launch changes absent at entry. Their author and behavior were not assessed. This assessment changed only its documentation and evidence; review current changes before implementing the next Goal."
+}

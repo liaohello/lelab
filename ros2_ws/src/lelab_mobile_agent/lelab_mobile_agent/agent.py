@@ -24,8 +24,7 @@ from nav_msgs.msg import Odometry
 from PIL import Image
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
-from ros_gz_interfaces.msg import Contacts
-from sensor_msgs.msg import Image as RosImage
+from sensor_msgs.msg import CameraInfo, Image as RosImage
 from sensor_msgs.msg import JointState, LaserScan, Imu
 from rosgraph_msgs.msg import Clock
 from tf2_msgs.msg import TFMessage
@@ -33,6 +32,11 @@ from std_msgs.msg import Bool, Empty, String
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 from .contract import CommandGate, ContractError, load_profile, new_session_id, state_vector
+try:
+    from ros_gz_interfaces.msg import Contacts
+except ImportError:  # hardware-only image builds may omit Gazebo interfaces
+    Contacts = None
+
 from .recorder import SessionRecorder
 
 ARM_JOINTS = ["joint1", "joint2", "joint3", "joint4", "joint5"]
@@ -79,11 +83,32 @@ class MobileAgent(Node):
         self.declare_parameter("host", "127.0.0.1")
         self.declare_parameter("port", 8110)
         self.declare_parameter("model_sdf", "")
+        self.declare_parameter("camera_profile", "")
+        self.declare_parameter("task_name", "")
         profile_path = self.get_parameter("profile_path").value
         if not profile_path:
             profile_path = str(Path(get_package_share_directory("lelab_mobile_agent")) / "config" / "runtime-profile-v1.json")
         self.profile = load_profile(profile_path)
         self.profile_path = profile_path
+        self.runtime = self.profile.get("runtime", {})
+        self.read_only = self.runtime.get("mode") == "hardware_readonly"
+        self.actuator_outputs = bool(self.runtime.get("actuator_outputs", not self.read_only))
+        sensor_cfg = self.profile.get("sensors", {}).get("wrist_rgb", {})
+        self.camera_profile = self.get_parameter("camera_profile").value or sensor_cfg.get("profile_id") or self.runtime.get("camera_profile_default")
+        self.camera_extrinsics = (sensor_cfg.get("profiles", {}) or {}).get(self.camera_profile, {})
+        self.task_name = self.get_parameter("task_name").value or "place_in_tray"
+        if self.task_name not in ("place_in_tray", "place_on_box"):
+            raise RuntimeError(f"unknown task_name {self.task_name!r}")
+        self.rgb_topic = sensor_cfg.get("rgb_topic") or self.profile.get("features", {}).get("image", {}).get("topic")
+        self.camera_info_topic = sensor_cfg.get("camera_info_topic")
+        self.depth_topic = (self.profile.get("sensors", {}).get("depth", {}) or {}).get("topic")
+        self.lidar_topic = (self.profile.get("sensors", {}).get("lidar", {}) or {}).get("topic")
+        self.imu_topic = (self.profile.get("sensors", {}).get("imu", {}) or {}).get("topic")
+        self.state_topic = self.runtime.get("joint_state_topic")
+        self.base_topic = self.runtime.get("base_velocity_topic")
+        self.wheel_topic = self.runtime.get("wheel_odom_topic")
+        self.record_joint_topic = self.runtime.get("record_joint_state_topic")
+        self.record_joint_hz = float(self.runtime.get("joint_record_hz") or 0)
         self.car_root = Path(self.get_parameter("car_root").value).expanduser()
         self.car_root.mkdir(parents=True, exist_ok=True)
         self.model_sdf = Path(self.get_parameter("model_sdf").value or (self.car_root / "runtime" / "lelab_mobile.sdf"))
@@ -99,8 +124,13 @@ class MobileAgent(Node):
         self.odom_wz = 0.0
         self.odom_pose = (0.0, 0.0, 0.0)
         self.odom_wall = 0.0
+        self.wheel_odom: dict[str, float] = {}
+        self.wheel_odom_wall = 0.0
+        self.clock_domain = self.runtime.get("clock_domain") or "ros_time"
+        self.camera_info_meta: dict[str, Any] = {}
         self.cube: PoseStamped | None = None
         self.container: PoseStamped | None = None
+        self.box: PoseStamped | None = None
         self.task_wall = 0.0
         self.last_rx: dict[str, float] = {}
         self.image: RosImage | None = None
@@ -157,28 +187,56 @@ class MobileAgent(Node):
         self.last_zero = 0.0
         self.start_wall = time.time()
 
-        self.base_pub = self.create_publisher(Twist, "/lelab/base/cmd_vel_request", 10)
-        self.arm_pub = self.create_publisher(JointTrajectory, "/lelab/arm/trajectory_request", 10)
-        self.gripper_pub = self.create_publisher(JointTrajectory, "/lelab/gripper/trajectory_request", 10)
-        self.heartbeat_pub = self.create_publisher(Empty, "/lelab/heartbeat", 10)
-        self.estop_pub = self.create_publisher(Bool, "/lelab/estop", 10)
-        self.reset_pub = self.create_publisher(String, "/lelab/safety_reset", 10)
+        # Actuator publishers/clients are created only for the simulation path.
+        # In hardware-readonly mode their absence is part of the safety contract.
+        self.base_pub = None
+        self.arm_pub = None
+        self.gripper_pub = None
+        self.heartbeat_pub = None
+        self.estop_pub = None
+        self.reset_pub = None
+        self.record_joint_pub = None
         self.event_pub = self.create_publisher(String, "/lelab/events", 20)
-        self.create_subscription(JointState, "/joint_states", self._on_joints, 10)
-        self.create_subscription(Odometry, "/lelab/base/odom", self._on_odom, 10)
-        self.create_subscription(PoseStamped, "/lelab/task/cube_pose", lambda m: self._on_task("cube", m), 10)
-        self.create_subscription(PoseStamped, "/lelab/task/container_pose", lambda m: self._on_task("container", m), 10)
-        self.create_subscription(RosImage, "/lelab/wrist/rgb/image_raw", self._on_image, qos_profile_sensor_data)
-        self.create_subscription(RosImage, "/lelab/wrist/depth/image_raw", self._on_depth, qos_profile_sensor_data)
-        self.create_subscription(LaserScan, "/lelab/lidar/scan", self._on_lidar, 5)
-        self.create_subscription(Imu, "/lelab/imu", self._on_imu, 5)
-        self.create_subscription(Clock, "/clock", lambda _m: self.last_rx.__setitem__("/clock", time.monotonic()), 10)
-        self.create_subscription(TFMessage, "/tf", lambda _m: self.last_rx.__setitem__("/tf", time.monotonic()), 10)
-        self.create_subscription(String, "/lelab/safety_state", self._on_safety, 10)
-        self.create_subscription(String, "/lelab/applied_command", self._on_applied, 10)
-        for topic in ("/lelab/contact/left_jaw_link", "/lelab/contact/right_jaw_link", "/lelab/contact/gripper_base_link"):
-            self.create_subscription(Contacts, topic, lambda m, t=topic: self._on_contacts(t, m), 10)
-        self.create_timer(0.02, self._control_tick)
+        if self.actuator_outputs:
+            self.base_pub = self.create_publisher(Twist, "/lelab/base/cmd_vel_request", 10)
+            self.arm_pub = self.create_publisher(JointTrajectory, "/lelab/arm/trajectory_request", 10)
+            self.gripper_pub = self.create_publisher(JointTrajectory, "/lelab/gripper/trajectory_request", 10)
+            self.heartbeat_pub = self.create_publisher(Empty, "/lelab/heartbeat", 10)
+            self.estop_pub = self.create_publisher(Bool, "/lelab/estop", 10)
+            self.reset_pub = self.create_publisher(String, "/lelab/safety_reset", 10)
+            if self.record_joint_topic and self.record_joint_hz > 0:
+                self.record_joint_pub = self.create_publisher(JointState, self.record_joint_topic, 10)
+                self.create_timer(1.0 / self.record_joint_hz, self._record_joint_tick)
+            self.create_timer(0.02, self._control_tick)
+            self.create_subscription(String, "/lelab/safety_state", self._on_safety, 10)
+            self.create_subscription(String, "/lelab/applied_command", self._on_applied, 10)
+            self.create_subscription(Clock, "/clock", lambda _m: self.last_rx.__setitem__("/clock", time.monotonic()), 10)
+            self.create_subscription(TFMessage, "/tf", lambda _m: self.last_rx.__setitem__("/tf", time.monotonic()), 10)
+            if Contacts is not None:
+                for topic in ("/lelab/contact/left_jaw_link", "/lelab/contact/right_jaw_link", "/lelab/contact/gripper_base_link"):
+                    self.create_subscription(Contacts, topic, lambda m, t=topic: self._on_contacts(t, m), 10)
+        if self.state_topic:
+            self.create_subscription(JointState, self.state_topic, self._on_joints, 10)
+        if self.base_topic:
+            self.create_subscription(Odometry, self.base_topic, self._on_model_odom, 10)
+        if self.wheel_topic:
+            self.create_subscription(Odometry, self.wheel_topic, self._on_odom, 10)
+        if self.rgb_topic:
+            self.create_subscription(RosImage, self.rgb_topic, self._on_image, qos_profile_sensor_data)
+        else:
+            self.get_logger().error("no wrist camera topic configured; read-only health will be unavailable")
+        if self.camera_info_topic:
+            self.create_subscription(CameraInfo, self.camera_info_topic, self._on_camera_info, qos_profile_sensor_data)
+        if self.depth_topic:
+            self.create_subscription(RosImage, self.depth_topic, self._on_depth, qos_profile_sensor_data)
+        if self.lidar_topic:
+            self.create_subscription(LaserScan, self.lidar_topic, self._on_lidar, 5)
+        if self.imu_topic:
+            self.create_subscription(Imu, self.imu_topic, self._on_imu, 5)
+        if not self.read_only:
+            self.create_subscription(PoseStamped, "/lelab/task/cube_pose", lambda m: self._on_task("cube", m), 10)
+            self.create_subscription(PoseStamped, "/lelab/task/container_pose", lambda m: self._on_task("container", m), 10)
+            self.create_subscription(PoseStamped, "/lelab/task/box_pose", lambda m: self._on_task("box", m), 10)
         self.create_timer(0.1, self._status_tick)
         self._preview_stop = threading.Event()
         self._preview_thread = threading.Thread(target=self._preview_loop, daemon=True)
@@ -191,16 +249,56 @@ class MobileAgent(Node):
             self.joints = dict(zip(msg.name, msg.position))
             self.joint_stamp_ns = int(msg.header.stamp.sec * 1e9 + msg.header.stamp.nanosec)
             self.joints_wall = time.monotonic()
-            self.last_rx["/joint_states"] = self.joints_wall
+            if self.state_topic:
+                self.last_rx[self.state_topic] = self.joints_wall
 
-    def _on_odom(self, msg: Odometry):
+    def _on_model_odom(self, msg: Odometry):
         with self.lock:
             self.odom_vx = float(msg.twist.twist.linear.x)
             self.odom_vy = float(msg.twist.twist.linear.y)
             self.odom_wz = float(msg.twist.twist.angular.z)
             self.odom_pose = (msg.pose.pose.position.x, msg.pose.pose.position.y, _yaw(msg.pose.pose.orientation))
             self.odom_wall = time.monotonic()
-            self.last_rx["/lelab/base/odom"] = self.odom_wall
+            if self.base_topic:
+                self.last_rx[self.base_topic] = self.odom_wall
+
+    def _on_odom(self, msg: Odometry):
+        # Wheel odometry is a diagnostic stream only; it is never used as the
+        # simulation body state when a model-odometry topic is configured.
+        with self.lock:
+            self.wheel_odom = {
+                "vx": float(msg.twist.twist.linear.x),
+                "vy": float(msg.twist.twist.linear.y),
+                "wz": float(msg.twist.twist.angular.z),
+                "pose": [msg.pose.pose.position.x, msg.pose.pose.position.y, _yaw(msg.pose.pose.orientation)],
+            }
+            self.wheel_odom_wall = time.monotonic()
+            if self.wheel_topic:
+                self.last_rx[self.wheel_topic] = self.wheel_odom_wall
+
+    def _on_camera_info(self, msg: CameraInfo):
+        with self.lock:
+            self.camera_info_meta = {
+                "width": msg.width, "height": msg.height, "frame_id": msg.header.frame_id,
+                "k": list(msg.k), "d": list(msg.d), "distortion_model": msg.distortion_model,
+                "stamp_ns": int(msg.header.stamp.sec * 1e9 + msg.header.stamp.nanosec),
+            }
+            if self.camera_info_topic:
+                self.last_rx[self.camera_info_topic] = time.monotonic()
+
+    def _record_joint_tick(self):
+        if self.record_joint_pub is None:
+            return
+        with self.lock:
+            if not self.joints:
+                return
+            msg = JointState()
+            msg.header.stamp = self.get_clock().now().to_msg()
+            msg.name = list(self.joints.keys())
+            msg.position = [float(v) for v in self.joints.values()]
+            self.record_joint_pub.publish(msg)
+            if self.record_joint_topic:
+                self.last_rx[self.record_joint_topic] = time.monotonic()
 
     def _on_task(self, name: str, msg: PoseStamped):
         with self.lock:
@@ -216,7 +314,8 @@ class MobileAgent(Node):
             self.image_wall = now
             self.image_count += 1
             self.image_window.append(now)
-            self.last_rx["/lelab/wrist/rgb/image_raw"] = now
+            if self.rgb_topic:
+                self.last_rx[self.rgb_topic] = now
 
     def _on_depth(self, msg: RosImage):
         with self.lock:
@@ -225,17 +324,20 @@ class MobileAgent(Node):
                 "stamp_ns": int(msg.header.stamp.sec * 1e9 + msg.header.stamp.nanosec),
                 "frame_id": msg.header.frame_id, "bytes": len(msg.data),
             }
-            self.last_rx["/lelab/wrist/depth/image_raw"] = time.monotonic()
+            if self.depth_topic:
+                self.last_rx[self.depth_topic] = time.monotonic()
 
     def _on_lidar(self, msg: LaserScan):
         with self.lock:
             self.lidar_meta = {"ranges": len(msg.ranges), "frame_id": msg.header.frame_id, "stamp_ns": int(msg.header.stamp.sec * 1e9 + msg.header.stamp.nanosec)}
-            self.last_rx["/lelab/lidar/scan"] = time.monotonic()
+            if self.lidar_topic:
+                self.last_rx[self.lidar_topic] = time.monotonic()
 
     def _on_imu(self, msg: Imu):
         with self.lock:
             self.imu_meta = {"frame_id": msg.header.frame_id, "stamp_ns": int(msg.header.stamp.sec * 1e9 + msg.header.stamp.nanosec)}
-            self.last_rx["/lelab/imu"] = time.monotonic()
+            if self.imu_topic:
+                self.last_rx[self.imu_topic] = time.monotonic()
 
     def _on_safety(self, msg: String):
         try:
@@ -317,7 +419,9 @@ class MobileAgent(Node):
             "kind": kind,
             "session_id": self.session_id,
             "episode_id": self.episode_id,
-            "sim_time_ns": int(self.get_clock().now().nanoseconds),
+            "time_ns": int(self.get_clock().now().nanoseconds),
+            "sim_time_ns": int(self.get_clock().now().nanoseconds) if not self.read_only else None,
+            "clock_domain": self.clock_domain,
             "wall_time": time.time(),
             **payload,
         }
@@ -340,7 +444,12 @@ class MobileAgent(Node):
     def _sim_ns(self) -> int:
         return int(self.get_clock().now().nanoseconds)
 
+    def _refuse_read_only(self, what: str) -> None:
+        if self.read_only:
+            raise ApiError(403, "read_only_mode", f"{what} is disabled in hardware_readonly mode")
+
     def acquire(self, client_id: str, ttl_s: float = 30.0) -> dict:
+        self._refuse_read_only("control acquisition")
         now = time.monotonic()
         with self.lock:
             if self.estop_latched:
@@ -365,12 +474,14 @@ class MobileAgent(Node):
             return {"token": self.control_token, "mode": self.control_mode, "expires_in_s": round(self.control_expires - now, 2)}
 
     def renew(self, token: str) -> dict:
+        self._refuse_read_only("control renewal")
         with self.lock:
             self._check_token(token)
             self.control_expires = time.monotonic() + 30.0
             return {"expires_in_s": 30.0, "mode": self.control_mode}
 
     def release(self, token: str) -> dict:
+        self._refuse_read_only("control release")
         with self.lock:
             self._check_token(token)
             self.base_target = Twist()
@@ -384,6 +495,7 @@ class MobileAgent(Node):
             return {"ok": True}
 
     def set_mode(self, token: str, mode: str) -> dict:
+        self._refuse_read_only("mode switching")
         with self.lock:
             self._check_token(token)
             if mode == "leader_arm":
@@ -400,6 +512,7 @@ class MobileAgent(Node):
             return {"mode": mode}
 
     def base_command(self, token: str, payload: dict) -> dict:
+        self._refuse_read_only("base commands")
         with self.lock:
             self._check_token(token)
             if self.control_mode not in ("keyboard", "scripted_expert"):
@@ -430,6 +543,7 @@ class MobileAgent(Node):
             return {"applied": cmd.as_list(), "clipped": cmd.clipped, "event": event}
 
     def arm_command(self, token: str, payload: dict) -> dict:
+        self._refuse_read_only("arm commands")
         with self.lock:
             self._check_token(token)
             if self.control_mode != "scripted_expert":
@@ -453,6 +567,7 @@ class MobileAgent(Node):
             return {"applied": cmd.positions, "clipped": cmd.clipped, "event": event}
 
     def gripper_command(self, token: str, payload: dict) -> dict:
+        self._refuse_read_only("gripper commands")
         with self.lock:
             self._check_token(token)
             if self.control_mode != "scripted_expert":
@@ -500,10 +615,13 @@ class MobileAgent(Node):
         self.gripper_queue.put(msg)
 
     def _zero_base_now(self):
+        if self.base_pub is None:
+            return
         self.base_pub.publish(Twist())
         self.last_zero = time.monotonic()
 
     def estop(self, token: str | None, reason: str = "operator") -> dict:
+        self._refuse_read_only("emergency-stop output")
         with self.lock:
             if token:
                 self._check_token(token)
@@ -519,6 +637,7 @@ class MobileAgent(Node):
             return {"estop": True, "reason": reason}
 
     def clear_estop(self, token: str) -> dict:
+        self._refuse_read_only("emergency-stop output")
         with self.lock:
             self._check_token(token)
             self.heartbeat_pub.publish(Empty())
@@ -539,6 +658,8 @@ class MobileAgent(Node):
             self.get_logger().error(f"gz zero fallback failed: {exc}")
 
     def _control_tick(self):
+        if self.base_pub is None:
+            return
         now = time.monotonic()
         with self.lock:
             valid = self.control_token is not None and now <= self.control_expires and not self.estop_latched
@@ -585,33 +706,62 @@ class MobileAgent(Node):
 
     def _status_tick(self):
         with self.lock:
-            if self.episode_id is not None:
+            if self.episode_id is not None and not self.read_only:
                 cube = _pose_xyz(self.cube)
                 if cube:
                     self.episode_max_lift = max(self.episode_max_lift, cube[2])
+            ages = {topic: (None if wall is None else round(time.monotonic() - wall, 3)) for topic, wall in self.last_rx.items()}
+        if self.sessions.session_id is not None:
+            self.sessions.poll_health(ages)
 
     # ------------------------------------------------------------------ recording
     def _metadata(self) -> dict:
-        model_hash = _sha256_file(self.model_sdf)
         profile_hash = hashlib.sha256(Path(self.profile_path).read_bytes()).hexdigest() if Path(self.profile_path).is_file() else None
+        common = {
+            "agent_version": self.agent_version,
+            "ros_distro": os.environ.get("ROS_DISTRO"),
+            "profile": self.profile.get("profile"),
+            "profile_sha256": profile_hash,
+            "runtime_mode": self.runtime.get("mode"),
+            "adapter": self.runtime.get("adapter"),
+            "source": self.runtime.get("data_source") or ("hardware" if self.read_only else "simulation"),
+            "clock_domain": self.clock_domain if hasattr(self, "clock_domain") else self.runtime.get("clock_domain"),
+            "actuator_outputs": self.actuator_outputs,
+            "camera_profile": self.camera_profile,
+            "camera_extrinsics": self.camera_extrinsics,
+            "training_export": bool(self.profile.get("training_export", {}).get("enabled")) and not self.read_only,
+            "required_topics": list(self.profile.get("recording", {}).get("required_topics", [])),
+            "camera_topic": self.rgb_topic,
+            "camera_info_topic": self.camera_info_topic,
+            "record_joint_state_topic": self.record_joint_topic,
+            "timestamp_sources": {"event": self.runtime.get("clock_domain", "ros_time"), "ttl": "monotonic_wall_clock"},
+        }
+        if self.read_only:
+            return common
+        model_hash = _sha256_file(self.model_sdf)
         try:
             gz_version = subprocess.check_output(["gz", "sim", "--versions"], text=True, timeout=5).strip().splitlines()[0]
         except Exception:
             gz_version = None
-        return {
-            "agent_version": self.agent_version,
-            "ros_distro": os.environ.get("ROS_DISTRO"),
+        common.update({
             "gazebo_version": gz_version,
-            "profile": self.profile["profile"],
-            "profile_sha256": profile_hash,
-            "model_sdf": str(self.model_sdf),
-            "model_sdf_sha256": model_hash,
-            "source": "simulation",
-            "time_domain": "ros_sim_time_plus_wall_clock_for_ttl",
-        }
+            "model_sdf": str(self.model_sdf), "model_sdf_sha256": model_hash,
+            "base_velocity_topic": self.base_topic, "wheel_odometry_topic": self.wheel_topic,
+            "task_name": self.task_name,
+            "task_config": self.profile.get("task", {}).get(self.task_name, {}),
+            "task_truth_topics": {
+                "cube": "/lelab/task/cube_pose",
+                "container": "/lelab/task/container_pose",
+                "box": "/lelab/task/box_pose",
+            },
+        })
+        return common
 
     def start_session(self, token: str, task: str) -> dict:
-        self._check_token(token)
+        if not self.read_only:
+            self._check_token(token)
+        if self.read_only and not self.rgb_topic:
+            raise ApiError(409, "camera_topic_unconfigured", "hardware_readonly camera topic has not been verified")
         if self.sessions.active:
             raise ApiError(409, "session_active", self.sessions.session_id or "")
         missing = self.topic_health(missing_only=True)
@@ -623,23 +773,29 @@ class MobileAgent(Node):
             self.episode_id = None
             self.episode_phases = []
             self.episode_contacts = 0
-        info = self.sessions.start_session(sid, task or self.profile["task"]["language"], self._metadata(), self._sim_ns())
+        info = self.sessions.start_session(sid, task or self.profile.get("task", {}).get("language", "observe"), self._metadata(), self._sim_ns())
         self._emit("recording_session_started", session_id=sid, task=task, topics=info["topics"])
         return info
 
     def start_episode(self, token: str, source: str = "scripted_expert", task: str = "") -> dict:
-        self._check_token(token)
+        if not self.read_only:
+            self._check_token(token)
+        if self.read_only:
+            source = "hardware_readonly"
         if self.sessions.current_episode is not None:
             raise ApiError(409, "episode_open", self.sessions.current_episode)
         if not self.sessions.active:
             raise ApiError(409, "no_session", "start a recording session first")
-        if self.control_mode not in ("idle", "keyboard", "scripted_expert"):
+        if not self.read_only and self.control_mode not in ("idle", "keyboard", "scripted_expert"):
             raise ApiError(409, "mode", self.control_mode)
         initial = {
-            "cube": _pose_xyz(self.cube),
-            "container": _pose_xyz(self.container),
-            "joints": dict(self.joints),
-            "sim_time_ns": self._sim_ns(),
+            "cube": None if self.read_only else _pose_xyz(self.cube),
+            "container": None if self.read_only else _pose_xyz(self.container),
+            "box": None if self.read_only else _pose_xyz(self.box),
+            "task": self.task_name,
+            "joints": {} if self.read_only else dict(self.joints),
+            "time_ns": self._sim_ns(), "clock_domain": self.runtime.get("clock_domain"),
+            "camera_profile": self.camera_profile,
         }
         eid = f"ep_{int(time.time())}_{secrets.token_hex(3)}"
         with self.lock:
@@ -647,54 +803,115 @@ class MobileAgent(Node):
             self.episode_source = source
             self.episode_started_wall = time.time()
             self.episode_initial = initial
-            self.episode_max_lift = float(initial["cube"][2]) if initial["cube"] else 0.0
+            self.episode_max_lift = float(initial["cube"][2]) if initial.get("cube") else 0.0
             self.episode_contacts = 0
-            self.episode_phases = [{"phase": "record_start", "sim_time_ns": self._sim_ns()}]
-            self.last_arm_targets = [float(self.joints.get(n, 0.0)) for n in ARM_JOINTS]
-            self.last_gripper_target = float(self.joints.get("gripper_base_joint", 0.0))
-            self.last_action = [0.0, 0.0, 0.0, *self.last_arm_targets, self.last_gripper_target]
-        self.sessions.start_episode(eid, task or self.profile["task"]["language"], source, self._sim_ns(), initial)
+            self.episode_phases = [{"phase": "record_start", "time_ns": self._sim_ns()}]
+            if not self.read_only:
+                self.last_arm_targets = [float(self.joints.get(n, 0.0)) for n in ARM_JOINTS]
+                self.last_gripper_target = float(self.joints.get("gripper_base_joint", 0.0))
+                self.last_action = [0.0, 0.0, 0.0, *self.last_arm_targets, self.last_gripper_target]
+                self._emit("command", component="initial_hold", source="initial_hold", action=self._action_vector(), seq=self.command_seq)
+        self.sessions.start_episode(eid, task or self.profile.get("task", {}).get("language", "observe"), source, self._sim_ns(), initial)
         self._emit("episode_started", episode_id=eid, source=source, initial=initial)
         return {"episode_id": eid, "source": source, "initial": initial}
 
     def _evaluate(self) -> dict:
+        if self.read_only:
+            return {
+                "success": "unknown", "labels": "unlabeled", "failure_reasons": [],
+                "reason": "hardware_readonly_has_no_actuation_or_state_labels",
+                "camera_profile": self.camera_profile,
+                "privileged_truth_used_for_scripted_expert_only": False,
+                "timestamp_wall": time.time(),
+            }
         with self.lock:
             cube = _pose_xyz(self.cube)
             container = _pose_xyz(self.container)
+            box = _pose_xyz(self.box)
+            joints = dict(self.joints)
             initial = self.episode_initial
             max_lift = self.episode_max_lift
             contacts = self.episode_contacts
             phases = list(self.episode_phases)
         initial_z = initial.get("cube", [0, 0, 0])[2] if initial.get("cube") else None
         lift = max_lift - initial_z if initial_z is not None else None
-        inside = False
-        if cube and container:
-            inside = abs(cube[0] - container[0]) <= 0.075 and abs(cube[1] - container[1]) <= 0.075 and cube[2] <= 0.09
-        success = bool(lift is not None and lift >= 0.02 and contacts > 0 and inside)
+        task_cfg = self.profile.get("task", {})
+        threshold = float(task_cfg.get("success_min_lift_m", 0.03))
         reasons = []
-        if lift is None or lift < 0.02:
-            reasons.append("insufficient_lift")
-        if contacts <= 0:
-            reasons.append("no_gripper_contact")
-        if not inside:
-            reasons.append("not_inside_container")
+        target = None
+        target_source = None
+        support = None
+        inside = False
+        retreated = None
+        if self.task_name == "place_on_box":
+            box_cfg = task_cfg.get("place_on_box", {})
+            target = box
+            target_source = "gazebo_model_truth" if box else None
+            top_z = float(box_cfg.get("box_top_z_m", 0.06)) if box else None
+            half = box_cfg.get("box_top_half_extent_m", [0.075, 0.075])
+            on_top = bool(
+                cube and box
+                and abs(cube[0] - box[0]) <= float(half[0]) - 0.015
+                and abs(cube[1] - box[1]) <= float(half[1]) - 0.015
+            )
+            support = bool(cube and top_z is not None and abs(cube[2] - (top_z + 0.02)) <= 0.02)
+            home = (0.0, 0.83776, -2.03156, -1.1938, 0.0)
+            retreated = bool(all(name in joints and abs(joints[name] - target_value) <= 0.15 for name, target_value in zip(ARM_JOINTS, home, strict=True)))
+            inside = on_top and support
+            if lift is None or lift < threshold:
+                reasons.append("insufficient_lift")
+            if contacts <= 0:
+                reasons.append("no_gripper_contact")
+            if not on_top:
+                reasons.append("not_over_box_top")
+            if not support:
+                reasons.append("not_supported_by_box")
+            if not retreated:
+                reasons.append("gripper_not_retreated")
+            success = bool(lift is not None and lift >= threshold and contacts > 0 and inside and retreated)
+        else:
+            target = container
+            target_source = "gazebo_model_truth" if container else None
+            if cube and container:
+                inside = abs(cube[0] - container[0]) <= 0.075 and abs(cube[1] - container[1]) <= 0.075 and cube[2] <= 0.09
+            success = bool(lift is not None and lift >= threshold and contacts > 0 and inside)
+            if lift is None or lift < threshold:
+                reasons.append("insufficient_lift")
+            if contacts <= 0:
+                reasons.append("no_gripper_contact")
+            if not inside:
+                reasons.append("not_inside_container")
         return {
             "success": success,
+            "task": self.task_name,
             "failure_reasons": reasons,
             "cube_final": cube,
             "cube_initial": initial.get("cube"),
             "container": container,
+            "box": box,
+            "target_pose": target,
+            "target_source": target_source,
+            "target_confirmation": {
+                "required": bool(task_cfg.get("place_on_box", {}).get("target_confirmation_required", False)) if self.task_name == "place_on_box" else False,
+                "source": target_source,
+                "frame": "world",
+            },
             "max_lift_m": max_lift,
             "lift_above_initial_m": lift,
             "gripper_contact_events": contacts,
             "inside_container": inside,
+            "box_top_support": support,
+            "gripper_retreated": retreated,
+            "lift_threshold_m": threshold,
+            "evaluation_policy": {"threshold_key": "success_min_lift_m", "threshold_m": threshold, "task": self.task_name},
             "phases": phases,
             "privileged_truth_used_for_scripted_expert_only": True,
             "timestamp_wall": time.time(),
         }
 
     def end_episode(self, token: str, discarded: bool = False, reason: str = "") -> dict:
-        self._check_token(token)
+        if not self.read_only:
+            self._check_token(token)
         if self.sessions.current_episode is None:
             raise ApiError(409, "no_episode", "no open episode")
         evaluation = self._evaluate()
@@ -707,11 +924,12 @@ class MobileAgent(Node):
             self.episode_id = None
         return {"episode_id": eid, "evaluation": evaluation, "event": event}
 
-    def stop_session(self, token: str) -> dict:
-        self._check_token(token)
+    def stop_session(self, token: str, reason: str = "normal") -> dict:
+        if not self.read_only:
+            self._check_token(token)
         if self.sessions.current_episode is not None:
             self.end_episode(token, discarded=True, reason="session_stop")
-        result = self.sessions.stop_session()
+        result = self.sessions.stop_session(reason=reason, time_ns=self._sim_ns())
         with self.lock:
             self.session_id = None
             self.episode_id = None
@@ -720,7 +938,7 @@ class MobileAgent(Node):
 
     def topic_health(self, missing_only: bool = False) -> list[str] | dict:
         now = time.monotonic()
-        required = self.profile["recording"]["required_topics"] + ["/lelab/task/cube_pose", "/lelab/task/container_pose"]
+        required = list(self.profile.get("recording", {}).get("required_topics", []))
         ages = {}
         for topic in required:
             wall = self.last_rx.get(topic)
@@ -732,6 +950,7 @@ class MobileAgent(Node):
 
     # ------------------------------------------------------------------ expert
     def run_expert(self, token: str) -> dict:
+        self._refuse_read_only("scripted expert")
         self._check_token(token)
         if self.control_mode != "scripted_expert":
             raise ApiError(409, "mode", "set scripted_expert mode first")
@@ -748,6 +967,7 @@ class MobileAgent(Node):
         return {"started": True, "episode_id": self.episode_id, "session_id": self.session_id}
 
     def stop_expert(self, token: str) -> dict:
+        self._refuse_read_only("scripted expert")
         self._check_token(token)
         self.expert_cancel.set()
         return {"stopping": True}
@@ -781,6 +1001,8 @@ class MobileAgent(Node):
     def _expert_sequence(self, token: str):
         self._phase("reset_task")
         self._reset_task()
+        self._refresh_episode_initial()
+        self._confirm_target()
         self._set_mode_expert()
         self._move_joints([0.0, 0.83776, -2.03156, -1.1938, 0.0], 2.0, wait=True)
         self._set_gripper(0.0, 1.0, wait=True)
@@ -790,11 +1012,15 @@ class MobileAgent(Node):
         self._move_joints([-0.27, -2.09, -0.55, 0.95, 0.02], 1.0, wait=True)
         self._set_gripper(-1.5, 1.0, wait=True)
         self._phase("lift")
-        self._move_joints([-0.27, -1.57, -1.23, 1.22, -0.08], 2.5, wait=True)
+        self._move_joints([-0.27, -1.45, -1.15, 1.30, -0.08], 2.5, wait=True)
         self._phase("carry_base")
-        self._servo_cube_over_container()
+        self._servo_cube_over_target()
         self._phase("release")
         self._set_gripper(0.0, 1.0, wait=True)
+        time.sleep(1.0)
+        with self.lock:
+            settled = _pose_xyz(self.cube)
+        self._phase("release_settled", cube_pose=settled)
         self._phase("retreat")
         self._move_joints([0.0, 0.83776, -2.03156, -1.1938, 0.0], 2.5, wait=True)
         self._phase("complete")
@@ -809,6 +1035,7 @@ class MobileAgent(Node):
             raise RuntimeError(f"{label} reset failed: {proc.stdout.strip()} {proc.stderr.strip()}")
 
     def _reset_task(self):
+        self._refuse_read_only("task reset")
         self._set_base_expert(0.0, 0.0)
         self._gz_set_pose('name: "task_cube", position: {x: 0.26, y: -0.06, z: 0.021}', "cube")
         # The expert's base transfer leaves the chassis beside the tray; reset
@@ -883,18 +1110,52 @@ class MobileAgent(Node):
             time.sleep(0.05)
         raise RuntimeError(f"joint motion timeout for {names}")
 
-    def _servo_cube_over_container(self):
+    def _refresh_episode_initial(self):
+        # The expert episode opens before its privileged reset, so the initial
+        # reference must be captured after reset and before any task motion.
+        initial = {
+            "cube": _pose_xyz(self.cube),
+            "container": _pose_xyz(self.container),
+            "box": _pose_xyz(self.box),
+            "joints": dict(self.joints),
+            "time_ns": self._sim_ns(),
+            "clock_domain": self.runtime.get("clock_domain"),
+            "camera_profile": self.camera_profile,
+            "task": self.task_name,
+        }
+        with self.lock:
+            self.episode_initial = initial
+            self.episode_max_lift = float(initial["cube"][2]) if initial.get("cube") else 0.0
+            episode = self.sessions.episodes.get(self.episode_id) if self.episode_id else None
+            if episode is not None:
+                episode.initial_cube = initial["cube"]
+                episode.initial_container = initial["container"]
+                episode.initial_joints = initial["joints"]
+        self._emit("episode_initial_refreshed", initial=initial)
+
+    def _confirm_target(self):
+        with self.lock:
+            target = _pose_xyz(self.box if self.task_name == "place_on_box" else self.container)
+        if not target:
+            raise RuntimeError(f"missing target truth for {self.task_name}")
+        self._phase(
+            "target_confirm", task=self.task_name, target_pose=target,
+            target_source="gazebo_model_truth", target_frame="world",
+            confirmation="scripted_expert_privileged",
+        )
+
+    def _servo_cube_over_target(self):
         deadline = time.monotonic() + 12.0
         while time.monotonic() < deadline:
             if self.expert_cancel.is_set() or self.estop_latched:
                 raise RuntimeError("expert cancelled during base transfer")
             with self.lock:
                 cube = _pose_xyz(self.cube)
-                container = _pose_xyz(self.container)
-            if not cube or not container:
+                target = _pose_xyz(self.box if self.task_name == "place_on_box" else self.container)
+            if not cube or not target:
                 raise RuntimeError("missing task truth for base transfer")
-            ex = container[0] - cube[0]
-            ey = container[1] - cube[1]
+            ex = target[0] - cube[0]
+            ey = target[1] - cube[1]
             if abs(ex) < 0.008 and abs(ey) < 0.008:
                 break
             vx = max(-0.06, min(0.06, 0.7 * ex))
@@ -918,8 +1179,13 @@ class MobileAgent(Node):
                 "agent_version": self.agent_version,
                 "profile": self.profile["profile"],
                 "task": self.profile["task"],
-                "sim_time_ns": self._sim_ns(),
-                "wall_time": time.time(),
+                "sim_time_ns": self._sim_ns() if not self.read_only else None,
+                "time_ns": self._sim_ns(),
+                "clock_domain": self.clock_domain,
+                "read_only": self.read_only,
+                "runtime_mode": self.runtime.get("mode"),
+                "camera_profile": self.camera_profile,
+                "camera_extrinsics": self.camera_extrinsics,
                 "control": {
                     "active": self.control_token is not None and now <= self.control_expires and not self.estop_latched,
                     "client_id": self.control_client,
@@ -929,18 +1195,28 @@ class MobileAgent(Node):
                     "last_reject": self.last_reject,
                     "leader_arm_available": False,
                 },
-                "safety": self.safety,
+                "safety": self.safety if not self.read_only else {"read_only": True},
                 "joints": dict(self.joints),
                 "base": {
                     "vx": self.odom_vx, "vy": self.odom_vy, "wz": self.odom_wz,
-                    "odom_pose": self.odom_pose, "age_s": ages.get("/lelab/base/odom"),
+                    "odom_pose": self.odom_pose,
+                    "source": "model_odometry" if self.base_topic else "unavailable_readonly",
+                    "age_s": ages.get(self.base_topic) if self.base_topic else None,
+                    "wheel_odometry": self.wheel_odom,
+                    "wheel_age_s": ages.get(self.wheel_topic) if self.wheel_topic else None,
                 },
-                "task_state": {"cube": _pose_xyz(self.cube), "container": _pose_xyz(self.container)},
+                "task_name": self.task_name,
+                "task_state": {"cube": _pose_xyz(self.cube), "container": _pose_xyz(self.container), "box": _pose_xyz(self.box)} if not self.read_only else {"labels": "unknown", "success": "unknown"},
                 "sensors": {
-                    "rgb": {"fps": image_fps, "age_s": ages.get("/lelab/wrist/rgb/image_raw"), "stamp_ns": self.image_stamp_ns, "preview_seq": self.preview_seq},
-                    "depth": {**self.depth_meta, "age_s": ages.get("/lelab/wrist/depth/image_raw")},
-                    "lidar": {**self.lidar_meta, "age_s": ages.get("/lelab/lidar/scan")},
-                    "imu": {**self.imu_meta, "age_s": ages.get("/lelab/imu")},
+                    "rgb": {"topic": self.rgb_topic, "fps": image_fps,
+                            "age_s": ages.get(self.rgb_topic) if self.rgb_topic else None,
+                            "stamp_ns": self.image_stamp_ns, "preview_seq": self.preview_seq,
+                            "stale": (ages.get(self.rgb_topic) is None or ages.get(self.rgb_topic) > 1.5) if self.rgb_topic else True},
+                    "camera_info": {**self.camera_info_meta, "topic": self.camera_info_topic,
+                                    "age_s": ages.get(self.camera_info_topic) if self.camera_info_topic else None},
+                    "depth": {**self.depth_meta, "topic": self.depth_topic, "age_s": ages.get(self.depth_topic) if self.depth_topic else None},
+                    "lidar": {**self.lidar_meta, "topic": self.lidar_topic, "age_s": ages.get(self.lidar_topic) if self.lidar_topic else None},
+                    "imu": {**self.imu_meta, "topic": self.imu_topic, "age_s": ages.get(self.imu_topic) if self.imu_topic else None},
                     "contacts": {"count": self.contact_count, "recent": list(self.contact_pairs)[-5:]},
                 },
                 "topics": self.topic_health(),
@@ -1075,14 +1351,14 @@ class AgentHandler(BaseHTTPRequestHandler):
             elif self.path == "/recording/discard_episode":
                 out = agent.end_episode(token, True, str(body.get("reason", "discarded")))
             elif self.path == "/recording/stop_session":
-                out = agent.stop_session(token)
+                out = agent.stop_session(token, str(body.get("reason", "normal")))
             elif self.path == "/expert/run":
                 out = agent.run_expert(token)
             elif self.path == "/expert/stop":
                 out = agent.stop_expert(token)
             elif self.path == "/task/reset":
-                token_check = token
-                agent._check_token(token_check)
+                agent._refuse_read_only("task reset")
+                agent._check_token(token)
                 agent._reset_task()
                 out = {"reset": True}
             else:
@@ -1144,7 +1420,8 @@ def main(args=None):
                 agent.sessions.stop_session()
         except Exception:
             pass
-        agent.base_pub.publish(Twist())
+        if agent.base_pub is not None:
+            agent.base_pub.publish(Twist())
         server.shutdown()
         agent.destroy_node()
         rclpy.shutdown()

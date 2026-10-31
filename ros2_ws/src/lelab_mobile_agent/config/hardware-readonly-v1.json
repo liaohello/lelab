@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "profile": "hardware_readonly_v1",
+  "created": "2026-10-31",
+  "runtime": {
+    "mode": "hardware_readonly",
+    "adapter": "ros2_sensor_only",
+    "actuator_outputs": false,
+    "clock_domain": "hardware_system_time",
+    "base_velocity_topic": null,
+    "wheel_odom_topic": null,
+    "joint_state_topic": null,
+    "record_joint_state_topic": null,
+    "joint_record_hz": 0,
+    "task_truth": false,
+    "training_export": false,
+    "data_source": "hardware_readonly"
+  },
+  "robot": {
+    "model": "raspberry_pi5_landerpi_humble_container",
+    "arm_joints": [],
+    "gripper_master_joint": null,
+    "wrist_camera_frame": null,
+    "base_frame": null,
+    "odom_frame": null
+  },
+  "task": {
+    "id": "hardware_readonly_observation",
+    "language": "Record real sensor observations only; no actuator data.",
+    "labels": "unknown",
+    "success": "unknown"
+  },
+  "sensors": {
+    "wrist_rgb": {
+      "required": true,
+      "rgb_topic": "/ascamera/camera_publisher/rgb0/image",
+      "camera_info_topic": "/ascamera/camera_publisher/rgb0/camera_info",
+      "profile_id": "wrist_original",
+      "mount_chain": null,
+      "tilt_rad": null,
+      "optical_frame": null,
+      "calibration_version": null,
+      "extrinsics": "unverified_real_mount",
+      "qos": "sensor_data",
+      "stale_after_s": 1.5,
+      "capture_width": 640,
+      "capture_height": 400,
+      "verified_at": "2026-10-31T15:54Z",
+      "verification_source": "pi_passive_ros_uid1000_probe"
+    },
+    "depth": {
+      "record_raw": false,
+      "topic": "/ascamera/camera_publisher/depth0/image_raw",
+      "camera_info_topic": "/ascamera/camera_publisher/depth0/camera_info"
+    },
+    "lidar": {
+      "record_raw": false,
+      "topic": null
+    },
+    "imu": {
+      "record_raw": false,
+      "topic": null
+    }
+  },
+  "features": {
+    "fps": 8.59,
+    "image": {
+      "name": "observation.images.wrist_real",
+      "topic": "/ascamera/camera_publisher/rgb0/image",
+      "frame": "rgb_camera_link"
+    },
+    "state": {
+      "names": [],
+      "units": [],
+      "source": "unavailable_readonly",
+      "joint_topic": null,
+      "base_topic": null
+    },
+    "action": {
+      "names": [],
+      "units": [],
+      "source": "unavailable_readonly"
+    }
+  },
+  "limits": {},
+  "modes": {
+    "base": [],
+    "initial": "idle",
+    "leader_arm_available": false,
+    "exclusive": true
+  },
+  "recording": {
+    "raw_storage": "sqlite3",
+    "session_root": "work/ros2_collection/car/sessions",
+    "topics": [
+      "/ascamera/camera_publisher/rgb0/image",
+      "/ascamera/camera_publisher/rgb0/camera_info",
+      "/lelab/events"
+    ],
+    "required_topics": [
+      "/ascamera/camera_publisher/rgb0/image",
+      "/ascamera/camera_publisher/rgb0/camera_info"
+    ],
+    "event_topic": "/lelab/events",
+    "min_free_bytes": 536870912,
+    "stream_stale_s": 1.5,
+    "clock_domain": "hardware_system_time",
+    "joint_record_hz": 0
+  },
+  "alignment": {
+    "output_fps": null,
+    "max_image_age_s": 0.5
+  },
+  "training_export": {
+    "enabled": false,
+    "reason": "readonly_hardware_has_no_action_or_joint_feedback"
+  },
+  "hardware": {
+    "serial_devices": "enumerated; controller identity unverified",
+    "leader_arm": "not_verified",
+    "camera_interface": "aurora depth camera via existing ROS driver",
+    "note": "Topics verified passively at 2026-10-31T15:54Z. Pi unreachable later the same day; storage sqlite3 because MCAP plugin was not visible. No action/joint measurement contract is claimed."
+  }
+}

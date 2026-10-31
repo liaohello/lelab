@@ -43,6 +43,7 @@ export default function RosMobile() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [exportReport, setExportReport] = useState<any>(null);
+  const [exportJob, setExportJob] = useState<any>(null);
   const [jointTargets, setJointTargets] = useState<number[]>([0, 0.84, -2.03, -1.19, 0]);
   const [gripperTarget, setGripperTarget] = useState(0);
   const [previewTick, setPreviewTick] = useState(0);
@@ -83,9 +84,10 @@ export default function RosMobile() {
     return () => window.clearInterval(id);
   }, [refresh]);
 
-  const controlActive = Boolean(status?.agent?.control?.active);
+  const readOnly = Boolean(status?.agent?.read_only || status?.bridge?.read_only);
+  const controlActive = !readOnly && Boolean(status?.agent?.control?.active);
   const mode = status?.agent?.control?.mode ?? "idle";
-  const estop = Boolean(status?.agent?.control?.estop_latched);
+  const estop = !readOnly && Boolean(status?.agent?.control?.estop_latched);
 
   useEffect(() => {
     if (!controlActive) return;
@@ -168,7 +170,7 @@ export default function RosMobile() {
     await call("/ros-mobile/recording/start-session", {}, "开始采集");
     setBusy(null); await refresh(); await loadSessions();
   };
-  const startEpisode = async () => { await call("/ros-mobile/recording/start-episode", { source: "scripted_expert" }, "开始回合"); await refresh(); };
+  const startEpisode = async () => { await call("/ros-mobile/recording/start-episode", { source: readOnly ? "operator_observation" : "scripted_expert" }, "开始回合"); await refresh(); };
   const endEpisode = async (discarded = false) => { await call(discarded ? "/ros-mobile/recording/discard-episode" : "/ros-mobile/recording/end-episode", { discarded, reason: discarded ? "operator-discard" : "operator-stop" }, "结束回合"); await refresh(); };
   const stopSession = async () => { setBusy("stop-session"); await call("/ros-mobile/recording/stop-session", {}, "停止采集"); setBusy(null); await refresh(); await loadSessions(); };
   const runExpert = async () => {
@@ -205,6 +207,43 @@ export default function RosMobile() {
 
   useEffect(() => { loadSessions(); }, [loadSessions]);
 
+  const exportSession = async () => {
+    if (!selectedSession) return;
+    setBusy("export");
+    const job: any = await call("/ros-mobile/export", { session_id: selectedSession }, "导出 LeRobot");
+    setBusy(null);
+    if (!job?.job_id) return;
+    setExportJob(job);
+    setExportReport(null);
+    for (let attempt = 0; attempt < 900; attempt += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 1500));
+      let snapshot: any = null;
+      try {
+        snapshot = await apiRequest<any>(baseUrl, fetchWithHeaders, `/ros-mobile/export/status/${job.job_id}`, { action: "查询导出状态" });
+      } catch (exc: any) {
+        setError(exc?.detail || exc?.message || String(exc));
+        return;
+      }
+      setExportJob(snapshot);
+      if (snapshot?.status !== "running") {
+        if (snapshot.status === "completed") {
+          setExportReport(snapshot.report);
+          await refresh();
+        } else if (snapshot.status === "failed") {
+          setError(snapshot.error || "导出失败");
+        }
+        return;
+      }
+    }
+    setError("导出任务轮询超时；任务可能仍在后台运行，请稍后刷新任务状态。");
+  };
+  const cancelExport = async () => {
+    if (!exportJob?.job_id) return;
+    setBusy("cancel-export");
+    const out = await call(`/ros-mobile/export/cancel/${exportJob.job_id}`, {}, "取消导出");
+    setBusy(null);
+    if (out) setExportJob(out);
+  };
   const syncAndExport = async () => {
     if (!selectedSession) return;
     setBusy("sync");
@@ -212,11 +251,7 @@ export default function RosMobile() {
     setBusy(null);
     if (!synced) return;
     await loadSessions();
-    setBusy("export");
-    const report = await call("/ros-mobile/export", { session_id: selectedSession }, "导出 LeRobot");
-    setBusy(null);
-    setExportReport(report);
-    await refresh();
+    if (!readOnly) await exportSession();
   };
 
   const agent = status?.agent;
@@ -228,6 +263,11 @@ export default function RosMobile() {
   const sessionsForDisplay = useMemo(() => sessions.slice().reverse(), [sessions]);
   const expertRunning = Boolean(expert?.running);
   const previewSrc = `${baseUrl}/ros-mobile/preview.jpg?t=${previewTick}`;
+  const rgbTopic = sensor?.rgb?.topic ?? null;
+  const rgbStale = rgbTopic == null || sensor?.rgb?.stale === true;
+  const rgbAge = sensor?.rgb?.age_s;
+  const baseSource = agent?.base?.source ?? null;
+  const baseKnown = Boolean(baseSource && baseSource !== "unavailable_readonly" && agent?.base?.age_s != null);
 
   return (
     <div className="min-h-screen bg-black text-gray-100">
@@ -236,9 +276,11 @@ export default function RosMobile() {
           <div className="flex items-center gap-2">
             <Gamepad2 className="h-5 w-5 text-emerald-400" />
             <h1 className="text-lg font-semibold">ROS 移动操作小车</h1>
-            <Pill tone={controlActive ? "ok" : "idle"}>{controlActive ? `已取得控制权 · ${mode}` : "未取得控制权"}</Pill>
+            {readOnly ? <Pill tone="warn">实机只读 · 无执行器输出</Pill> : (
+              <Pill tone={controlActive ? "ok" : "idle"}>{controlActive ? `已取得控制权 · ${mode}` : "未取得控制权"}</Pill>
+            )}
             {estop && <Pill tone="bad">急停锁定</Pill>}
-            {agent?.safety?.heartbeat_age_s != null && <Pill tone={agent.safety.heartbeat_age_s < 0.6 ? "ok" : "bad"}>watchdog {agent.safety.heartbeat_age_s}s</Pill>}
+            {!readOnly && agent?.safety?.heartbeat_age_s != null && <Pill tone={agent.safety.heartbeat_age_s < 0.6 ? "ok" : "bad"}>watchdog {agent.safety.heartbeat_age_s}s</Pill>}
           </div>
           <div className="flex gap-2">
             <Link to="/dataset-viewer" className="rounded border border-gray-700 px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-800">数据集</Link>
@@ -255,6 +297,12 @@ export default function RosMobile() {
         <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="space-y-3">
             <Card title="控制权与安全" right={<span className="text-xs text-gray-500">{agent?.profile}</span>}>
+              {readOnly ? (
+                <div className="rounded border border-amber-800/60 bg-amber-950/30 p-2 text-xs text-amber-200">
+                  只读模式：不提供控制权、键盘驾驶、机械臂/夹爪、专家、复位或回放入口；启停与退出均不发送速度、零速或力矩指令。采集与预览可用。
+                </div>
+              ) : (
+                <>
               <div className="flex flex-wrap gap-2">
                 <button disabled={!!busy || controlActive} onClick={acquire} className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium disabled:opacity-40">{busy === "acquire" ? "获取中…" : "获取控制权"}</button>
                 <button disabled={!controlActive} onClick={release} className="rounded border border-gray-700 px-3 py-1.5 text-sm disabled:opacity-40">释放</button>
@@ -269,13 +317,27 @@ export default function RosMobile() {
                 <span>客户端：{status?.bridge?.owner ?? "—"}</span>
                 <span>拒绝原因：{agent?.control?.last_reject?.reason ?? "无"}</span>
               </div>
+                </>
+              )}
             </Card>
 
-            <Card title="腕部 RGB（link4）" right={<span className="flex items-center gap-1 text-xs text-gray-500"><Camera className="h-3.5 w-3.5" />{sensor?.rgb?.fps ?? 0} fps · {sensor?.rgb?.age_s ?? "—"}s</span>}>
-              <div className="overflow-hidden rounded border border-gray-800 bg-black">
+            <Card title="腕部 RGB（link4）" right={
+              <span className="flex items-center gap-2 text-xs text-gray-500">
+                <Camera className="h-3.5 w-3.5" />{sensor?.rgb?.fps ?? 0} fps · {rgbAge ?? "—"}s
+                <Pill tone={rgbStale ? "bad" : "ok"}>{rgbStale ? (rgbTopic ? "画面过期" : "相机未配置") : "画面新鲜"}</Pill>
+              </span>
+            }>
+              <div className="relative overflow-hidden rounded border border-gray-800 bg-black">
                 <img src={previewSrc} alt="wrist rgb" className="aspect-[4/3] w-full object-contain" />
+                {rgbStale && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/70 text-center text-xs text-amber-200">
+                    <AlertTriangle className="h-5 w-5" />
+                    <span>{rgbTopic ? `无新图像 ${rgbAge ?? "?"} s，显示的是最后一帧` : "未配置真实相机话题"}</span>
+                  </div>
+                )}
               </div>
               <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-400">
+                <span className="break-all">topic {rgbTopic ?? "—"}</span>
                 <span>depth {sensor?.depth?.encoding ?? "—"} {sensor?.depth?.width}×{sensor?.depth?.height} / {sensor?.depth?.age_s ?? "—"}s</span>
                 <span>lidar {sensor?.lidar?.ranges ?? "—"} / {sensor?.lidar?.age_s ?? "—"}s</span>
                 <span>imu {sensor?.imu?.age_s ?? "—"}s</span>
@@ -287,27 +349,32 @@ export default function RosMobile() {
                 {["joint1", "joint2", "joint3", "joint4", "joint5"].map((name) => (
                   <div key={name} className="rounded bg-gray-900/70 p-2">
                     <div className="text-xs text-gray-500">{name}</div>
-                    <div className="font-mono text-gray-100">{Number(joints[name] ?? 0).toFixed(3)} rad</div>
+                    <div className="font-mono text-gray-100">{joints[name] == null ? "—" : `${Number(joints[name]).toFixed(3)} rad`}</div>
                   </div>
                 ))}
                 <div className="rounded bg-gray-900/70 p-2">
                   <div className="text-xs text-gray-500">夹爪主关节</div>
-                  <div className="font-mono text-gray-100">{Number(joints["gripper_base_joint"] ?? 0).toFixed(3)} rad</div>
+                  <div className="font-mono text-gray-100">{joints["gripper_base_joint"] == null ? "—" : `${Number(joints["gripper_base_joint"]).toFixed(3)} rad`}</div>
                 </div>
                 <div className="rounded bg-gray-900/70 p-2">
-                  <div className="text-xs text-gray-500">底盘速度</div>
-                  <div className="font-mono text-xs text-gray-100">vx {Number(agent?.base?.vx ?? 0).toFixed(3)} / vy {Number(agent?.base?.vy ?? 0).toFixed(3)} / wz {Number(agent?.base?.wz ?? 0).toFixed(3)}</div>
+                  <div className="text-xs text-gray-500">底盘速度（{baseKnown ? baseSource : "不可用"}）</div>
+                  <div className="font-mono text-xs text-gray-100">
+                    {baseKnown ? `vx ${Number(agent?.base?.vx ?? 0).toFixed(3)} / vy ${Number(agent?.base?.vy ?? 0).toFixed(3)} / wz ${Number(agent?.base?.wz ?? 0).toFixed(3)}` : "— 无实测底盘反馈"}
+                  </div>
                 </div>
-                <div className="rounded bg-gray-900/70 p-2">
-                  <div className="text-xs text-gray-500">方块 → 容器</div>
-                  <div className="font-mono text-xs text-gray-100">{JSON.stringify(agent?.task_state?.cube ?? [])} → {JSON.stringify(agent?.task_state?.container ?? [])}</div>
-                </div>
+                {!readOnly && (
+                  <div className="rounded bg-gray-900/70 p-2">
+                    <div className="text-xs text-gray-500">方块 → 容器</div>
+                    <div className="font-mono text-xs text-gray-100">{JSON.stringify(agent?.task_state?.cube ?? [])} → {JSON.stringify(agent?.task_state?.container ?? [])}</div>
+                  </div>
+                )}
               </div>
               {topics?.missing?.length > 0 && <div className="mt-2 text-xs text-red-300">缺少话题：{topics.missing.join(", ")}</div>}
             </Card>
           </div>
 
           <div className="space-y-3">
+            {!readOnly && (<>
             <Card title="键盘驾驶（Web 来源）" right={<span className="text-xs text-gray-500">{mode === "keyboard" ? "W/S 前后 · A/D 横移 · Q/E 旋转" : "先切到键盘驾驶"}</span>}>
               <div className="text-xs text-gray-400">按住按键持续发送带 TTL 的速度请求；松键、切换模式或失去控制权时发送零速度。watchdog 在 0.3 s 无新命令时停车。</div>
               <div className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
@@ -331,30 +398,39 @@ export default function RosMobile() {
               </div>
               <div className="mt-2 text-xs text-gray-500">当前夹爪目标 {gripperTarget.toFixed(2)} rad（五关节显式映射）</div>
             </Card>
+            </>)}
 
             <Card title="采集与专家" right={expertRunning ? <Pill tone="warn">{expert?.phase}</Pill> : <Pill tone={recording?.active ? "ok" : "idle"}>{recording?.active ? "录制中" : "未录制"}</Pill>}>
               <div className="flex flex-wrap gap-2">
-                <button disabled={!controlActive || recording?.active || estop} onClick={startSession} className="rounded bg-emerald-700 px-3 py-1.5 text-sm disabled:opacity-40">开始 session</button>
-                <button disabled={!controlActive || !recording?.active || !!recording?.current_episode || estop} onClick={startEpisode} className="rounded border border-gray-700 px-3 py-1.5 text-sm disabled:opacity-40">开始回合</button>
+                <button disabled={(!readOnly && !controlActive) || recording?.active || estop} onClick={startSession} className="rounded bg-emerald-700 px-3 py-1.5 text-sm disabled:opacity-40">开始 session</button>
+                <button disabled={(!readOnly && !controlActive) || !recording?.active || !!recording?.current_episode || estop} onClick={startEpisode} className="rounded border border-gray-700 px-3 py-1.5 text-sm disabled:opacity-40">开始回合</button>
                 <button disabled={!recording?.current_episode} onClick={() => endEpisode(false)} className="rounded border border-gray-700 px-3 py-1.5 text-sm disabled:opacity-40">结束回合</button>
                 <button disabled={!recording?.current_episode} onClick={() => endEpisode(true)} className="rounded border border-amber-700 px-3 py-1.5 text-sm text-amber-200 disabled:opacity-40">弃用重录</button>
                 <button disabled={!recording?.active} onClick={stopSession} className="rounded border border-gray-700 px-3 py-1.5 text-sm disabled:opacity-40">停止 session</button>
+                {!readOnly && (<>
                 <button disabled={!recording?.active || estop || expertRunning} onClick={runExpert} className="rounded bg-violet-700 px-3 py-1.5 text-sm disabled:opacity-40"><Play className="mr-1 inline h-4 w-4" />运行脚本专家</button>
                 <button disabled={!expertRunning} onClick={stopExpert} className="rounded border border-red-700 px-3 py-1.5 text-sm text-red-200 disabled:opacity-40"><StopCircle className="mr-1 inline h-4 w-4" />中止专家</button>
+                </>)}
               </div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-400">
                 <div>session：<span className="font-mono text-gray-200">{recording?.session_id ?? "—"}</span></div>
                 <div>episode：<span className="font-mono text-gray-200">{recording?.episode_id ?? "—"}</span></div>
-                <div>阶段：<span className="text-gray-200">{expert?.phase ?? "—"}</span>{expert?.error && <span className="text-red-300"> · {expert.error}</span>}</div>
-                <div>最大抬升：<span className="text-gray-200">{Number(recording?.episode_max_lift_m ?? 0).toFixed(3)} m</span></div>
-                <div>夹爪接触事件：<span className="text-gray-200">{recording?.episode_contacts ?? 0}</span></div>
-                <div>队列/错误：<span className="text-gray-200">{agent?.safety?.rejected ?? 0} rejected</span></div>
+                {!readOnly && <div>阶段：<span className="text-gray-200">{expert?.phase ?? "—"}</span>{expert?.error && <span className="text-red-300"> · {expert.error}</span>}</div>}
+                {!readOnly && <div>最大抬升：<span className="text-gray-200">{Number(recording?.episode_max_lift_m ?? 0).toFixed(3)} m</span></div>}
+                <div>状态：<span className="text-gray-200">{recording?.status ?? "—"}</span>{recording?.ready ? " · READY" : ""}</div>
+                <div>bag：<span className="text-gray-200">exit {recording?.bag_exit_code ?? "—"} · {recording?.bag_readable == null ? "未校验" : recording.bag_readable ? "可读" : "不可读"}</span></div>
+                <div>磁盘余量：<span className="text-gray-200">{recording?.disk_free_bytes != null ? `${(recording.disk_free_bytes / 2 ** 30).toFixed(1)} GiB` : "—"}</span></div>
+                <div>流缺口：<span className={recording?.stream_gap_count ? "text-amber-300" : "text-gray-200"}>{recording?.stream_gap_count ?? 0}</span></div>
               </div>
+              {recording?.error && <div className="mt-2 text-xs text-red-300">录制错误：{recording.error}{recording.error_detail ? ` · ${recording.error_detail}` : ""}</div>}
               {recording?.episodes?.length > 0 && (
                 <div className="mt-2 max-h-32 overflow-auto rounded border border-gray-800 p-2 text-xs text-gray-400">
-                  {recording.episodes.map((ep: any) => (
-                    <div key={ep.episode_id} className="flex justify-between gap-2"><span className="font-mono">{ep.episode_id}</span><span className={ep.evaluation?.success ? "text-emerald-300" : "text-red-300"}>{ep.status} · {ep.evaluation?.success ? "success" : "failed"}</span></div>
-                  ))}
+                  {recording.episodes.map((ep: any) => {
+                    const outcome = ep.evaluation?.success;
+                    const tone = outcome === true ? "text-emerald-300" : outcome === "unknown" ? "text-amber-300" : "text-red-300";
+                    const label = outcome === true ? "success" : outcome === "unknown" ? "unlabeled" : "failed";
+                    return <div key={ep.episode_id} className="flex justify-between gap-2"><span className="font-mono">{ep.episode_id}</span><span className={tone}>{ep.status} · {label}</span></div>;
+                  })}
                 </div>
               )}
             </Card>
@@ -365,11 +441,15 @@ export default function RosMobile() {
                 {sessionsForDisplay.map((s: any) => <option key={s.session_id} value={s.session_id}>{s.session_id} · {s.status}{s.upper?.ready ? " · 已同步" : ""}</option>)}
               </select>
               <div className="flex flex-wrap gap-2">
-                <button disabled={!selectedSession || !!busy || recording?.active} onClick={syncAndExport} className="rounded bg-sky-700 px-3 py-1.5 text-sm disabled:opacity-40"><Upload className="mr-1 inline h-4 w-4" />同步并导出</button>
+                <button disabled={!selectedSession || !!busy || recording?.active || exportJob?.status === "running"} onClick={syncAndExport} className="rounded bg-sky-700 px-3 py-1.5 text-sm disabled:opacity-40"><Upload className="mr-1 inline h-4 w-4" />{readOnly ? "同步原始数据" : "同步并导出"}</button>
+                {readOnly && <button disabled={!selectedSession || !!busy || recording?.active || exportJob?.status === "running"} onClick={exportSession} className="rounded border border-amber-700 px-3 py-1.5 text-sm text-amber-200 disabled:opacity-40">尝试训练导出（应被拒绝）</button>}
+                {exportJob?.status === "running" && <button disabled={!!busy} onClick={cancelExport} className="rounded border border-red-700 px-3 py-1.5 text-sm text-red-200 disabled:opacity-40">取消导出</button>}
                 <button disabled={!!busy} onClick={loadSessions} className="rounded border border-gray-700 px-3 py-1.5 text-sm">刷新列表</button>
                 <Link to="/dataset-viewer" className="rounded border border-gray-700 px-3 py-1.5 text-sm">打开数据查看器</Link>
               </div>
+              {readOnly && <div className="mt-2 text-xs text-amber-300/80">只读实机数据只同步原始 bag 与事件；缺少 action / 关节或底盘反馈时，后端拒绝训练导出。</div>}
               {busy && <div className="mt-2 flex items-center gap-2 text-xs text-gray-400"><Loader2 className="h-3.5 w-3.5 animate-spin" />{busy} 进行中…</div>}
+              {exportJob && <div className="mt-2 text-xs text-gray-400">导出任务 <span className="font-mono text-gray-200">{exportJob.job_id}</span> · {exportJob.status}{exportJob.error ? <span className="text-red-300"> · {exportJob.error}</span> : null}</div>}
               {exportReport && (
                 <div className="mt-2 rounded border border-emerald-800 bg-emerald-950/30 p-2 text-xs text-emerald-200">
                   repo_id {exportReport.repo_id} · {exportReport.total_episodes} episodes · {exportReport.total_frames} frames

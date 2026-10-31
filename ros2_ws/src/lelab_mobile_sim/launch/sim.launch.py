@@ -34,6 +34,13 @@ def _launch_setup(context):
     agent = LaunchConfiguration("agent").perform(context).lower() == "true"
     agent_port = LaunchConfiguration("agent_port").perform(context)
     car_root = LaunchConfiguration("car_root").perform(context)
+    camera_profile = LaunchConfiguration("camera_profile").perform(context)
+    if camera_profile not in ("wrist_original", "wrist_demo_downward"):
+        raise RuntimeError(f"unknown camera_profile {camera_profile!r}")
+    wrist_pitch = "0.0" if camera_profile == "wrist_original" else "0.55"
+    task = LaunchConfiguration("task").perform(context)
+    if task not in ("place_in_tray", "place_on_box"):
+        raise RuntimeError(f"unknown task {task!r}")
 
     sim_share = Path(get_package_share_directory("lelab_mobile_sim"))
     desc_share = Path(get_package_share_directory("lelab_mobile_description"))
@@ -52,6 +59,9 @@ def _launch_setup(context):
     ]
 
     world_path = str(sim_share / "worlds" / f"{world}.sdf")
+    # place_on_box.sdf keeps the pick_place world name so bridge service and
+    # contact topic paths do not change between task variants.
+    gz_world_name = "pick_place" if world in ("pick_place", "place_on_box") else world
     gz_cmd = ["gz", "sim", "-r", "-v", "3", world_path]
     if not gui:
         gz_cmd = ["gz", "sim", "-r", "-s", "--headless-rendering", "-v", "3", world_path]
@@ -65,7 +75,8 @@ def _launch_setup(context):
     )
 
     robot_description = Command(
-        ["xacro ", str(desc_share / "urdf" / "robot.urdf.xacro")]
+        ["xacro ", str(desc_share / "urdf" / "robot.urdf.xacro"),
+         " wrist_camera_pitch:=", wrist_pitch]
     )
     actions.append(
         Node(
@@ -95,7 +106,7 @@ def _launch_setup(context):
     spawn = ExecuteProcess(
         cmd=[
             "ros2", "run", "lelab_mobile_sim", "spawn_robot.py",
-            "--world", world,
+            "--world", gz_world_name,
             "--name", "lelab_mobile",
             "--x", "0.0", "--y", "0.0", "--z", "0.0005",
             "--output", str(Path(car_root) / "runtime" / "lelab_mobile.sdf"),
@@ -156,6 +167,8 @@ def _launch_setup(context):
                                 "use_sim_time": True,
                                 "port": int(agent_port),
                                 "car_root": car_root,
+                                "camera_profile": camera_profile,
+                                "task_name": task,
                                 "model_sdf": str(Path(car_root) / "runtime" / "lelab_mobile.sdf"),
                             }
                         ],
@@ -194,6 +207,8 @@ def generate_launch_description():
             DeclareLaunchArgument("rviz", default_value="false"),
             DeclareLaunchArgument("agent", default_value="true"),
             DeclareLaunchArgument("agent_port", default_value="8110"),
+            DeclareLaunchArgument("camera_profile", default_value="wrist_demo_downward"),
+            DeclareLaunchArgument("task", default_value="place_in_tray"),
             DeclareLaunchArgument(
                 "car_root",
                 default_value=os.path.expanduser("~/Desktop/lelab/work/ros2_collection/car"),

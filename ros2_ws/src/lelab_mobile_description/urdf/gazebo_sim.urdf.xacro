@@ -43,6 +43,17 @@
       <initial_angular>0 0 0</initial_angular>
     </plugin>
 
+    <!-- Body-state feedback measured from the simulated world pose.  This is
+         intentionally separate from MecanumDrive's wheel odometry, which is
+         only a diagnostic stream because VelocityControl moves the model. -->
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <odom_topic>/lelab/base/model_odom</odom_topic>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <odom_frame>odom</odom_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+      <dimensions>3</dimensions>
+    </plugin>
+
     <!-- Simulation-only world pose, clearly not a policy observation. -->
     <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
       <publish_model_pose>true</publish_model_pose>

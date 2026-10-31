@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot name="lelab_mobile" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="wrist_camera_pitch" default="0.55"/>
   <xacro:include filename="$(find lelab_mobile_description)/urdf/mecanum.xacro"/>
   <xacro:include filename="$(find lelab_mobile_description)/urdf/arm.urdf.xacro"/>
   <xacro:include filename="$(find lelab_mobile_description)/urdf/gripper.urdf.xacro"/>

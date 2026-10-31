@@ -11,7 +11,13 @@
       "wheel_right_front_joint",
       "wheel_right_back_joint"
     ],
-    "arm_joints": ["joint1", "joint2", "joint3", "joint4", "joint5"],
+    "arm_joints": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5"
+    ],
     "gripper_master_joint": "gripper_base_joint",
     "gripper_passive_joints": [
       "gripper_left_join",
@@ -20,7 +26,11 @@
       "right_jaw_joint"
     ],
     "wrist_camera_frame": "wrist_camera_optical_frame",
-    "camera_mount_chain": ["link4", "camera_connect_link", "depth_cam_link"],
+    "camera_mount_chain": [
+      "link4",
+      "camera_connect_link",
+      "depth_cam_link"
+    ],
     "base_frame": "base_footprint",
     "odom_frame": "odom",
     "world_frame": "pick_place"
@@ -30,11 +40,39 @@
     "language": "Approach the orange cube, grasp it with the wrist-mounted gripper and place it in the blue container.",
     "cube_model": "task_cube",
     "container_model": "container",
-    "cube_initial_pose_xy": [0.26, -0.06],
-    "container_center_xy": [0.26, 0.07],
-    "container_inner_half_extent_m": [0.07, 0.07],
+    "cube_initial_pose_xy": [
+      0.26,
+      -0.06
+    ],
+    "container_center_xy": [
+      0.26,
+      0.07
+    ],
+    "container_inner_half_extent_m": [
+      0.07,
+      0.07
+    ],
     "success_min_lift_m": 0.03,
-    "success_max_final_xy_error_m": 0.065
+    "success_max_final_xy_error_m": 0.065,
+    "place_on_box": {
+      "box_model": "place_box",
+      "box_top_z_m": 0.06,
+      "box_center_xy": [
+        0.26,
+        0.07
+      ],
+      "box_top_half_extent_m": [
+        0.075,
+        0.075
+      ],
+      "release_clearance_m": 0.035,
+      "target_confirmation_required": true,
+      "lift_threshold_key": "success_min_lift_m"
+    },
+    "place_in_tray": {
+      "container_model": "container",
+      "wall_height_m": 0.02
+    }
   },
   "features": {
     "fps": 10,
@@ -60,9 +98,22 @@
         "joint5.position",
         "gripper_base.position"
       ],
-      "units": ["m/s", "m/s", "rad/s", "rad", "rad", "rad", "rad", "rad", "rad"],
+      "units": [
+        "m/s",
+        "m/s",
+        "rad/s",
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad"
+      ],
       "frame": "base_footprint",
-      "source": "gazebo_measured"
+      "source": "gazebo_measured",
+      "joint_topic": "/lelab/recording/joint_states",
+      "base_topic": "/lelab/base/model_odom",
+      "wheel_diagnostic_topic": "/lelab/base/odom"
     },
     "action": {
       "name": "action",
@@ -77,7 +128,17 @@
         "joint5.target",
         "gripper_base.target"
       ],
-      "units": ["m/s", "m/s", "rad/s", "rad", "rad", "rad", "rad", "rad", "rad"],
+      "units": [
+        "m/s",
+        "m/s",
+        "rad/s",
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad"
+      ],
       "source": "gateway_applied_target"
     },
     "auxiliary_raw_only": [
@@ -89,18 +150,36 @@
     ]
   },
   "limits": {
-    "base_vx_mps": 0.30,
-    "base_vy_mps": 0.30,
+    "base_vx_mps": 0.3,
+    "base_vy_mps": 0.3,
     "base_wz_radps": 1.0,
     "joint_positions_rad": {
-      "joint1": [-2.09, 2.09],
-      "joint2": [-2.09, 2.09],
-      "joint3": [-2.09, 2.09],
-      "joint4": [-2.09, 2.09],
-      "joint5": [-2.09, 2.09]
+      "joint1": [
+        -2.09,
+        2.09
+      ],
+      "joint2": [
+        -2.09,
+        2.09
+      ],
+      "joint3": [
+        -2.09,
+        2.09
+      ],
+      "joint4": [
+        -2.09,
+        2.09
+      ],
+      "joint5": [
+        -2.09,
+        2.09
+      ]
     },
-    "gripper_base_rad": [-1.638, 0.0],
-    "base_command_ttl_s": 0.30,
+    "gripper_base_rad": [
+      -1.638,
+      0.0
+    ],
+    "base_command_ttl_s": 0.3,
     "arm_command_ttl_s": 2.5,
     "max_trajectory_duration_s": 4.0,
     "control_session_ttl_s": 30.0,
@@ -108,7 +187,11 @@
     "watchdog_web_stale_s": 1.5
   },
   "modes": {
-    "base": ["keyboard", "scripted_expert", "leader_arm"],
+    "base": [
+      "keyboard",
+      "scripted_expert",
+      "leader_arm"
+    ],
     "initial": "idle",
     "leader_arm_available": false,
     "exclusive": true
@@ -119,42 +202,117 @@
     "topics": [
       "/clock",
       "/tf",
-      "/joint_states",
       "/lelab/wrist/rgb/image_raw",
       "/lelab/wrist/depth/image_raw",
       "/lelab/wrist/rgb/camera_info",
       "/lelab/wrist/depth/camera_info",
       "/lelab/lidar/scan",
       "/lelab/imu",
-      "/lelab/base/odom",
       "/lelab/base/pose",
       "/lelab/base/cmd_vel_request",
       "/lelab/task/cube_pose",
       "/lelab/task/container_pose",
       "/lelab/contacts",
       "/lelab/events",
-      "/lelab/safety_state"
+      "/lelab/safety_state",
+      "/lelab/recording/joint_states",
+      "/lelab/base/model_odom",
+      "/lelab/base/odom"
     ],
     "event_topic": "/lelab/events",
     "required_topics": [
-      "/clock",
-      "/tf",
-      "/joint_states",
+      "/lelab/recording/joint_states",
       "/lelab/wrist/rgb/image_raw",
-      "/lelab/base/odom"
-      ]
+      "/lelab/base/model_odom"
+    ],
+    "min_free_bytes": 536870912,
+    "stream_stale_s": 1.5,
+    "extra_topics": [
+      "/lelab/contact/left_jaw_link",
+      "/lelab/contact/right_jaw_link",
+      "/lelab/contact/gripper_base_link"
+    ]
   },
   "alignment": {
     "output_fps": 10,
-    "max_image_age_s": 0.20,
-    "max_state_age_s": 0.10,
+    "max_image_age_s": 0.2,
+    "max_state_age_s": 0.1,
     "max_action_age_s": 1.0,
-    "max_base_age_s": 0.10,
+    "max_base_age_s": 0.1,
     "gap_split_s": 0.25
   },
   "hardware": {
     "serial_devices": null,
     "leader_arm": null,
     "note": "Simulation profile. Real hardware mappings are intentionally unset."
+  },
+  "runtime": {
+    "mode": "simulation",
+    "adapter": "gazebo",
+    "actuator_outputs": true,
+    "clock_domain": "ros_sim_time",
+    "actuator_source": "ros2_control+velocity_control",
+    "base_velocity_topic": "/lelab/base/model_odom",
+    "wheel_odom_topic": "/lelab/base/odom",
+    "joint_state_topic": "/joint_states",
+    "record_joint_state_topic": "/lelab/recording/joint_states",
+    "joint_record_hz": 50,
+    "task_truth": true,
+    "training_export": true,
+    "camera_profile_default": "wrist_demo_downward",
+    "data_source": "simulation"
+  },
+  "sensors": {
+    "wrist_rgb": {
+      "required": true,
+      "rgb_topic": "/lelab/wrist/rgb/image_raw",
+      "camera_info_topic": "/lelab/wrist/rgb/camera_info",
+      "depth_topic": "/lelab/wrist/depth/image_raw",
+      "profile_id": "wrist_demo_downward",
+      "profiles": {
+        "wrist_original": {
+          "mount_chain": [
+            "link4",
+            "camera_connect_link",
+            "depth_cam_link",
+            "wrist_camera_tilt_link"
+          ],
+          "tilt_rad": 0.0,
+          "optical_frame": "wrist_camera_optical_frame",
+          "calibration_version": "uncalibrated_sim_v1"
+        },
+        "wrist_demo_downward": {
+          "mount_chain": [
+            "link4",
+            "camera_connect_link",
+            "depth_cam_link",
+            "wrist_camera_tilt_link"
+          ],
+          "tilt_rad": 0.55,
+          "optical_frame": "wrist_camera_optical_frame",
+          "calibration_version": "uncalibrated_sim_demo_v1"
+        }
+      },
+      "depth": {
+        "record_raw": true,
+        "training_input": false
+      },
+      "lidar": {
+        "topic": "/lelab/lidar/scan",
+        "record_raw": true,
+        "training_input": false
+      },
+      "imu": {
+        "topic": "/lelab/imu",
+        "record_raw": true,
+        "training_input": false
+      }
+    }
+  },
+  "training_export": {
+    "enabled": true,
+    "require_action_events": true,
+    "require_joint_state": true,
+    "require_success": true
   }
 }

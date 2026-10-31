@@ -13,12 +13,16 @@ import io
 import json
 import os
 import shutil
+import signal
+import subprocess
+import sys
 import tarfile
 import tempfile
 import threading
 import time
 import urllib.error
 import urllib.request
+import uuid
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -40,6 +44,10 @@ for directory in (UPPER_SESSIONS, UPPER_EXPORTS):
 LEASE_TASK = "recording"
 LEASE_TTL = 60.0
 AGENT_TTL = 30.0
+EXPORT_JOB_ROOT = COLLECTION_ROOT / "upper" / "export_jobs"
+EXPORT_JOB_ROOT.mkdir(parents=True, exist_ok=True)
+EXPORT_JOBS: dict[str, dict] = {}
+EXPORT_JOB_LOCK = threading.Lock()
 
 
 class BridgeError(Exception):
@@ -88,15 +96,35 @@ class RosMobileBridge:
         self.estop = False
         self.last_status: dict[str, Any] = {}
         self.last_status_wall = 0.0
+        self.read_only = False
 
     def _lease(self):
         return get_hardware_lease_manager()
 
     def acquire(self, owner: str) -> dict:
         with self.lock:
+            status = _http("GET", "/status", timeout=5.0)
+            self.read_only = bool(status.get("read_only"))
+            self.last_status = status
+            if self.read_only:
+                return {"owner": owner, "read_only": True, "mode": "readonly", "reused": True}
             if self.agent_token:
-                _http("POST", "/control/renew", {}, self.agent_token)
-                return {"owner": self.owner, "mode": self.last_status.get("control", {}).get("mode", "idle"), "reused": True}
+                try:
+                    _http("POST", "/control/renew", {}, self.agent_token)
+                    return {"owner": self.owner, "mode": self.last_status.get("control", {}).get("mode", "idle"), "reused": True}
+                except BridgeError as exc:
+                    if exc.status not in (401, 403):
+                        raise
+                    # The car agent was restarted; its token no longer exists.
+                    self.agent_token = None
+                    if self.lease_token:
+                        try:
+                            self._lease().release(token=self.lease_token, reason="agent-token-stale")
+                        except Exception:
+                            pass
+                    self.lease_token = None
+                    self.owner = None
+                    self.seq = -1
             lease = None
             try:
                 lease = self._lease().acquire(LEASE_TASK, owner=owner, role="operator", ttl_seconds=LEASE_TTL)
@@ -116,6 +144,8 @@ class RosMobileBridge:
 
     def heartbeat(self) -> dict:
         with self.lock:
+            if self.read_only:
+                return {"ok": True, "read_only": True}
             if not self.agent_token:
                 raise BridgeError(409, "ROS mobile control is not acquired")
             _http("POST", "/control/renew", {}, self.agent_token)
@@ -124,6 +154,8 @@ class RosMobileBridge:
 
     def release(self, reason: str = "released") -> dict:
         with self.lock:
+            if self.read_only:
+                return {"ok": True, "read_only": True}
             out: dict[str, Any] = {"ok": True}
             if self.agent_token:
                 try:
@@ -144,6 +176,8 @@ class RosMobileBridge:
 
     def emergency_stop(self, reason: str = "emergency-stop") -> dict:
         with self.lock:
+            if self.read_only:
+                return {"read_only": True, "estop": False, "detail": "no actuator output in readonly mode"}
             self.estop = True
             try:
                 out = _http("POST", "/control/estop", {"reason": reason}, self.agent_token or "")
@@ -165,6 +199,8 @@ class RosMobileBridge:
 
     def agent_token_required(self) -> str:
         with self.lock:
+            if self.read_only:
+                return ""
             if not self.agent_token:
                 raise BridgeError(409, "ROS mobile control is not acquired")
             return self.agent_token
@@ -181,11 +217,13 @@ class RosMobileBridge:
         status = _http("GET", "/status", timeout=5.0)
         with self.lock:
             self.last_status = status
+            self.read_only = bool(status.get("read_only"))
             self.last_status_wall = time.time()
         return {
             "agent": status,
             "bridge": {
                 "owner": owner,
+                "read_only": self.read_only,
                 "control_acquired": token is not None,
                 "estop": self.estop,
                 "upper_root": str(COLLECTION_ROOT),
@@ -215,6 +253,8 @@ def _owner(request: Request) -> str:
 def _guard(call):
     try:
         return call()
+    except ExportRejected as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     except BridgeError as exc:
         raise HTTPException(status_code=exc.status, detail=exc.detail) from exc
     except HardwareLeaseError as exc:
@@ -282,6 +322,8 @@ def control_release():
 @router.post("/control/mode")
 def control_mode(body: dict):
     bridge = get_bridge()
+    if bridge.read_only:
+        raise HTTPException(status_code=403, detail="readonly hardware mode does not accept actuator commands")
     token = _guard(bridge.agent_token_required)
     return _guard(lambda: _http("POST", "/control/mode", {"mode": body.get("mode", "idle")}, token))
 
@@ -289,6 +331,8 @@ def control_mode(body: dict):
 @router.post("/control/base")
 def control_base(body: dict):
     bridge = get_bridge()
+    if bridge.read_only:
+        raise HTTPException(status_code=403, detail="readonly hardware mode does not accept actuator commands")
     token = _guard(bridge.agent_token_required)
     status = _guard(lambda: _http("GET", "/status", timeout=5.0))
     mode = status.get("control", {}).get("mode", "idle")
@@ -316,6 +360,8 @@ def control_base(body: dict):
 @router.post("/control/arm")
 def control_arm(body: dict):
     bridge = get_bridge()
+    if bridge.read_only:
+        raise HTTPException(status_code=403, detail="readonly hardware mode does not accept actuator commands")
     token = _guard(bridge.agent_token_required)
     positions = body.get("positions")
     if not isinstance(positions, list) or len(positions) != 5:
@@ -334,6 +380,8 @@ def control_arm(body: dict):
 @router.post("/control/gripper")
 def control_gripper(body: dict):
     bridge = get_bridge()
+    if bridge.read_only:
+        raise HTTPException(status_code=403, detail="readonly hardware mode does not accept actuator commands")
     token = _guard(bridge.agent_token_required)
     _guard(lambda: _http("POST", "/control/mode", {"mode": "scripted_expert"}, token))
     status = _guard(lambda: _http("GET", "/status", timeout=5.0))
@@ -348,7 +396,10 @@ def control_gripper(body: dict):
 
 @router.post("/control/estop")
 def control_estop(body: dict | None = None):
-    return _guard(lambda: get_bridge().emergency_stop((body or {}).get("reason", "web-estop")))
+    bridge = get_bridge()
+    if bridge.read_only:
+        raise HTTPException(status_code=403, detail="readonly hardware mode has no actuator to stop")
+    return _guard(lambda: bridge.emergency_stop((body or {}).get("reason", "web-estop")))
 
 
 @router.post("/control/clear-estop")
@@ -440,21 +491,71 @@ def _safe_extract(archive: Path, destination: Path) -> None:
     destination = destination.resolve()
     with tarfile.open(archive, "r:gz") as tar:
         for member in tar.getmembers():
+            if member.issym() or member.islnk():
+                raise BridgeError(422, f"archive contains a link: {member.name}")
             target = (destination / member.name).resolve()
             if destination not in target.parents and target != destination:
                 raise BridgeError(422, f"archive path escape: {member.name}")
-        tar.extractall(destination)
+        tar.extractall(destination, filter="data")
+
+
+def _verify_synced_session(session_dir: Path, manifest: dict) -> dict:
+    if manifest.get("status") != "raw_ready" or manifest.get("ready_eligible") is not True:
+        raise BridgeError(409, f"session is not ready_eligible: {manifest.get('status')}/{manifest.get('error')}")
+    if int(manifest.get("bag_exit_code", -1)) != 0 or manifest.get("bag_readable") is not True:
+        raise BridgeError(409, "recorder did not stop normally or bag is not readable")
+    manifest_path = session_dir / "manifest.json"
+    if not manifest_path.is_file():
+        raise BridgeError(422, "manifest missing on upper host")
+    ready_path = session_dir / "READY"
+    if not ready_path.is_file():
+        raise BridgeError(409, "READY marker missing")
+    ready = json.loads(ready_path.read_text())
+    if ready.get("manifest_sha256") != _sha256(manifest_path):
+        raise BridgeError(422, "READY manifest hash mismatch")
+    expected = {entry["path"]: entry for entry in manifest.get("files", [])}
+    actual = {
+        str(path.relative_to(session_dir)): path
+        for path in session_dir.rglob("*")
+        if path.is_file() and path.name not in {"manifest.json", "READY"} and not path.name.endswith(".tar.gz")
+    }
+    if set(expected) != set(actual):
+        raise BridgeError(422, f"file set mismatch: missing={sorted(set(expected)-set(actual))} extra={sorted(set(actual)-set(expected))}")
+    for relative, entry in expected.items():
+        path = session_dir / relative
+        if path.stat().st_size != entry["size"]:
+            raise BridgeError(422, f"size mismatch: {relative}")
+        if _sha256(path) != entry["sha256"]:
+            raise BridgeError(422, f"sha256 mismatch: {relative}")
+    bag_dir = session_dir / "raw" / "bag"
+    if not bag_dir.is_dir():
+        raise BridgeError(422, "bag directory missing")
+    from rosbags.highlevel import AnyReader
+    try:
+        with AnyReader([bag_dir]) as reader:
+            topics = {c.topic for c in reader.connections}
+    except Exception as exc:  # noqa: BLE001
+        raise BridgeError(422, f"bag is not readable by rosbags: {exc}") from exc
+    required = set(manifest.get("required_topics", []))
+    missing = sorted(required - topics)
+    if missing:
+        raise BridgeError(422, f"required bag topics missing: {missing}")
+    return {"manifest_sha256": _sha256(manifest_path), "topics": sorted(topics), "verified_files": len(expected)}
 
 
 def sync_session(session_id: str) -> dict:
     if not session_id or "/" in session_id or ".." in session_id:
         raise HTTPException(status_code=400, detail="invalid session id")
     manifest = _guard(lambda: _http("GET", f"/sessions/{session_id}/manifest", timeout=10.0))
+    if manifest.get("status") != "raw_ready" or manifest.get("ready_eligible") is not True:
+        raise HTTPException(status_code=409, detail=f"agent session is not ready: {manifest.get('status')}/{manifest.get('error')}")
     final = UPPER_SESSIONS / session_id
-    if (final / "READY").exists():
-        return {"session_id": session_id, "status": "already_synced", "path": str(final)}
     if final.exists():
-        raise HTTPException(status_code=409, detail=f"incomplete upper copy exists at {final}")
+        try:
+            verification = _verify_synced_session(final, manifest)
+            return {"session_id": session_id, "status": "already_synced", "path": str(final), **verification}
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=409, detail=f"existing upper copy failed verification: {exc}") from exc
     staging = UPPER_SESSIONS / f".{session_id}.staging-{int(time.time())}"
     staging.mkdir(parents=True)
     archive = staging / "session.tar.gz"
@@ -475,17 +576,14 @@ def sync_session(session_id: str) -> dict:
             if digest != entry["sha256"]:
                 raise BridgeError(422, f"sha256 mismatch: {entry['path']}")
             verified.append(entry["path"])
-        (extract / "manifest.json").write_text(json.dumps(manifest, indent=2))
-        (extract / "READY").write_text(json.dumps({
-            "session_id": session_id,
-            "verified_files": len(verified),
-            "manifest_sha256": _sha256(extract / "manifest.json"),
-            "synced_wall": time.time(),
-        }))
+        ready = json.loads((extract / "READY").read_text())
+        if ready.get("manifest_sha256") != _sha256(extract / "manifest.json"):
+            raise BridgeError(422, "agent READY manifest hash mismatch")
         # Publish the extracted session itself, not a wrapper staging dir.
         os.replace(extract, final)
         shutil.rmtree(staging, ignore_errors=True)
-        return {"session_id": session_id, "status": "raw_ready", "path": str(final), "verified_files": len(verified)}
+        verification = _verify_synced_session(final, manifest)
+        return {"session_id": session_id, "status": "raw_ready", "path": str(final), **verification}
     except Exception:
         shutil.rmtree(staging, ignore_errors=True)
         raise
@@ -501,44 +599,68 @@ def sync(body: dict):
 # ---------------------------------------------------------------------------
 
 
-def _read_bag(bag_dir: Path, start_ns: int, end_ns: int) -> dict[str, Any]:
+def _read_bag(bag_dir: Path, start_ns: int, end_ns: int, image_topic: str, state_topic: str, base_topic: str) -> dict[str, Any]:
     from rosbags.highlevel import AnyReader
 
     images = []
     states = []
-    odoms = []
+    bases = []
     events = []
+    topics = {image_topic, state_topic, base_topic, "/lelab/events"}
     with AnyReader([bag_dir]) as reader:
         for connection, timestamp, raw in reader.messages():
             topic = connection.topic
-            if topic not in {
-                "/lelab/wrist/rgb/image_raw", "/joint_states", "/lelab/base/odom", "/lelab/events",
-            }:
+            if topic not in topics:
                 continue
             msg = reader.deserialize(raw, connection.msgtype)
-            stamp = int(getattr(getattr(msg, "header", None), "stamp", None).sec * 1e9 + getattr(getattr(msg, "header", None), "stamp", None).nanosec) if hasattr(msg, "header") else 0
-            if stamp <= 0:
+            header = getattr(msg, "header", None)
+            header_stamp = 0
+            if header is not None:
+                header_stamp = int(header.stamp.sec * 1e9 + header.stamp.nanosec)
+            if header_stamp <= 0:
                 stamp = int(timestamp)
-            if stamp < start_ns - 2_000_000_000 or stamp > end_ns + 2_000_000_000:
-                continue
-            if topic == "/lelab/wrist/rgb/image_raw":
-                images.append({"stamp": stamp, "width": msg.width, "height": msg.height, "encoding": msg.encoding, "data": bytes(msg.data)})
-            elif topic == "/joint_states":
-                states.append({"stamp": stamp, "names": list(msg.name), "positions": list(msg.position)})
-            elif topic == "/lelab/base/odom":
-                odoms.append({"stamp": stamp, "vx": float(msg.twist.twist.linear.x), "vy": float(msg.twist.twist.linear.y), "wz": float(msg.twist.twist.angular.z)})
-            elif topic == "/lelab/events":
+                stamp_source = "bag_receive"
+            else:
+                stamp = header_stamp
+                stamp_source = "header"
+            if topic == "/lelab/events":
+                # Event strings have no header: their payload clock is the
+                # episode clock, while the bag timestamp is host receive time.
                 try:
                     event = json.loads(msg.data)
                 except Exception:
                     continue
-                if event.get("kind") == "command" and isinstance(event.get("action"), list) and len(event["action"]) == 9:
-                    events.append(event)
+                event_time = event.get("time_ns", event.get("sim_time_ns"))
+                if (
+                    event.get("kind") == "command"
+                    and isinstance(event.get("action"), list)
+                    and len(event["action"]) == 9
+                    and event_time is not None
+                ):
+                    event_time = int(event_time)
+                    if start_ns - 2_000_000_000 <= event_time <= end_ns + 2_000_000_000:
+                        event["_time_ns"] = event_time
+                        event["_received_ns"] = int(timestamp)
+                        events.append(event)
+                continue
+            if stamp < start_ns - 2_000_000_000 or stamp > end_ns + 2_000_000_000:
+                continue
+            if topic == image_topic:
+                images.append({"stamp": stamp, "received_ns": int(timestamp), "stamp_source": stamp_source,
+                               "width": msg.width, "height": msg.height, "encoding": msg.encoding, "data": bytes(msg.data)})
+            elif topic == state_topic:
+                states.append({"stamp": stamp, "received_ns": int(timestamp), "stamp_source": stamp_source,
+                               "names": list(msg.name), "positions": list(msg.position)})
+            elif topic == base_topic:
+                bases.append({"stamp": stamp, "received_ns": int(timestamp), "stamp_source": stamp_source,
+                              "vx": float(msg.twist.twist.linear.x), "vy": float(msg.twist.twist.linear.y),
+                              "wz": float(msg.twist.twist.angular.z),
+                              "pose": [float(msg.pose.pose.position.x), float(msg.pose.pose.position.y), float(msg.pose.pose.position.z)]})
     images.sort(key=lambda x: x["stamp"])
     states.sort(key=lambda x: x["stamp"])
-    odoms.sort(key=lambda x: x["stamp"])
-    events.sort(key=lambda x: int(x.get("sim_time_ns", 0)))
-    return {"images": images, "states": states, "odoms": odoms, "events": events}
+    bases.sort(key=lambda x: x["stamp"])
+    events.sort(key=lambda x: x["_time_ns"])
+    return {"images": images, "states": states, "bases": bases, "events": events}
 
 
 def _latest(items: list[dict], stamp: int) -> dict | None:
@@ -552,19 +674,41 @@ def _latest(items: list[dict], stamp: int) -> dict | None:
 def _latest_event(events: list[dict], stamp: int) -> dict | None:
     import bisect
 
-    keys = [int(item.get("sim_time_ns", 0)) for item in events]
+    keys = [item["_time_ns"] for item in events]
     index = bisect.bisect_right(keys, stamp) - 1
     return events[index] if index >= 0 else None
+
+
+class ExportRejected(Exception):
+    pass
+
+
+def _check_exportable(session_id: str) -> tuple[Path, dict, dict]:
+    session_dir = UPPER_SESSIONS / session_id
+    if not (session_dir / "READY").exists():
+        raise HTTPException(status_code=409, detail="session is not synced and verified on the upper host")
+    manifest = json.loads((session_dir / "manifest.json").read_text())
+    if manifest.get("status") != "raw_ready" or manifest.get("ready_eligible") is not True:
+        raise HTTPException(status_code=409, detail=f"session is not ready for export: {manifest.get('status')}/{manifest.get('error')}")
+    meta = manifest.get("metadata", {})
+    if meta.get("source") != "simulation":
+        raise HTTPException(status_code=409, detail="only simulation sessions with action/feedback can be exported for training")
+    if not bool(meta.get("training_export", True)):
+        raise HTTPException(status_code=409, detail="session profile declares training_export=false")
+    return session_dir, manifest, meta
 
 
 def export_session(session_id: str, include_failed: bool = False) -> dict:
     from lerobot.datasets import LeRobotDataset
     import numpy as np
 
-    session_dir = UPPER_SESSIONS / session_id
-    if not (session_dir / "READY").exists():
-        raise HTTPException(status_code=409, detail="session is not synced and verified on the upper host")
-    manifest = json.loads((session_dir / "manifest.json").read_text())
+    session_dir, manifest, meta = _check_exportable(session_id)
+    image_topic = meta.get("camera_topic") or "/lelab/wrist/rgb/image_raw"
+    state_topic = meta.get("record_joint_state_topic") or meta.get("joint_state_topic") or "/joint_states"
+    base_topic = meta.get("base_velocity_topic") or "/lelab/base/odom"
+    base_source = meta.get("base_velocity_source") or ("gazebo_model_odometry" if base_topic == "/lelab/base/model_odom" else "legacy_wheel_odometry")
+    camera_profile = meta.get("camera_profile") or "legacy_unlabeled"
+    camera_extrinsics = meta.get("camera_extrinsics") or {}
     episodes = [e for e in manifest.get("episodes", []) if e.get("status") == "saved"]
     if not include_failed:
         episodes = [e for e in episodes if (e.get("evaluation") or {}).get("success") is True]
@@ -602,16 +746,18 @@ def export_session(session_id: str, include_failed: bool = False) -> dict:
         "session_id": session_id,
         "repo_id": repo_id,
         "fps": fps,
-        "source": "simulation",
+        "source": meta.get("source"),
         "profile": manifest.get("profile"),
+        "profile_sha256": meta.get("profile_sha256"),
+        "clock_domain": meta.get("clock_domain"),
+        "camera_profile": camera_profile,
+        "camera_extrinsics": camera_extrinsics,
+        "topics": {"image": image_topic, "state": state_topic, "base_velocity": base_topic, "action_events": "/lelab/events"},
         "episodes": [],
-        "alignment": "latest observation at or before each frame; image age <= 0.20 s, state/odom <= 0.10 s; no future data",
+        "alignment": "latest observation at or before each frame; image age <= 0.20 s, state/base <= 0.10 s, action <= 3.0 s zero-order hold; no future data",
         "action_source": "gateway_applied_target_with_zero_order_hold",
-        "base_velocity_source": "gazebo_wheel_odometry_simulation_feedback",
-        "warnings": [
-            "base body velocity is simulation wheel odometry and can differ from the velocity-controlled ground-truth motion",
-            "scripted expert uses privileged cube/container truth for planning; truth is not included in state/action",
-        ],
+        "base_velocity_source": base_source,
+        "warnings": ([] if base_source == "gazebo_model_odometry" else ["legacy session uses wheel odometry; body velocity may not match the model"]) + ([] if camera_profile != "legacy_unlabeled" else ["legacy session has no camera profile/extrinsics label"]),
     }
     dataset = None
     try:
@@ -625,24 +771,30 @@ def export_session(session_id: str, include_failed: bool = False) -> dict:
             batch_encoding_size=1,
         )
         for episode in episodes:
-            start = int(episode["started_sim_ns"])
-            end = int(episode["ended_sim_ns"] or episode["started_sim_ns"])
-            data = _read_bag(bag_dir, start, end)
-            if not data["images"] or not data["states"] or not data["odoms"]:
-                raise RuntimeError(f"episode {episode['episode_id']} has no usable sensor data")
-            initial = episode.get("evaluation", {}).get("cube_initial") or [0, 0, 0]
-            initial_state = None
-            initial_event = None
+            start = int(episode.get("started_time_ns", episode.get("started_sim_ns")))
+            end = int(episode.get("ended_time_ns") or episode.get("ended_sim_ns") or start)
+            data = _read_bag(bag_dir, start, end, image_topic, state_topic, base_topic)
+            if not data["images"] or not data["states"] or not data["bases"]:
+                raise ExportRejected(f"episode {episode['episode_id']} lacks image/state/base data")
+            if not data["events"]:
+                raise ExportRejected(f"episode {episode['episode_id']} has no applied-action events; refusing synthetic action")
             frame_records = []
             count = 0
             t = start
             while t <= end:
                 state = _latest(data["states"], t)
-                odom = _latest(data["odoms"], t)
+                odom = _latest(data["bases"], t)
                 image = _latest(data["images"], t)
                 event = _latest_event(data["events"], t)
                 if state is None or odom is None or image is None:
-                    raise RuntimeError(f"episode {episode['episode_id']} source gap at {t - start} ns")
+                    raise ExportRejected(f"episode {episode['episode_id']} source gap at {t - start} ns")
+                if event is None:
+                    raise ExportRejected(f"episode {episode['episode_id']} has no action at +{((t-start)/1e9):.2f}s")
+                action_age = (t - event["_time_ns"]) / 1e9
+                # Held joint trajectory targets are explicit gateway commands,
+                # not synthetic actions; a 2.5 s arm segment is the longest hold.
+                if action_age < 0 or action_age > 3.0:
+                    raise ExportRejected(f"episode {episode['episode_id']} action age {action_age:.3f}s at +{((t-start)/1e9):.2f}s")
                 image_age = (t - image["stamp"]) / 1e9
                 state_age = (t - state["stamp"]) / 1e9
                 odom_age = (t - odom["stamp"]) / 1e9
@@ -651,20 +803,26 @@ def export_session(session_id: str, include_failed: bool = False) -> dict:
                         f"episode {episode['episode_id']} stale source at +{((t-start)/1e9):.2f}s "
                         f"image={image_age:.3f}s state={state_age:.3f}s odom={odom_age:.3f}s"
                     )
-                if event is None:
-                    action = [0.0, 0.0, 0.0, *(state["positions"][i] for i in range(5)), 0.0]
-                    action_stamp = start
-                else:
-                    action = [float(v) for v in event["action"]]
-                    action_stamp = int(event["sim_time_ns"])
+                action = [float(v) for v in event["action"]]
+                if not all(np.isfinite(action)):
+                    raise ExportRejected(f"episode {episode['episode_id']} non-finite action")
+                action_stamp = int(event["_time_ns"])
                 joints = dict(zip(state["names"], state["positions"]))
+                required_joints = ("joint1", "joint2", "joint3", "joint4", "joint5", "gripper_base_joint")
+                missing_joints = [name for name in required_joints if name not in joints]
+                if missing_joints:
+                    raise ExportRejected(f"episode {episode['episode_id']} missing measured joints {missing_joints}; refusing zero fill")
                 state_vec = np.array([
                     odom["vx"], odom["vy"], odom["wz"],
-                    *(joints.get(name, 0.0) for name in ("joint1", "joint2", "joint3", "joint4", "joint5")),
-                    joints.get("gripper_base_joint", 0.0),
+                    *(joints[name] for name in required_joints),
                 ], dtype=np.float32)
                 if image["encoding"] not in ("rgb8", "bgr8"):
                     raise RuntimeError(f"unsupported image encoding {image['encoding']}")
+                expected_hw = features["observation.images.wrist_rgb"]["shape"][:2]
+                if (image["height"], image["width"]) != expected_hw:
+                    raise ExportRejected(
+                        f"episode {episode['episode_id']} image size {image['width']}x{image['height']} does not match dataset feature {expected_hw[1]}x{expected_hw[0]}"
+                    )
                 image_array = np.frombuffer(image["data"], dtype=np.uint8).reshape(image["height"], image["width"], 3)
                 if image["encoding"] == "bgr8":
                     image_array = image_array[:, :, ::-1]
@@ -676,11 +834,20 @@ def export_session(session_id: str, include_failed: bool = False) -> dict:
                 })
                 frame_records.append({
                     "frame": count,
-                    "sim_time_ns": t,
+                    "time_ns": t,
+                    "clock_domain": meta.get("clock_domain"),
                     "image_stamp_ns": image["stamp"],
+                    "image_received_ns": image["received_ns"],
+                    "image_stamp_source": image["stamp_source"],
                     "state_stamp_ns": state["stamp"],
-                    "odom_stamp_ns": odom["stamp"],
-                    "action_stamp_ns": action_stamp,
+                    "state_received_ns": state["received_ns"],
+                    "state_stamp_source": state["stamp_source"],
+                    "base_stamp_ns": odom["stamp"],
+                    "base_received_ns": odom["received_ns"],
+                    "base_stamp_source": odom["stamp_source"],
+                    "action_time_ns": action_stamp,
+                    "action_received_ns": event["_received_ns"],
+                    "action_age_s": round(action_age, 4),
                     "image_age_s": round(image_age, 4),
                     "state_age_s": round(state_age, 4),
                 })
@@ -694,8 +861,8 @@ def export_session(session_id: str, include_failed: bool = False) -> dict:
                 "source": episode.get("source"),
                 "success": episode.get("evaluation", {}).get("success"),
                 "frames": count,
-                "started_sim_ns": start,
-                "ended_sim_ns": end,
+                "started_time_ns": start,
+                "ended_time_ns": end,
                 "frames_detail": frame_records,
             })
         dataset.finalize()
@@ -738,10 +905,126 @@ def export_session(session_id: str, include_failed: bool = False) -> dict:
         raise
 
 
+def _job_log_tail(path: Path, limit: int = 4000) -> str:
+    try:
+        data = path.read_text(errors="replace")
+    except FileNotFoundError:
+        return ""
+    return data[-limit:]
+
+
+def _job_public(job: dict) -> dict:
+    out = {key: value for key, value in job.items() if key != "proc"}
+    out.pop("result_path", None)
+    out.pop("log_path", None)
+    return out
+
+
+def _refresh_job(job: dict) -> dict:
+    if job.get("status") != "running":
+        return job
+    proc = job.get("proc")
+    if proc is None or proc.poll() is None:
+        return job
+    job["exit_code"] = proc.returncode
+    job["finished_wall"] = time.time()
+    result_path = Path(job["result_path"])
+    result = None
+    if result_path.is_file():
+        try:
+            result = json.loads(result_path.read_text())
+        except Exception:
+            result = None
+    if result and result.get("status") == "completed":
+        job["status"] = "completed"
+        job["report"] = result.get("report")
+    else:
+        job["status"] = "failed"
+        job["error"] = (result or {}).get("error") or _job_log_tail(Path(job["log_path"])) or f"worker exited {proc.returncode}"
+        job["error_type"] = (result or {}).get("error_type")
+    return job
+
+
 @router.post("/export")
 def export(body: dict):
     session_id = str(body.get("session_id", ""))
-    return _guard(lambda: export_session(session_id, bool(body.get("include_failed", False))))
+    include_failed = bool(body.get("include_failed", False))
+    _guard(lambda: _check_exportable(session_id))
+    with EXPORT_JOB_LOCK:
+        for existing in EXPORT_JOBS.values():
+            if existing.get("session_id") == session_id and existing.get("status") == "running":
+                raise HTTPException(status_code=409, detail=f"export already running for {session_id}: {existing['job_id']}")
+    job_id = f"exp_{int(time.time())}_{uuid.uuid4().hex[:6]}"
+    job_dir = EXPORT_JOB_ROOT / job_id
+    job_dir.mkdir(parents=True, exist_ok=False)
+    result_path = job_dir / "result.json"
+    log_path = job_dir / "worker.log"
+    app_root = Path(__file__).resolve().parents[1]
+    cmd = [
+        sys.executable, "-m", "lelab.ros_export_worker", session_id,
+        "1" if include_failed else "0", str(result_path),
+    ]
+    log = open(log_path, "w", encoding="utf-8")
+    try:
+        proc = subprocess.Popen(
+            cmd, cwd=str(app_root), stdout=log, stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL, start_new_session=True,
+        )
+    except Exception:
+        log.close()
+        raise
+    job = {
+        "job_id": job_id, "session_id": session_id, "include_failed": include_failed,
+        "status": "running", "pid": proc.pid, "started_wall": time.time(),
+        "proc": proc, "result_path": str(result_path), "log_path": str(log_path),
+    }
+    with EXPORT_JOB_LOCK:
+        EXPORT_JOBS[job_id] = job
+    return _job_public(job)
+
+
+@router.get("/export/status/{job_id}")
+def export_status(job_id: str):
+    with EXPORT_JOB_LOCK:
+        job = EXPORT_JOBS.get(job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail=f"unknown export job {job_id}")
+        _refresh_job(job)
+        out = _job_public(job)
+    if out["status"] == "running":
+        out["log_tail"] = _job_log_tail(Path(job["log_path"]))
+    return out
+
+
+@router.post("/export/cancel/{job_id}")
+def export_cancel(job_id: str):
+    with EXPORT_JOB_LOCK:
+        job = EXPORT_JOBS.get(job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail=f"unknown export job {job_id}")
+        if job["status"] != "running":
+            return _job_public(job)
+        proc: subprocess.Popen = job["proc"]
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            proc.wait(timeout=5)
+        job["status"] = "canceled"
+        job["exit_code"] = proc.returncode
+        job["finished_wall"] = time.time()
+        export_dir = UPPER_EXPORTS / job["session_id"]
+        if export_dir.is_dir():
+            for staging in export_dir.glob("staging-*"):
+                shutil.rmtree(staging, ignore_errors=True)
+        return _job_public(job)
 
 
 @router.get("/exports")
