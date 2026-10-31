@@ -346,5 +346,27 @@
       "hash_mismatch": []
     },
     "interpretation": "Preview backpressure did not stall the ROS bag recorder; raw recording remained independent."
+  },
+  "passive_probe_rehearsal": {
+    "tool": "tools/ros2_collection/probe_real_sensors.py",
+    "run": "local simulation topics, duration 2-3 s",
+    "observed": {
+      "/lelab/wrist/rgb/image_raw": {
+        "rate_hz_receiver_side": 15.45,
+        "width": 640,
+        "height": 480,
+        "encoding": "rgb8",
+        "publisher_reliability": "RELIABLE"
+      },
+      "/lelab/base/model_odom": {
+        "rate_hz_receiver_side": 39.64,
+        "publisher_reliability": "RELIABLE"
+      },
+      "/joint_states": {
+        "rate_hz_receiver_side": 36.0,
+        "joints": 14
+      }
+    },
+    "note": "Receiver-side rates are Python probe rates, not native driver rates. On Pi run inside the container with default /ascamera topics."
   }
 }

@@ -82,6 +82,15 @@ PI=pi@192.168.19.138 tools/ros2_collection/deploy_readonly_agent.sh --rollback
 
 脚本默认容器 `MentorPi`、容器内路径 `/home/ubuntu/lelab_car`；认证完全交给用户已有 SSH 配置，不读取或打印凭据。`--rollback` 只删除部署的代码/profile/启动脚本，保留 `sessions/` 和日志。Pi 当前不可达，本脚本尚未在 Pi 实际执行。
 
+真实传感器被动核验（只创建订阅，不创建 publisher/client）：
+
+```bash
+# 在 Pi 容器内运行；默认探测 /ascamera 相机、IMU、关节和 odom 话题
+python3 tools/ros2_collection/probe_real_sensors.py --duration 10 --output /tmp/pi_sensors.json
+```
+
+输出包含消息类型、publisher QoS、接收侧速率、header stamp 跨度和图像尺寸/编码。若已知驱动 QoS，可加 `--reliability reliable|best_effort`。该工具已在本地仿真话题上演练通过。
+
 停止：在 launch 终端 `Ctrl-C`，再确认 `gz sim`、bridge、agent、watchdog 和控制器没有残留；原始 session 的停止只应在 agent 在线时通过 API 发起。
 
 ### 停止与回退
