@@ -15,6 +15,9 @@
 | 只读录制 | 使用硬件只读 profile，记录真实传感器 topic 与事件；episode 允许 `success:unknown`、`unlabeled` | `ros_20261031T170156Z_1a91b4ad`，2 episodes，raw_ready |
 | 预览拥塞隔离 | 32 个慢速 MJPEG 客户端占用预览线程时继续录制 | `ros_20261031T171531Z_a6db9c75`：raw_ready，100.3 MiB，114 图像，哈希一致 |
 | Pi profile + sqlite3 演练 | 使用真实 `/ascamera` topic 名、640×400 bgr8、硬件只读 profile，本地合成流录制两段 episode | `ros_20261031T172216Z_8f66db5c`：sqlite3 42.6 MiB/126 消息，2 episodes，READY，同步 7 文件，导出 409 |
+| 任务真值节流 | agent 20 Hz 重发布 `/lelab/recording/{cube,container,box}_pose`；专家/评估仍读原始真值 | 3 秒 session 消息数 8028→3777，真值 907→19.5 Hz，关节约 48 Hz |
+| 导出首帧对齐 | 从最早可用 image/state/base 与首个已发送动作的较晚者开始，不取未来观测、不合成动作 | `ros_20261031T172940Z_b34facd6`：专家 success=true，205 帧，网页 `/datasets` 可读 |
+| 时钟回跳保护 | 只读会话检测 >1 s 回跳或大幅前跳，停止 bag、不发布 READY | `clock_jump` 测试通过；raw 保留 |
 | 上位机断连本地收尾 | 车端继续录制，上位机 backend 被杀后直接结束 episode/session | `ros_20261031T170238Z_95697d4f`，`stop_reason=upper-disconnected-local-stop`，README 哈希一致 |
 | 异常录制不 READY | bag 提前退出/被 kill 时置 error，不写 READY；必需流中断、磁盘低同样不写 READY | `ros_20261031T155753Z_ee7808e9`，exit=-9；`ros_20261031T171045Z_970e8861`，`required_stream_missing`，无 READY；磁盘低直接测试 `disk_low` |
 | 启动/清理竞态 | MCAP 启动时文件可为空，改为 bag 文件存在 + 进程存活；启动失败关闭 bag/日志并清理 session 句柄，保留部分 raw | 后续会话正常 raw_ready；失败启动不阻塞下一次 session |
