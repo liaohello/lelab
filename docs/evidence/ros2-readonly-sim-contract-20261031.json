@@ -273,7 +273,9 @@
     "rgb_topic_filled_from_probe": true,
     "raw_storage": "sqlite3 (MCAP unavailable)",
     "training_export": false,
-    "caveat": "camera extrinsics/optical transform and arm/gripper feedback remain unverified; profile refuses training export"
+    "caveat": "camera extrinsics/optical transform and arm/gripper feedback remain unverified; profile refuses training export",
+    "min_free_bytes": 2147483648,
+    "capacity_note": "Pi root ~8.7 GiB free; 2 GiB safety margin retained."
   },
   "recorder_faults": {
     "required_stream_missing": {

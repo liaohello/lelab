@@ -102,10 +102,11 @@
       "/ascamera/camera_publisher/rgb0/camera_info"
     ],
     "event_topic": "/lelab/events",
-    "min_free_bytes": 536870912,
+    "min_free_bytes": 2147483648,
     "stream_stale_s": 1.5,
     "clock_domain": "hardware_system_time",
-    "joint_record_hz": 0
+    "joint_record_hz": 0,
+    "capacity_note": "Pi root has ~8.7 GiB free; keep a 2 GiB system margin and prefer short episodes/removable media."
   },
   "alignment": {
     "output_fps": null,
