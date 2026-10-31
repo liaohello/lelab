@@ -332,5 +332,19 @@
     "fresh": "fps=10.0, stale=false, backend=pillow",
     "after_publisher_stop": "age_s>=5.9, stale=true; UI shows 画面过期 and 无新图像 5.904 s，仍显示最后一帧",
     "status": "verified in browser snapshot; image is a local synthetic test topic, not a real camera"
+  },
+  "preview_congestion": {
+    "session_id": "ros_20261031T171531Z_a6db9c75",
+    "method": "32 persistent slow /preview.mjpg clients held open before and during a read-only recording",
+    "result": {
+      "status": "raw_ready",
+      "ready": true,
+      "bag_size_mib": 100.3,
+      "duration_s": 7.83,
+      "images": 114,
+      "camera_info": 115,
+      "hash_mismatch": []
+    },
+    "interpretation": "Preview backpressure did not stall the ROS bag recorder; raw recording remained independent."
   }
 }

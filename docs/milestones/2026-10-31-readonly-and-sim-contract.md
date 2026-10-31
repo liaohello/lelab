@@ -13,6 +13,7 @@
 | sim / hardware adapter 分离 | `runtime.mode=hardware_readonly` 时只创建事件、传感器、录制和 HTTP 入口；不创建底盘/手臂/夹爪 publisher 和控制定时器 | `/lelab_readonly_test` 发布者仅 `/lelab/events`、`/parameter_events`、`/rosout` |
 | 只读拒绝 | `/control/*`、`/expert/*`、`/task/reset` 返回 403；启停 session 不需要控制 token | acquire 返回 `read_only:true`；base 403；expert 403 |
 | 只读录制 | 使用硬件只读 profile，记录真实传感器 topic 与事件；episode 允许 `success:unknown`、`unlabeled` | `ros_20261031T170156Z_1a91b4ad`，2 episodes，raw_ready |
+| 预览拥塞隔离 | 32 个慢速 MJPEG 客户端占用预览线程时继续录制 | `ros_20261031T171531Z_a6db9c75`：raw_ready，100.3 MiB，114 图像，哈希一致 |
 | 上位机断连本地收尾 | 车端继续录制，上位机 backend 被杀后直接结束 episode/session | `ros_20261031T170238Z_95697d4f`，`stop_reason=upper-disconnected-local-stop`，README 哈希一致 |
 | 异常录制不 READY | bag 提前退出/被 kill 时置 error，不写 READY；必需流中断、磁盘低同样不写 READY | `ros_20261031T155753Z_ee7808e9`，exit=-9；`ros_20261031T171045Z_970e8861`，`required_stream_missing`，无 READY；磁盘低直接测试 `disk_low` |
 | 启动/清理竞态 | MCAP 启动时文件可为空，改为 bag 文件存在 + 进程存活；启动失败关闭 bag/日志并清理 session 句柄，保留部分 raw | 后续会话正常 raw_ready；失败启动不阻塞下一次 session |
