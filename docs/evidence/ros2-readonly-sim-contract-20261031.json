@@ -431,5 +431,27 @@
     "tampered_ready": "rejected as READY manifest hash mismatch",
     "test_file": "app_ros_mobile/tests/test_ros_mobile_sync.py",
     "passed": 2
+  },
+  "recording_stats": {
+    "session_id": "ros_20261031T172619Z_760aded2",
+    "bag_info": {
+      "duration_s": 2.044635914,
+      "messages": 63,
+      "topics": {
+        "/lelab/wrist/rgb/image_raw": {
+          "count": 30,
+          "observed_hz": 14.673
+        },
+        "/lelab/wrist/rgb/camera_info": {
+          "count": 30,
+          "observed_hz": 14.673
+        },
+        "/lelab/events": {
+          "count": 3,
+          "observed_hz": 1.467
+        }
+      }
+    },
+    "purpose": "Mesured counts and receiver/bag-derived Hz now travel in session.json and manifest.json without synthesizing missing data."
   }
 }

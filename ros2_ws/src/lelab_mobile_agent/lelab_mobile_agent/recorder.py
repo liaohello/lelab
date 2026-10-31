@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -291,7 +292,29 @@ class SessionRecorder:
             return False, f"ros2 bag info failed: {exc}"
         output = (proc.stdout or "") + (proc.stderr or "")
         ok = proc.returncode == 0 and "Files:" in output and "Messages:" in output
-        return ok, output[-2000:]
+        return ok, output
+
+    @staticmethod
+    def _parse_bag_info(output: str) -> dict:
+        duration_match = re.search(r"Duration:\s+([0-9.]+)s", output)
+        messages_match = re.search(r"Messages:\s+(\d+)", output)
+        duration = float(duration_match.group(1)) if duration_match else None
+        topics = {}
+        for match in re.finditer(
+            r"Topic:\s+(\S+)\s+\|\s+Type:\s+(\S+)\s+\|\s+Count:\s+(\d+)",
+            output,
+        ):
+            topic, msg_type, count = match.group(1), match.group(2), int(match.group(3))
+            topics[topic] = {
+                "type": msg_type,
+                "count": count,
+                "observed_hz": round(count / duration, 3) if duration and duration > 0 else None,
+            }
+        return {
+            "duration_s": duration,
+            "messages": int(messages_match.group(1)) if messages_match else None,
+            "topics": topics,
+        }
 
     def stop_session(self, reason: str = "normal", time_ns: int | None = None) -> dict:
         with self.lock:
@@ -338,8 +361,9 @@ class SessionRecorder:
                 self.bag_log.close()
                 self.bag_log = None
             self.bag_readable, bag_info = self._bag_info()
+            bag_stats = self._parse_bag_info(bag_info) if self.bag_readable else {}
             if not self.bag_readable:
-                self._set_error("bag_not_readable", bag_info)
+                self._set_error("bag_not_readable", bag_info[-2000:])
             if self.error is None and self.bag_exit_code != 0:
                 self._set_error("bag_exit_nonzero", f"exit={self.bag_exit_code}")
             self._event("session_stop", time_ns=time_ns, session_id=self.session_id, reason=reason,
@@ -357,6 +381,7 @@ class SessionRecorder:
                 "error_detail": self.error_detail,
                 "stream_gap_count": self.stream_gap_count,
                 "stream_gap_topics": self.stream_gap_topics,
+                "bag_info": bag_stats,
             })
             (session_dir / "session.json").write_text(json.dumps(session, indent=2), encoding="utf-8")
             files = []
@@ -382,6 +407,7 @@ class SessionRecorder:
                 "required_topics": self.required_topics,
                 "stream_gap_count": self.stream_gap_count,
                 "stream_gap_topics": self.stream_gap_topics,
+                "bag_info": bag_stats,
                 "episodes": [{
                     "episode_id": ep.episode_id, "source": ep.source, "status": ep.status,
                     "started_time_ns": ep.started_time_ns, "ended_time_ns": ep.ended_time_ns,
