@@ -754,6 +754,12 @@ class MobileAgent(Node):
             "preview_backend": self.preview_backend,
             "record_joint_state_topic": self.record_joint_topic,
             "timestamp_sources": {"event": self.runtime.get("clock_domain", "ros_time"), "ttl": "monotonic_wall_clock"},
+            "command_semantics": {
+                "requested": "operator_or_expert_request",
+                "sent": "gateway_forwarded_target",
+                "acknowledged": "not_available",
+                "measured_state": "unavailable_readonly" if self.read_only else "joint_states_and_model_odom",
+            },
         }
         if self.read_only:
             return common
