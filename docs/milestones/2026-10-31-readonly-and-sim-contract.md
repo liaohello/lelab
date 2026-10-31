@@ -37,6 +37,7 @@
 
 ## 3. 未完成与阻塞
 
+- **物理链路**：17:11Z 检查宿主有线网卡 `enx00e04c68034c` 为 `NO-CARRIER`（ethtool `Link detected: no`），宿主当前仅在 Wi-Fi `192.168.31.54/24`；`192.168.19.0/24` 已无路由。这不是 Pi ROS 结论，需恢复网线/供电或确认新地址。
 - **Pi 状态**：15:54Z 的被动探测已确认 Humble 容器（MentorPi，Ubuntu 22.04/Python 3.10）及真实 RGB（640×400 bgr8，约 8.6 Hz）、深度、IMU、关节和 odom topic；但 17:02Z 复核 `pi@192.168.19.138` 时 SSH BatchMode `Connection timed out`，ping 2/2 丢包。没有采集或输出任何凭据。
 - 被动探测未发现 MCAP 插件，硬件只读 profile 因此改用 `sqlite3`；相机外参、关节/夹爪实测反馈和时钟同步仍未确认。
 - 因此以下均未验证：Pi 上的 ROS 运行时/驱动/容器启动与部署、真实相机外参/标定、网页消费真实相机、Pi 本地两段 episode、Pi 断连保存、真实 bag 同步、实机只读无执行器输出。真实 topic/帧尺寸/近似接收频率只有被动探测结果，不能替代本次运行验证。

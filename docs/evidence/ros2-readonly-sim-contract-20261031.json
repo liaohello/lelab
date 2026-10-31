@@ -224,7 +224,14 @@
     "attempted_at": "2026-10-31T17:02Z",
     "ssh": "connect to host 192.168.19.138 port 22: Connection timed out (BatchMode, no credentials exposed)",
     "ping": "2 packets transmitted, 0 received, 100% packet loss",
-    "status": "blocked; real camera, real bag, Pi deployment and Pi disconnect test remain unverified"
+    "status": "blocked; real camera, real bag, Pi deployment and Pi disconnect test remain unverified",
+    "local_network_at_1711Z": {
+      "wired_interface": "enx00e04c68034c",
+      "state": "UP but NO-CARRIER; ethtool Link detected: no",
+      "host_active_interface": "wlp1s0 192.168.31.54/24",
+      "pi_subnet": "192.168.19.0/24 has no route on host",
+      "meaning": "The host is no longer on the Pi wired subnet; this is a physical link/power/network state, not a Pi ROS conclusion."
+    }
   },
   "pi_passive_observation": {
     "observed_at": "2026-10-31T15:54Z",
@@ -290,5 +297,11 @@
     "target": "existing container MentorPi; no system install; SSH auth delegated to user config",
     "executed": false,
     "reason": "Pi unreachable at 17:02-17:10Z"
+  },
+  "export_cancel": {
+    "method": "real sleep process registered as export job; POST-like export_cancel called",
+    "status": "canceled",
+    "exit_code": -15,
+    "process_alive": false
   }
 }
