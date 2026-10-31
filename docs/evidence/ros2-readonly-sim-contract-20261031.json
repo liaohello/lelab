@@ -388,5 +388,18 @@
     "upper_sync_verified_files": 7,
     "training_export_http_status": 409,
     "note": "This validates the Pi profile and sqlite3 path locally; it is not real Pi camera evidence."
+  },
+  "hardware_profile_upper_disconnect": {
+    "session_id": "ros_20261031T172321Z_a8a813c0",
+    "storage": "sqlite3",
+    "status": "raw_ready",
+    "stop_reason": "upper-disconnected-local-stop",
+    "ready": true,
+    "note": "Upper backend killed while a Pi-profile sqlite3 session was recording; agent finished locally."
+  },
+  "bridge_readonly_race": {
+    "bug": "new upper backend treated a read-only agent as controllable before its first /status poll",
+    "fix": "agent_token_required lazily refreshes /status when no status has been observed",
+    "verified": "start-session succeeded through a freshly started backend without control token"
   }
 }

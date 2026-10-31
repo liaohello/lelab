@@ -199,6 +199,13 @@ class RosMobileBridge:
 
     def agent_token_required(self) -> str:
         with self.lock:
+            if not self.last_status_wall:
+                # A freshly started upper backend has not polled /status yet.
+                # Do not mistake a read-only agent for a controllable one.
+                status = _http("GET", "/status", timeout=5.0)
+                self.last_status = status
+                self.last_status_wall = time.time()
+                self.read_only = bool(status.get("read_only"))
             if self.read_only:
                 return ""
             if not self.agent_token:
