@@ -48,3 +48,11 @@ improved on the earlier pilot, and still did not meet the original A gate.
 These records do not establish simulation task success or physical robot
 safety. Model weights, datasets and private runtime configuration are not
 included.
+
+Current stage status is summarised in
+[the 2026-11-01 status snapshot](docs/milestones/2026-11-01-status-act-and-smolvla.md):
+ACT training is the usable baseline (30,000 steps, MuJoCo closed-loop 2 of 3
+attempts at the 30k checkpoint, 1 of 3 at 20k, 0 of 3 at 10k, single scene,
+red scenes only), while SmolVLA has not been trained long enough and has no
+closed-loop evaluation at all, so it currently has no success record rather
+than a measured low success rate. Both are simulation-only results.

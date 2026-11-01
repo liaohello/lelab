@@ -10,6 +10,7 @@ must not be reported as an independent test set.
 | 2026-10-25 | [Gated SmolVLA bimanual run, stopped at checkpoint 250](milestones/2026-10-25-smolvla-bimanual-gated-training.md) | Early stop by pre-registered symmetric gripper gate; 250 of 2,000 updates; no qualifying stage-4 candidate |
 | 2026-10-25 | [SmolVLA bimanual diagnostics: gate replay and inference-step check](milestones/2026-10-25-smolvla-bimanual-diagnostics.md) | Retrospective offline analysis; gate replayed; 20-step integration not supported; no new training |
 | 2026-10-25 | [SmolVLA bimanual 10,000-update fine-tune](milestones/2026-10-25-smolvla-bimanual-10k-finetune.md) | Offline run completed through two GPU-conflict pauses; development scaled MAE 0.3105; original A gate not met; no simulation or hardware validation |
+| 2026-11-01 | [Stage status: ACT usable, SmolVLA undertrained](milestones/2026-11-01-status-act-and-smolvla.md) | ACT 30k checkpoint reaches 2/3 MuJoCo closed-loop success (0/3 at 10k, 1/3 at 20k) while its first-10 offline MAE still misses the baseline gate; SmolVLA stops at 10,000 updates with no closed-loop evaluation and therefore no success record. Simulation only; no hardware validation |
 
 Public entries are summaries of retained experiment records. They do not package
 the complete training environment or provide a standalone reproduction recipe.
