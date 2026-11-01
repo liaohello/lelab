@@ -47,6 +47,12 @@ CONFIG_STORAGE_PATH = os.path.expanduser("~/.cache/huggingface/lerobot/saved_con
 LEADER_CONFIG_FILE = os.path.join(CONFIG_STORAGE_PATH, "leader_config.txt")
 FOLLOWER_CONFIG_FILE = os.path.join(CONFIG_STORAGE_PATH, "follower_config.txt")
 
+# Serial-port role inventory (multi-arm identification). Honor the project data
+# root so isolated test runs do not write into the workstation cache.
+HARDWARE_INVENTORY_PATH = os.path.expanduser(
+    os.getenv("LELAB_HARDWARE_INVENTORY_DIR", str(_DEFAULT_LEROBOT_HOME / "hardware"))
+)
+
 # Robot config records (per-robot JSON metadata)
 ROBOTS_PATH = os.path.expanduser("~/.cache/huggingface/lerobot/robots")
 

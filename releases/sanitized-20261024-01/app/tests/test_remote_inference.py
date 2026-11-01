@@ -52,7 +52,7 @@ def test_client_command_targets_the_tunnel(monkeypatch) -> None:
     # Local safety limits travel with the robot config, cloud or not.
     assert "--robot.max_relative_target=5.0" in joined
     assert "--robot.max_position_deviation" not in joined
-    assert "wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}" in joined
+    assert "wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30" in joined
 
 
 def test_client_command_omits_empty_task() -> None:

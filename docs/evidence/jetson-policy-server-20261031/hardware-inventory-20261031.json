@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "saved_at": "2026-11-01T03:23:17+00:00",
+  "hostname": "liaoComputer",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "app_version": "0.1.0",
+  "required_roles": [
+    "left_follower",
+    "right_follower",
+    "left_leader",
+    "right_leader"
+  ],
+  "role_labels": {
+    "left_follower": "左从臂（执行）",
+    "right_follower": "右从臂（执行）",
+    "left_leader": "左主臂（遥操作）",
+    "right_leader": "右主臂（遥操作）",
+    "spare": "备用",
+    "unassigned": "未分配"
+  },
+  "missing_roles": [],
+  "complete": true,
+  "counts": {
+    "total": 4,
+    "present": 4,
+    "assigned_required": 4
+  },
+  "serial_ports": [
+    {
+      "id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149339-if00",
+      "by_id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149339-if00",
+      "device": "/dev/ttyACM1",
+      "source": "by-id",
+      "serial": "5B90149339",
+      "vid": "1a86",
+      "pid": "55d3",
+      "manufacturer": null,
+      "product": "USB Single Serial",
+      "usb_path": "usb-3-1.4.2",
+      "present": true,
+      "role": "left_follower",
+      "note": "左从臂",
+      "last_seen": "2026-11-01T03:23:14+00:00"
+    },
+    {
+      "id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00",
+      "by_id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00",
+      "device": "/dev/ttyACM2",
+      "source": "by-id",
+      "serial": "5B90149652",
+      "vid": "1a86",
+      "pid": "55d3",
+      "manufacturer": null,
+      "product": "USB Single Serial",
+      "usb_path": "usb-3-1.4.4",
+      "present": true,
+      "role": "right_leader",
+      "note": "右主臂",
+      "last_seen": "2026-11-01T03:23:14+00:00"
+    },
+    {
+      "id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+      "by_id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+      "device": "/dev/ttyACM3",
+      "source": "by-id",
+      "serial": "5B90149723",
+      "vid": "1a86",
+      "pid": "55d3",
+      "manufacturer": null,
+      "product": "USB Single Serial",
+      "usb_path": "usb-3-1.4.3",
+      "present": true,
+      "role": "left_leader",
+      "note": "左主臂",
+      "last_seen": "2026-11-01T03:23:14+00:00"
+    },
+    {
+      "id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B91045575-if00",
+      "by_id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B91045575-if00",
+      "device": "/dev/ttyACM0",
+      "source": "by-id",
+      "serial": "5B91045575",
+      "vid": "1a86",
+      "pid": "55d3",
+      "manufacturer": null,
+      "product": "USB Single Serial",
+      "usb_path": "usb-3-1.1",
+      "present": true,
+      "role": "right_follower",
+      "note": "右从臂",
+      "last_seen": "2026-11-01T03:23:14+00:00"
+    }
+  ],
+  "roles": {
+    "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149339-if00": "left_follower",
+    "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00": "right_leader",
+    "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00": "left_leader",
+    "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B91045575-if00": "right_follower"
+  },
+  "notes": {
+    "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149339-if00": "左从臂",
+    "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00": "右主臂",
+    "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00": "左主臂",
+    "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B91045575-if00": "右从臂"
+  },
+  "file": "/home/liaozhengyan/.local/share/lelab-jetson-20261031/approot/hf/hardware/hardware-inventory-20261031-202317.json"
+}

@@ -1,0 +1,36 @@
+/home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/liaozhengyan/Desktop/lelab-bimanual/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.13.6, asyncio-1.4.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 15 items
+
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_contract_matches_real_act_metadata PASSED [  6%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_contract_rejects_wrong_observation_and_action PASSED [ 13%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_dataset_features_preserve_joint_order PASSED [ 20%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_observe_mode_never_opens_policy_channel_or_sends_actions PASSED [ 26%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_shadow_mode_records_actions_without_dispatching PASSED [ 33%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_shadow_rejects_nan_action_and_faults PASSED [ 40%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_shadow_rejects_wrong_dimension PASSED [ 46%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_stale_chunk_is_rejected_by_local_monotonic_ttl PASSED [ 53%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_out_of_order_and_old_session_chunks_are_rejected PASSED [ 60%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_execute_requires_all_gates_and_sink PASSED [ 66%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_execute_dispatches_only_validated_actions PASSED [ 73%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_disconnect_faults_and_clears_queue PASSED [ 80%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_duplicate_stop_is_idempotent PASSED [ 86%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_read_only_source_opens_bus_and_cameras_without_writes PASSED [ 93%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_read_only_source_rejects_missing_calibration PASSED [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 15 passed, 1 warning in 9.08s =========================

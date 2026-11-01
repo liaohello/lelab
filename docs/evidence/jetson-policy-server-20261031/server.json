@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-31",
+  "host": "nvidia-desktop",
+  "lan_endpoint": "192.168.31.204:28081",
+  "bind_host": "0.0.0.0",
+  "ssh": "nvidia@192.168.31.204:22",
+  "container_name": "lelab-policy-server-20261031",
+  "image": "lelab-policy-server:20261031",
+  "base_image": "nvcr.io/nvidia/pytorch:25.06-py3-igpu",
+  "container_torch": "2.8.0a0+5228986c39.nv25.06",
+  "container_cuda": "12.9",
+  "container_python": "3.12.3",
+  "source_dir": "/home/nvidia/jetson-policy-server-20261031/lerobot/src",
+  "checkpoint": "/home/nvidia/Desktop/lelab/models/act_local_red_bowl_20260919_152702_2026-09-19_19-55-49_6cf4e08d/checkpoints/010000/pretrained_model",
+  "checkpoint_metadata_sha256": "5d428f5ff783e20665774a737325ba19e929d27b59788346546ee842d1fe6661",
+  "calibration": {
+    "source": "/home/nvidia/Desktop/lelab/data/calibration/robots/so_follower/my_robot.json",
+    "copied_to": "/home/liaozhengyan/.local/share/lelab-jetson-20261031/calibration/my_robot.json",
+    "sha256": "c12c40e7da7021d42f8c91015f815ec26b56976d432eb9b5a2e2b8baa8c35226",
+    "serial": "usb-1a86_USB_Single_Serial_5B91045575-if00",
+    "role": "single-arm follower used by the old ACT logs; other three arms not identified"
+  },
+  "start": "releases/sanitized-20261024-01/app/deploy/jetson/policy_server_docker.sh start",
+  "stop": "releases/sanitized-20261024-01/app/deploy/jetson/policy_server_docker.sh stop",
+  "status": "releases/sanitized-20261024-01/app/deploy/jetson/policy_server_docker.sh status",
+  "logs": "docker logs lelab-policy-server-20261031",
+  "resource_logs": "/home/nvidia/jetson-policy-server-20261031/logs/resources-stageE.jsonl and tegrastats-stageE.log",
+  "tunnel_used": false,
+  "network_exposure": "trusted LAN only; gRPC is unencrypted pickle"
+}

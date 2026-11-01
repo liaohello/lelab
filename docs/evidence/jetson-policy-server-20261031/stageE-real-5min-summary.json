@@ -1,0 +1,51 @@
+{
+  "mode": "shadow",
+  "phase": "stopped",
+  "fault": null,
+  "contract": {
+    "policy_type": "act",
+    "state_dim": 6,
+    "action_dim": 6,
+    "image_keys": [
+      "observation.images.right",
+      "observation.images.up"
+    ],
+    "normalization": {
+      "VISUAL": "MEAN_STD",
+      "STATE": "MEAN_STD",
+      "ACTION": "MEAN_STD"
+    },
+    "checkpoint_sha256": "5d428f5ff783e20665774a737325ba19e929d27b59788346546ee842d1fe6661"
+  },
+  "elapsed_s": 289.3487368019996,
+  "first_chunk_after_load_s": 0.30094675498548895,
+  "metrics": {
+    "observations_captured": 1440,
+    "observations_sent": 1440,
+    "chunks_received": 1435,
+    "chunks_rejected": 0,
+    "actions_received": 143500,
+    "actions_dispatched": 0,
+    "upload_ms": {
+      "p50": 55.97,
+      "p90": 76.71,
+      "p99": 101.04
+    },
+    "roundtrip_ms": {
+      "p50": 184.7,
+      "p90": 216.19,
+      "p99": 304.91
+    },
+    "action_age_ms": {
+      "p50": 190.59,
+      "p90": 222.87,
+      "p99": 334.26
+    },
+    "capture_ms": {
+      "p50": 5.33,
+      "p90": 8.02,
+      "p99": 12.51
+    },
+    "faults": []
+  }
+}

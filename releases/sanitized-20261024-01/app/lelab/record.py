@@ -15,26 +15,35 @@
 import logging
 import re
 import shutil
+import sys
 import threading
 import time
 import traceback
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 from lerobot.configs.dataset import DatasetRecordConfig
 from lerobot.datasets import LeRobotDataset
-from lerobot.robots.so_follower import SO101FollowerConfig
 
 # Import the main record functionality to reuse it
 from lerobot.scripts.lerobot_record import RecordConfig
-from lerobot.teleoperators.so_leader import SO101LeaderConfig
 
 from .dataset_repair import DatasetRepairError, repair_local_dataset
-from .safety import follower_safety_kwargs
+from .rig import (
+    ACTION_SEMANTICS_RAW,
+    JOINT_NAMES,
+    BimanualRig,
+    assert_bimanual_robot_contract,
+    build_bimanual_configs,
+    build_single_configs,
+    validate_cameras,
+)
+from .session_diagnostics import SessionDiagnostics, build_snapshot, camera_health
 from .utils.config import setup_calibration_files, with_lelab_tag
-from .utils.devices import safe_disconnect_device
+from .utils.devices import connect_recording_devices, safe_disconnect_device
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +74,14 @@ phase_start_time = None  # Track when current phase started
 last_recording_info: dict[str, Any] | None = (
     None  # Snapshot of the most recently completed dataset (for /dataset-info)
 )
+# Same-cycle left/right joint snapshot published by the recording callback.
+latest_joint_snapshot: dict[str, Any] = {}
+# Finalize/verification progress.  "completed" is only set after the writer was
+# finalized AND the dataset was reopened successfully.
+finalize_state: dict[str, Any] = {}
+# Sidecar diagnostics location and counters for the active/last session.
+session_diagnostics_info: dict[str, Any] = {}
+saved_episode_details: list[dict[str, Any]] = []
 # Guards the start path so two concurrent POST /start-recording calls cannot
 # both pass the active-flag check.
 _state_lock = threading.Lock()
@@ -86,24 +103,47 @@ class RecordingRequest(BaseModel):
     - test_mode：跳过真实设备连接（仅测试用）。
     """
 
-    leader_port: str
-    follower_port: str
-    leader_config: str
-    follower_config: str
+    leader_port: str | None = None
+    follower_port: str | None = None
+    leader_config: str | None = None
+    follower_config: str | None = None
+    bimanual: BimanualRig | None = None
     dataset_repo_id: str
     single_task: str
-    num_episodes: int = 5
-    episode_time_s: int = 30
-    reset_time_s: int = 10
-    fps: int = 30
+    num_episodes: int = Field(default=5, ge=1)
+    episode_time_s: int = Field(default=30, ge=1)
+    reset_time_s: int = Field(default=10, ge=0)
+    fps: int = Field(default=30, ge=1, le=120)
     video: bool = True
     push_to_hub: bool = False
-    tags: list[str] = []
+    tags: list[str] = Field(default_factory=list)
     private: bool = False
     resume: bool = False
     streaming_encoding: bool = True
-    cameras: dict = {}
+    cameras: dict = Field(default_factory=dict)
     test_mode: bool = False  # Skip robot connection for testing
+
+    @model_validator(mode="after")
+    def validate_device_mode(self) -> "RecordingRequest":
+        legacy = [
+            self.leader_port,
+            self.follower_port,
+            self.leader_config,
+            self.follower_config,
+        ]
+        if self.bimanual is None and not all(value and value.strip() for value in legacy):
+            raise ValueError(
+                "Select a calibrated leader/follower pair or a complete bimanual rig"
+            )
+        if self.bimanual is not None and any(legacy):
+            raise ValueError("Use either a single leader/follower pair or a bimanual rig")
+        if self.bimanual is not None:
+            validate_cameras(self.cameras, require_one=True)
+        return self
+
+    @property
+    def mode(self) -> str:
+        return "bimanual" if self.bimanual is not None else "single"
 
 
 class UploadRequest(BaseModel):
@@ -256,28 +296,23 @@ def create_record_config(request: RecordingRequest) -> RecordConfig:
     5. 最终合成 lerobot_record.RecordConfig（与 CLI 同一配置结构），API 模式
        下关闭桌面显示与提示音。
     """
-    # Setup calibration files
-    leader_config_name, follower_config_name = setup_calibration_files(
-        request.leader_config, request.follower_config
-    )
-
     # Convert the frontend camera dict into OpenCVCameraConfig objects. Backend
     # defaults to the platform pin unless the request overrides it per camera.
     camera_configs = _build_camera_configs(request.cameras, _platform_backend())
 
-    # Create robot config
-    robot_config = SO101FollowerConfig(
-        port=request.follower_port,
-        id=follower_config_name,
-        cameras=camera_configs,
-        **follower_safety_kwargs(),
-    )
-
-    # Create teleop config
-    teleop_config = SO101LeaderConfig(
-        port=request.leader_port,
-        id=leader_config_name,
-    )
+    if request.bimanual is not None:
+        robot_config, teleop_config, rig_metadata = build_bimanual_configs(
+            request.bimanual, camera_configs
+        )
+    else:
+        robot_config, teleop_config, rig_metadata = build_single_configs(
+            leader_port=request.leader_port,
+            follower_port=request.follower_port,
+            leader_config=request.leader_config,
+            follower_config=request.follower_config,
+            camera_configs=camera_configs,
+            setup_calibration_files_fn=setup_calibration_files,
+        )
 
     # Create dataset config
     dataset_config = DatasetRecordConfig(
@@ -305,7 +340,10 @@ def create_record_config(request: RecordingRequest) -> RecordConfig:
         display_data=False,  # Don't display data in API mode
         play_sounds=False,  # Don't play sounds in API mode
     )
-
+    # RecordConfig is a draccus dataclass; attach the validated rig description
+    # for the worker/diagnostics without widening the upstream config schema.
+    record_config.lelab_rig = rig_metadata
+    record_config.lelab_camera_names = list(camera_configs)
     return record_config
 
 
@@ -334,7 +372,11 @@ def handle_start_recording(request: RecordingRequest) -> dict[str, Any]:
         saved_episodes, \
         current_phase, \
         phase_start_time, \
-        last_recording_info
+        last_recording_info, \
+        latest_joint_snapshot, \
+        finalize_state, \
+        session_diagnostics_info, \
+        saved_episode_details
 
     from . import rollout as _rollout, teleoperate as _teleoperate
 
@@ -358,6 +400,10 @@ def handle_start_recording(request: RecordingRequest) -> dict[str, Any]:
         current_phase = "preparing"
         phase_start_time = None
         last_recording_info = None
+        latest_joint_snapshot = {}
+        finalize_state = {"state": "pending", "verified": False}
+        session_diagnostics_info = {}
+        saved_episode_details = []
 
     try:
         # LeRobot requires the Hub-style ``namespace/name`` shape even when the
@@ -411,7 +457,8 @@ def handle_start_recording(request: RecordingRequest) -> dict[str, Any]:
                 phase_start_time, \
                 current_episode, \
                 saved_episodes, \
-                last_recording_info
+                last_recording_info, \
+                finalize_state
             recording_start_time = time.time()
             current_episode = 1
             saved_episodes = 0
@@ -445,6 +492,16 @@ def handle_start_recording(request: RecordingRequest) -> dict[str, Any]:
                     "features": list(dataset.features.keys()),
                     "total_frames": dataset.num_frames,
                     "robot_type": getattr(dataset.meta, "robot_type", "Unknown robot"),
+                    "mode": request.mode,
+                    "saved_episodes": saved_episodes,
+                    "episodes": list(saved_episode_details),
+                    "finalize": dict(finalize_state),
+                    "diagnostics": dict(session_diagnostics_info),
+                    "action_semantics": getattr(record_config, "lelab_rig", {}).get(
+                        "action_semantics"
+                    )
+                    or ACTION_SEMANTICS_RAW,
+                    "sync": getattr(record_config, "lelab_rig", {}).get("sync"),
                 }
             except Exception as e:
                 # lerobot's init_logging() installs a root formatter that only
@@ -462,6 +519,10 @@ def handle_start_recording(request: RecordingRequest) -> dict[str, Any]:
                     "error": str(e),
                     "dataset_repo_id": request.dataset_repo_id,
                     "saved_episodes": saved_episodes,
+                    "mode": request.mode,
+                    "episodes": list(saved_episode_details),
+                    "finalize": dict(finalize_state),
+                    "diagnostics": dict(session_diagnostics_info),
                 }
             finally:
                 if current_phase != "error":
@@ -472,7 +533,6 @@ def handle_start_recording(request: RecordingRequest) -> dict[str, Any]:
                 recording_start_time = None
                 phase_start_time = None
                 current_episode = 1
-                saved_episodes = 0
                 logger.info("Recording session ended")
 
         recording_thread = threading.Thread(target=recording_worker, name="recording-worker", daemon=True)
@@ -504,15 +564,28 @@ def handle_stop_recording() -> dict[str, Any]:
     if not recording_active or recording_events is None:
         return {"success": False, "message": "No recording session is active"}
 
+    if recording_events.get("stop_recording"):
+        return {
+            "success": True,
+            "message": "Stop already requested; waiting for finalize",
+            "session_ending": True,
+            "current_phase": current_phase,
+        }
+
+    # Flag only.  The worker owns the control loop, save_episode(), finalize()
+    # and hardware teardown; the HTTP thread must not release the lease or the
+    # serial ports before that completes.
     recording_events["stop_recording"] = True
     recording_events["exit_early"] = True
-    current_phase = "stopping"
-    phase_start_time = None
-    logger.info("Stop recording triggered from web interface")
+    if current_phase not in {"finalizing", "verifying"}:
+        current_phase = "stopping"
+        phase_start_time = time.time()
+    logger.info("Stop recording accepted; finalize and hardware release will follow")
     return {
         "success": True,
-        "message": "Recording stop requested successfully",
+        "message": "Stop accepted; saving the current segment and finalizing",
         "session_ending": True,
+        "current_phase": current_phase,
     }
 
 
@@ -526,11 +599,25 @@ def handle_exit_early() -> dict[str, Any]:
     """
     if not recording_active or recording_events is None:
         return {"success": False, "message": "No recording session is active"}
+    if current_phase not in {"recording", "resetting"}:
+        return {
+            "success": False,
+            "message": f"Cannot save/advance during phase {current_phase}",
+            "current_phase": current_phase,
+        }
+    if recording_events.get("exit_early"):
+        return {
+            "success": True,
+            "message": "Save/advance already requested",
+            "current_phase": current_phase,
+            "events_state": dict(recording_events),
+        }
     recording_events["exit_early"] = True
-    # Tracking flag that record_loop won't reset, so the worker can tell
-    # "user pressed skip" from "control_time_s elapsed naturally".
-    recording_events["_exit_early_triggered"] = True
-    logger.info("Exit early triggered (current phase: %s)", current_phase)
+    if current_phase == "recording":
+        # Tracking flag that record_loop won't reset.  A timeout now saves the
+        # episode as well; the flag only distinguishes why the phase ended.
+        recording_events["_exit_early_triggered"] = True
+    logger.info("Save-current-episode / advance triggered (phase: %s)", current_phase)
     phase_name = "recording phase" if current_phase == "recording" else "reset phase"
     return {
         "success": True,
@@ -549,9 +636,21 @@ def handle_rerecord_episode() -> dict[str, Any]:
     """
     if not recording_active or recording_events is None:
         return {"success": False, "message": "No recording session is active"}
+    if current_phase != "recording":
+        return {
+            "success": False,
+            "message": f"Discard/re-record is only available while recording (phase={current_phase})",
+            "current_phase": current_phase,
+        }
+    if recording_events.get("stop_recording"):
+        return {
+            "success": False,
+            "message": "Stop was already accepted; the current segment will be saved, not discarded",
+            "current_phase": current_phase,
+        }
     recording_events["rerecord_episode"] = True
     recording_events["exit_early"] = True
-    logger.info("Re-record episode triggered")
+    logger.info("Discard/re-record episode requested")
     return {
         "success": True,
         "message": "Re-record episode requested successfully",
@@ -582,15 +681,24 @@ def handle_recording_status() -> dict[str, Any]:
             logger.info("📡 RECORDING STATUS REQUEST: Session has ended - frontend should stop polling")
             print("📡 STATUS CHANGE: Frontend is still polling after session end - should stop now")
 
+    controls_enabled = recording_active and current_phase not in {
+        "stopping",
+        "finalizing",
+        "verifying",
+    }
     status = {
         "recording_active": recording_active,
-        "current_phase": current_phase,  # "preparing", "recording", "resetting", "completed"
-        "session_ended": session_ended,  # New field to indicate session completion
+        "current_phase": current_phase,
+        "session_ended": session_ended,
         "available_controls": {
-            "stop_recording": recording_active,  # ESC key replacement
-            "exit_early": recording_active,  # Right arrow key replacement
+            "stop_recording": controls_enabled,
+            "exit_early": recording_active and current_phase in {"recording", "resetting"},
+            # Explicit semantic alias: save the current segment and advance.
+            "save_episode": recording_active and current_phase in {"recording", "resetting"},
+            "finish_and_save": controls_enabled,
             "rerecord_episode": recording_active
-            and current_phase == "recording",  # Only during recording phase
+            and current_phase == "recording"
+            and not (recording_events or {}).get("stop_recording", False),
         },
         "message": "Recording session failed with error - check logs"
         if current_phase == "error"
@@ -599,12 +707,40 @@ def handle_recording_status() -> dict[str, Any]:
             if session_ended
             else "Recording status retrieved successfully"
         ),
+        "finalize_state": dict(finalize_state),
+        "saved_episode_details": list(saved_episode_details),
+        "diagnostics": dict(session_diagnostics_info),
     }
 
     # Always echo the stamped dataset id whenever a config exists, so the frontend
     # can read the actual on-disk repo_id (post stamp) for upload navigation.
     if recording_config:
         status["dataset_repo_id"] = recording_config.dataset_repo_id
+        status["mode"] = getattr(recording_config, "mode", "single")
+        rig_meta = getattr(recording_config, "lelab_rig", None)
+        if rig_meta:
+            status["action_semantics"] = rig_meta.get("action_semantics")
+            status["sync"] = rig_meta.get("sync")
+            status["rig"] = rig_meta
+
+    # Same-cycle joint snapshot.  The HTTP thread never reads a serial bus; it
+    # only copies the snapshot produced by the control loop.  Missing joints are
+    # reported as errors and are not zero-filled.
+    if latest_joint_snapshot:
+        snapshot = dict(latest_joint_snapshot)
+        age_ms = max(0.0, (time.monotonic() - snapshot["monotonic_s"]) * 1000.0)
+        stale_after_ms = 1000.0
+        if recording_config is not None:
+            stale_after_ms = max(1000.0, 3000.0 / max(1, recording_config.fps))
+        snapshot["age_ms"] = round(age_ms, 2)
+        snapshot["stale"] = (not recording_active) or age_ms > stale_after_ms
+        status["joint_snapshot"] = snapshot
+
+    if recording_config is not None:
+        names = list(recording_config.cameras.keys())
+        status["camera_health"] = camera_health(
+            current_robot if recording_active else None, names
+        )
 
     # Carry the failure reason and how much of the session survived it, so the
     # frontend can offer a partial dataset for upload and only send the user
@@ -613,33 +749,34 @@ def handle_recording_status() -> dict[str, Any]:
         status["error"] = last_recording_info.get("error", "Unknown error")
         status["saved_episodes"] = last_recording_info.get("saved_episodes", 0)
 
-    # Add episode information if recording is active
     if recording_active and recording_config:
         status["current_episode"] = current_episode
         status["total_episodes"] = recording_config.num_episodes
-        status["saved_episodes"] = saved_episodes  # Track completed episodes
-        # Names of the cameras the user configured for this session. The frontend
-        # renders a live /camera-feed/{name} preview for exactly these — nothing
-        # else — so only configured cameras are ever shown.
+        status["saved_episodes"] = saved_episodes
         status["cameras"] = list(recording_config.cameras.keys())
 
-        # Add session start time if available
         if recording_start_time:
             status["session_start_time"] = recording_start_time
             status["session_elapsed_seconds"] = int(time.time() - recording_start_time)
 
-        # Add phase timing information
         if phase_start_time:
             status["phase_start_time"] = phase_start_time
             status["phase_elapsed_seconds"] = int(time.time() - phase_start_time)
-
-            # Add phase time limits
             if current_phase == "recording":
                 status["phase_time_limit_s"] = recording_config.episode_time_s
             elif current_phase == "resetting":
                 status["phase_time_limit_s"] = recording_config.reset_time_s
     elif session_end_elapsed_seconds is not None:
         status["session_elapsed_seconds"] = session_end_elapsed_seconds
+
+    # After completion keep exposing the final counts, so the upload screen does
+    # not see saved_episodes=0.
+    if not recording_active and last_recording_info:
+        status.setdefault("saved_episodes", last_recording_info.get("saved_episodes", 0))
+        status.setdefault("mode", last_recording_info.get("mode", "single"))
+        status["result"] = last_recording_info
+        if "cameras" not in status and recording_config is not None:
+            status["cameras"] = list(recording_config.cameras.keys())
 
     return status
 
@@ -747,7 +884,6 @@ def handle_delete_dataset(request: DatasetInfoRequest) -> dict[str, Any]:
     解析目标目录（拒绝路径穿越），shutil.rmtree 删除后同步清理内存快照。
     """
     global last_recording_info
-    from pathlib import Path
 
     from lerobot.utils.constants import HF_LEROBOT_HOME
 
@@ -837,6 +973,69 @@ def handle_upload_dataset(request: UploadRequest) -> dict[str, Any]:
         return {"success": False, "message": f"Failed to upload dataset: {str(e)}"}
 
 
+def verify_finalized_dataset(
+    dataset: LeRobotDataset,
+    *,
+    expected_episodes: int,
+    expected_frames: int,
+    mode: str,
+) -> dict[str, Any]:
+    """Reopen the finalized dataset and check schema, indices and video decode."""
+
+    reopened = LeRobotDataset(dataset.repo_id, root=dataset.root)
+    if reopened.num_episodes != expected_episodes:
+        raise RuntimeError(
+            f"Dataset verification failed: episodes={reopened.num_episodes}, expected={expected_episodes}"
+        )
+    if reopened.num_frames != expected_frames:
+        raise RuntimeError(
+            f"Dataset verification failed: frames={reopened.num_frames}, expected={expected_frames}"
+        )
+    action = reopened.features["action"]
+    state = reopened.features["observation.state"]
+    expected_dim = 12 if mode == "bimanual" else 6
+    if tuple(action["shape"]) != (expected_dim,):
+        raise RuntimeError(f"Dataset action shape is {action['shape']}, expected ({expected_dim},)")
+    if tuple(state["shape"]) != (expected_dim,):
+        raise RuntimeError(f"Dataset state shape is {state['shape']}, expected ({expected_dim},)")
+    if mode == "bimanual":
+        if list(state.get("names") or []) != list(JOINT_NAMES):
+            raise RuntimeError(
+                f"Dataset state names are not the fixed 12-joint order: {state.get('names')}"
+            )
+        if list(action.get("names") or []) != list(JOINT_NAMES):
+            raise RuntimeError(
+                f"Dataset action names are not the fixed 12-joint order: {action.get('names')}"
+            )
+
+    frame_table = reopened.hf_dataset
+    episode_indices = sorted({int(value) for value in frame_table["episode_index"]})
+    if episode_indices != list(range(expected_episodes)):
+        raise RuntimeError(
+            f"Dataset episode indices are {episode_indices}, expected {list(range(expected_episodes))}"
+        )
+
+    decoded: dict[str, list[int]] = {}
+    video_keys = list(getattr(reopened.meta, "video_keys", []) or [])
+    if video_keys and reopened.num_frames:
+        sample = reopened[0]
+        for key in video_keys:
+            value = sample[key]
+            shape = list(getattr(value, "shape", ()))
+            if not shape:
+                raise RuntimeError(f"Dataset video {key} did not decode to an image tensor")
+            decoded[key] = [int(dim) for dim in shape]
+    return {
+        "num_episodes": reopened.num_episodes,
+        "num_frames": reopened.num_frames,
+        "episode_indices": episode_indices,
+        "state_dim": expected_dim,
+        "action_dim": expected_dim,
+        "state_names": list(state.get("names") or []),
+        "decoded_videos": decoded,
+    }
+
+
 def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDataset:
     """
     Implement recording with phase tracking - exactly mirrors original record() function behavior
@@ -863,6 +1062,7 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
         sanity_check_dataset_robot_compatibility,
     )
     from lerobot.datasets import LeRobotDataset
+    from lerobot.datasets.video_utils import VideoEncodingManager
     from lerobot.processor import make_default_processors
     from lerobot.robots import make_robot_from_config
     from lerobot.scripts.lerobot_record import record_loop
@@ -871,9 +1071,17 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
     from lerobot.utils.utils import log_say
 
     global current_phase, phase_start_time, current_episode, saved_episodes, current_robot
+    global latest_joint_snapshot, finalize_state, session_diagnostics_info, saved_episode_details
 
     robot = make_robot_from_config(cfg.robot)
     teleop = make_teleoperator_from_config(cfg.teleop) if cfg.teleop is not None else None
+    rig_metadata = getattr(cfg, "lelab_rig", {}) or {}
+    mode = rig_metadata.get("mode", "single")
+    camera_names = list(
+        getattr(cfg, "lelab_camera_names", None) or list(getattr(robot, "cameras", {}) or {})
+    )
+    if mode == "bimanual":
+        assert_bimanual_robot_contract(robot, camera_names)
 
     teleop_action_processor, robot_action_processor, robot_observation_processor = make_default_processors()
 
@@ -920,61 +1128,94 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
             encoder_threads=cfg.dataset.encoder_threads,
         )
 
-    # Bring the devices up in the same order as teleoperation: buses, then
-    # calibration, then cameras and motor configuration.
-    #
+    # Start with episode 1 - but track it properly
+    current_episode = 1
+    saved_episodes = 0  # Track how many episodes we've actually saved
+    saved_episode_details = []
+    finalize_state = {"state": "pending", "verified": False}
+
+    diagnostics = None
+    try:
+        diagnostics = SessionDiagnostics(
+            dataset_repo_id=cfg.dataset.repo_id,
+            dataset_root=dataset.root,
+            mode=mode,
+            metadata=rig_metadata,
+            fps=cfg.dataset.fps,
+        )
+        session_diagnostics_info = {"path": diagnostics.path, "error": None}
+    except Exception as exc:
+        # Diagnostics are an audit aid; failing to open the sidecar must not be
+        # hidden, but it also must not prevent saving the demonstration.
+        logger.error("Failed to open session diagnostics: %s", exc)
+        session_diagnostics_info = {"path": None, "error": str(exc)}
+
+    def cycle_callback(payload: dict[str, Any]) -> None:
+        global latest_joint_snapshot
+        snapshot = build_snapshot(
+            payload,
+            phase=current_phase,
+            mode=mode,
+            configured_cameras=camera_names,
+            robot=robot,
+        )
+        snapshot["sequence"] = int(latest_joint_snapshot.get("sequence", 0)) + 1
+        latest_joint_snapshot = snapshot
+        if diagnostics is not None:
+            try:
+                diagnostics.write_cycle(payload, snapshot)
+            except Exception as exc:
+                logger.error("Failed to write session diagnostics frame: %s", exc)
+                session_diagnostics_info["error"] = str(exc)
+        try:
+            from .server import manager as _ws_manager
+
+            if mode == "bimanual":
+                message = {
+                    "type": "joint_update",
+                    "mode": "bimanual",
+                    "sequence": snapshot["sequence"],
+                    "timestamp": time.time(),
+                    "joints": snapshot["arms"]["left"]["joints_rad"],
+                    "arms": {
+                        side: snapshot["arms"][side]["joints_rad"] for side in ("left", "right")
+                    },
+                    "errors": snapshot["errors"],
+                }
+            else:
+                message = {
+                    "type": "joint_update",
+                    "mode": "single",
+                    "timestamp": time.time(),
+                    "joints": snapshot["arms"]["single"]["joints_rad"],
+                }
+            _ws_manager.broadcast_joint_data_sync(message)
+        except Exception as exc:
+            logger.debug("Joint snapshot broadcast skipped: %s", exc)
+
     # `robot.connect()` can't be used here. It prompts on stdin when the motors
     # disagree with the calibration file (EOFError under the server), and it
     # ends with configure(), which leaves torque enabled — writing the
     # calibration registers afterwards corrupts the bus a few seconds into the
     # recording loop.
-    # Start with episode 1 - but track it properly
-    current_episode = 1
-    saved_episodes = 0  # Track how many episodes we've actually saved
+    #
+    # VideoEncodingManager finalizes videos/parquet/metadata on both normal and
+    # exceptional exits and removes the interrupted episode's staged images.
+    encoding_manager = VideoEncodingManager(dataset)
+    encoding_manager.__enter__()
 
     # Setup runs inside the same try as the recording loop: a failure partway
     # through it still leaves buses and cameras open, and the teardown below is
     # what frees them for the next attempt (see issue #50).
     try:
         try:
-            logger.info("🔧 ROBOT CONNECTION: Attempting to connect robot...")
-            robot.bus.connect()
-            logger.info("✅ ROBOT CONNECTION: Robot bus connected successfully")
-        except Exception as e:
-            logger.error(f"❌ ROBOT CONNECTION: Failed to connect robot: {e}")
+            logger.info("🔧 DEVICE CONNECTION: connecting all physical arms...")
+            connect_recording_devices(robot, teleop)
+            logger.info("✅ Devices ready")
+        except Exception as exc:
+            logger.error("❌ DEVICE CONNECTION failed: %s", exc)
+            logger.error("💡 Confirm every port is free and the preview is released")
             raise
-
-        if teleop is not None:
-            try:
-                logger.info("🔧 TELEOP CONNECTION: Attempting to connect teleoperator...")
-                teleop.bus.connect()
-                logger.info("✅ TELEOP CONNECTION: Teleoperator bus connected successfully")
-            except Exception as e:
-                logger.error(f"❌ TELEOP CONNECTION: Failed to connect teleoperator: {e}")
-                raise
-
-        # Torque is still disabled at this point, which is what writing the
-        # calibration registers requires.
-        logger.info("Writing calibration to motors...")
-        robot.bus.write_calibration(robot.calibration)
-        if teleop is not None:
-            teleop.bus.write_calibration(teleop.calibration)
-
-        try:
-            logger.info("🔧 CAMERA CONNECTION: Connecting cameras...")
-            for cam in robot.cameras.values():
-                cam.connect()
-            logger.info("✅ CAMERA CONNECTION: Cameras connected successfully")
-        except Exception as e:
-            logger.error(f"❌ CAMERA CONNECTION: Failed to connect cameras: {e}")
-            logger.error("💡 Make sure frontend camera streams are released before recording")
-            raise
-
-        logger.info("Configuring motors...")
-        robot.configure()
-        if teleop is not None:
-            teleop.configure()
-        logger.info("✅ Devices ready")
 
         # Expose the connected robot so /camera-feed can stream its cameras'
         # latest frames during the session (cleared in the finally below). Set
@@ -983,6 +1224,8 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
         current_robot = robot
 
         while saved_episodes < cfg.dataset.num_episodes:
+            if web_events["stop_recording"]:
+                break
             # RECORDING PHASE - with dataset (matches original record.py exactly)
             current_phase = "recording"
             phase_start_time = time.time()
@@ -1013,28 +1256,27 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
                 control_time_s=cfg.dataset.episode_time_s,
                 single_task=cfg.dataset.single_task,
                 display_data=cfg.display_data,
+                cycle_callback=cycle_callback,
+                save_sent_action=(mode == "bimanual"),
             )
 
             logger.info(f"Recording phase completed - events state: {web_events}")
 
-            # Check if exit_early was triggered (use our tracking flag)
-            recording_interrupted_by_exit_early = web_events.get("_exit_early_triggered", False)
-            if recording_interrupted_by_exit_early:
-                logger.info("🟡 RECORDING PHASE INTERRUPTED BY EXIT_EARLY - proceeding to save episode")
+            # Native LeRobot semantics: a timeout, Save and Stop all commit the
+            # current episode. Only an explicit discard requests re-recording.
+            if web_events.get("_exit_early_triggered", False):
+                logger.info("🟡 RECORDING PHASE INTERRUPTED BY SAVE/STOP - saving collected frames")
                 print(
-                    f"🟡 STATUS CHANGE: Recording phase interrupted by user - episode {current_episode} data collected"
+                    f"🟡 STATUS CHANGE: Recording phase ended by user - episode {current_episode} data collected"
                 )
-                # Reset our tracking flag
                 web_events["_exit_early_triggered"] = False
             else:
-                # Recording completed due to timeout - trigger re-record behavior
-                logger.info("⏰ RECORDING PHASE COMPLETED DUE TO TIMEOUT - triggering re-record")
+                logger.info("⏰ RECORDING PHASE REACHED ITS TIME LIMIT - saving episode")
                 print(
-                    f"⏰ STATUS CHANGE: Recording timeout reached for episode {current_episode} - re-recording"
+                    f"⏰ STATUS CHANGE: Recording time limit reached for episode {current_episode} - saving"
                 )
-                web_events["rerecord_episode"] = True
 
-            # Handle rerecord logic first (before saving)
+            # Handle discard/re-record first (before saving)
             if web_events["rerecord_episode"]:
                 log_say("Re-record episode", cfg.play_sounds)
                 print(
@@ -1044,6 +1286,7 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
                 web_events["exit_early"] = False
                 # 丢弃当前集未保存的帧缓冲，集数不递增，随后重录同一集
                 dataset.clear_episode_buffer()
+                logger.info("Discarded unsaved episode %s; previous episodes are untouched", current_episode)
 
                 # Go through reset phase before re-recording (don't increment episode counters)
                 # RESET PHASE - without dataset (matches original record.py exactly)
@@ -1072,6 +1315,7 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
                     control_time_s=cfg.dataset.reset_time_s,
                     single_task=cfg.dataset.single_task,
                     display_data=cfg.display_data,
+                    cycle_callback=cycle_callback,
                 )
 
                 logger.info(f"Reset phase completed - events state: {web_events}")
@@ -1093,12 +1337,34 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
                 # Don't increment current_episode or saved_episodes - we're re-recording the same episode
                 continue
 
-            # Save episode immediately after recording phase (matches expected flow)
+            # Save the current segment.  Stopping before the first frame must not
+            # call save_episode() on an empty buffer; a time limit reached with
+            # no frames is a failure, not a valid demonstration.
+            buffer_size = (getattr(dataset.writer, "episode_buffer", None) or {}).get("size", 0)
+            if not buffer_size:
+                if web_events["stop_recording"]:
+                    logger.info("Stop received before any frame; no episode was saved")
+                    break
+                raise RuntimeError(
+                    f"No valid frames were collected for episode {current_episode}; refusing to save"
+                )
+
             # 一集落盘：save_episode 把该集内存缓冲写成 parquet + mp4，
             # 并在 meta 中登记该 episode 的起止帧索引
+            current_phase = "saving"
+            phase_start_time = time.time()
             logger.info(f"💾 Saving episode {current_episode}...")
             print(f"💾 STATUS CHANGE: Saving episode {current_episode}")
+            save_started = time.time()
             dataset.save_episode()
+            saved_episode_details.append(
+                {
+                    "episode_index": current_episode - 1,
+                    "frames": int(buffer_size),
+                    "save_seconds": round(time.time() - save_started, 3),
+                    "action_semantics": rig_metadata.get("action_semantics"),
+                }
+            )
             logger.info(f"✅ Episode {current_episode} saved successfully")
             print(f"✅ STATUS CHANGE: Episode {current_episode} saved successfully")
 
@@ -1144,6 +1410,7 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
                     control_time_s=cfg.dataset.reset_time_s,
                     single_task=cfg.dataset.single_task,
                     display_data=cfg.display_data,
+                    cycle_callback=cycle_callback,
                 )
 
                 logger.info(f"Reset phase completed - events state: {web_events}")
@@ -1160,31 +1427,116 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
                     print("🛑 STATUS CHANGE: Stop recording requested during reset - ending session")
                     break
 
-        # Recording completed
-        current_phase = "completed"
-        phase_start_time = None
-        print("🏁 STATUS CHANGE: Recording session completed - all episodes finished")
+        # Stop accepting new frames before finalize.  finalize() only flushes
+        # already-saved episodes; it is not a substitute for save_episode().
+        current_phase = "finalizing"
+        phase_start_time = time.time()
+        finalize_state = {
+            "state": "finalizing",
+            "verified": False,
+            "saved_episodes": saved_episodes,
+        }
+        print("🏁 STATUS CHANGE: Recording segments finished - finalizing and verifying dataset")
         log_say("Stop recording", cfg.play_sounds, blocking=True)
 
     finally:
         # Stop the camera-feed endpoint from reading before tearing the cameras
         # down, so it can't peek a half-disconnected device.
         current_robot = None
+        original_exc = sys.exc_info()
         try:
-            # Writes the parquet footers for meta/episodes/. Without it the
-            # dataset is invalid on disk, so reopening it (upload,
-            # /dataset-info) misses meta/episodes and falls back to downloading
-            # from the Hub — which 404s for a dataset that was never pushed.
-            # 收尾落盘：finalize 写出元数据 footer，数据集才算完整有效
-            dataset.finalize()
+            # This is the local LeRobot cleanup path: on normal exit it flushes
+            # videos/parquet/metadata; on an exception it also cancels streaming
+            # video and removes the interrupted episode's staged images.
+            encoding_manager.__exit__(*original_exc)
+        except Exception as finalize_exc:
+            logger.error("Video/parquet finalize failed: %s\n%s", finalize_exc, traceback.format_exc())
+            finalize_state = {
+                "state": "failed",
+                "verified": False,
+                "error": f"finalize failed: {finalize_exc}",
+                "saved_episodes": saved_episodes,
+            }
+            if original_exc[0] is None:
+                raise
         finally:
-            # safe_disconnect_device force-releases the serial port / cameras if
-            # a normal disconnect fails, so a flaky teardown can't leave the
-            # device busy and block the next recording session (see issue #50).
-            # Nested so a failed finalize can't strand the hardware.
-            safe_disconnect_device(robot, logger, context="recording cleanup")
-            if teleop:
-                safe_disconnect_device(teleop, logger, context="recording cleanup")
+            try:
+                # Idempotent safety net.  Without this footer the dataset is
+                # invalid on disk (meta/episodes), even though save_episode was
+                # called for each segment.
+                dataset.finalize()
+            except Exception as finalize_exc:
+                logger.error("dataset.finalize() failed: %s", finalize_exc)
+                finalize_state.setdefault("state", "failed")
+                finalize_state["error"] = f"dataset.finalize() failed: {finalize_exc}"
+            finally:
+                # safe_disconnect_device force-releases the serial port / cameras
+                # if a normal disconnect fails, so a flaky teardown can't leave
+                # the device busy and block the next recording session.
+                try:
+                    safe_disconnect_device(robot, logger, context="recording cleanup")
+                    if teleop:
+                        safe_disconnect_device(teleop, logger, context="recording cleanup")
+                finally:
+                    if original_exc[0] is not None and diagnostics is not None:
+                        diagnostics.close(
+                            {
+                                "status": "failed",
+                                "error": str(original_exc[1]),
+                                "saved_episodes": saved_episodes,
+                            }
+                        )
+                    session_diagnostics_info["closed_on_error"] = original_exc[0] is not None
+
+    # Hardware is released; verification reads local files only.  A failed
+    # verification keeps the session in the error phase instead of claiming a
+    # successful save.
+    finalize_state = {
+        "state": "verifying",
+        "verified": False,
+        "saved_episodes": saved_episodes,
+    }
+    try:
+        verification = verify_finalized_dataset(
+            dataset,
+            expected_episodes=saved_episodes,
+            expected_frames=sum(item["frames"] for item in saved_episode_details),
+            mode=mode,
+        )
+    except Exception as verify_exc:
+        finalize_state = {
+            "state": "failed",
+            "verified": False,
+            "saved_episodes": saved_episodes,
+            "error": f"dataset verification failed: {verify_exc}",
+        }
+        if diagnostics is not None:
+            diagnostics.close(
+                {
+                    "status": "failed",
+                    "saved_episodes": saved_episodes,
+                    "error": str(verify_exc),
+                }
+            )
+        raise
+    finalize_state = {
+        "state": "completed",
+        "verified": True,
+        "saved_episodes": saved_episodes,
+        "verification": verification,
+    }
+    session_diagnostics_info["verification"] = verification
+    if diagnostics is not None:
+        diagnostics.close(
+            {
+                "status": "completed",
+                "saved_episodes": saved_episodes,
+                "verification": verification,
+            }
+        )
+    current_phase = "completed"
+    phase_start_time = None
+    print("🏁 STATUS CHANGE: Dataset finalized and verified")
 
     if cfg.dataset.push_to_hub:
         if dataset.num_episodes > 0:

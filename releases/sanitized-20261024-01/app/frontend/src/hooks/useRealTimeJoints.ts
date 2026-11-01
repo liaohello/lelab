@@ -5,6 +5,10 @@ import { useApi } from "@/contexts/ApiContext";
 interface JointData {
   type: "joint_update";
   joints: Record<string, number>;
+  arms?: {
+    left?: Record<string, number>;
+    right?: Record<string, number>;
+  };
   timestamp: number;
 }
 
@@ -12,6 +16,9 @@ interface UseRealTimeJointsProps {
   viewerRef: React.RefObject<URDFViewerElement>;
   enabled?: boolean;
   websocketUrl?: string;
+  // Bimanual recording sends both arms in one message. Each viewer selects its
+  // own arm so the two URDF scenes never share a joint namespace.
+  arm?: "left" | "right";
 }
 
 const INITIAL_RECONNECT_DELAY_MS = 1000;
@@ -21,6 +28,7 @@ export const useRealTimeJoints = ({
   viewerRef,
   enabled = true,
   websocketUrl,
+  arm,
 }: UseRealTimeJointsProps) => {
   const { wsBaseUrl } = useApi();
   const finalWebSocketUrl = websocketUrl || `${wsBaseUrl}/ws/joint-data`;
@@ -76,8 +84,14 @@ export const useRealTimeJoints = ({
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data) as JointData;
-          if (data.type === "joint_update" && data.joints) {
-            updateJointValues(data.joints);
+          if (data.type === "joint_update") {
+            const joints =
+              arm && data.arms?.[arm]
+                ? data.arms[arm]
+                : arm
+                ? undefined
+                : data.joints;
+            if (joints) updateJointValues(joints);
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);

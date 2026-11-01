@@ -8,8 +8,11 @@ import Landing from "@/pages/Landing";
 import Teleoperation from "@/pages/Teleoperation";
 import Calibration from "@/pages/Calibration";
 import Recording from "@/pages/Recording";
+import BimanualRecording from "@/pages/BimanualRecording";
 import Training from "@/pages/Training";
 import Inference from "@/pages/Inference";
+import Observe from "@/pages/Observe";
+import HardwareInventory from "@/pages/HardwareInventory";
 import EditDataset from "@/pages/EditDataset";
 import Upload from "@/pages/Upload";
 import SystemStorage from "@/pages/SystemStorage";
@@ -47,10 +50,13 @@ function App() {
                         <Route path="/" element={<Landing />} />
                         <Route path="/teleoperation" element={<Teleoperation />} />
                         <Route path="/recording" element={<Recording />} />
+                        <Route path="/bimanual" element={<BimanualRecording />} />
                         <Route path="/upload" element={<Upload />} />
                         <Route path="/training" element={<Training />} />
                         <Route path="/training/:jobId" element={<Training />} />
                         <Route path="/inference" element={<Inference />} />
+                        <Route path="/observe" element={<Observe />} />
+                        <Route path="/hardware" element={<HardwareInventory />} />
                         <Route path="/calibration" element={<Calibration />} />
                         <Route path="/edit-dataset" element={<EditDataset />} />
                         <Route path="/system-storage" element={<SystemStorage />} />

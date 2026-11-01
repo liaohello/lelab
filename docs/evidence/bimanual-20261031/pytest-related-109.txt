@@ -1,0 +1,170 @@
+/home/liaozhengyan/Desktop/lelab/work/training_contract_audit_20261027/env/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/liaozhengyan/Desktop/lelab/work/training_contract_audit_20261027/env/bin/python
+cachedir: .pytest_cache
+rootdir: /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.13.6, asyncio-1.4.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 109 items
+
+releases/sanitized-20261024-01/app/tests/test_record.py::test_recording_request_rejects_missing_required_fields PASSED [  0%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_recording_status_handler_exposes_state_fields PASSED [  1%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_prepare_dataset_repo_id_adds_local_namespace_and_timestamp PASSED [  2%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_prepare_dataset_repo_id_preserves_explicit_namespace PASSED [  3%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_prepare_dataset_repo_id_rejects_invalid_ids[] PASSED [  4%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_prepare_dataset_repo_id_rejects_invalid_ids[   ] PASSED [  5%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_prepare_dataset_repo_id_rejects_invalid_ids[.] PASSED [  6%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_prepare_dataset_repo_id_rejects_invalid_ids[..] PASSED [  7%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_prepare_dataset_repo_id_rejects_invalid_ids[/dataset] PASSED [  8%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_prepare_dataset_repo_id_rejects_invalid_ids[owner/] PASSED [  9%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_handle_stop_recording_when_idle_returns_dict PASSED [ 10%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_create_record_config_pins_dshow_on_windows PASSED [ 11%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_build_camera_configs_uses_default_backend_when_unset PASSED [ 11%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_build_camera_configs_defaults_v4l2_cameras_to_mjpg PASSED [ 12%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_build_camera_configs_passes_fourcc_through PASSED [ 13%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_build_camera_configs_explicit_backend_overrides_default PASSED [ 14%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_build_camera_configs_invalid_backend_raises PASSED [ 15%]
+releases/sanitized-20261024-01/app/tests/test_record.py::test_build_camera_configs_skips_non_opencv_type PASSED [ 16%]
+releases/sanitized-20261024-01/app/tests/test_teleoperate.py::test_teleoperate_request_rejects_missing_fields PASSED [ 17%]
+releases/sanitized-20261024-01/app/tests/test_teleoperate.py::test_handle_teleoperation_status_returns_dict PASSED [ 18%]
+releases/sanitized-20261024-01/app/tests/test_teleoperate.py::test_handle_get_joint_positions_returns_dict_when_idle PASSED [ 19%]
+releases/sanitized-20261024-01/app/tests/test_teleoperate.py::test_get_joint_positions_from_robot_uses_provided_object PASSED [ 20%]
+releases/sanitized-20261024-01/app/tests/test_teleoperate.py::test_get_joint_positions_maps_degrees_to_radians_without_correction PASSED [ 21%]
+releases/sanitized-20261024-01/app/tests/test_teleoperate.py::test_start_teleoperation_reports_connection_failure PASSED [ 22%]
+releases/sanitized-20261024-01/app/tests/test_teleoperate.py::test_start_teleoperation_injects_local_safety_limits PASSED [ 22%]
+releases/sanitized-20261024-01/app/tests/test_teleoperate.py::test_start_teleoperation_disconnects_follower_when_leader_fails PASSED [ 23%]
+releases/sanitized-20261024-01/app/tests/test_remote_inference.py::test_client_command_targets_the_tunnel PASSED [ 24%]
+releases/sanitized-20261024-01/app/tests/test_remote_inference.py::test_client_command_omits_empty_task PASSED [ 25%]
+releases/sanitized-20261024-01/app/tests/test_remote_inference.py::test_remote_env_carries_mirror_proxy_and_token PASSED [ 26%]
+releases/sanitized-20261024-01/app/tests/test_remote_inference.py::test_stage_policy_parses_the_remote_path PASSED [ 27%]
+releases/sanitized-20261024-01/app/tests/test_remote_inference.py::test_stage_policy_reports_failure PASSED [ 28%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_app_exposes_required_endpoints PASSED [ 29%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_health_endpoint_returns_200 PASSED [ 30%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_health_endpoint_returns_dict PASSED [ 31%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_start_inference_dispatches_remote_target PASSED [ 32%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_start_inference_releases_camera_previews_first PASSED [ 33%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_remote_policy_server_status_endpoint PASSED [ 33%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_system_status_endpoint_exposes_dashboard_aliases PASSED [ 34%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_storage_summary_endpoint_marks_critical_capacity PASSED [ 35%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_recording_is_blocked_below_five_percent_free_space PASSED [ 36%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_release_camera_previews_waits_for_device_release PASSED [ 37%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_cancelled_camera_preview_releases_capture PASSED [ 38%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_dataset_storage_endpoint_rejects_traversal PASSED [ 39%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_unknown_route_returns_404 PASSED [ 40%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_delete_calibration_config_rejects_unsafe_name[evil..name] PASSED [ 41%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_delete_calibration_config_rejects_unsafe_name[..config] PASSED [ 42%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_delete_calibration_config_rejects_unsafe_name[back\\door] PASSED [ 43%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_spa_deep_link_serves_index_html PASSED [ 44%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_spa_fallback_does_not_mask_api_404 PASSED [ 44%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_spa_fallback_respects_explicit_html_refusal PASSED [ 45%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8-True] PASSED [ 46%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[text/html-True] PASSED [ 47%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[text/html;q=0.5-True] PASSED [ 48%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[application/json-False] PASSED [ 49%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[*/*-False] PASSED [ 50%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[-False] PASSED [ 51%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[text/html;q=0-False] PASSED [ 52%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[application/json,text/html;q=0-False] PASSED [ 53%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_accepts_html[text/html;q=bogus-False] PASSED [ 54%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_connection_manager_tracks_connect_and_disconnect PASSED [ 55%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_connection_manager_broadcast_sync_does_not_block_without_loop PASSED [ 55%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_windows_cameras_uses_real_directshow_names PASSED [ 56%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_windows_cameras_falls_back_when_pygrabber_unavailable PASSED [ 57%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_v4l2_camera_name_reads_sysfs PASSED [ 58%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_v4l2_camera_name_returns_none_when_missing PASSED [ 59%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_import_model_route_returns_record PASSED [ 60%]
+releases/sanitized-20261024-01/app/tests/test_server.py::test_import_model_route_maps_value_error_to_400 PASSED [ 61%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http PASSED [ 62%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_conflicting_acquire_reports_the_holder PASSED [ 63%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_observer_cannot_acquire_over_http PASSED [ 64%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_start_endpoint_refuses_when_another_task_holds_the_lease PASSED [ 65%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_failed_start_releases_the_lease PASSED [ 66%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_stop_endpoint_releases_the_lease PASSED [ 66%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_start_uses_client_headers_as_the_owner PASSED [ 67%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_observer_header_blocks_start PASSED [ 68%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_emergency_stop_preempts_and_stops_every_task PASSED [ 69%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_bimanual_rejects_duplicate_devices_and_cross_side_calibration PASSED [ 70%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_bimanual_rejects_shared_camera_device_and_requires_cameras PASSED [ 71%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_bimanual_configs_preserve_child_ids_safety_and_top_level_cameras PASSED [ 72%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_arm_camera_key_collision_is_prefixed_not_overwritten PASSED [ 73%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_connect_helper_releases_everything_after_partial_failure PASSED [ 74%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_connect_helper_connects_shared_camera_once PASSED [ 75%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_partial_bimanual_disconnect_releases_both_children PASSED [ 76%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_stop_is_idempotent_and_does_not_discard_current_segment PASSED [ 77%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_status_exposes_snapshot_finalize_and_camera_health PASSED [ 77%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_remote_bimanual_client_command_uses_child_ids_and_safety PASSED [ 78%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_stop_recording_does_not_release_lease_early PASSED [ 79%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_policy_contract_rejects_single_arm_act PASSED [ 80%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_timeout_saves_instead_of_discarding PASSED [ 81%]
+releases/sanitized-20261024-01/app/tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos PASSED [ 82%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_conservative_defaults_are_enabled PASSED [ 83%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_environment_can_override_or_disable_limits PASSED [ 84%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_calibration_margin_accepts_negative_expansion PASSED [ 85%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_calibration_margin_can_be_disabled PASSED [ 86%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_calibration_margin_motor_map PASSED [ 87%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_json_motor_map_is_supported PASSED [ 88%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_invalid_environment_value_fails_closed[] PASSED [ 88%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_invalid_environment_value_fails_closed[0] PASSED [ 89%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_invalid_environment_value_fails_closed[-1] PASSED [ 90%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_invalid_environment_value_fails_closed[garbage] PASSED [ 91%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_invalid_environment_value_fails_closed[{}] PASSED [ 92%]
+releases/sanitized-20261024-01/app/tests/test_safety.py::test_invalid_environment_value_fails_closed[{"gripper": 0}] PASSED [ 93%]
+releases/sanitized-20261024-01/app/tests/test_calibration_limits.py::test_inside_limits_is_untouched PASSED [ 94%]
+releases/sanitized-20261024-01/app/tests/test_calibration_limits.py::test_outside_limits_is_clamped PASSED [ 95%]
+releases/sanitized-20261024-01/app/tests/test_calibration_limits.py::test_positive_margin_shrinks_and_negative_margin_expands PASSED [ 96%]
+releases/sanitized-20261024-01/app/tests/test_calibration_limits.py::test_motor_map_margin_is_per_joint PASSED [ 97%]
+releases/sanitized-20261024-01/app/tests/test_calibration_limits.py::test_margin_wider_than_range_pins_the_midpoint PASSED [ 98%]
+releases/sanitized-20261024-01/app/tests/test_smoke.py::test_lelab_has_version PASSED [ 99%]
+releases/sanitized-20261024-01/app/tests/test_smoke.py::test_server_app_has_routes PASSED [100%]
+
+=============================== warnings summary ===============================
+../lelab/work/training_contract_audit_20261027/env/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/liaozhengyan/Desktop/lelab/work/training_contract_audit_20261027/env/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+releases/sanitized-20261024-01/app/lelab/server.py:3165
+  /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app/lelab/server.py:3165: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../lelab/work/training_contract_audit_20261027/env/lib/python3.12/site-packages/fastapi/applications.py:4723
+../lelab/work/training_contract_audit_20261027/env/lib/python3.12/site-packages/fastapi/applications.py:4723
+  /home/liaozhengyan/Desktop/lelab/work/training_contract_audit_20261027/env/lib/python3.12/site-packages/fastapi/applications.py:4723: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)  # ty: ignore[deprecated]
+
+releases/sanitized-20261024-01/app/lelab/server.py:3177
+  /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app/lelab/server.py:3177: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+  /usr/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=1477489) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 109 passed, 14 warnings in 8.10s =======================

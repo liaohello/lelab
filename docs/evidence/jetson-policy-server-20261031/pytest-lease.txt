@@ -1,0 +1,39 @@
+/home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/liaozhengyan/Desktop/lelab-bimanual/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.13.6, asyncio-1.4.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 18 items
+
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_acquire_grants_exclusive_lease PASSED [  5%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_second_acquire_reports_current_holder PASSED [ 11%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_same_task_cannot_stack PASSED [ 16%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_observers_cannot_take_control PASSED [ 22%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_unknown_task_is_rejected PASSED [ 27%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_release_requires_the_token_or_task PASSED [ 33%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_stop_endpoint_release_by_task PASSED [ 38%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_renew_extends_only_with_the_token PASSED [ 44%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_renew_accepts_task_and_owner_instead_of_the_token PASSED [ 50%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_status_never_exposes_the_token PASSED [ 55%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_expiry_releases_and_stops_the_task PASSED [ 61%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_expiry_without_stop_on_expiry_still_releases PASSED [ 66%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_finished_task_releases_after_the_activity_grace PASSED [ 72%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_emergency_preempt_drops_any_lease PASSED [ 77%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_forced_acquire_preempts_the_previous_holder PASSED [ 83%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_stop_task_runs_the_hook_for_any_task PASSED [ 88%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_broken_stop_hook_does_not_strand_the_lease PASSED [ 94%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_ttl_is_clamped_to_safe_bounds PASSED [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 18 passed, 1 warning in 0.09s =========================

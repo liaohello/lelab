@@ -1,0 +1,51 @@
+{
+  "mode": "observe",
+  "phase": "stopped",
+  "fault": null,
+  "contract": {
+    "policy_type": "act",
+    "state_dim": 6,
+    "action_dim": 6,
+    "image_keys": [
+      "observation.images.right",
+      "observation.images.up"
+    ],
+    "normalization": {
+      "VISUAL": "MEAN_STD",
+      "STATE": "MEAN_STD",
+      "ACTION": "MEAN_STD"
+    },
+    "checkpoint_sha256": "5d428f5ff783e20665774a737325ba19e929d27b59788346546ee842d1fe6661"
+  },
+  "elapsed_s": 5.657062164042145,
+  "first_chunk_after_load_s": null,
+  "metrics": {
+    "observations_captured": 28,
+    "observations_sent": 0,
+    "chunks_received": 0,
+    "chunks_rejected": 0,
+    "actions_received": 0,
+    "actions_dispatched": 0,
+    "upload_ms": {
+      "p50": null,
+      "p90": null,
+      "p99": null
+    },
+    "roundtrip_ms": {
+      "p50": null,
+      "p90": null,
+      "p99": null
+    },
+    "action_age_ms": {
+      "p50": null,
+      "p90": null,
+      "p99": null
+    },
+    "capture_ms": {
+      "p50": null,
+      "p90": null,
+      "p99": null
+    },
+    "faults": []
+  }
+}

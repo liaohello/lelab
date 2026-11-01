@@ -63,7 +63,7 @@ from .rollout import (
 )
 from .runners import ssh_ops
 from .train_server import marker_payload
-from .utils.config import setup_follower_calibration_file
+from .utils.config import FOLLOWER_CONFIG_PATH, setup_follower_calibration_file
 from .utils.policy_refs import PolicyRefError, parse_policy_ref
 from .utils.servers import train_policy_endpoint
 
@@ -385,6 +385,61 @@ def _open_tunnel(config: TrainServerConfig, *, local_port: int, remote_port: int
 # --------------------------------------------------------------------------
 
 
+def validate_bimanual_policy_contract(
+    contract: dict[str, Any] | None,
+    camera_names: list[str],
+) -> dict[str, Any]:
+    """Pre-flight the 12-dim bimanual policy contract before any hardware starts.
+
+    The async robot client maps action dimensions by position over
+    ``robot.action_features`` and has no shape negotiation.  Requiring an
+    explicit contract prevents a 6-dim single-arm ACT checkpoint from driving
+    one arm with the other arm's values.
+    """
+
+    from .rig import ACTION_SEMANTICS_SENT
+
+    if not contract:
+        raise RemoteInferenceError(
+            "Bimanual inference requires an explicit policy contract (state_dim=12, "
+            "action_dim=12, camera keys, processor and normalization mapping). "
+            "No compatible checkpoint has been verified in this phase."
+        )
+    state_dim = contract.get("state_dim")
+    action_dim = contract.get("action_dim")
+    if state_dim != 12 or action_dim != 12:
+        raise RemoteInferenceError(
+            "Bimanual inference requires state_dim=12 and action_dim=12; "
+            f"got state_dim={state_dim!r}, action_dim={action_dim!r}. "
+            "A single-arm ACT checkpoint (6 actions) cannot be used for two arms."
+        )
+    expected_cameras = sorted(f"observation.images.{name}" for name in camera_names)
+    actual_cameras = sorted(contract.get("camera_keys") or [])
+    if actual_cameras != expected_cameras:
+        raise RemoteInferenceError(
+            f"Policy camera keys {actual_cameras} do not match the configured cameras "
+            f"{expected_cameras}."
+        )
+    normalization = contract.get("normalization_mapping")
+    if not isinstance(normalization, dict) or "ACTION" not in normalization:
+        raise RemoteInferenceError(
+            "Policy contract must declare a normalization_mapping that includes ACTION "
+            "and observation/state normalization."
+        )
+    if not any(key in normalization for key in ("OBSERVATION", "STATE")):
+        raise RemoteInferenceError(
+            "Policy contract normalization mapping must include OBSERVATION or STATE."
+        )
+    if not contract.get("processor"):
+        raise RemoteInferenceError("Policy contract must declare the processor/preprocessor version.")
+    if contract.get("action_semantics") not in (None, ACTION_SEMANTICS_SENT):
+        raise RemoteInferenceError(
+            "Bimanual policy was trained with a different action semantics; expected "
+            f"{ACTION_SEMANTICS_SENT!r}."
+        )
+    return contract
+
+
 def _build_client_command(
     request: InferenceRequest,
     *,
@@ -395,6 +450,41 @@ def _build_client_command(
     from .safety import follower_safety_cli_args
 
     policy_type = (request.policy_type or "act").strip() or "act"
+    if request.bimanual is not None:
+        left_id = Path(request.bimanual.left.follower_config).stem
+        right_id = Path(request.bimanual.right.follower_config).stem
+        safety = follower_safety_cli_args()
+        arm_safety: list[str] = []
+        for arg in safety:
+            arm_safety.append(arg.replace("--robot.", "--robot.left_arm_config.", 1))
+            arm_safety.append(arg.replace("--robot.", "--robot.right_arm_config.", 1))
+        cmd = [
+            sys.executable,
+            "-m",
+            ROBOT_CLIENT_MODULE,
+            "--robot.type=bi_so_follower",
+            "--robot.id=lelab_bimanual",
+            f"--robot.calibration_dir={FOLLOWER_CONFIG_PATH}",
+            f"--robot.left_arm_config.port={request.bimanual.left.follower_port}",
+            f"--robot.left_arm_config.id={left_id}",
+            f"--robot.right_arm_config.port={request.bimanual.right.follower_port}",
+            f"--robot.right_arm_config.id={right_id}",
+            *arm_safety,
+            f"--server_address=127.0.0.1:{local_port}",
+            f"--policy_type={policy_type}",
+            f"--pretrained_name_or_path={remote_policy_path}",
+            f"--policy_device={request.remote_policy_device or 'cuda'}",
+            "--client_device=cpu",
+            f"--actions_per_chunk={request.actions_per_chunk}",
+            f"--fps={request.fps}",
+            f"--chunk_size_threshold={request.chunk_size_threshold}",
+        ]
+        if request.task:
+            cmd.append(f"--task={request.task}")
+        if request.cameras:
+            cmd.append(f"--robot.cameras={_format_cameras_arg(request.cameras)}")
+        return cmd
+
     cmd = [
         sys.executable,
         "-m",
@@ -509,7 +599,13 @@ def handle_start_remote_inference(request: InferenceRequest) -> dict[str, Any]:
         return {"success": False, "status_code": 400, "message": str(exc)}
 
     try:
-        follower_id = setup_follower_calibration_file(request.follower_config)
+        if request.bimanual is not None:
+            validate_bimanual_policy_contract(request.policy_contract, list(request.cameras))
+            setup_follower_calibration_file(request.bimanual.left.follower_config)
+            setup_follower_calibration_file(request.bimanual.right.follower_config)
+            follower_id = "lelab_bimanual"
+        else:
+            follower_id = setup_follower_calibration_file(request.follower_config)
 
         env = _remote_env(config)
         _set_phase("preparing_policy")

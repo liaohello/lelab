@@ -1,0 +1,15 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ pure: [ 'console.log', 'console.debug', 'console.info' ] }`
+vite v8.0.16 building client environment for production...
+[2Ktransforming...✓ 2422 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                     0.70 kB │ gzip:   0.36 kB
+dist/assets/index-sLIKdHW_.css     60.50 kB │ gzip:  11.18 kB
+dist/assets/index-CLdobsD9.js   1,797.72 kB │ gzip: 492.78 kB
+
+✓ built in 3.45s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

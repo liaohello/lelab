@@ -52,12 +52,19 @@ class BiSOFollower(BimanualMixin, Robot):
             )
         left_arm_cameras = {**config.left_arm_config.cameras, **config.cameras}
 
+        # Prefer the id/dir already carried by the child config so an arm can
+        # reuse its existing per-device calibration file.  Only derive
+        # ``<pair>_left/right`` when the child config does not provide one.
         left_arm_config = SOFollowerRobotConfig(
-            id=f"{config.id}_left" if config.id else None,
-            calibration_dir=config.calibration_dir,
+            id=getattr(config.left_arm_config, "id", None)
+            or (f"{config.id}_left" if config.id else None),
+            calibration_dir=getattr(config.left_arm_config, "calibration_dir", None)
+            or config.calibration_dir,
             port=config.left_arm_config.port,
             disable_torque_on_disconnect=config.left_arm_config.disable_torque_on_disconnect,
             max_relative_target=config.left_arm_config.max_relative_target,
+            max_position_deviation=config.left_arm_config.max_position_deviation,
+            calibration_range_margin=config.left_arm_config.calibration_range_margin,
             position_p_coefficient=config.left_arm_config.position_p_coefficient,
             position_i_coefficient=config.left_arm_config.position_i_coefficient,
             position_d_coefficient=config.left_arm_config.position_d_coefficient,
@@ -67,11 +74,15 @@ class BiSOFollower(BimanualMixin, Robot):
         )
 
         right_arm_config = SOFollowerRobotConfig(
-            id=f"{config.id}_right" if config.id else None,
-            calibration_dir=config.calibration_dir,
+            id=getattr(config.right_arm_config, "id", None)
+            or (f"{config.id}_right" if config.id else None),
+            calibration_dir=getattr(config.right_arm_config, "calibration_dir", None)
+            or config.calibration_dir,
             port=config.right_arm_config.port,
             disable_torque_on_disconnect=config.right_arm_config.disable_torque_on_disconnect,
             max_relative_target=config.right_arm_config.max_relative_target,
+            max_position_deviation=config.right_arm_config.max_position_deviation,
+            calibration_range_margin=config.right_arm_config.calibration_range_margin,
             position_p_coefficient=config.right_arm_config.position_p_coefficient,
             position_i_coefficient=config.right_arm_config.position_i_coefficient,
             position_d_coefficient=config.right_arm_config.position_d_coefficient,
@@ -83,8 +94,17 @@ class BiSOFollower(BimanualMixin, Robot):
         self.left_arm = SOFollower(left_arm_config)
         self.right_arm = SOFollower(right_arm_config)
 
-        # Only for compatibility with other parts of the codebase that expect a `robot.cameras` attribute
-        self.cameras = {**self.left_arm.cameras, **self.right_arm.cameras}
+        # Only for compatibility with other parts of the codebase that expect a
+        # `robot.cameras` attribute.  Prefix per-arm keys exactly like the
+        # observation features so a both-arms ``wrist`` camera cannot overwrite
+        # the left entry; top-level cameras stay unprefixed.
+        self.cameras = {
+            **{
+                key if key in self._top_level_cam_keys else f"left_{key}": camera
+                for key, camera in self.left_arm.cameras.items()
+            },
+            **{f"right_{key}": camera for key, camera in self.right_arm.cameras.items()},
+        }
 
     @property
     def _motors_ft(self) -> dict[str, type]:

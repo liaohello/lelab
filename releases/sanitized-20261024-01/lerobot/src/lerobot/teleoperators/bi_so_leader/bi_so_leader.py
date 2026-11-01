@@ -40,17 +40,23 @@ class BiSOLeader(BimanualMixin, Teleoperator):
         super().__init__(config)
         self.config = config
 
+        # Preserve an explicit child id/calibration dir so the teleop arm reuses
+        # the JSON that was calibrated for that physical device.
         left_arm_config = SOLeaderTeleopConfig(
-            id=f"{config.id}_left" if config.id else None,
-            calibration_dir=config.calibration_dir,
+            id=getattr(config.left_arm_config, "id", None)
+            or (f"{config.id}_left" if config.id else None),
+            calibration_dir=getattr(config.left_arm_config, "calibration_dir", None)
+            or config.calibration_dir,
             port=config.left_arm_config.port,
             use_degrees=config.left_arm_config.use_degrees,
             num_read_retries=config.left_arm_config.num_read_retries,
         )
 
         right_arm_config = SOLeaderTeleopConfig(
-            id=f"{config.id}_right" if config.id else None,
-            calibration_dir=config.calibration_dir,
+            id=getattr(config.right_arm_config, "id", None)
+            or (f"{config.id}_right" if config.id else None),
+            calibration_dir=getattr(config.right_arm_config, "calibration_dir", None)
+            or config.calibration_dir,
             port=config.right_arm_config.port,
             use_degrees=config.right_arm_config.use_degrees,
             num_read_retries=config.right_arm_config.num_read_retries,

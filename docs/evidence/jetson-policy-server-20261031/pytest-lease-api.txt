@@ -1,0 +1,58 @@
+/home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/liaozhengyan/Desktop/lelab-bimanual/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.13.6, asyncio-1.4.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 9 items
+
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http PASSED [ 11%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_conflicting_acquire_reports_the_holder PASSED [ 22%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_observer_cannot_acquire_over_http PASSED [ 33%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_start_endpoint_refuses_when_another_task_holds_the_lease PASSED [ 44%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_failed_start_releases_the_lease PASSED [ 55%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_stop_endpoint_releases_the_lease PASSED [ 66%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_start_uses_client_headers_as_the_owner PASSED [ 77%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_observer_header_blocks_start PASSED [ 88%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_emergency_stop_preempts_and_stops_every_task PASSED [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http
+  /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app/lelab/server.py:3232: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http
+  /home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/fastapi/applications.py:4723: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)  # ty: ignore[deprecated]
+
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http
+  /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app/lelab/server.py:3244: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 9 passed, 5 warnings in 10.16s ========================

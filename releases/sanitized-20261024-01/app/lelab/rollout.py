@@ -48,8 +48,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
+from .rig import BimanualRig
 from .safety import follower_safety_cli_args
 from .utils.config import setup_follower_calibration_file
 from .utils.policy_refs import HUB_ROOT_RE, HUB_TREE_RE
@@ -66,8 +67,13 @@ class InferenceRequest(BaseModel):
     （后者为 remote 目标的异步推理调优参数，本地路径不使用）。
     """
 
-    follower_port: str
-    follower_config: str
+    follower_port: str | None = None
+    follower_config: str | None = None
+    bimanual: BimanualRig | None = None
+    #: Explicit 12-dim/camera/processor/normalization contract for a compatible
+    #: bimanual policy.  Required for bimanual inference; a single-arm ACT
+    #: checkpoint (6-dim) is rejected rather than silently adapted.
+    policy_contract: dict[str, Any] | None = None
     policy_ref: str  # opaque ref returned by /jobs/{id}/checkpoints 策略引用：本地路径或 Hub checkpoint 引用
     task: str = ""
     cameras: dict[str, dict[str, Any]] = {}
@@ -85,6 +91,21 @@ class InferenceRequest(BaseModel):
     remote_policy_device: str = "cuda"
     #: GPU index on the train server ("auto" is resolved by the caller).
     remote_gpu: int | None = None
+
+    @model_validator(mode="after")
+    def validate_robot_mode(self) -> InferenceRequest:
+        legacy = [self.follower_port, self.follower_config]
+        if self.bimanual is None and not all(value and value.strip() for value in legacy):
+            raise ValueError("Select a follower or a bimanual follower pair")
+        if self.bimanual is not None and any(legacy):
+            raise ValueError("Use either a single follower or a bimanual rig")
+        if self.bimanual is not None and not self.cameras:
+            raise ValueError("Bimanual inference requires the configured camera set")
+        return self
+
+    @property
+    def mode(self) -> str:
+        return "bimanual" if self.bimanual is not None else "single"
 
 
 # —— 全局推理状态机（中文说明）——
@@ -401,6 +422,17 @@ def handle_start_inference(request: InferenceRequest) -> dict[str, Any]:
     """
     global inference_active, _inference_proc, _inference_started_at
     global _inference_rollout_started_at, _inference_meta
+
+    if request.bimanual is not None:
+        return {
+            "success": False,
+            "status_code": 400,
+            "message": (
+                "Local bimanual inference is not implemented in this phase. Use the remote "
+                "GPU target with a 12-dim/12-dim policy contract; a single-arm ACT checkpoint "
+                "cannot drive two SO101 followers."
+            ),
+        }
 
     # Mutex with teleop and recording: all three drive the same serial bus.
     from . import record as _record, teleoperate as _teleoperate

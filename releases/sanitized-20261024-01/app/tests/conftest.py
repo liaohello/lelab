@@ -54,7 +54,8 @@ def tmp_lerobot_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     follower_cfg_dir = cache / "configs" / "so_follower"
     port_dir = cache / "ports"
     saved_dir = cache / "saved_configs"
-    for d in (teleop_dir, robot_dir, leader_cfg_dir, follower_cfg_dir, port_dir, saved_dir):
+    hardware_dir = cache / "hardware"
+    for d in (teleop_dir, robot_dir, leader_cfg_dir, follower_cfg_dir, port_dir, saved_dir, hardware_dir):
         d.mkdir(parents=True, exist_ok=True)
 
     monkeypatch.setattr(cfg, "CALIBRATION_BASE_PATH_TELEOP", str(teleop_dir))
@@ -67,6 +68,7 @@ def tmp_lerobot_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr(cfg, "CONFIG_STORAGE_PATH", str(saved_dir))
     monkeypatch.setattr(cfg, "LEADER_CONFIG_FILE", str(saved_dir / "leader_config.txt"))
     monkeypatch.setattr(cfg, "FOLLOWER_CONFIG_FILE", str(saved_dir / "follower_config.txt"))
+    monkeypatch.setattr(cfg, "HARDWARE_INVENTORY_PATH", str(hardware_dir))
 
     return cache
 

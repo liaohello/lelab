@@ -1,0 +1,27 @@
+{
+  "policy_type": "act",
+  "state_dim": 6,
+  "action_dim": 6,
+  "image_keys": [
+    "observation.images.right",
+    "observation.images.up"
+  ],
+  "chunk_size": 100,
+  "n_action_steps": 100,
+  "normalization": {
+    "VISUAL": "MEAN_STD",
+    "STATE": "MEAN_STD",
+    "ACTION": "MEAN_STD"
+  },
+  "preprocessor_steps": [
+    "rename_observations_processor",
+    "to_batch_processor",
+    "device_processor",
+    "normalizer_processor"
+  ],
+  "postprocessor_steps": [
+    "unnormalizer_processor",
+    "device_processor"
+  ],
+  "checkpoint_sha256": "5d428f5ff783e20665774a737325ba19e929d27b59788346546ee842d1fe6661"
+}

@@ -195,5 +195,11 @@ def test_emergency_stop_preempts_and_stops_every_task(lease_client: TestClient) 
     body = response.json()
     assert body["success"] is True
     assert body["preempted"]["task"] == "recording"
-    assert set(body["stopped"]) == {"calibration", "teleoperation", "recording", "inference"}
+    assert set(body["stopped"]) == {
+        "calibration",
+        "teleoperation",
+        "recording",
+        "inference",
+        "observe",
+    }
     assert lease_client.get("/hardware/lease").json()["state"] == "idle"

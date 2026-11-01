@@ -1,0 +1,120 @@
+{"wall":1793457433,"BlockIO":"208MB / 47MB","CPUPerc":"0.16%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"5.70%","MemUsage":"892.8MiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"44"
+,"mem":"13191
+","gpu_load":"NA
+"}
+{"wall":1793457444,"BlockIO":"208MB / 47MB","CPUPerc":"0.16%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"5.70%","MemUsage":"892.8MiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"44"
+,"mem":"13195
+","gpu_load":"NA
+"}
+{"wall":1793457455,"BlockIO":"296MB / 47MB","CPUPerc":"72.79%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.44%","MemUsage":"1.29GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12834
+","gpu_load":"NA
+"}
+{"wall":1793457466,"BlockIO":"296MB / 47MB","CPUPerc":"75.39%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.26%","MemUsage":"1.263GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12867
+","gpu_load":"NA
+"}
+{"wall":1793457477,"BlockIO":"296MB / 47.2MB","CPUPerc":"71.90%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.39%","MemUsage":"1.283GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12746
+","gpu_load":"NA
+"}
+{"wall":1793457488,"BlockIO":"296MB / 47.3MB","CPUPerc":"71.23%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.22%","MemUsage":"1.257GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12914
+","gpu_load":"NA
+"}
+{"wall":1793457499,"BlockIO":"296MB / 47.3MB","CPUPerc":"69.65%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.40%","MemUsage":"1.285GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12889
+","gpu_load":"NA
+"}
+{"wall":1793457510,"BlockIO":"296MB / 47.3MB","CPUPerc":"71.66%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.36%","MemUsage":"1.279GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12873
+","gpu_load":"NA
+"}
+{"wall":1793457521,"BlockIO":"296MB / 47.6MB","CPUPerc":"73.56%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.40%","MemUsage":"1.285GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12889
+","gpu_load":"NA
+"}
+{"wall":1793457532,"BlockIO":"296MB / 47.6MB","CPUPerc":"72.13%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.258GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12915
+","gpu_load":"NA
+"}
+{"wall":1793457543,"BlockIO":"296MB / 47.8MB","CPUPerc":"74.46%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.258GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12915
+","gpu_load":"NA
+"}
+{"wall":1793457554,"BlockIO":"296MB / 47.8MB","CPUPerc":"71.33%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.258GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12912
+","gpu_load":"NA
+"}
+{"wall":1793457565,"BlockIO":"296MB / 47.8MB","CPUPerc":"73.93%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.39%","MemUsage":"1.283GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12896
+","gpu_load":"NA
+"}
+{"wall":1793457576,"BlockIO":"296MB / 48.1MB","CPUPerc":"74.71%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.258GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12921
+","gpu_load":"NA
+"}
+{"wall":1793457587,"BlockIO":"296MB / 48.1MB","CPUPerc":"77.13%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.37%","MemUsage":"1.28GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12899
+","gpu_load":"NA
+"}
+{"wall":1793457598,"BlockIO":"296MB / 48.1MB","CPUPerc":"74.45%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.258GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12928
+","gpu_load":"NA
+"}
+{"wall":1793457609,"BlockIO":"296MB / 48.4MB","CPUPerc":"75.99%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.259GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12927
+","gpu_load":"NA
+"}
+{"wall":1793457620,"BlockIO":"296MB / 48.4MB","CPUPerc":"76.75%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.259GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12931
+","gpu_load":"NA
+"}
+{"wall":1793457631,"BlockIO":"296MB / 48.4MB","CPUPerc":"73.70%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.38%","MemUsage":"1.281GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12901
+","gpu_load":"NA
+"}
+{"wall":1793457642,"BlockIO":"296MB / 48.6MB","CPUPerc":"75.62%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.37%","MemUsage":"1.28GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12909
+","gpu_load":"NA
+"}
+{"wall":1793457653,"BlockIO":"296MB / 48.6MB","CPUPerc":"77.61%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.41%","MemUsage":"1.286GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12899
+","gpu_load":"NA
+"}
+{"wall":1793457665,"BlockIO":"296MB / 48.6MB","CPUPerc":"70.67%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.259GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12928
+","gpu_load":"NA
+"}
+{"wall":1793457676,"BlockIO":"296MB / 48.9MB","CPUPerc":"75.94%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.23%","MemUsage":"1.259GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12926
+","gpu_load":"NA
+"}
+{"wall":1793457687,"BlockIO":"296MB / 48.9MB","CPUPerc":"76.97%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.38%","MemUsage":"1.281GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12899
+","gpu_load":"NA
+"}
+{"wall":1793457698,"BlockIO":"296MB / 49.2MB","CPUPerc":"76.62%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.24%","MemUsage":"1.259GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12925
+","gpu_load":"NA
+"}
+{"wall":1793457709,"BlockIO":"296MB / 49.2MB","CPUPerc":"77.72%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.37%","MemUsage":"1.28GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"51"
+,"mem":"12900
+","gpu_load":"NA
+"}
+{"wall":1793457720,"BlockIO":"296MB / 49.2MB","CPUPerc":"75.26%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.43%","MemUsage":"1.288GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"59"
+,"mem":"12893
+","gpu_load":"NA
+"}
+{"wall":1793457731,"BlockIO":"296MB / 49.5MB","CPUPerc":"76.69%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.43%","MemUsage":"1.288GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"59"
+,"mem":"12895
+","gpu_load":"NA
+"}
+{"wall":1793457742,"BlockIO":"296MB / 49.5MB","CPUPerc":"0.22%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.30%","MemUsage":"1.269GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"59"
+,"mem":"12909
+","gpu_load":"NA
+"}
+{"wall":1793457753,"BlockIO":"296MB / 49.5MB","CPUPerc":"0.24%","Container":"lelab-policy-server-20261031","ID":"b6fcbe6b8fe2","MemPerc":"8.30%","MemUsage":"1.269GiB / 15.29GiB","Name":"lelab-policy-server-20261031","NetIO":"0B / 0B","PIDs":"59"
+,"mem":"12912
+","gpu_load":"NA
+"}

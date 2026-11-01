@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-31",
+  "base_commit": "07216e0",
+  "worktree": "/home/liaozhengyan/Desktop/lelab-bimanual",
+  "branch": "feat/local-bimanual",
+  "parallel_lerobot": "0.6.2 (local customized source, ../lerobot)",
+  "environment": "worktree .venv copy (CPU torch 2.11.0+cpu); PYTHONPATH pins worktree app/lerobot",
+  "tests": {
+    "related_groups": {"passed": 109, "failed": 0, "elapsed_s": 8.19},
+    "bimanual_only": {"passed": 14, "failed": 0, "elapsed_s": 7.55},
+    "frontend_tsc": "passed",
+    "frontend_build": "passed",
+    "ruff_changed_files": "passed"
+  },
+  "synthetic_dataset": {
+    "episodes": 3,
+    "frames": 8,
+    "episode_lengths": [3, 3, 2],
+    "state_action_dim": 12,
+    "joint_order": "left six then right six",
+    "cameras_decoded": ["observation.images.front", "observation.images.left_wrist", "observation.images.right_wrist"],
+    "action_value_checked": 105.0,
+    "action_semantics": "sent_target_after_local_safety_clamps",
+    "diagnostics_rows": 8
+  },
+  "browser": {
+    "setup_page": "validated four devices and displayed a missing-calibration error",
+    "recording_mock": "save -> reset; discard/re-record request; stop -> stopping -> verifying -> upload with 2 episodes",
+    "camera_scan": "explicit click only",
+    "start_guard": "disabled without cameras"
+  },
+  "not_verified": [
+    "real four-arm serial movement and calibration",
+    "real camera preview bandwidth and ages",
+    "emergency stop / disconnect on hardware",
+    "long-duration stability and real dataset writing",
+    "compatible bimanual policy checkpoint",
+    "remote PolicyServer launch"
+  ]
+}
