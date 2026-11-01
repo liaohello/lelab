@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "artifact_type": "sanitized_assessment_summary_not_full_command_transcript",
+  "assessment_date_utc": "2026-10-31",
+  "report_prepared_after_utc": "2026-10-31T15:33:09Z",
+  "target": {"address": "192.168.19.138", "user": "pi"},
+  "scope": "read_only_environment_assessment",
+  "overall_status": "partial_remote_runtime_unverified",
+  "project_baseline": {"branch": "codex/ros2-mobile-collection", "short_commit": "4beecee"},
+  "host": {
+    "source": "successful SSH command outputs, including read-only system subagent findings",
+    "model": "Raspberry Pi 5 Model B Rev 1.1",
+    "os": "Debian GNU/Linux 12 (bookworm)",
+    "kernel": "6.6.20+rpt-rpi-2712",
+    "architecture": "aarch64",
+    "cpu": "4 cores, Cortex-A76",
+    "python": "3.11.2",
+    "memory_gib_approx": {"total": 7.9, "available": 7.2},
+    "root_df_hT": "/dev/mmcblk0p2 ext4 57G 46G 8.7G 85% /",
+    "temperature_c": {"thermal_zone": 45.2, "vcgencmd": 45.5},
+    "vcgencmd_throttled": "0x0",
+    "measurement_time_note": "Remote sample UTC start/end were not captured; these are snapshots from this assessment date."
+  },
+  "devices": {
+    "source": "read-only enumeration and permissions, not device I/O",
+    "usb_names_observed": ["CH340 serial converter", "USB Single Serial", "USB PnP Audio Device", "USB hub", "Linux Foundation Aurora 930"],
+    "serial_by_id_targets": ["/dev/ttyUSB0", "/dev/ttyACM0"],
+    "serial_permissions_observed": "crw-rw-rw-",
+    "video_nodes_observed": "/dev/video19 through /dev/video37",
+    "video_permissions_observed": "root:video, crw-rw----+",
+    "pi_group_memberships_observed": ["dialout", "video", "docker", "gpio", "i2c", "spi", "sudo"],
+    "fuser_snapshot": "No holders listed by the query; visibility and permission limitations apply.",
+    "camera_identity": "unverified",
+    "camera_capture": "not_tested",
+    "serial_protocol": "not_tested",
+    "running_mcu_firmware_version": "unverified"
+  },
+  "network": {
+    "workstation_route": "192.168.19.138 dev enx00e04c68034c src 192.168.19.137",
+    "transport_observed": "wired Ethernet",
+    "pi_eth0": "UP, LOWER_UP; default route via 192.168.19.1",
+    "pi_wlan0": "UP, DORMANT; route for 192.168.149.0/24 observed",
+    "pi_interface_counter_snapshot": "eth0 and wlan0 reported zero errors/dropped at sampling time",
+    "ping_samples": [
+      {"sent": 3, "received": 2, "loss_percent": 33.3, "rtt_average_ms_approx": 0.224},
+      {"sent": 10, "received": 6, "loss_percent": 40.0, "rtt_min_ms": 0.243, "rtt_average_ms": 0.283, "rtt_max_ms": 0.468}
+    ],
+    "later_tcp_banner_probes": [
+      {"attempt": 1, "elapsed_seconds": 3.005, "error": "timed out"},
+      {"attempt": 2, "elapsed_seconds": 0.226, "banner": "SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u2"},
+      {"attempt": 3, "elapsed_seconds": 0.020, "banner": "SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u2"}
+    ],
+    "ssh": "Password authentication succeeded and initial system queries returned; later multiplexed queries stalled or disconnected. A bounded parent probe exited 124 with no output, and the last direct connection attempt timed out with exit code 255.",
+    "root_cause": "unresolved; packet loss, SSH stalls and Docker CLI crash do not establish a common cause",
+    "wifi_throughput_and_latency": "not_tested",
+    "clock_sync_and_offset": "unverified"
+  },
+  "ros_runtime": {
+    "host_opt_ros": "not_found",
+    "host_ros2_cli": "not_found_in_checked_PATH",
+    "common_workspaces_checked_not_found": ["/home/pi/ros2_ws", "/home/pi/ros_ws", "/opt/ros_ws", "/workspace/ros2_ws"],
+    "host_process_probe": "No matching ROS process returned by the checked probe; not proof of absence across all runtimes.",
+    "docker_probe_command": "docker ps --format '{{.ID}} {{.Image}} {{.Names}} {{.Status}}'",
+    "docker_cli_error_excerpt": ["runtime: bad pointer in frame runtime.(*mcache).refill", "fatal error: invalid pointer found on stack"],
+    "docker_rest_get_followup": "Attempted read-only GET of version and container list over the local Docker socket; no usable remote output before connection timeout/stall.",
+    "docker_daemon_health": "unverified",
+    "containers_and_images": "unverified",
+    "ros_distro_and_workspace_in_containers": "unverified",
+    "nodes_topics_qos_rates_stamps": "unverified",
+    "rosbag2_and_mcap_plugin": "unverified"
+  },
+  "local_code_findings": {
+    "source": "read-only local code analysis, not execution on the Pi",
+    "upper_app_python_requirement": ">=3.12",
+    "car_agent": "ament_python; potentially separable from upper LeLab/LeRobot but real runtime compatibility untested",
+    "mandatory_simulation_dependencies": ["top-level ros_gz_interfaces Contacts import", "simulation clock and truth/contact health requirements", "gz CLI emergency/reset paths", "source metadata hardcoded to simulation"],
+    "integrity_issues": ["missing joint values filled with zero in exporter", "missing action events can generate synthetic actions", "bag child failure or forced kill not reliably propagated to error before READY", "physical topic and joint mappings unset"],
+    "source_files": [
+      "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py",
+      "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/watchdog.py",
+      "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/recorder.py",
+      "ros2_ws/src/lelab_mobile_agent/package.xml",
+      "app_ros_mobile/lelab/ros_mobile.py",
+      "app_ros_mobile/pyproject.toml",
+      "configs/ros2_collection/runtime-profile-v1.json"
+    ]
+  },
+  "actions_not_performed": ["motor or servo command", "serial or camera open", "firmware flashing", "software installation", "service/container/node start or restart", "OS or network configuration change", "throughput or storage write benchmark"],
+  "evidence_limits": ["device enumeration does not prove capture or protocol functionality", "absence of host ROS does not prove absence of container ROS", "brief ICMP loss is not a measured Wi-Fi performance result", "local reference firmware does not identify installed MCU firmware", "no real motion, camera frame or physical data recording was validated"]
+}

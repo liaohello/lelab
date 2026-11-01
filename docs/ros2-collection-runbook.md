@@ -80,7 +80,17 @@ PI=pi@192.168.19.138 tools/ros2_collection/deploy_readonly_agent.sh --stop
 PI=pi@192.168.19.138 tools/ros2_collection/deploy_readonly_agent.sh --rollback
 ```
 
-脚本默认容器 `MentorPi`、容器内路径 `/home/ubuntu/lelab_car`；认证完全交给用户已有 SSH 配置，不读取或打印凭据。`--rollback` 只删除部署的代码/profile/启动脚本，保留 `sessions/` 和日志。Pi 当前不可达，本脚本尚未在 Pi 实际执行。
+脚本默认容器 `MentorPi`、容器内路径 `/home/ubuntu/lelab_car`；认证完全交给用户已有 SSH 配置，不读取或打印凭据。`--rollback` 只删除部署的代码/profile/启动脚本，保留 `sessions/` 和日志。本脚本尚未在 Pi 实际执行：2026-10-31 20:05–20:15（本地）Pi 短暂可达，22 端口给出 `publickey,password`，但本机三把密钥在 BatchMode 下全部 `Permission denied`，随后链路再次 `NO-CARRIER`。
+
+无 SSH 时的只读话题核验（不登录、不部署，仅 rosbridge 订阅与 rosapi 查询，不创建 publisher/service client）：
+
+```bash
+source work/ros2_collection/envs/ros_jazzy/setup.bash
+python3 tools/ros2_collection/probe_pi_via_rosbridge.py --duration 5 --output /tmp/pi_rosbridge_probe.json
+curl -s -o /tmp/pi_rgb.jpg 'http://192.168.19.138:8080/snapshot?topic=/ascamera/camera_publisher/rgb0/image'
+```
+
+该通道只能证明话题存在与真实图像内容，不能替代车端录制、断连保录和同步验收。`/rosapi/services` 在车端负载下会超时并关闭连接；证据见 `docs/evidence/raspberry-pi-live-probe-20261031.json`。宿主 Jazzy DDS（`ROS_DOMAIN_ID=0`、`ROS_LOCALHOST_ONLY=0`）未发现车端话题，跨机 DDS 组播尚不可用。
 
 真实传感器被动核验（只创建订阅，不创建 publisher/client）：
 

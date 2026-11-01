@@ -44,6 +44,7 @@
 
 - **物理链路**：17:11Z 检查宿主有线网卡 `enx00e04c68034c` 为 `NO-CARRIER`（ethtool `Link detected: no`），宿主当前仅在 Wi-Fi `192.168.31.54/24`；`192.168.19.0/24` 已无路由。这不是 Pi ROS 结论，需恢复网线/供电或确认新地址。
 - **Pi 状态**：15:54Z 的被动探测已确认 Humble 容器（MentorPi，Ubuntu 22.04/Python 3.10）及真实 RGB（640×400 bgr8，约 8.6 Hz）、深度、IMU、关节和 odom topic；但 17:02Z 复核 `pi@192.168.19.138` 时 SSH BatchMode `Connection timed out`，ping 2/2 丢包。没有采集或输出任何凭据。
+- **20:05–20:15（本地）复测**：宿主 `enx00e04c68034c` 恢复 `LOWER_UP`（1000 Mb/s Full），`192.168.19.138` ARP 解析到 `88:a2:9e:62:6a:a5`，但 ICMP 丢包 50%→65%，约 10 分钟后再次 `NO-CARRIER`。该窗口内确认：8080 `web_video_server` 列出真实相机话题、9090 rosbridge `/rosapi/topics` 返回 53 个话题、5900 VNC 开放、HTTP `Date` 头仍为 `08 Apr 2026` 证明车端时钟未同步；从 `/ascamera/camera_publisher/rgb0/image` 取得 640×400 JPEG 真机帧（58,731 字节，SHA-256 `3de68274…`，存 `docs/evidence/pi-rgb-snapshot-20261031.jpg`）。22 端口接受 `publickey,password`，但本机三把密钥 BatchMode 全部 `Permission denied`，未取得登录，未触碰任何执行器，也未采集或记录口令。新增只读探针 `tools/ros2_collection/probe_pi_via_rosbridge.py`；宿主 Jazzy DDS 仍未发现车端话题。证据：`docs/evidence/raspberry-pi-live-probe-20261031.json`。
 - 被动探测未发现 MCAP 插件，硬件只读 profile 因此改用 `sqlite3`；相机外参、关节/夹爪实测反馈和时钟同步仍未确认。
 - 因此以下均未验证：Pi 上的 ROS 运行时/驱动/容器启动与部署、真实相机外参/标定、网页消费真实相机、Pi 本地两段 episode、Pi 断连保存、真实 bag 同步、实机只读无执行器输出。真实 topic/帧尺寸/近似接收频率只有被动探测结果，不能替代本次运行验证。
 - 未进行真实运动、固件烧录、系统重装或策略训练。

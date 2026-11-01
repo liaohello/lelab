@@ -1,0 +1,50 @@
+{
+  "recorded_utc": "2026-11-01T03:20:00+00:00",
+  "target": "pi@192.168.19.138",
+  "host": "liaozhengyan workstation, iface enx00e04c68034c = 192.168.19.137/24 (Realtek USB, 00:e0:4c:68:03:4c)",
+  "summary": "树莓派在本窗口内间歇可达：约 20:00–20:15 (本地) 链路恢复并拿到真实相机帧与 ROS 话题清单，随后接口再次 NO-CARRIER。SSH 仍无已授权的非交互凭据，车端 agent 未能部署。",
+  "link_timeline_local_tz": [
+    {"time": "2026-10-31 19:5x", "state": "enx00e04c68034c NO-CARRIER，ping 100% 丢包，SSH Connection timed out"},
+    {"time": "2026-10-31 20:05", "state": "LOWER_UP，1000Mb/s Full，链路对端 advertise 可见；ARP 192.168.19.138 由 INCOMPLETE/FAILED 转为 REACHABLE，lladdr 88:a2:9e:62:6a:a5"},
+    {"time": "2026-10-31 20:06-20:10", "state": "IPv4 可达但 ICMP 丢包 50%→65%；22/8080/9090/5900 TCP 开放；rosbridge 可完成 /rosapi/topics，随后 /rosapi/services 超时并关闭连接"},
+    {"time": "2026-10-31 20:15", "state": "再次 NO-CARRIER，ping 100% 丢包，三个 TCP 端口 0/6 连接成功"}
+  ],
+  "verified_this_window": {
+    "network_path": "192.168.19.137 -> enx00e04c68034c -> 192.168.19.138 (同二层，ARP 直接解析，无网关参与)",
+    "ipv6_neighbor": "fe80::5377:38bf:100e:3764%enx00e04c68034c，同一 MAC，链路本地可达",
+    "real_camera_frame": {
+      "file": "docs/evidence/pi-rgb-snapshot-20261031.jpg",
+      "sha256": "3de68274d6bde3fc54b09c2650daef353394fee69d0f1d4990d981bc8ffa9c47",
+      "bytes": 58731,
+      "decoded": "JPEG 640x400 RGB（Pillow 实际解码核对）",
+      "source": "http://192.168.19.138:8080/snapshot?topic=/ascamera/camera_publisher/rgb0/image",
+      "note": "8 次连续 snapshot 全部 200 OK，尺寸与内容来自真实 Aurora 相机驱动话题"
+    },
+    "rosbridge_topic_evidence_sha256": "657f7c1566505e00034a3ca4667c70c277b5784f63ffb0d678237302beac1ca1",
+    "ros_stack_on_car": {
+      "web_video_server": "HTTP 8080，Server: web_video_server，列出 /ascamera rgb0/depth0/ir0 与 ar_app/hand_trajectory/line_following/object_tracking 结果图",
+      "rosbridge": "WebSocket 9090，Server: TornadoServer/6.1；/rosapi/topics 返回 53 个话题",
+      "topic_sample": ["/ascamera/camera_publisher/rgb0/image", "/ascamera/camera_publisher/rgb0/camera_info", "/ascamera/camera_publisher/depth0/image_raw", "/ascamera/camera_publisher/ir0/image", "/imu", "/imu_corrected", "/joint_states", "/controller_manager/joint_states", "/odom", "/odom_raw", "/odom_rf2o", "/set_odom"],
+      "evidence_file": "docs/evidence/pi-rosbridge-partial-20261031.json",
+      "vnc": "5900 端口开放（未登录、未使用）"
+    },
+    "pi_clock_still_unsynchronized": "rosbridge HTTP Date 头为 Wed, 08 Apr 2026 18:50:36 GMT，而本机 UTC 为 2026-10-31，偏差约 6 个月，与既有评估一致"
+  },
+  "not_verified": {
+    "dds_cross_host_discovery": "本机 Jazzy（ROS_DOMAIN_ID=0, ROS_LOCALHOST_ONLY=0, --no-daemon）只看到 /parameter_events 与 /rosout，未发现车端话题；车端 FastRTPS 组播未到达上位机，原因（组播过滤/接口绑定/容器网络）未隔离",
+    "ssh_login": "端口 22 开放并给出 publickey,password 两种认证；本机 ~/.ssh/lelab-jetson、liaoGithub、remoteServer 及 agent 内三把密钥在 BatchMode 下全部 Permission denied。未采集、未尝试、未记录任何口令",
+    "car_side_agent_deployment": "deploy_readonly_agent.sh 依赖 SSH，本窗口未执行 --check/--apply",
+    "pi_side_episode_recording": "未取得车端 session、READY、manifest 或 bag",
+    "upper_computer_sync": "无真机 session 可拉取，哈希校验/原子发布链路仍未在真机闭环",
+    "readonly_actuator_refusal_on_real_board": "只读拒止矩阵仅在本地仿真验证，实机侧未验证",
+    "disconnect_survival_on_real_board": "未验证"
+  },
+  "blockers": [
+    "物理链路不稳定：以太网在约 10 分钟可达后再次 NO-CARRIER，需检查网线/接口/供电或改用稳定的直连或已授权无线接入",
+    "缺少已授权的 SSH 非交互登录方式；车端录制必须由 Pi 侧进程完成，因此 SSH（或等名的受控通道）是硬阻塞"
+  ],
+  "prepared_next": [
+    "tools/ros2_collection/probe_pi_via_rosbridge.py：只读 rosbridge 探针（仅 subscribe + rosapi 调用，不创建 publisher/service client），已在本窗口实跑并取得 53 个话题",
+    "链路恢复后的既有顺序保持不变：deploy_readonly_agent.sh --check → 容器内 probe_real_sensors.py → --apply → ssh -N -L 8110:127.0.0.1:8110 → 网页真机预览/两 episode 录制/断连保录/同步校验/训练导出拒止"
+  ]
+}

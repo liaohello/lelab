@@ -46,7 +46,9 @@
       "capture_width": 640,
       "capture_height": 400,
       "verified_at": "2026-10-31T15:54Z",
-      "verification_source": "pi_passive_ros_uid1000_probe"
+      "verification_source": "pi_passive_ros_uid1000_probe",
+      "reverified_at": "2026-11-01T03:07Z",
+      "reverification_source": "pi_web_video_server_snapshot_640x400_jpeg_plus_rosbridge_topic_list"
     },
     "depth": {
       "record_raw": false,
@@ -55,11 +57,21 @@
     },
     "lidar": {
       "record_raw": false,
-      "topic": null
+      "topic": "/scan"
     },
     "imu": {
-      "record_raw": false,
-      "topic": null
+      "record_raw": true,
+      "topic": "/imu"
+    },
+    "joint_state": {
+      "record_raw": true,
+      "topic": "/joint_states",
+      "names_units": "unverified"
+    },
+    "odom": {
+      "record_raw": true,
+      "topic": "/odom",
+      "semantics": "unverified"
     }
   },
   "features": {
@@ -95,6 +107,9 @@
     "topics": [
       "/ascamera/camera_publisher/rgb0/image",
       "/ascamera/camera_publisher/rgb0/camera_info",
+      "/imu",
+      "/joint_states",
+      "/odom",
       "/lelab/events"
     ],
     "required_topics": [
@@ -120,6 +135,24 @@
     "serial_devices": "enumerated; controller identity unverified",
     "leader_arm": "not_verified",
     "camera_interface": "aurora depth camera via existing ROS driver",
-    "note": "Topics verified passively at 2026-10-31T15:54Z. Pi unreachable later the same day; storage sqlite3 because MCAP plugin was not visible. No action/joint measurement contract is claimed."
+    "observed_actuator_topics_never_published": [
+      "/cmd_vel",
+      "/controller/cmd_vel",
+      "/joint_controller",
+      "/servo_controller",
+      "/set_odom",
+      "/set_pose",
+      "/ros_robot_controller/set_motor",
+      "/ros_robot_controller/bus_servo/set_position",
+      "/ros_robot_controller/bus_servo/set_state",
+      "/ros_robot_controller/pwm_servo/set_state",
+      "/ros_robot_controller/enable_reception",
+      "/ros_robot_controller/set_buzzer",
+      "/ros_robot_controller/set_led",
+      "/ros_robot_controller/set_rgb",
+      "/ros_robot_controller/set_oled",
+      "/joy/set_feedback"
+    ],
+    "note": "Topics verified passively at 2026-10-31T15:54Z and re-listed over rosbridge at 2026-11-01T03:14Z (53 topics, /imu, /joint_states, /odom, /scan present). Pi ran down later; storage sqlite3 because the MCAP plugin was not visible. No action/joint measurement contract is claimed and none of the observed actuator topics is ever published in this mode."
   }
 }
