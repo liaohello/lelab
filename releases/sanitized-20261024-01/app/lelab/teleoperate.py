@@ -18,14 +18,21 @@ import threading
 import time
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
+from lerobot.robots import make_robot_from_config
 from lerobot.robots.so_follower import SO101Follower, SO101FollowerConfig
+from lerobot.teleoperators import make_teleoperator_from_config
 from lerobot.teleoperators.so_leader import SO101Leader, SO101LeaderConfig
 
-from .safety import follower_safety_kwargs
+from .rig import (
+    BimanualRig,
+    bimanual_snapshot_from_observation,
+    build_bimanual_configs,
+    build_single_configs,
+)
 from .utils.config import setup_calibration_files
-from .utils.devices import safe_disconnect_device
+from .utils.devices import connect_recording_devices, safe_disconnect_device
 
 logger = logging.getLogger(__name__)
 
@@ -53,10 +60,24 @@ class TeleoperateRequest(BaseModel):
       标定文件（见 utils.config.setup_calibration_files）。
     """
 
-    leader_port: str
-    follower_port: str
-    leader_config: str
-    follower_config: str
+    leader_port: str | None = None
+    follower_port: str | None = None
+    leader_config: str | None = None
+    follower_config: str | None = None
+    bimanual: BimanualRig | None = None
+
+    @model_validator(mode="after")
+    def validate_device_mode(self) -> "TeleoperateRequest":
+        legacy = [self.leader_port, self.follower_port, self.leader_config, self.follower_config]
+        if self.bimanual is None and not all(value and value.strip() for value in legacy):
+            raise ValueError("Select a calibrated pair or a complete bimanual rig")
+        if self.bimanual is not None and any(legacy):
+            raise ValueError("Use either a single pair or a bimanual rig")
+        return self
+
+    @property
+    def mode(self) -> str:
+        return "bimanual" if self.bimanual is not None else "single"
 
 
 def get_joint_positions_from_robot(robot) -> dict[str, float]:
@@ -162,6 +183,10 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
             return {"success": False, "message": "Recording is currently active. Stop it first."}
         if _rollout.inference_active:
             return {"success": False, "message": "Inference is currently active. Stop it first."}
+        from .calibrate import calibration_manager
+
+        if calibration_manager.get_status().calibration_active:
+            return {"success": False, "message": "Calibration is currently active. Stop it first."}
         teleoperation_active = True
 
     robot = None
@@ -171,64 +196,63 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
             f"Starting teleoperation with leader port: {request.leader_port}, follower port: {request.follower_port}"
         )
 
-        # Setup calibration files
-        leader_config_name, follower_config_name = setup_calibration_files(
-            request.leader_config, request.follower_config
-        )
+        if request.bimanual is not None:
+            robot_config, teleop_config, rig_metadata = build_bimanual_configs(
+                request.bimanual, {}
+            )
+            logger.info("Initializing bimanual robot and teleop devices...")
+            robot = make_robot_from_config(robot_config)
+            teleop_device = make_teleoperator_from_config(teleop_config)
+            logger.info("Connecting all four physical arms (non-interactive order)...")
+            connect_recording_devices(robot, teleop_device)
+            logger.info("Successfully connected to all bimanual devices")
+        else:
+            leader_config_name, follower_config_name = setup_calibration_files(
+                request.leader_config, request.follower_config
+            )
+            robot_config, teleop_config, rig_metadata = build_single_configs(
+                leader_port=request.leader_port,
+                follower_port=request.follower_port,
+                leader_config=request.leader_config,
+                follower_config=request.follower_config,
+                camera_configs={},
+                setup_calibration_files_fn=setup_calibration_files,
+                follower_config_cls=SO101FollowerConfig,
+                leader_config_cls=SO101LeaderConfig,
+            )
+            logger.info("Initializing robot and teleop device...")
+            robot = SO101Follower(robot_config)
+            teleop_device = SO101Leader(teleop_config)
 
-        # Create robot and teleop configs
-        # follower_safety_kwargs() 从环境变量读取安全限幅注入从臂配置：
-        # max_relative_target（单步目标最大增量）等最终在从臂 send_action 内部生效。
-        robot_config = SO101FollowerConfig(
-            port=request.follower_port,
-            id=follower_config_name,
-            **follower_safety_kwargs(),
-        )
+            # Preserve the proven single-arm connection messages/order: follower,
+            # leader, calibration, cameras, configure.
+            logger.info("Connecting to follower arm...")
+            try:
+                robot.bus.connect()
+            except Exception as e:
+                raise RuntimeError(
+                    f"Could not connect to the follower arm on {request.follower_port}. "
+                    "Make sure it's plugged in and powered on, then try again."
+                ) from e
 
-        teleop_config = SO101LeaderConfig(
-            port=request.leader_port,
-            id=leader_config_name,
-        )
+            logger.info("Connecting to leader arm...")
+            try:
+                teleop_device.bus.connect()
+            except Exception as e:
+                raise RuntimeError(
+                    f"Could not connect to the leader arm on {request.leader_port}. "
+                    "Make sure it's plugged in and powered on, then try again."
+                ) from e
 
-        # Connect synchronously. If either device fails to connect, clean up the
-        # other (so its serial port is released) and report the error — do NOT
-        # leave the caller thinking teleoperation started.
-        logger.info("Initializing robot and teleop device...")
-        robot = SO101Follower(robot_config)
-        teleop_device = SO101Leader(teleop_config)
-
-        # Connect each arm separately so the error names which one failed and
-        # tells the user what to do, instead of a generic "failed to start".
-        logger.info("Connecting to follower arm...")
-        try:
-            robot.bus.connect()
-        except Exception as e:
-            raise RuntimeError(
-                f"Could not connect to the follower arm on {request.follower_port}. "
-                "Make sure it's plugged in and powered on, then try again."
-            ) from e
-
-        logger.info("Connecting to leader arm...")
-        try:
-            teleop_device.bus.connect()
-        except Exception as e:
-            raise RuntimeError(
-                f"Could not connect to the leader arm on {request.leader_port}. "
-                "Make sure it's plugged in and powered on, then try again."
-            ) from e
-
-        # Write calibration to motors' memory
-        logger.info("Writing calibration to motors...")
-        robot.bus.write_calibration(robot.calibration)
-        teleop_device.bus.write_calibration(teleop_device.calibration)
-
-        # Connect cameras and configure motors
-        logger.info("Connecting cameras and configuring motors...")
-        for cam in robot.cameras.values():
-            cam.connect()
-        robot.configure()
-        teleop_device.configure()
-        logger.info("Successfully connected to both devices")
+            logger.info("Writing calibration to motors...")
+            robot.bus.write_calibration(robot.calibration)
+            teleop_device.bus.write_calibration(teleop_device.calibration)
+            logger.info("Connecting cameras and configuring motors...")
+            for cam in robot.cameras.values():
+                cam.connect()
+            robot.configure()
+            teleop_device.configure()
+            logger.info("Successfully connected to both devices")
 
         current_robot = robot
         current_teleop = teleop_device
@@ -265,12 +289,30 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
                     # 按 broadcast_interval(50ms≈20FPS) 节流，把关节角广播给前端
                     if current_time - last_broadcast_time >= broadcast_interval:
                         try:
-                            joint_positions = get_joint_positions_from_robot(robot)
-                            joint_data = {
-                                "type": "joint_update",
-                                "joints": joint_positions,
-                                "timestamp": current_time,
-                            }
+                            if getattr(robot, "name", None) == "bi_so_follower":
+                                # Read both arms once; split into two URDF maps. No
+                                # HTTP thread reads a serial bus.
+                                arms, errors = bimanual_snapshot_from_observation(
+                                    robot.get_observation()
+                                )
+                                joint_data = {
+                                    "type": "joint_update",
+                                    "mode": "bimanual",
+                                    "timestamp": current_time,
+                                    "joints": arms["left"]["joints_rad"],
+                                    "arms": {
+                                        side: arms[side]["joints_rad"]
+                                        for side in ("left", "right")
+                                    },
+                                    "errors": errors,
+                                }
+                            else:
+                                joint_data = {
+                                    "type": "joint_update",
+                                    "mode": "single",
+                                    "joints": get_joint_positions_from_robot(robot),
+                                    "timestamp": current_time,
+                                }
                             if websocket_manager and websocket_manager.active_connections:
                                 websocket_manager.broadcast_joint_data_sync(joint_data)
                             last_broadcast_time = current_time
@@ -351,8 +393,12 @@ def handle_teleoperation_status() -> dict[str, Any]:
     teleoperation_active（无锁读，布尔赋值原子），available_controls 告诉前端
     当前是否可以点击"停止遥操作"按钮。
     """
+    robot = current_robot
     return {
         "teleoperation_active": teleoperation_active,
+        "mode": "bimanual"
+        if getattr(robot, "name", None) == "bi_so_follower"
+        else "single",
         "available_controls": {
             "stop_teleoperation": teleoperation_active,
         },

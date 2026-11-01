@@ -1,0 +1,86 @@
+date=2026-10-31T22:37:56+08:00
+nvidia-desktop
+Linux nvidia-desktop 5.15.148-tegra #1 SMP PREEMPT Tue Jan 7 17:14:38 PST 2025 aarch64 aarch64 aarch64 GNU/Linux
+PRETTY_NAME="Ubuntu 22.04.5 LTS"
+NAME="Ubuntu"
+VERSION_ID="22.04"
+# R36 (release), REVISION: 4.3, GCID: 38968081, BOARD: generic, EABI: aarch64, DATE: Wed Jan  8 01:49:37 UTC 2025
+# KERNEL_VARIANT: oot
+TARGET_USERSPACE_LIB_DIR=nvidia
+--- memory/disk ---
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       2.4Gi       244Mi        26Mi        12Gi        12Gi
+Swap:          7.6Gi       126Mi       7.5Gi
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p1  233G  114G  108G  52% /
+/dev/nvme0n1p1  233G  114G  108G  52% /
+--- gpu probes ---
+Sat Oct 31 22:37:57 2026       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 540.4.0                Driver Version: 540.4.0      CUDA Version: 12.6     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  Orin (nvgpu)                  N/A  | N/A              N/A |                  N/A |
+| N/A   N/A  N/A               N/A /  N/A | Not Supported        |     N/A          N/A |
+/usr/bin/tegrastats
+--- listening ---
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+LISTEN 0      32           0.0.0.0:5900       0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:7892       0.0.0.0:*          
+LISTEN 0      128        127.0.0.1:7890       0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:7891       0.0.0.0:*          
+LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*          
+LISTEN 0      128          0.0.0.0:22         0.0.0.0:*          
+LISTEN 0      4096         0.0.0.0:111        0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*          
+LISTEN 0      32              [::]:5900          [::]:*          
+LISTEN 0      128             [::]:22            [::]:*          
+LISTEN 0      4096            [::]:111           [::]:*          
+LISTEN 0      4096               *:28081            *:*          
+--- source ---
+source_dir=/home/nvidia/jetson-policy-server-20261031/lerobot/src
+513
+--- image ---
+lelab-policy-server:20261031 c78cf79d6feb 18GB
+nvcr.io/nvidia/pytorch:25.06-py3-igpu 05bb8855c5ab 17.4GB
+--- container ---
+name=/lelab-policy-server-20261031 state=running image=lelab-policy-server:20261031 started=2026-10-31T14:35:36.596451167Z
+--- runtime versions ---
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'lerobot'
+--- log head ---
+INFO 2026-10-31 14:35:43 y_server.py:420 {'fps': 30,
+ 'host': '0.0.0.0',
+ 'inference_latency': 0.0333333333,
+ 'obs_queue_timeout': 2.0,
+ 'port': 28081}
+INFO 2026-10-31 14:35:43 y_server.py:430 PolicyServer started on 0.0.0.0:28081
+INFO 2026-10-31 14:35:52 y_server.py:110 Client ipv4:192.168.31.54:32962 connected and ready
+INFO 2026-10-31 14:35:52 y_server.py:136 Receiving policy instructions from ipv4:192.168.31.54:32962 | Policy type: act | Pretrained name or path: /home/nvidia/Desktop/lelab/models/act_local_red_bowl_20260919_152702_2026-09-19_19-55-49_6cf4e08d/checkpoints/010000/pretrained_model | Actions per chunk: 100 | Device: cuda
+Downloading: "https://download.pytorch.org/models/resnet18-f37072fd.pth" to /root/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth
+  0%|          | 0.00/44.7M [00:00<?, ?B/s]  0%|          | 128k/44.7M [00:00<02:50, 274kB/s]  1%|          | 256k/44.7M [00:00<01:44, 447kB/s]  1%|          | 384k/44.7M [00:00<01:15, 615kB/s]  1%|▏         | 640k/44.7M [00:00<00:47, 980kB/s]  3%|▎         | 1.12M/44.7M [00:01<00:23, 1.92MB/s]  5%|▍         | 2.12M/44.7M [00:01<00:11, 3.96MB/s]  9%|▉         | 4.12M/44.7M [00:01<00:05, 8.25MB/s] 16%|█▌        | 7.00M/44.7M [00:01<00:02, 14.0MB/s] 23%|██▎       | 10.1M/44.7M [00:01<00:01, 19.0MB/s] 29%|██▉       | 13.1M/44.7M [00:01<00:01, 22.4MB/s] 36%|███▋      | 16.2M/44.7M [00:01<00:01, 25.3MB/s] 43%|████▎     | 19.4M/44.7M [00:01<00:01, 25.4MB/s] 50%|█████     | 22.4M/44.7M [00:01<00:00, 26.9MB/s] 57%|█████▋    | 25.5M/44.7M [00:01<00:00, 26.9MB/s] 64%|██████▍   | 28.6M/44.7M [00:02<00:00, 28.5MB/s] 71%|███████   | 31.5M/44.7M [00:02<00:00, 27.3MB/s] 78%|███████▊  | 34.8M/44.7M [00:02<00:00, 29.0MB/s] 85%|████████▌ | 38.0M/44.7M [00:02<00:00, 30.2MB/s] 92%|█████████▏| 41.2M/44.7M [00:02<00:00, 31.2MB/s]100%|█████████▉| 44.5M/44.7M [00:02<00:00, 32.0MB/s]100%|██████████| 44.7M/44.7M [00:02<00:00, 17.9MB/s]
+INFO 2026-10-31 14:35:57 y_server.py:169 Time taken to put policy on cuda: 5.0928 seconds
+INFO 2026-10-31 14:35:57 ort/utils.py:78 <Logger policy_server (NOTSET)> Starting receiver
+INFO 2026-10-31 14:35:57 y_server.py:224 Running inference for observation #0 (must_go: True)
+INFO 2026-10-31 14:35:57 ort/utils.py:78 <Logger policy_server (NOTSET)> Starting receiver
+INFO 2026-10-31 14:35:57 ort/utils.py:78 <Logger policy_server (NOTSET)> Starting receiver
+INFO 2026-10-31 14:35:58 ort/utils.py:78 <Logger policy_server (NOTSET)> Starting receiver
+INFO 2026-10-31 14:35:58 y_server.py:359 Preprocessing and inference took 0.6378s, action shape: torch.Size([1, 100, 6])
+INFO 2026-10-31 14:35:58 y_server.py:391 Observation 0 | Total time: 717.04ms
+INFO 2026-10-31 14:35:58 ort/utils.py:78 <Logger policy_server (NOTSET)> Starting receiver
+INFO 2026-10-31 14:35:58 y_server.py:242 Action chunk #0 generated | Total time: 740.29ms
+--- log tail ---
+INFO 2026-10-31 14:38:02 y_server.py:224 Running inference for observation #168 (must_go: True)
+INFO 2026-10-31 14:38:02 y_server.py:359 Preprocessing and inference took 0.0780s, action shape: torch.Size([1, 100, 6])
+INFO 2026-10-31 14:38:02 ort/utils.py:78 <Logger policy_server (NOTSET)> Starting receiver
+INFO 2026-10-31 14:38:02 y_server.py:391 Observation 168 | Total time: 123.09ms
+INFO 2026-10-31 14:38:02 y_server.py:242 Action chunk #168 generated | Total time: 142.42ms
+INFO 2026-10-31 14:38:02 y_server.py:224 Running inference for observation #169 (must_go: True)
+INFO 2026-10-31 14:38:02 y_server.py:359 Preprocessing and inference took 0.0526s, action shape: torch.Size([1, 100, 6])
+INFO 2026-10-31 14:38:02 y_server.py:391 Observation 169 | Total time: 92.75ms
+INFO 2026-10-31 14:38:02 y_server.py:242 Action chunk #169 generated | Total time: 109.51ms
+INFO 2026-10-31 14:38:02 ort/utils.py:78 <Logger policy_server (NOTSET)> Starting receiver

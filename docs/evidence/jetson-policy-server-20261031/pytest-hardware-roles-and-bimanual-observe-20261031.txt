@@ -1,0 +1,109 @@
+/home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/liaozhengyan/Desktop/lelab-bimanual/.venv/bin/python
+rootdir: /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.13.6, asyncio-1.4.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 61 items
+
+releases/sanitized-20261024-01/app/tests/test_observe.py::test_observe_start_status_stop_never_sends_actions PASSED [  1%]
+releases/sanitized-20261024-01/app/tests/test_observe.py::test_observe_stop_is_idempotent PASSED [  3%]
+releases/sanitized-20261024-01/app/tests/test_observe.py::test_bimanual_observe_reports_twelve_values_and_no_actions PASSED [  4%]
+releases/sanitized-20261024-01/app/tests/test_observe.py::test_bimanual_source_guards_both_buses_and_releases_cameras PASSED [  6%]
+releases/sanitized-20261024-01/app/tests/test_observe.py::test_bimanual_observe_rejects_same_port PASSED [  8%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_contract_matches_real_act_metadata PASSED [  9%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_contract_rejects_wrong_observation_and_action PASSED [ 11%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_dataset_features_preserve_joint_order PASSED [ 13%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_observe_mode_never_opens_policy_channel_or_sends_actions PASSED [ 14%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_shadow_mode_records_actions_without_dispatching PASSED [ 16%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_shadow_rejects_nan_action_and_faults PASSED [ 18%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_shadow_rejects_wrong_dimension PASSED [ 19%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_stale_chunk_is_rejected_by_local_monotonic_ttl PASSED [ 21%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_out_of_order_and_old_session_chunks_are_rejected PASSED [ 22%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_execute_requires_all_gates_and_sink PASSED [ 24%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_execute_dispatches_only_validated_actions PASSED [ 26%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_disconnect_faults_and_clears_queue PASSED [ 27%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_duplicate_stop_is_idempotent PASSED [ 29%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_read_only_source_opens_bus_and_cameras_without_writes PASSED [ 31%]
+releases/sanitized-20261024-01/app/tests/test_jetson_policy.py::test_read_only_source_rejects_missing_calibration PASSED [ 32%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_sysfs_identity_is_read_without_opening_tty PASSED [ 34%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_by_id_enumeration_uses_stable_serial PASSED [ 36%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_merge_keeps_unplugged_saved_port_and_role PASSED [ 37%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_save_writes_complete_file_and_latest PASSED [ 39%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_save_keeps_assignment_for_unplugged_port PASSED [ 40%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_duplicate_required_role_is_rejected PASSED [ 42%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_unknown_role_is_rejected PASSED [ 44%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_inventory_http_round_trip PASSED [ 45%]
+releases/sanitized-20261024-01/app/tests/test_hardware_inventory.py::test_inventory_http_rejects_duplicate_role PASSED [ 47%]
+releases/sanitized-20261024-01/app/tests/test_rig_bindings.py::test_describe_proposes_actual_ports_from_saved_roles PASSED [ 49%]
+releases/sanitized-20261024-01/app/tests/test_rig_bindings.py::test_apply_updates_only_ports_and_is_idempotent PASSED [ 50%]
+releases/sanitized-20261024-01/app/tests/test_rig_bindings.py::test_apply_requires_all_roles PASSED [ 52%]
+releases/sanitized-20261024-01/app/tests/test_rig_bindings.py::test_apply_reports_missing_robot_records PASSED [ 54%]
+releases/sanitized-20261024-01/app/tests/test_rig_bindings.py::test_invalid_record_name_is_rejected PASSED [ 55%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_acquire_grants_exclusive_lease PASSED [ 57%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_second_acquire_reports_current_holder PASSED [ 59%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_same_task_cannot_stack PASSED [ 60%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_observers_cannot_take_control PASSED [ 62%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_unknown_task_is_rejected PASSED [ 63%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_release_requires_the_token_or_task PASSED [ 65%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_stop_endpoint_release_by_task PASSED [ 67%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_renew_extends_only_with_the_token PASSED [ 68%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_renew_accepts_task_and_owner_instead_of_the_token PASSED [ 70%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_status_never_exposes_the_token PASSED [ 72%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_expiry_releases_and_stops_the_task PASSED [ 73%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_expiry_without_stop_on_expiry_still_releases PASSED [ 75%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_finished_task_releases_after_the_activity_grace PASSED [ 77%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_emergency_preempt_drops_any_lease PASSED [ 78%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_forced_acquire_preempts_the_previous_holder PASSED [ 80%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_stop_task_runs_the_hook_for_any_task PASSED [ 81%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_broken_stop_hook_does_not_strand_the_lease PASSED [ 83%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease.py::test_ttl_is_clamped_to_safe_bounds PASSED [ 85%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http PASSED [ 86%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_conflicting_acquire_reports_the_holder PASSED [ 88%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_observer_cannot_acquire_over_http PASSED [ 90%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_start_endpoint_refuses_when_another_task_holds_the_lease PASSED [ 91%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_failed_start_releases_the_lease PASSED [ 93%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_stop_endpoint_releases_the_lease PASSED [ 95%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_start_uses_client_headers_as_the_owner PASSED [ 96%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_observer_header_blocks_start PASSED [ 98%]
+releases/sanitized-20261024-01/app/tests/test_hardware_lease_api.py::test_emergency_stop_preempts_and_stops_every_task PASSED [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_hardware_inventory.py::test_inventory_http_round_trip
+  /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app/lelab/server.py:3354: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+tests/test_hardware_inventory.py::test_inventory_http_round_trip
+tests/test_hardware_inventory.py::test_inventory_http_round_trip
+  /home/liaozhengyan/Desktop/lelab-bimanual/.venv/lib/python3.12/site-packages/fastapi/applications.py:4723: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)  # ty: ignore[deprecated]
+
+tests/test_hardware_inventory.py::test_inventory_http_round_trip
+  /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app/lelab/server.py:3366: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 61 passed, 5 warnings in 6.41s ========================

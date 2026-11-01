@@ -1,0 +1,87 @@
+{
+  "checkpoint": "/home/liaozhengyan/Desktop/embodiedIntelligenceProj/bimanual_proj/outputs/multi_agent/g2_goal_20261009_1550/training/job1/official/checkpoints/002000/pretrained_model",
+  "weights_bytes": 206748912,
+  "policy_type": "act",
+  "state_dim": 12,
+  "action_dim": 12,
+  "image_keys": [
+    "observation.images.central",
+    "observation.images.left_wrist",
+    "observation.images.right_wrist"
+  ],
+  "chunk_size": 100,
+  "n_action_steps": 10,
+  "normalization": {
+    "VISUAL": "MEAN_STD",
+    "STATE": "MEAN_STD",
+    "ACTION": "MEAN_STD"
+  },
+  "preprocessor_steps": [
+    "rename_observations_processor",
+    "to_batch_processor",
+    "device_processor",
+    "normalizer_processor"
+  ],
+  "postprocessor_steps": [
+    "unnormalizer_processor",
+    "device_processor"
+  ],
+  "checkpoint_sha256": "52d8779e6219dff15fa3db094455a2130006ec1865f83fe680a8aa94110f3aa4",
+  "dataset_root": "/home/liaozhengyan/Desktop/bimanual_n6p_v4p1_d3p1/outputs/g2_goal_20261009_1550/data_view_gb/train_view",
+  "dataset_root_exists": false,
+  "dataset_repo": "local/so101_dual_arm_recovery_n6_strict_pilot_20261008",
+  "contract_camera_keys": [
+    "observation.images.central",
+    "observation.images.left_wrist",
+    "observation.images.right_wrist"
+  ],
+  "contract_fps": 50.0,
+  "contract_has_state_names": false,
+  "contract_has_units_or_action_semantics": false,
+  "state_names_used_for_audit_only": [
+    "left_shoulder_pan.pos",
+    "left_shoulder_lift.pos",
+    "left_elbow_flex.pos",
+    "left_wrist_flex.pos",
+    "left_wrist_roll.pos",
+    "left_gripper.pos",
+    "right_shoulder_pan.pos",
+    "right_shoulder_lift.pos",
+    "right_elbow_flex.pos",
+    "right_wrist_flex.pos",
+    "right_wrist_roll.pos",
+    "right_gripper.pos"
+  ],
+  "weight_tensor_count": 234,
+  "weight_tensor_samples": {
+    "model.action_head.bias": [
+      12
+    ],
+    "model.action_head.weight": [
+      12,
+      512
+    ],
+    "model.backbone.bn1.bias": [
+      64
+    ],
+    "model.backbone.bn1.running_mean": [
+      64
+    ],
+    "model.backbone.bn1.running_var": [
+      64
+    ],
+    "model.backbone.bn1.weight": [
+      64
+    ],
+    "model.backbone.conv1.weight": [
+      64,
+      3,
+      7,
+      7
+    ],
+    "model.backbone.layer1.0.bn1.bias": [
+      64
+    ]
+  },
+  "conclusion": "12-D ACT weights and shape exist, but dataset/calibration/joint names/units/action semantics are not available; compatibility with the current rig is NOT verified. Do not execute."
+}

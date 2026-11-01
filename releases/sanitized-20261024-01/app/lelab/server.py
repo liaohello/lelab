@@ -48,11 +48,17 @@ from pathlib import Path
 from typing import Any, Literal
 
 # --------------------- 第三方：FastAPI / Starlette / Pydantic ---------------------
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import (
+    FastAPI,
+    HTTPException,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.datastructures import Headers
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response
@@ -76,6 +82,11 @@ from .dataset_storage import (
     storage_summary,
     trash_dataset,
 )
+from .hardware_inventory import (
+    current_inventory_payload,
+    latest_inventory_path,
+    save_inventory,
+)
 from .hardware_lease import (
     HARDWARE_TASKS,
     HardwareLease,
@@ -89,6 +100,17 @@ from .jobs import (
     JobNotRunningError,
     JobTarget,
     job_registry,
+)
+from .observe import (
+    BimanualObserveRequest,
+    ObserveRequest,
+    camera_frame as observe_camera_frame,
+    handle_bimanual_observe_status,
+    handle_observe_status,
+    handle_start_bimanual_observe,
+    handle_start_observe,
+    handle_stop_observe,
+    observe_active,
 )
 from .record import (
     DatasetInfoRequest,
@@ -118,6 +140,12 @@ from .remote_sync import (
     TrainServerConfig,
     get_dataset_sync_manager,
     ssh_base_command,
+)
+from .rig_bindings import (
+    DEFAULT_LEFT_ROBOT,
+    DEFAULT_RIGHT_ROBOT,
+    apply_rig_bindings,
+    describe_rig_bindings,
 )
 from .rollout import (
     InferenceRequest,
@@ -496,6 +524,8 @@ def _hardware_task_active(task: str) -> bool:
         from . import rollout as _rollout
 
         return bool(_rollout.inference_active)
+    if task == "observe":
+        return bool(observe_active())
     if task == "calibration":
         return bool(calibration_manager.get_status().calibration_active)
     return False
@@ -512,6 +542,8 @@ def _hardware_stop_task(task: str) -> dict[str, Any]:
             return handle_stop_teleoperation()
         if task == "inference":
             return handle_stop_inference()
+        if task == "observe":
+            return handle_stop_observe()
         if task == "calibration":
             return calibration_manager.stop_calibration_process()
     except Exception as exc:  # a failing task must not block the others
@@ -667,15 +699,16 @@ def release_hardware_lease(body: HardwareLeaseReleaseRequest):
     return {"success": released, "lease": hardware_lease.status()}
 
 
-# 最高优先级停止：先无条件抢掉租约（防止停止过程中被新的启动请求抢走硬件），
-# 再依次停止所有硬件任务，最后回传租约状态与各任务的停止结果。
+# 最高优先级停止：先向所有硬件任务发停止信号（优先停止控制/收尾），再抢掉
+# 租约，最后回传租约状态与各任务的停止结果。模块级 active 标志仍然阻止新任务
+# 在旧 worker 释放设备前启动。
 # 请求体可省略，省略时按默认原因 "emergency-stop" 处理。
 @app.post("/emergency-stop")
 def emergency_stop(body: EmergencyStopRequest | None = None):
-    """Highest-priority stop: pre-empt the lease and stop every task."""
+    """Highest-priority stop: signal tasks, then pre-empt the lease."""
     reason = (body.reason if body is not None else None) or "emergency-stop"
-    preempted = hardware_lease.preempt(reason=reason)
     stopped = {task: _hardware_stop_task(task) for task in HARDWARE_TASKS}
+    preempted = hardware_lease.preempt(reason=reason)
     return {
         "success": True,
         "reason": reason,
@@ -781,6 +814,83 @@ def inference_status():
     if remote_status_owns_route():
         return handle_remote_inference_status()
     return handle_inference_status()
+
+
+# Read-only observation: no policy, no action sink.  The dedicated lease task
+# keeps it mutually exclusive with recording/teleoperation/inference.
+@app.post("/observe/start")
+def observe_start(request: ObserveRequest, http_request: Request):
+    preview_release = _release_camera_previews()
+    if preview_release["remaining"]:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Observation blocked: camera previews did not release the devices "
+                f"(requested={preview_release['requested']}, "
+                f"remaining={preview_release['remaining']})"
+            ),
+        )
+    lease = _acquire_hardware_lease(http_request, "observe")
+    result = handle_start_observe(request, manager)
+    _release_lease_if_failed(lease, result)
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=result.get("status_code", 500),
+            detail=result.get("message", "Failed to start observation"),
+        )
+    return result
+
+
+@app.post("/observe/bimanual/start")
+def observe_bimanual_start(request: BimanualObserveRequest, http_request: Request):
+    preview_release = _release_camera_previews()
+    if preview_release["remaining"]:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Observation blocked: camera previews did not release the devices "
+                f"(requested={preview_release['requested']}, "
+                f"remaining={preview_release['remaining']})"
+            ),
+        )
+    lease = _acquire_hardware_lease(http_request, "observe")
+    result = handle_start_bimanual_observe(request, manager)
+    _release_lease_if_failed(lease, result)
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=result.get("status_code", 500),
+            detail=result.get("message", "Failed to start bimanual observation"),
+        )
+    return result
+
+
+@app.post("/observe/stop")
+def observe_stop():
+    result = handle_stop_observe()
+    hardware_lease.release(task="observe")
+    return result
+
+
+@app.get("/observe/status")
+def observe_status():
+    return handle_observe_status()
+
+
+@app.get("/observe/bimanual/status")
+def observe_bimanual_status():
+    return handle_bimanual_observe_status()
+
+
+@app.get("/observe/camera/{key}")
+def observe_camera(key: str):
+    frame = observe_camera_frame(key)
+    if frame is None:
+        raise HTTPException(status_code=404, detail=f"No frame for camera {key!r}")
+    return Response(
+        content=frame,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 # 查询训练机上由 LeLab 启动的 PolicyServer 是否仍然存活。
@@ -1658,6 +1768,11 @@ def start_recording(request: RecordingRequest, http_request: Request):
             status_code=507,
             detail="Recording blocked: less than 5% free space remains on the dataset filesystem.",
         )
+    if calibration_manager.get_status().calibration_active:
+        raise HTTPException(
+            status_code=409,
+            detail="Recording blocked while calibration is active. Finish or stop calibration first.",
+        )
     preview_release = _release_camera_previews()
     if preview_release["remaining"]:
         raise HTTPException(
@@ -1673,13 +1788,42 @@ def start_recording(request: RecordingRequest, http_request: Request):
     return result
 
 
-# 停止录制并释放租约。
+# 停止录制。只置停止标志；租约由活动探测在 worker 完成 save/finalize 并
+# 断开硬件后归还，避免新任务在旧 worker 仍占用串口/相机时拿到租约。
 @app.post("/stop-recording")
 def stop_recording():
-    """Stop the current recording session"""
-    result = handle_stop_recording()
-    hardware_lease.release(task="recording")
-    return result
+    """Request a stop; hardware/lease release happens after the worker finalizes."""
+    return handle_stop_recording()
+
+
+class BimanualValidateRequest(BaseModel):
+    rig: Any
+    cameras: dict = Field(default_factory=dict)
+
+
+# 只读核验双臂 rig：四个端口、四份标定文件、左右标定绑定及相机唯一性。
+# 不连接串口、不打开相机、不写标定文件。
+@app.post("/bimanual/validate")
+def validate_bimanual_rig(request: BimanualValidateRequest):
+    from .rig import BimanualRig, RigConfigError, describe_rig, validate_cameras
+
+    try:
+        rig = BimanualRig.model_validate(request.rig)
+        cameras = validate_cameras(request.cameras, require_one=False)
+        description = describe_rig(rig)
+        warnings = []
+        for device_name, device in description["devices"].items():
+            port = device["port"]
+            if os.path.isabs(port) and not os.path.exists(port):
+                warnings.append(f"{device_name} port does not exist yet: {port}")
+        return {
+            "success": True,
+            "rig": description,
+            "cameras": cameras,
+            "warnings": warnings,
+        }
+    except (RigConfigError, ValueError) as exc:
+        return {"success": False, "error": str(exc)}
 
 
 # 查询录制状态（回合数、当前回合等）。
@@ -1711,6 +1855,13 @@ def camera_feed(cam_key: str):
 @app.post("/recording-exit-early")
 def recording_exit_early():
     """Skip to next episode (replaces right arrow key)"""
+    return handle_exit_early()
+
+
+# 显式“保存本集并进入复位/下一集”别名；与 exit-early 共用同一幂等实现。
+@app.post("/recording-save-episode")
+def recording_save_episode():
+    """Save the current segment and advance (alias of exit-early)."""
     return handle_exit_early()
 
 
@@ -2520,6 +2671,14 @@ def run_update():
 @app.post("/start-calibration")
 def start_calibration(request: CalibrationRequest, http_request: Request):
     """Start calibration process"""
+    from . import record as _record, rollout as _rollout, teleoperate as _teleoperate
+
+    if _record.recording_active:
+        raise HTTPException(status_code=409, detail="Recording is active. Stop it before calibrating.")
+    if _teleoperate.teleoperation_active:
+        raise HTTPException(status_code=409, detail="Teleoperation is active. Stop it before calibrating.")
+    if _rollout.inference_active:
+        raise HTTPException(status_code=409, detail="Inference is active. Stop it before calibrating.")
     lease = _acquire_hardware_lease(http_request, "calibration")
     result = calibration_manager.start_calibration(request)
     _release_lease_if_failed(lease, result)
@@ -2961,6 +3120,18 @@ class SaveRobotPortBody(BaseModel):
     port: str
 
 
+# 保存串口角色盘点的请求体：id -> 角色 / 备注。
+class HardwareInventorySaveBody(BaseModel):
+    roles: dict[str, str] = Field(default_factory=dict)
+    notes: dict[str, str] = Field(default_factory=dict)
+
+
+# 把已保存角色应用到具名双臂记录的请求体。
+class RigBindingBody(BaseModel):
+    left_robot: str = DEFAULT_LEFT_ROBOT
+    right_robot: str = DEFAULT_RIGHT_ROBOT
+
+
 # 保存机器人标定配置名的请求体。
 class SaveRobotConfigBody(BaseModel):
     robot_type: RobotSideLiteral
@@ -3002,6 +3173,74 @@ def get_robot_port(robot_type: RobotSideLiteral):
     saved_port = get_saved_robot_port(robot_type)
     default_port = get_default_robot_port(robot_type)
     return {"status": "success", "saved_port": saved_port, "default_port": default_port}
+
+
+# ============================================================================
+# HARDWARE INVENTORY ENDPOINTS（只读枚举，不打开串口）
+# ============================================================================
+
+
+# 当前串口 + 已保存角色；拔掉的串口会以 present=false 保留。
+@app.get("/hardware/inventory")
+def get_hardware_inventory():
+    try:
+        return current_inventory_payload()
+    except Exception as exc:
+        logger.exception("Error reading hardware inventory")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# 保存角色分配与备注，写时间戳 JSON 和 latest JSON。
+@app.post("/hardware/inventory/save")
+def save_hardware_inventory(body: HardwareInventorySaveBody):
+    try:
+        return save_inventory(body.roles, body.notes)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except OSError as exc:
+        logger.exception("Error saving hardware inventory")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# 下载最近一次保存的盘点文件。
+@app.get("/hardware/inventory/latest")
+def download_hardware_inventory():
+    path = latest_inventory_path()
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="No saved hardware inventory yet")
+    return FileResponse(
+        path,
+        media_type="application/json",
+        filename=path.name,
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+# 已保存角色与 left_rig/right_rig 当前端口的对照（不触碰硬件）。
+@app.get("/hardware/rig-bindings")
+def get_hardware_rig_bindings(
+    left_robot: str = DEFAULT_LEFT_ROBOT,
+    right_robot: str = DEFAULT_RIGHT_ROBOT,
+):
+    try:
+        return describe_rig_bindings(left_robot, right_robot)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Error reading rig role bindings")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# 只把角色对应的串口端口写回机器人记录，保留已有标定配置。
+@app.post("/hardware/rig-bindings/apply")
+def apply_hardware_rig_bindings(body: RigBindingBody):
+    try:
+        return apply_rig_bindings(body.left_robot, body.right_robot)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except (RuntimeError, OSError) as exc:
+        logger.exception("Error applying rig role bindings")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 # 保存某类设备最近选用的标定配置名。

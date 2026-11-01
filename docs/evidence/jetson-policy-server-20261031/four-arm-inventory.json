@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-31",
+  "method": "FeetechMotorsBus.connect + broadcast_ping + sync_read(Present_Position, normalize=False) + read(Torque_Enable); no writes, disconnect(disable_torque=False)",
+  "arms": [
+    {"serial": "5B91045575", "ids": [1,2,3,4,5,6], "raw": {"m1":2149,"m2":881,"m3":2974,"m4":2871,"m5":1319,"m6":1379}, "torque": [0,0,0,0,0,0], "role": "verified follower (old ACT log + my_robot calibration)"},
+    {"serial": "5B90149339", "ids": [1,2,3,4,5,6], "raw": {"m1":1044,"m2":3579,"m3":359,"m4":533,"m5":3082,"m6":1700}, "torque": [0,0,0,0,0,0], "role": "unknown"},
+    {"serial": "5B90149723", "ids": [1,2,3,4,5,6], "raw": {"m1":2209,"m2":2045,"m3":2038,"m4":2079,"m5":2216,"m6":2046}, "torque": [0,0,0,0,0,0], "role": "unknown"},
+    {"serial": "5B90149652", "ids": [1,2,3,4,5,6], "raw": {"m1":1987,"m2":794,"m3":3095,"m4":2735,"m5":2091,"m6":1496}, "torque": [0,0,0,0,0,0], "role": "unknown"}
+  ],
+  "calibration": {"5B91045575": "my_robot.json (copied from Jetson)", "other_three": "no matching calibration found locally"},
+  "limitations": "Motor IDs/positions prove four buses respond; they do not prove follower/leader or left/right roles. No motor writes, no torque changes."
+}

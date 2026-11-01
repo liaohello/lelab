@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-31",
+  "local_source": "/home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/lerobot/src",
+  "remote_source": "/home/nvidia/jetson-policy-server-20261031/lerobot/src",
+  "files": 513,
+  "local_digest": "8811aca34a481ea666aa1fbe53ad8e0823197d30b05946cbe5688d4777abe5c9",
+  "remote_digest": "8811aca34a481ea666aa1fbe53ad8e0823197d30b05946cbe5688d4777abe5c9",
+  "identical": true,
+  "method": "rsync -az --checksum --delete + find/sha256sum manifest on both sides",
+  "remote_import": {
+    "lerobot_file": "/home/nvidia/jetson-policy-server-20261031/lerobot/src/lerobot/__init__.py",
+    "version": "0.6.2"
+  }
+}

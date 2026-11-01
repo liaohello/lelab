@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-31",
+  "note": "real USB camera frames; no robot command was sent",
+  "cameras": [
+    {"index": 0, "opened": true, "frames_read": 10, "seconds": 0.53, "shape": [480, 640, 3], "file": "camera-0.jpg"},
+    {"index": 2, "opened": true, "frames_read": 10, "seconds": 0.614, "shape": [480, 640, 3], "file": "camera-2.jpg"}
+  ],
+  "serial_blocked": {
+    "device": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B91045575-if00",
+    "error": "PermissionError: [Errno 13] Permission denied",
+    "cause": "user is not in the dialout group and sudo requires a password",
+    "log": "stageB-observe-blocked.txt"
+  }
+}

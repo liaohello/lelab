@@ -26,6 +26,7 @@ import {
   playAutoAdvanceWarning,
 } from "@/lib/recordingAudio";
 import { useApi } from "@/contexts/ApiContext";
+import UrdfViewer from "@/components/UrdfViewer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,11 +38,20 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface RecordingConfig {
+interface ArmPair {
   leader_port: string;
   follower_port: string;
   leader_config: string;
   follower_config: string;
+}
+
+interface RecordingConfig {
+  leader_port?: string;
+  follower_port?: string;
+  leader_config?: string;
+  follower_config?: string;
+  bimanual?: { left: ArmPair; right: ArmPair };
+  cameras?: Record<string, Record<string, unknown>>;
   dataset_repo_id: string;
   single_task: string;
   num_episodes: number;
@@ -54,11 +64,65 @@ interface RecordingConfig {
   streaming_encoding: boolean;
 }
 
-type Phase = "preparing" | "recording" | "resetting" | "completed";
+type Phase =
+  | "preparing"
+  | "recording"
+  | "resetting"
+  | "saving"
+  | "stopping"
+  | "finalizing"
+  | "verifying"
+  | "completed"
+  | "error";
+
+interface JointSnapshot {
+  mode: "bimanual" | "single";
+  phase: string;
+  sequence?: number;
+  age_ms?: number;
+  stale?: boolean;
+  recorded?: boolean;
+  frame_index?: number | null;
+  episode_index?: number | null;
+  timestamp?: number;
+  errors?: string[];
+  arms?: Record<
+    string,
+    { joints_rad: Record<string, number>; joints_deg: Record<string, number> }
+  >;
+  actions?: {
+    raw_target?: Record<string, Record<string, number>>;
+    sent_target?: Record<string, Record<string, number>>;
+  };
+}
 
 interface BackendStatus {
   recording_active: boolean;
   current_phase: string;
+  mode?: "bimanual" | "single";
+  joint_snapshot?: JointSnapshot;
+  camera_health?: Array<{
+    name: string;
+    connected: boolean;
+    age_ms: number | null;
+    stale: boolean;
+    error: string | null;
+  }>;
+  finalize_state?: {
+    state: string;
+    verified?: boolean;
+    error?: string;
+    saved_episodes?: number;
+    verification?: Record<string, unknown>;
+  };
+  saved_episode_details?: Array<{
+    episode_index: number;
+    frames: number;
+    save_seconds: number;
+  }>;
+  action_semantics?: string;
+  sync?: string;
+  diagnostics?: { path?: string; error?: string | null };
   current_episode?: number;
   total_episodes?: number;
   saved_episodes?: number;
@@ -72,6 +136,8 @@ interface BackendStatus {
   available_controls: {
     stop_recording: boolean;
     exit_early: boolean;
+    save_episode?: boolean;
+    finish_and_save?: boolean;
     rerecord_episode: boolean;
   };
 }
@@ -84,6 +150,9 @@ const Recording = () => {
 
   // Get recording config from navigation state
   const recordingConfig = location.state?.recordingConfig as RecordingConfig;
+  // The bimanual setup page calls /start-recording itself, then opens this page
+  // with sessionStarted=true. A page load alone must never connect the arms.
+  const startedExternally = Boolean(location.state?.sessionStarted);
 
   // Backend status state - this is the single source of truth
   const [backendStatus, setBackendStatus] = useState<BackendStatus | null>(
@@ -181,12 +250,16 @@ const Recording = () => {
   useEffect(() => {
     if (recordingConfig && !startInitiatedRef.current) {
       startInitiatedRef.current = true;
-      startRecordingSession();
+      if (startedExternally) {
+        setRecordingSessionStarted(true);
+      } else {
+        startRecordingSession();
+      }
     }
     // startRecordingSession is intentionally omitted: re-running this effect
     // on its identity change would re-fire /start-recording.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recordingConfig]);
+  }, [recordingConfig, startedExternally]);
 
   // Refs so the poll interval below stays stable and reads the latest values
   // without tearing itself down on every state change.
@@ -243,8 +316,8 @@ const Recording = () => {
         }
 
         if (!status.recording_active && status.session_ended) {
-          // A failure can land after episodes were already saved, so surface
-          // the reason either way and only go home when nothing survived it.
+          // session_ended only becomes true after the worker has finalized and
+          // verified the writer. Do not navigate while it is still finalizing.
           if (status.current_phase === "error") {
             const saved = status.saved_episodes || 0;
             toast({
@@ -267,6 +340,9 @@ const Recording = () => {
             num_episodes: recordingConfig.num_episodes,
             saved_episodes: status.saved_episodes || 0,
             session_elapsed_seconds: status.session_elapsed_seconds || 0,
+            finalize: status.finalize_state,
+            mode: status.mode,
+            diagnostics: status.diagnostics,
           };
           navigate("/upload", { state: { datasetInfo } });
         }
@@ -297,7 +373,7 @@ const Recording = () => {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && data.success !== false) {
         setRecordingSessionStarted(true);
         toast({
           title: "Recording Started",
@@ -306,7 +382,10 @@ const Recording = () => {
       } else {
         toast({
           title: "Error Starting Recording",
-          description: data.message || "Failed to start recording session.",
+          description:
+            data.detail ||
+            data.message ||
+            "Failed to start recording session.",
           variant: "destructive",
         });
         navigate("/");
@@ -506,10 +585,20 @@ const Recording = () => {
 
   const sessionElapsedTime = backendStatus.session_elapsed_seconds || 0;
 
+  const isBimanual =
+    backendStatus.mode === "bimanual" || Boolean(recordingConfig.bimanual);
+  const snapshot = backendStatus.joint_snapshot;
+  const finalizeState = backendStatus.finalize_state;
+
   const getStatusText = () => {
     if (currentPhase === "recording") return `RECORDING EPISODE ${currentEpisode}`;
     if (currentPhase === "resetting") return "RESET — GET READY";
+    if (currentPhase === "saving") return "SAVING EPISODE";
+    if (currentPhase === "stopping") return "STOPPING — SAVING CURRENT SEGMENT";
+    if (currentPhase === "finalizing") return "FINALIZING DATASET";
+    if (currentPhase === "verifying") return "VERIFYING DATASET";
     if (currentPhase === "preparing") return "PREPARING SESSION";
+    if (currentPhase === "error") return "SESSION FAILED";
     return "SESSION COMPLETE";
   };
 
@@ -518,16 +607,30 @@ const Recording = () => {
       ? { dot: "bg-red-500", pill: "bg-red-500/15 text-red-300", timer: "text-green-400", bar: "bg-green-500", button: "bg-green-500 hover:bg-green-600" }
       : currentPhase === "resetting"
       ? { dot: "bg-orange-500", pill: "bg-orange-500/15 text-orange-300", timer: "text-orange-400", bar: "bg-orange-500", button: "bg-orange-500 hover:bg-orange-600" }
+      : currentPhase === "finalizing" || currentPhase === "verifying" || currentPhase === "saving" || currentPhase === "stopping"
+      ? { dot: "bg-amber-500", pill: "bg-amber-500/15 text-amber-300", timer: "text-amber-400", bar: "bg-amber-500", button: "bg-amber-600" }
+      : currentPhase === "error"
+      ? { dot: "bg-red-600", pill: "bg-red-600/15 text-red-300", timer: "text-red-400", bar: "bg-red-600", button: "bg-red-700" }
       : { dot: "bg-gray-500", pill: "bg-gray-500/15 text-gray-300", timer: "text-gray-400", bar: "bg-gray-500", button: "bg-gray-500" };
 
   const primaryLabel =
     currentPhase === "recording"
-      ? "End Episode"
+      ? isBimanual
+        ? "保存本集并继续"
+        : "End Episode"
       : currentPhase === "resetting"
-      ? "Start Next Episode"
+      ? isBimanual
+        ? "进入下一集"
+        : "Start Next Episode"
+      : currentPhase === "saving" ||
+        currentPhase === "stopping" ||
+        currentPhase === "finalizing" ||
+        currentPhase === "verifying"
+      ? "处理中…"
       : "Advance";
 
   const PrimaryIcon = currentPhase === "recording" ? SkipForward : Play;
+  const cameraHealth = backendStatus.camera_health ?? [];
 
   return (
     <div className="h-screen bg-black text-white p-6 flex flex-col overflow-hidden">
@@ -582,7 +685,7 @@ const Recording = () => {
                   className="focus:bg-gray-800 focus:text-white"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Re-record episode
+                  {isBimanual ? "丢弃本集并重录" : "Re-record episode"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={requestStopRecording}
@@ -590,7 +693,7 @@ const Recording = () => {
                   className="text-red-400 focus:bg-gray-800 focus:text-red-300"
                 >
                   <Square className="w-4 h-4 mr-2" />
-                  Stop recording
+                  {isBimanual ? "结束并保存" : "Stop recording"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -606,6 +709,127 @@ const Recording = () => {
               {getStatusText()}
             </div>
           </div>
+
+          {isBimanual && currentPhase !== "completed" && (
+            <div className="mb-3 grid flex-shrink-0 gap-3 md:grid-cols-2">
+              {(["left", "right"] as const).map((side) => {
+                const arm = snapshot?.arms?.[side];
+                const errors = (snapshot?.errors || []).filter((message) =>
+                  message.includes(side)
+                );
+                return (
+                  <section
+                    key={side}
+                    className="rounded-lg border border-gray-700 bg-gray-950/70 p-3"
+                  >
+                    <header className="mb-2 flex items-center justify-between text-sm">
+                      <span className="font-semibold text-white">
+                        {side === "left" ? "左工作臂" : "右工作臂"}
+                      </span>
+                      <span
+                        className={
+                          !snapshot
+                            ? "text-gray-500"
+                            : snapshot.stale
+                            ? "text-amber-300"
+                            : "text-green-300"
+                        }
+                      >
+                        {!snapshot
+                          ? "等待同一周期快照"
+                          : snapshot.stale
+                          ? "快照陈旧"
+                          : `同一周期 #${snapshot.sequence}`}
+                      </span>
+                    </header>
+                    {snapshot ? (
+                      <>
+                        <div className="h-40">
+                          <UrdfViewer arm={side} />
+                        </div>
+                        <div className="mt-2 grid grid-cols-3 gap-1 font-mono text-[11px] text-gray-300">
+                          {arm &&
+                            Object.entries(arm.joints_deg).map(([name, value]) => (
+                              <div key={name} className="truncate">
+                                {name}: {value.toFixed(1)}°
+                              </div>
+                            ))}
+                        </div>
+                        <p className="mt-1 text-[11px] text-gray-500">
+                          {snapshot.recorded
+                            ? `帧 #${snapshot.frame_index ?? "?"} · episode ${snapshot.episode_index ?? "?"}`
+                            : "复位阶段（不入库）"}
+                          {typeof snapshot.age_ms === "number"
+                            ? ` · 快照年龄 ${Math.round(snapshot.age_ms)} ms`
+                            : ""}
+                        </p>
+                        {errors.length > 0 && (
+                          <p className="mt-1 text-[11px] text-red-300">
+                            缺少数据：{errors.join(", ")}（未补零）
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <div className="flex h-40 items-center justify-center rounded border border-dashed border-gray-700 text-sm text-gray-500">
+                        尚未收到该臂/相机的同周期数据，不显示零姿态
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+            </div>
+          )}
+
+          {finalizeState && finalizeState.state !== "pending" && (
+            <div
+              className={`mb-3 flex-shrink-0 rounded-lg border p-3 text-sm ${
+                finalizeState.state === "completed"
+                  ? "border-green-700 bg-green-950/40 text-green-200"
+                  : finalizeState.state === "failed"
+                  ? "border-red-700 bg-red-950/40 text-red-200"
+                  : "border-amber-700 bg-amber-950/40 text-amber-200"
+              }`}
+              role="status"
+            >
+              {finalizeState.state === "finalizing" &&
+                "正在停止新帧、编码视频并写出 parquet/meta 收尾文件…"}
+              {finalizeState.state === "verifying" &&
+                "收尾完成，正在重新打开数据集核对 12 维特征、episode 索引与视频解码…"}
+              {finalizeState.state === "completed" &&
+                `收尾并校验完成：${finalizeState.saved_episodes ?? 0} 集已保存。`}
+              {finalizeState.state === "failed" &&
+                `收尾失败：${finalizeState.error || "unknown error"}`}
+              {finalizeState.state !== "completed" &&
+                finalizeState.state !== "failed" &&
+                finalizeState.state !== "finalizing" &&
+                finalizeState.state !== "verifying" &&
+                `收尾状态：${finalizeState.state}`}
+            </div>
+          )}
+
+          {cameraHealth.length > 0 && (
+            <div className="mb-2 flex flex-shrink-0 flex-wrap justify-center gap-2 text-xs">
+              {cameraHealth.map((camera) => (
+                <span
+                  key={camera.name}
+                  className={`rounded-full border px-2 py-0.5 ${
+                    camera.connected && !camera.stale
+                      ? "border-green-700 text-green-300"
+                      : "border-amber-700 text-amber-300"
+                  }`}
+                >
+                  {camera.name}:{" "}
+                  {!camera.connected
+                    ? camera.error || "未连接"
+                    : camera.stale
+                    ? "陈旧"
+                    : camera.age_ms === null
+                    ? "等待首帧"
+                    : `${Math.round(camera.age_ms)} ms`}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Camera windows for the cameras configured for this session. Shown
               from the preparing phase so the slots are laid out immediately;
@@ -627,7 +851,9 @@ const Recording = () => {
                     name={name}
                     live={
                       currentPhase === "recording" ||
-                      currentPhase === "resetting"
+                      currentPhase === "resetting" ||
+                      currentPhase === "saving" ||
+                      currentPhase === "stopping"
                     }
                     width={cameraWindow.width}
                     height={cameraWindow.height}
@@ -665,9 +891,13 @@ const Recording = () => {
           >
             <PrimaryIcon className="w-5 h-5 mr-2" />
             {primaryLabel}
-            {currentPhase !== "completed" && (
-              <span className="ml-3 px-2 py-0.5 rounded text-xs font-mono bg-black/30 text-white/70">SPACE / →</span>
-            )}
+            {currentPhase !== "completed" &&
+              currentPhase !== "finalizing" &&
+              currentPhase !== "verifying" && (
+                <span className="ml-3 px-2 py-0.5 rounded text-xs font-mono bg-black/30 text-white/70">
+                  SPACE / →
+                </span>
+              )}
           </Button>
 
           {currentPhase === "completed" && (
@@ -681,9 +911,13 @@ const Recording = () => {
       <AlertDialog open={showStopConfirm} onOpenChange={setShowStopConfirm}>
         <AlertDialogContent className="bg-gray-900 border-gray-700 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Stop recording?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {isBimanual ? "结束并保存本次采集？" : "Stop recording?"}
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              Saved episodes are kept. The session will end and you'll be taken to the upload page.
+              {isBimanual
+                ? "当前非空有效集会先保存，随后编码视频、写出元数据并重新打开数据集校验；完成前会显示收尾状态。之前保存的集不会丢失。"
+                : "Saved episodes are kept. The session will end and you'll be taken to the upload page."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -694,7 +928,7 @@ const Recording = () => {
               onClick={confirmStopRecording}
               className="bg-red-500 hover:bg-red-600 text-white"
             >
-              Stop
+              {isBimanual ? "结束并保存" : "Stop"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

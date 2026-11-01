@@ -48,9 +48,15 @@ from typing import Any, Literal
 
 logger = logging.getLogger(__name__)
 
-HardwareTask = Literal["calibration", "teleoperation", "recording", "inference"]
+HardwareTask = Literal["calibration", "teleoperation", "recording", "inference", "observe"]
 
-HARDWARE_TASKS: tuple[str, ...] = ("calibration", "teleoperation", "recording", "inference")
+HARDWARE_TASKS: tuple[str, ...] = (
+    "calibration",
+    "teleoperation",
+    "recording",
+    "inference",
+    "observe",
+)
 EMERGENCY_STOP_TASK = "emergency-stop"
 
 _DISABLED_VALUES = {"0", "false", "no", "off", "disabled"}

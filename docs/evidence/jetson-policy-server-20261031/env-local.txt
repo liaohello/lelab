@@ -1,0 +1,35 @@
+date=2026-10-31T07:37:34-07:00
+host=liaoComputer
+Linux liaoComputer 6.17.0-14-generic #14~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Jan 15 15:52:10 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+kernel=6.17.0-14-generic
+--- serial ---
+total 0
+lrwxrwxrwx 1 root root 13 Oct 31 06:43 usb-1a86_USB_Single_Serial_5B90149339-if00 -> ../../ttyACM1
+lrwxrwxrwx 1 root root 13 Oct 31 06:43 usb-1a86_USB_Single_Serial_5B90149652-if00 -> ../../ttyACM3
+lrwxrwxrwx 1 root root 13 Oct 31 06:43 usb-1a86_USB_Single_Serial_5B90149723-if00 -> ../../ttyACM2
+lrwxrwxrwx 1 root root 13 Oct 31 06:43 usb-1a86_USB_Single_Serial_5B91045575-if00 -> ../../ttyACM0
+--- cameras ---
+total 0
+lrwxrwxrwx 1 root root 12 Oct 20 23:50 usb-Azurewave_USB2.0_HD_UVC_WebCam_0x0001-video-index0 -> ../../video0
+lrwxrwxrwx 1 root root 12 Oct 20 23:50 usb-Azurewave_USB2.0_HD_UVC_WebCam_0x0001-video-index1 -> ../../video1
+lrwxrwxrwx 1 root root 12 Oct 31 06:43 usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0 -> ../../video4
+lrwxrwxrwx 1 root root 12 Oct 31 06:43 usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index1 -> ../../video5
+lrwxrwxrwx 1 root root 12 Oct 31 06:43 usb-ZSKJ-260319-K_Integrated_Webcam_HD-video-index0 -> ../../video6
+lrwxrwxrwx 1 root root 12 Oct 31 06:43 usb-ZSKJ-260319-K_Integrated_Webcam_HD-video-index1 -> ../../video7
+--- permissions ---
+uid=1000(liaozhengyan) gid=1000(liaozhengyan) groups=1000(liaozhengyan),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),100(users),114(lpadmin)
+# file: /dev/ttyACM0
+# owner: root
+# group: dialout
+user::rw-
+group::rw-
+other::---
+
+--- python ---
+python 3.12.3
+torch 2.11.0+cpu cuda False
+grpc 1.85.1
+lerobot 0.6.2 /home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/lerobot/src/lerobot/__init__.py
+--- imports ---
+/home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/app/lelab/__init__.py
+/home/liaozhengyan/Desktop/lelab-bimanual/releases/sanitized-20261024-01/lerobot/src/lerobot/__init__.py

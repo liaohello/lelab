@@ -1,0 +1,53 @@
+{
+  "mode": "shadow",
+  "phase": "stopped",
+  "fault": null,
+  "contract": {
+    "policy_type": "act",
+    "state_dim": 6,
+    "action_dim": 6,
+    "image_keys": [
+      "observation.images.right",
+      "observation.images.up"
+    ],
+    "normalization": {
+      "VISUAL": "MEAN_STD",
+      "STATE": "MEAN_STD",
+      "ACTION": "MEAN_STD"
+    },
+    "checkpoint_sha256": "5d428f5ff783e20665774a737325ba19e929d27b59788346546ee842d1fe6661"
+  },
+  "elapsed_s": 1.2087172900792211,
+  "first_chunk_after_load_s": 0.7162453860510141,
+  "metrics": {
+    "observations_captured": 65,
+    "observations_sent": 64,
+    "chunks_received": 58,
+    "chunks_rejected": 0,
+    "actions_received": 5800,
+    "actions_dispatched": 0,
+    "upload_ms": {
+      "p50": 55.38,
+      "p90": 70.35,
+      "p99": 88.36
+    },
+    "roundtrip_ms": {
+      "p50": 184.44,
+      "p90": 206.0,
+      "p99": 396.21
+    },
+    "action_age_ms": {
+      "p50": 184.96,
+      "p90": 206.74,
+      "p99": 398.06
+    },
+    "capture_ms": {
+      "p50": 0.75,
+      "p90": 1.87,
+      "p99": 4.65
+    },
+    "faults": [
+      "observation_upload_failed: <_InactiveRpcError of RPC that terminated with:\n\tstatus = StatusCode.UNAVAILABLE\n\tdetails = \"Stream removed (recvmsg:Connection reset by peer (104))\"\n\tdebug_error_string = \"UNAVAILABLE:Stream removed (recvmsg:Connection reset by peer (104))\"\n>"
+    ]
+  }
+}
