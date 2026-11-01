@@ -301,14 +301,284 @@ def preview():
     return StreamingResponse(stream(), media_type="multipart/x-mixed-replace; boundary=frame")
 
 
+def fetch_preview_jpeg(timeout: float = 4.0) -> bytes:
+    """Fetch one JPEG frame from the car agent. Kept separate so it can be stubbed."""
+    with urllib.request.urlopen(AGENT_URL + "/preview.jpg", timeout=timeout) as response:
+        return response.read()
+
+
 @router.get("/preview.jpg")
 def preview_jpg():
     try:
-        with urllib.request.urlopen(AGENT_URL + "/preview.jpg", timeout=4) as response:
-            data = response.read()
-        return Response(content=data, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+        data = fetch_preview_jpeg()
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=503, detail=f"preview unavailable: {exc}") from exc
+    fetched_at = time.time()
+    return Response(
+        content=data,
+        media_type="image/jpeg",
+        headers={
+            "Cache-Control": "no-store",
+            "X-LeLab-Fetched-At": f"{fetched_at:.3f}",
+        },
+    )
+
+
+# ------------------------------------------------------- hardware read-only采集
+#
+# The hardware profile is a repository file, not an agent secret: it records
+# which real sensor topics were verified, which actuator topics must stay
+# silent, and why training export is refused.  It is served together with the
+# live agent status so the采集 page can show "what is real" next to the frame.
+
+HARDWARE_ROOT = COLLECTION_ROOT / "upper" / "hardware"
+HARDWARE_ROOT.mkdir(parents=True, exist_ok=True)
+DEFAULT_HARDWARE_PROFILE = "hardware-readonly-v1.json"
+# SOF markers that carry the frame size in a JPEG stream (0xC4/0xC8/0xCC are tables).
+_JPEG_SOF = {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}
+
+
+def _repo_root() -> Path:
+    # app_ros_mobile/lelab/ros_mobile.py -> repository root
+    return Path(__file__).resolve().parents[2]
+
+
+def hardware_profile_path() -> Path:
+    override = os.environ.get("LELAB_ROS_HARDWARE_PROFILE")
+    if override:
+        return Path(override).expanduser().resolve()
+    return _repo_root() / "configs" / "ros2_collection" / DEFAULT_HARDWARE_PROFILE
+
+
+def load_hardware_profile() -> dict:
+    path = hardware_profile_path()
+    if not path.is_file():
+        raise BridgeError(404, f"hardware profile not found: {path}")
+    try:
+        data = json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        raise BridgeError(500, f"hardware profile is not valid JSON: {exc}") from exc
+    if not isinstance(data, dict):
+        raise BridgeError(500, f"hardware profile must be a JSON object: {path}")
+    return {"path": str(path), "sha256": _sha256(path), "profile": data}
+
+
+def jpeg_dimensions(data: bytes) -> tuple[int | None, int | None]:
+    """Return (width, height) from a JPEG SOF segment, or (None, None)."""
+    if len(data) < 4 or not data.startswith(b"\xff\xd8"):
+        return None, None
+    index = 2
+    while index + 4 <= len(data):
+        if data[index] != 0xFF:
+            return None, None
+        marker = data[index + 1]
+        if marker == 0xFF:  # fill byte
+            index += 1
+            continue
+        if marker in (0xD8, 0xD9) or 0xD0 <= marker <= 0xD7 or marker == 0x01:
+            index += 2
+            continue
+        segment = int.from_bytes(data[index + 2 : index + 4], "big")
+        if segment < 2:
+            return None, None
+        if marker in _JPEG_SOF:
+            if index + 9 > len(data):
+                return None, None
+            height = int.from_bytes(data[index + 5 : index + 7], "big")
+            width = int.from_bytes(data[index + 7 : index + 9], "big")
+            return width, height
+        index += 2 + segment
+    return None, None
+
+
+def _sensor_rows(sensors: dict) -> list[dict]:
+    rows = [
+        ("rgb", "RGB", True),
+        ("depth", "深度", False),
+        ("lidar", "雷达", False),
+        ("imu", "IMU", False),
+    ]
+    out = []
+    for key, label, required in rows:
+        item = sensors.get(key) or {}
+        age = item.get("age_s")
+        out.append(
+            {
+                "key": key,
+                "label": label,
+                "topic": item.get("topic"),
+                "age_s": age,
+                "required": required,
+                "present": item.get("topic") is not None and age is not None,
+            }
+        )
+    return out
+
+
+@router.get("/hardware")
+def hardware_overview():
+    def run() -> dict:
+        loaded = load_hardware_profile()
+        profile = loaded["profile"]
+        runtime = profile.get("runtime") or {}
+        agent_status: dict[str, Any] = {}
+        agent_error: str | None = None
+        try:
+            agent_status = _http("GET", "/status", timeout=4.0)
+        except BridgeError as exc:
+            agent_error = exc.detail
+        sensors = agent_status.get("sensors") or {}
+        rgb = sensors.get("rgb") or {}
+        features = profile.get("features") or {}
+        image_meta = features.get("image") or {}
+        recording = profile.get("recording") or {}
+        return {
+            "mode": runtime.get("mode"),
+            "read_only": bool(agent_status.get("read_only", True)),
+            "profile": profile,
+            "profile_path": loaded["path"],
+            "profile_sha256": loaded["sha256"],
+            "camera": {
+                "topic": rgb.get("topic") or (profile.get("sensors", {}).get("wrist_rgb") or {}).get("rgb_topic"),
+                "expected_width": (profile.get("sensors", {}).get("wrist_rgb") or {}).get("capture_width"),
+                "expected_height": (profile.get("sensors", {}).get("wrist_rgb") or {}).get("capture_height"),
+                "fps": rgb.get("fps"),
+                "age_s": rgb.get("age_s"),
+                "stale": rgb.get("stale"),
+                "preview_seq": rgb.get("preview_seq"),
+                "preview_backend": rgb.get("preview_backend"),
+                "feature_key": image_meta.get("name"),
+                "frame_id": image_meta.get("frame"),
+            },
+            "sensors": _sensor_rows(sensors),
+            "raw_sensors": sensors,
+            "topics": agent_status.get("topics"),
+            "recording": agent_status.get("recording"),
+            "echoes": {
+                "actuator_outputs": runtime.get("actuator_outputs"),
+                "training_export": bool((profile.get("training_export") or {}).get("enabled")),
+                "training_export_reason": (profile.get("training_export") or {}).get("reason"),
+                "alignments": profile.get("alignment"),
+                "recording_topics": recording.get("topics") or [],
+                "required_topics": recording.get("required_topics") or [],
+                "raw_storage": recording.get("raw_storage"),
+                "min_free_bytes": recording.get("min_free_bytes"),
+            },
+            "agent_ok": bool(agent_status),
+            "agent_error": agent_error,
+            "checked_at": time.time(),
+        }
+
+    return _guard(run)
+
+
+@router.post("/hardware/snapshot")
+def hardware_snapshot():
+    """Save one real frame plus the status that accompanied it as evidence.
+
+    The car link drops to NO-CARRIER for minutes at a time, so a single click
+    that keeps the bytes, the frame size, the topic and the sensor ages is the
+    only way a "画面已跑通" claim stays checkable afterwards.
+    """
+
+    def run() -> dict:
+        captured_at = time.time()
+        stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(captured_at))
+        target = HARDWARE_ROOT / f"snapshot-{stamp}-{uuid.uuid4().hex[:6]}"
+        target.mkdir(parents=True, exist_ok=False)
+        notes: list[str] = []
+
+        jpeg = b""
+        try:
+            jpeg = fetch_preview_jpeg()
+        except Exception as exc:  # noqa: BLE001
+            notes.append(f"preview unavailable: {exc}")
+
+        agent_status: dict[str, Any] = {}
+        try:
+            agent_status = _http("GET", "/status", timeout=4.0)
+        except BridgeError as exc:
+            notes.append(f"agent status unavailable: {exc.detail}")
+
+        width = height = None
+        jpeg_sha = None
+        if jpeg:
+            width, height = jpeg_dimensions(jpeg)
+            jpg_tmp = target / "frame.jpg.tmp"
+            jpg_tmp.write_bytes(jpeg)
+            os.replace(jpg_tmp, target / "frame.jpg")
+            jpeg_sha = _sha256(target / "frame.jpg")
+
+        status_tmp = target / "agent_status.json.tmp"
+        status_tmp.write_text(json.dumps(agent_status, ensure_ascii=False, indent=1, sort_keys=True))
+        os.replace(status_tmp, target / "agent_status.json")
+
+        expected_width = expected_height = None
+        try:
+            profile = load_hardware_profile()["profile"]
+            wrist = (profile.get("sensors") or {}).get("wrist_rgb") or {}
+            expected_width = wrist.get("capture_width")
+            expected_height = wrist.get("capture_height")
+        except BridgeError as exc:
+            notes.append(exc.detail)
+
+        rgb = (agent_status.get("sensors") or {}).get("rgb") or {}
+        capture = {
+            "captured_at_unix": captured_at,
+            "captured_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(captured_at)),
+            "agent_url": AGENT_URL,
+            "camera_topic": rgb.get("topic"),
+            "camera_age_s": rgb.get("age_s"),
+            "camera_fps": rgb.get("fps"),
+            "camera_stale": rgb.get("stale"),
+            "preview_seq": rgb.get("preview_seq"),
+            "preview_backend": rgb.get("preview_backend"),
+            "jpeg_bytes": len(jpeg) or None,
+            "jpeg_sha256": jpeg_sha,
+            "jpeg_width": width,
+            "jpeg_height": height,
+            "expected_width": expected_width,
+            "expected_height": expected_height,
+            "size_matches_profile": (
+                None if (width is None or expected_width is None) else (width, height) == (expected_width, expected_height)
+            ),
+            "has_frame": bool(jpeg),
+            "notes": notes,
+        }
+        (target / "capture.json").write_text(json.dumps(capture, ensure_ascii=False, indent=1, sort_keys=True))
+        return {"snapshot_id": target.name, "path": str(target), **capture}
+
+    return _guard(run)
+
+
+@router.get("/hardware/snapshots")
+def hardware_snapshots(limit: int = 50):
+    def run() -> dict:
+        items: list[dict] = []
+        if HARDWARE_ROOT.is_dir():
+            # Newest first, by directory mtime: names share a 1 s UTC stamp and
+            # would otherwise order by their random suffix.
+            directories = sorted(
+                (path for path in HARDWARE_ROOT.iterdir() if path.is_dir()),
+                key=lambda path: path.stat().st_mtime,
+                reverse=True,
+            )
+            for path in directories:
+                meta_path = path / "capture.json"
+                item: dict[str, Any] = {"snapshot_id": path.name, "path": str(path)}
+                if meta_path.is_file():
+                    try:
+                        item.update(json.loads(meta_path.read_text()))
+                    except json.JSONDecodeError:
+                        item["corrupt"] = True
+                else:
+                    item["corrupt"] = True
+                items.append(item)
+                if len(items) >= max(1, limit):
+                    break
+        return {"snapshots": items, "root": str(HARDWARE_ROOT)}
+
+    return _guard(run)
 
 
 @router.post("/control/acquire")

@@ -1,5 +1,5 @@
 import React from "react";
-import { Activity } from "lucide-react";
+import { Activity, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import HfAuthChip from "./HfAuthChip";
@@ -50,6 +50,17 @@ const LandingTopBar: React.FC = () => {
             <Link to="/ros-mobile">
               <Activity className="h-4 w-4" />
               <span className="hidden sm:inline">ROS 小车</span>
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="text-gray-300 hover:bg-gray-800 hover:text-white"
+          >
+            <Link to="/ros-hardware">
+              <Camera className="h-4 w-4" />
+              <span className="hidden sm:inline">实机采集</span>
             </Link>
           </Button>
           <Button

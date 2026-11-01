@@ -18,6 +18,7 @@ import StoragePage from "@/pages/Storage";
 import Models from "@/pages/Models";
 import DatasetViewer from "@/pages/DatasetViewer";
 import RosMobile from "@/pages/RosMobile";
+import RosHardware from "@/pages/RosHardware";
 
 import NotFound from "@/pages/NotFound";
 import SingleTabGuard from "@/components/SingleTabGuard";
@@ -60,6 +61,7 @@ function App() {
                         <Route path="/models" element={<Models />} />
                         <Route path="/dataset-viewer" element={<DatasetViewer />} />
                         <Route path="/ros-mobile" element={<RosMobile />} />
+                        <Route path="/ros-hardware" element={<RosHardware />} />
 
                         <Route path="*" element={<NotFound />} />
                       </Routes>
