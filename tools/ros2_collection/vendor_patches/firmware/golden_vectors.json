@@ -1,0 +1,41 @@
+{
+  "enable": "aa550c3502010102030405060708090a0b0c0d0e0f100700000000000000010000006400040000000000010000000002000000000300000000ae",
+  "update": "aa550c3502020102030405060708090a0b0c0d0e0f100700000000000000020000006400040000000000010000803e020000003f030000403fc3",
+  "stop": "aa550c2102030102030405060708090a0b0c0d0e0f10070000000000000003000000000000bc",
+  "capabilities": "aa550c2681010102030405060708090a0b0c0d0e0f1054322d44454d4f2d4255494c442d30310700000019",
+  "snapshot": "aa550c5d820102030405060708090a0b0c0d0e0f10e803000001000000000000005fea000000000000000000bf00000000ffffffffffffffff000000000000803e00000000000000000000003f0000003f7b000000000000000000803f0000403fda",
+  "count_wrap": "aa550c5d820102030405060708090a0b0c0d0e0f10f2030000020000000000000061ea000000000000000000bf00000000feffffffffffffff000000000000803e00000000000000000000003f0000003f7c000000000000000000803f0000403f1a",
+  "new_boot": "aa550c5d821112131415161718191a1b1c1d1e1f200a00000001000000000000000000000000000000000000bf000000000000000000000000000000000000803e00000000000000000000003f0000003f00000000000000000000803f0000403fc2",
+  "bad_crc": "aa550c5d820102030405060708090a0b0c0d0e0f10e803000001000000000000005fea000000000000000000bf00000000ffffffffffffffff000000000000803e00000000000000000000003f0000003f7b000000000000000000803f0000403fdb",
+  "wrong_function": "aa55035d820102030405060708090a0b0c0d0e0f10e803000001000000000000005fea000000000000000000bf00000000ffffffffffffffff000000000000803e00000000000000000000003f0000003f7b000000000000000000803f0000403fe6",
+  "legacy_no_response": "",
+  "capability_query": "aa550c020101c7",
+  "release": "aa550c2102040102030405060708090a0b0c0d0e0f10080000000000000001000000000000c2",
+  "wrong_length": "aa550c5d820102030405060708090a0b0c0d0e0f10e803000001000000000000005fea000000000000000000bf00000000ffffffffffffffff000000000000803e00000000000000000000003f0000003f7b000000000000000000803f0000403f",
+  "meta": {
+    "protocol_version": 1,
+    "function_code": 12,
+    "crc": "table-driven crc8 (reflected poly 0x8c, init 0, no xorout) over function+length+payload; check_value 0xa1 for 123456789",
+    "source_kind": "compiled_C_host_harness_golden_bytes",
+    "original_keys_unchanged": ["enable", "update", "stop", "capabilities", "snapshot", "count_wrap", "new_boot", "bad_crc", "wrong_function", "legacy_no_response"],
+    "legacy_contract": "legacy firmware and legacy ROS SDK reject function>=12; a CAP_QUERY gets NO response. Treat as unsupported_or_unknown, never as supported-with-zero-fields.",
+    "wheel_ids": "implicit motor index 0..3 (ROS SDK user ids 1..4); not repeated in the frame",
+    "count_overflow": "ARR=60000 -> 60001 counts per rollover; cumulative count[0] goes 59999 -> 60001 across vectors snapshot/count_wrap without reset",
+    "not_proof_of": ["board flashed", "real encoder readback", "physical stop", "boot id uniqueness", "ARM firmware build"]
+  },
+  "expectations": {
+    "capabilities": {"frame": "valid", "decoder": "capability_report", "protocol_version": 1, "caps": 7},
+    "capability_query": {"frame": "valid", "decoder": "capability_query", "legacy_response": "none"},
+    "snapshot": {"frame": "valid", "decoder": "snapshot", "tick_ms": 1000, "sample_seq": 1, "counts": [59999, -1, 0, 123]},
+    "count_wrap": {"frame": "valid", "decoder": "snapshot", "tick_ms": 1010, "sample_seq": 2, "counts": [60001, -2, 0, 124], "count_delta": 2},
+    "new_boot": {"reject_reason": "boot_changed", "action": "invalidate session, renegotiate"},
+    "bad_crc": {"reject_reason": "REJ_CRC"},
+    "wrong_function": {"reject_reason": "REJ_FUNCTION", "note": "func=3 is legacy PACKET_FUNC_MOTOR, not T2"},
+    "wrong_length": {"reject_reason": "REJ_LENGTH", "note": "truncated frame"},
+    "legacy_no_response": {"reject_reason": "no_response", "action": "capability_status=unsupported_or_unknown"},
+    "enable": {"board_result": "T2_OK", "action": "ENABLE", "epoch": 7, "seq": 1, "ttl_ms": 100},
+    "update": {"board_result": "T2_OK", "action": "DRIVE", "epoch": 7, "seq": 2, "ttl_ms": 100},
+    "stop": {"board_result": "T2_OK", "action": "CANCEL", "epoch": 7, "seq": 3},
+    "release": {"board_result": "T2_OK", "action": "RELEASE", "epoch": 8, "seq": 1, "precondition": "not enabled"}
+  }
+}

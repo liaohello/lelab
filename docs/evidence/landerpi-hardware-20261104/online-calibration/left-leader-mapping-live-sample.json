@@ -1,0 +1,791 @@
+{
+  "captured_at_utc": "2026-11-05T08:35:05Z",
+  "session_identity": {
+    "session_id": "27be6e3e83b24049a75ab8bd95eeebb3",
+    "session_epoch": 1823914319324404,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "heartbeat_count": 6,
+  "samples": [
+    {
+      "t_rel_s": 0.453,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0248
+    },
+    {
+      "t_rel_s": 0.929,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0147
+    },
+    {
+      "t_rel_s": 1.418,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0183
+    },
+    {
+      "t_rel_s": 1.979,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0247
+    },
+    {
+      "t_rel_s": 2.558,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0153
+    },
+    {
+      "t_rel_s": 3.026,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0332
+    },
+    {
+      "t_rel_s": 3.959,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0306
+    },
+    {
+      "t_rel_s": 4.418,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0321
+    },
+    {
+      "t_rel_s": 4.819,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0185
+    },
+    {
+      "t_rel_s": 5.275,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0231
+    },
+    {
+      "t_rel_s": 5.844,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0083
+    },
+    {
+      "t_rel_s": 6.318,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0339
+    },
+    {
+      "t_rel_s": 7.499,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0078
+    },
+    {
+      "t_rel_s": 7.888,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0167
+    },
+    {
+      "t_rel_s": 8.326,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0038
+    },
+    {
+      "t_rel_s": 8.771,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0344
+    },
+    {
+      "t_rel_s": 9.214,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0285
+    },
+    {
+      "t_rel_s": 9.614,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.117011,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.331468,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0153
+    },
+    {
+      "t_rel_s": 10.181,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0276
+    },
+    {
+      "t_rel_s": 10.587,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0198
+    },
+    {
+      "t_rel_s": 11.008,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0257
+    },
+    {
+      "t_rel_s": 11.413,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.016
+    },
+    {
+      "t_rel_s": 11.865,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0206
+    },
+    {
+      "t_rel_s": 12.272,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0121
+    },
+    {
+      "t_rel_s": 12.671,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.031
+    },
+    {
+      "t_rel_s": 13.228,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0342
+    },
+    {
+      "t_rel_s": 13.631,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0219
+    },
+    {
+      "t_rel_s": 14.042,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0178
+    },
+    {
+      "t_rel_s": 14.441,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0018
+    },
+    {
+      "t_rel_s": 14.856,
+      "state": "ready",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "leader_positions_rad": {
+        "shoulder_pan": 0.112008,
+        "shoulder_lift": -1.283488,
+        "elbow_flex": 1.469145,
+        "wrist_flex": 1.118545,
+        "wrist_roll": -0.031454
+      },
+      "leader_gripper_percent": 5.275974025974025,
+      "targets": {
+        "joint1": 0.002501,
+        "joint2": -0.417882,
+        "joint3": -0.02139,
+        "joint4": -1.333002,
+        "joint5": 1.586432
+      },
+      "gripper_target_rad": 0.016755,
+      "gripper_target_percent": null,
+      "preview_available": true,
+      "preview_reason": "preview_only_no_execution_output",
+      "leader_age_s": 0.0024
+    }
+  ]
+}

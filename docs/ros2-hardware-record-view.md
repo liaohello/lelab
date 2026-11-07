@@ -67,7 +67,7 @@ export LELAB_ROS_AGENT_URL=http://127.0.0.1:8110   # 经 SSH 隧道指向车端 
 | 后端单元测试 | **13 passed**（含既有 2 项桥接测试 + 1 项同步测试 + 新增 9 项） | `.venv/bin/python -m pytest tests/test_ros_mobile_bridge.py tests/test_ros_mobile_sync.py tests/test_ros_hardware_readonly.py -q` |
 | 前端类型检查 | `tsc --noEmit` 通过 | 命令输出为空、exit 0 |
 | 前端生产构建 | **未完成**：本机沙箱内 `vite build` 触发 `WebAssembly.instantiate(): Out of memory`，两次尝试（含 `--max-old-space-size=4096`）均失败 | 与代码无关，属本机资源限制；`app_ros_mobile/frontend/dist` 未纳入版本控制，不影响本提交 |
-| 实机画面 | **未复验**：本轮 `enx00e04c68034c` 为 `NO-CARRIER`，`192.168.19.138:22` 连接超时 | `ip -br link`、`ssh` 实测 |
+| 实机画面 | **未复验**：本轮 `<wired-interface>` 为 `NO-CARRIER`，`<private-ip>:22` 连接超时 | `ip -br link`、`ssh` 实测 |
 | 车端代理在线 | **未验证**：SSH 无非交互凭据，代理未部署 | 见 `docs/milestones/2026-10-31-raspberry-pi-environment-assessment.md` |
 | 原始 session 落盘 | **未验证**：同上 | — |
 

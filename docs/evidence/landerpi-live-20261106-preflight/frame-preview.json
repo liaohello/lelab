@@ -1,0 +1,1982 @@
+{
+  "mode": "hardware_frame_no_output_preview",
+  "steps": [
+    {
+      "action": "acquire",
+      "state": "ready",
+      "calibrations": {
+        "ready": true,
+        "bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+        "reasons": [],
+        "layout": "so101_three_layer",
+        "layers": {
+          "leader": {
+            "identity": "so101-leader-5B90149723",
+            "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+            "version": "cbf6d23f79d3"
+          },
+          "follower": {
+            "identity": "landerpi-follower-v1",
+            "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+            "version": "46da965c331d"
+          },
+          "mapping": {
+            "identity": "landerpi-so101-mapping-v1",
+            "sha256": "96e1c054563a70ef74475ce44664d6451ba5d16d5061d7716df2ca53baab70d0",
+            "version": "dde8229e3fab"
+          }
+        },
+        "simulated": false,
+        "camera_capability": "observed_real",
+        "firmware_capability": "unknown"
+      },
+      "devices": {
+        "leader": {
+          "connected": true,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "simulated": false
+        },
+        "follower": {
+          "driver_bound": true,
+          "source": "ros_robot_controller/servo_readback",
+          "simulated": false
+        },
+        "camera": {
+          "source": "/ascamera/camera_publisher/rgb0/image",
+          "stale": false,
+          "simulated": false
+        }
+      }
+    },
+    {
+      "action": "preview",
+      "result": {
+        "state": "ready",
+        "arm_state": "preview",
+        "alignment": null,
+        "gamepad": {
+          "armed": false,
+          "intent": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "outputs_enabled": false,
+        "motion_commands_sent": 0,
+        "command_submitted": false,
+        "reason": "preview_only_no_trusted_hardware_driver_bound",
+        "channels_meta": {
+          "session_id": "5da2f764edd94fa1a87f78457d384539",
+          "session_epoch": 2764439496698243,
+          "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "permits": {
+            "epoch": 2764439496698243,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "trusted_feedback": {
+          "valid": true,
+          "trusted": true,
+          "reasons": [],
+          "source_kind": "servo_position_readback",
+          "scan_span_ns": 0,
+          "joints": {
+            "joint1": {
+              "age_ns": 212733144,
+              "position_rad": 0.15079644737231007,
+              "raw_position": 536.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint2": {
+              "age_ns": 212733144,
+              "position_rad": 0.590619418874881,
+              "raw_position": 641.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint3": {
+              "age_ns": 212733144,
+              "position_rad": -1.7928022076485752,
+              "raw_position": 72.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint4": {
+              "age_ns": 212733144,
+              "position_rad": -1.6001178582284012,
+              "raw_position": 118.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint5": {
+              "age_ns": 212733144,
+              "position_rad": 1.704837613348061,
+              "raw_position": 907.0,
+              "source_kind": "servo_position_readback"
+            },
+            "r_joint": {
+              "age_ns": 212733144,
+              "position_rad": 0.1801179788058148,
+              "raw_position": 457.0,
+              "source_kind": "servo_position_readback"
+            }
+          },
+          "note": "six sequential readbacks, not a simultaneous sample; oldest joint age gates the set"
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "preview_not_advanced",
+          "motion_commands_sent": 0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": 2.7252747252747254,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 90.41758241758242,
+            "wrist_flex": 80.96703296703296,
+            "wrist_roll": -2.681318681318681
+          },
+          "positions_rad": {
+            "shoulder_pan": 0.047565,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.578085,
+            "wrist_flex": 1.413141,
+            "wrist_roll": -0.046798
+          },
+          "gripper_percent": 15.503246753246753,
+          "age_s": 0.02201142899077386,
+          "reads": 22,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "follower_feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 118.0,
+              "position_rad": -1.6001178582284012,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 118.0,
+              "position_rad": -1.6001178582284012,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4035,
+              "received_mono_ns": 355395752642342,
+              "sample_time_ns": 1793978103757564970,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2077941339980498,
+              "age_ns": 207794133
+            }
+          },
+          "positions_rad": {
+            "joint1": 0.15079644737231007,
+            "joint2": 0.590619418874881,
+            "joint3": -1.7928022076485752,
+            "joint4": -1.6001178582284012,
+            "joint5": 1.704837613348061,
+            "r_joint": 0.1801179788058148
+          },
+          "servo_pulses": {
+            "joint1": 536,
+            "joint2": 641,
+            "joint3": 72,
+            "joint4": 118,
+            "joint5": 907,
+            "r_joint": 457
+          },
+          "scan_span_s": 0.023633,
+          "scan_span_ns": 23633000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "network_elapsed_s": 0.009653,
+          "reason": "ok",
+          "calibration_binding": "bound"
+        }
+      }
+    },
+    {
+      "action": "preview",
+      "result": {
+        "state": "ready",
+        "arm_state": "preview",
+        "alignment": null,
+        "gamepad": {
+          "armed": false,
+          "intent": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "outputs_enabled": false,
+        "motion_commands_sent": 0,
+        "command_submitted": false,
+        "reason": "preview_only_no_trusted_hardware_driver_bound",
+        "channels_meta": {
+          "session_id": "5da2f764edd94fa1a87f78457d384539",
+          "session_epoch": 2764439496698243,
+          "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "permits": {
+            "epoch": 2764439496698243,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "trusted_feedback": {
+          "valid": true,
+          "trusted": true,
+          "reasons": [],
+          "source_kind": "servo_position_readback",
+          "scan_span_ns": 0,
+          "joints": {
+            "joint1": {
+              "age_ns": 84854734,
+              "position_rad": 0.15079644737231007,
+              "raw_position": 536.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint2": {
+              "age_ns": 84854734,
+              "position_rad": 0.590619418874881,
+              "raw_position": 641.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint3": {
+              "age_ns": 84854734,
+              "position_rad": -1.7928022076485752,
+              "raw_position": 72.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint4": {
+              "age_ns": 84854734,
+              "position_rad": -1.5959290680236147,
+              "raw_position": 119.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint5": {
+              "age_ns": 84854734,
+              "position_rad": 1.704837613348061,
+              "raw_position": 907.0,
+              "source_kind": "servo_position_readback"
+            },
+            "r_joint": {
+              "age_ns": 84854734,
+              "position_rad": 0.1801179788058148,
+              "raw_position": 457.0,
+              "source_kind": "servo_position_readback"
+            }
+          },
+          "note": "six sequential readbacks, not a simultaneous sample; oldest joint age gates the set"
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "preview_not_advanced",
+          "motion_commands_sent": 0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": 2.7252747252747254,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 90.41758241758242,
+            "wrist_flex": 80.96703296703296,
+            "wrist_roll": -2.681318681318681
+          },
+          "positions_rad": {
+            "shoulder_pan": 0.047565,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.578085,
+            "wrist_flex": 1.413141,
+            "wrist_roll": -0.046798
+          },
+          "gripper_percent": 15.503246753246753,
+          "age_s": 0.08837394400937483,
+          "reads": 29,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "follower_feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 119.0,
+              "position_rad": -1.5959290680236147,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 119.0,
+              "position_rad": -1.5959290680236147,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4037,
+              "received_mono_ns": 355396183728384,
+              "sample_time_ns": 1793978104192833787,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.036702608990935914,
+              "age_ns": 36702608
+            }
+          },
+          "positions_rad": {
+            "joint1": 0.15079644737231007,
+            "joint2": 0.590619418874881,
+            "joint3": -1.7928022076485752,
+            "joint4": -1.5959290680236147,
+            "joint5": 1.704837613348061,
+            "r_joint": 0.1801179788058148
+          },
+          "servo_pulses": {
+            "joint1": 536,
+            "joint2": 641,
+            "joint3": 72,
+            "joint4": 119,
+            "joint5": 907,
+            "r_joint": 457
+          },
+          "scan_span_s": 0.018742,
+          "scan_span_ns": 18742000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "network_elapsed_s": 0.014139,
+          "reason": "ok",
+          "calibration_binding": "bound"
+        }
+      }
+    },
+    {
+      "action": "preview",
+      "result": {
+        "state": "ready",
+        "arm_state": "preview",
+        "alignment": null,
+        "gamepad": {
+          "armed": false,
+          "intent": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "outputs_enabled": false,
+        "motion_commands_sent": 0,
+        "command_submitted": false,
+        "reason": "preview_only_no_trusted_hardware_driver_bound",
+        "channels_meta": {
+          "session_id": "5da2f764edd94fa1a87f78457d384539",
+          "session_epoch": 2764439496698243,
+          "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "permits": {
+            "epoch": 2764439496698243,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "trusted_feedback": {
+          "valid": true,
+          "trusted": true,
+          "reasons": [],
+          "source_kind": "servo_position_readback",
+          "scan_span_ns": 0,
+          "joints": {
+            "joint1": {
+              "age_ns": 164650740,
+              "position_rad": 0.15079644737231007,
+              "raw_position": 536.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint2": {
+              "age_ns": 164650740,
+              "position_rad": 0.590619418874881,
+              "raw_position": 641.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint3": {
+              "age_ns": 164650740,
+              "position_rad": -1.7928022076485752,
+              "raw_position": 72.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint4": {
+              "age_ns": 164650740,
+              "position_rad": -1.6001178582284012,
+              "raw_position": 118.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint5": {
+              "age_ns": 164650740,
+              "position_rad": 1.704837613348061,
+              "raw_position": 907.0,
+              "source_kind": "servo_position_readback"
+            },
+            "r_joint": {
+              "age_ns": 164650740,
+              "position_rad": 0.1801179788058148,
+              "raw_position": 457.0,
+              "source_kind": "servo_position_readback"
+            }
+          },
+          "note": "six sequential readbacks, not a simultaneous sample; oldest joint age gates the set"
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "preview_not_advanced",
+          "motion_commands_sent": 0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": 2.7252747252747254,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 90.41758241758242,
+            "wrist_flex": 80.96703296703296,
+            "wrist_roll": -2.681318681318681
+          },
+          "positions_rad": {
+            "shoulder_pan": 0.047565,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.578085,
+            "wrist_flex": 1.413141,
+            "wrist_roll": -0.046798
+          },
+          "gripper_percent": 15.503246753246753,
+          "age_s": 0.051767101972736415,
+          "reads": 39,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "follower_feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 118.0,
+              "position_rad": -1.6001178582284012,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 118.0,
+              "position_rad": -1.6001178582284012,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4038,
+              "received_mono_ns": 355396407772430,
+              "sample_time_ns": 1793978104418209111,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.157034413970905,
+              "age_ns": 157034413
+            }
+          },
+          "positions_rad": {
+            "joint1": 0.15079644737231007,
+            "joint2": 0.590619418874881,
+            "joint3": -1.7928022076485752,
+            "joint4": -1.6001178582284012,
+            "joint5": 1.704837613348061,
+            "r_joint": 0.1801179788058148
+          },
+          "servo_pulses": {
+            "joint1": 536,
+            "joint2": 641,
+            "joint3": 72,
+            "joint4": 118,
+            "joint5": 907,
+            "r_joint": 457
+          },
+          "scan_span_s": 0.022319,
+          "scan_span_ns": 22319000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "network_elapsed_s": 0.018678,
+          "reason": "ok",
+          "calibration_binding": "bound"
+        }
+      }
+    },
+    {
+      "action": "preview",
+      "result": {
+        "state": "ready",
+        "arm_state": "preview",
+        "alignment": null,
+        "gamepad": {
+          "armed": false,
+          "intent": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "outputs_enabled": false,
+        "motion_commands_sent": 0,
+        "command_submitted": false,
+        "reason": "preview_only_no_trusted_hardware_driver_bound",
+        "channels_meta": {
+          "session_id": "5da2f764edd94fa1a87f78457d384539",
+          "session_epoch": 2764439496698243,
+          "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "permits": {
+            "epoch": 2764439496698243,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "trusted_feedback": {
+          "valid": true,
+          "trusted": true,
+          "reasons": [],
+          "source_kind": "servo_position_readback",
+          "scan_span_ns": 0,
+          "joints": {
+            "joint1": {
+              "age_ns": 239117318,
+              "position_rad": 0.15079644737231007,
+              "raw_position": 536.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint2": {
+              "age_ns": 239117318,
+              "position_rad": 0.590619418874881,
+              "raw_position": 641.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint3": {
+              "age_ns": 239117318,
+              "position_rad": -1.7928022076485752,
+              "raw_position": 72.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint4": {
+              "age_ns": 239117318,
+              "position_rad": -1.5959290680236147,
+              "raw_position": 119.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint5": {
+              "age_ns": 239117318,
+              "position_rad": 1.704837613348061,
+              "raw_position": 907.0,
+              "source_kind": "servo_position_readback"
+            },
+            "r_joint": {
+              "age_ns": 239117318,
+              "position_rad": 0.1801179788058148,
+              "raw_position": 457.0,
+              "source_kind": "servo_position_readback"
+            }
+          },
+          "note": "six sequential readbacks, not a simultaneous sample; oldest joint age gates the set"
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "preview_not_advanced",
+          "motion_commands_sent": 0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": 2.7252747252747254,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 90.41758241758242,
+            "wrist_flex": 80.96703296703296,
+            "wrist_roll": -2.681318681318681
+          },
+          "positions_rad": {
+            "shoulder_pan": 0.047565,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.578085,
+            "wrist_flex": 1.413141,
+            "wrist_roll": -0.046798
+          },
+          "gripper_percent": 15.503246753246753,
+          "age_s": 0.06793470098199322,
+          "reads": 47,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "follower_feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 119.0,
+              "position_rad": -1.5959290680236147,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 119.0,
+              "position_rad": -1.5959290680236147,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4039,
+              "received_mono_ns": 355396636703572,
+              "sample_time_ns": 1793978104640806227,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1991625529610701,
+              "age_ns": 199162552
+            }
+          },
+          "positions_rad": {
+            "joint1": 0.15079644737231007,
+            "joint2": 0.590619418874881,
+            "joint3": -1.7928022076485752,
+            "joint4": -1.5959290680236147,
+            "joint5": 1.704837613348061,
+            "r_joint": 0.1801179788058148
+          },
+          "servo_pulses": {
+            "joint1": 536,
+            "joint2": 641,
+            "joint3": 72,
+            "joint4": 119,
+            "joint5": 907,
+            "r_joint": 457
+          },
+          "scan_span_s": 0.02281,
+          "scan_span_ns": 22810000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "network_elapsed_s": 0.007418,
+          "reason": "ok",
+          "calibration_binding": "bound"
+        }
+      }
+    },
+    {
+      "action": "preview",
+      "result": {
+        "state": "ready",
+        "arm_state": "preview",
+        "alignment": null,
+        "gamepad": {
+          "armed": false,
+          "intent": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "outputs_enabled": false,
+        "motion_commands_sent": 0,
+        "command_submitted": false,
+        "reason": "preview_only_no_trusted_hardware_driver_bound",
+        "channels_meta": {
+          "session_id": "5da2f764edd94fa1a87f78457d384539",
+          "session_epoch": 2764439496698243,
+          "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "permits": {
+            "epoch": 2764439496698243,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "trusted_feedback": {
+          "valid": true,
+          "trusted": true,
+          "reasons": [],
+          "source_kind": "servo_position_readback",
+          "scan_span_ns": 0,
+          "joints": {
+            "joint1": {
+              "age_ns": 104869596,
+              "position_rad": 0.15079644737231007,
+              "raw_position": 536.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint2": {
+              "age_ns": 104869596,
+              "position_rad": 0.590619418874881,
+              "raw_position": 641.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint3": {
+              "age_ns": 104869596,
+              "position_rad": -1.7928022076485752,
+              "raw_position": 72.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint4": {
+              "age_ns": 104869596,
+              "position_rad": -1.5959290680236147,
+              "raw_position": 119.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint5": {
+              "age_ns": 104869596,
+              "position_rad": 1.704837613348061,
+              "raw_position": 907.0,
+              "source_kind": "servo_position_readback"
+            },
+            "r_joint": {
+              "age_ns": 104869596,
+              "position_rad": 0.1801179788058148,
+              "raw_position": 457.0,
+              "source_kind": "servo_position_readback"
+            }
+          },
+          "note": "six sequential readbacks, not a simultaneous sample; oldest joint age gates the set"
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "preview_not_advanced",
+          "motion_commands_sent": 0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": 2.7252747252747254,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 90.41758241758242,
+            "wrist_flex": 80.96703296703296,
+            "wrist_roll": -2.681318681318681
+          },
+          "positions_rad": {
+            "shoulder_pan": 0.047565,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.578085,
+            "wrist_flex": 1.413141,
+            "wrist_roll": -0.046798
+          },
+          "gripper_percent": 15.503246753246753,
+          "age_s": 0.0958656529692933,
+          "reads": 55,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "follower_feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 119.0,
+              "position_rad": -1.5959290680236147,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 536.0,
+              "position_rad": 0.15079644737231007,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 641.0,
+              "position_rad": 0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 72.0,
+              "position_rad": -1.7928022076485752,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 119.0,
+              "position_rad": -1.5959290680236147,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 907.0,
+              "position_rad": 1.704837613348061,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 457.0,
+              "position_rad": 0.1801179788058148,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+              "sample_seq": 4041,
+              "received_mono_ns": 355397074105246,
+              "sample_time_ns": 1793978105078860178,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.03703292396562574,
+              "age_ns": 37032923
+            }
+          },
+          "positions_rad": {
+            "joint1": 0.15079644737231007,
+            "joint2": 0.590619418874881,
+            "joint3": -1.7928022076485752,
+            "joint4": -1.5959290680236147,
+            "joint5": 1.704837613348061,
+            "r_joint": 0.1801179788058148
+          },
+          "servo_pulses": {
+            "joint1": 536,
+            "joint2": 641,
+            "joint3": 72,
+            "joint4": 119,
+            "joint5": 907,
+            "r_joint": 457
+          },
+          "scan_span_s": 0.018768,
+          "scan_span_ns": 18768000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "network_elapsed_s": 0.007996,
+          "reason": "ok",
+          "calibration_binding": "bound"
+        }
+      }
+    },
+    {
+      "action": "release",
+      "state": "disconnected",
+      "leases": {
+        "upper": {
+          "held": false,
+          "expires_in_s": null,
+          "reason": "upper_lease_held",
+          "state": "idle",
+          "task": null
+        },
+        "car": {
+          "held": false,
+          "expires_in_s": null,
+          "reason": "car_lease_held",
+          "last_confirmed_age_s": 0.465
+        }
+      }
+    }
+  ],
+  "readiness": {
+    "ready": true,
+    "bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+    "reasons": [],
+    "layout": "so101_three_layer",
+    "layers": {
+      "leader": {
+        "identity": "so101-leader-5B90149723",
+        "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+        "version": "cbf6d23f79d3"
+      },
+      "follower": {
+        "identity": "landerpi-follower-v1",
+        "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+        "version": "46da965c331d"
+      },
+      "mapping": {
+        "identity": "landerpi-so101-mapping-v1",
+        "sha256": "96e1c054563a70ef74475ce44664d6451ba5d16d5061d7716df2ca53baab70d0",
+        "version": "dde8229e3fab"
+      }
+    },
+    "simulated": false,
+    "camera_capability": "observed_real",
+    "firmware_capability": "unknown"
+  }
+}

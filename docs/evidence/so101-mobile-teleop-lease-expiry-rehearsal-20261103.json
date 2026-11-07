@@ -1,0 +1,130 @@
+{
+  "title": "六 的第六路里最后一格：车端控制租约自己过期（并修掉过期后仍挂着旧持有者名字）",
+  "captured_utc": "2026-11-03T17:41:30Z",
+  "branch": "codex/ros2-mobile-collection",
+  "revision_before": "f525bc8",
+  "evidence_level": "本机实测（部署用 agent 新起进程 + 生产协调器）；主臂/从臂反馈合成，无执行器",
+  "tool": "tools/ros2_collection/local_car_lease_expiry_rehearsal.py",
+  "scenario": "双层租约拿到、接合、跟随、臂流 live；随后上位机停止续租（停跟随循环、不再 heartbeat），等过 expires_in_s + 余量再观测——这就是上位机死机/断电/隧道长时间断时车端看到的情形",
+  "measured": {
+    "while_leased": {
+      "state": "following",
+      "seq": 1,
+      "car": {
+        "active": true,
+        "client_id": "lease-expiry-rehearsal",
+        "mode": null,
+        "expires_in_s": 29.89,
+        "stream": {
+          "expected": true,
+          "live": true,
+          "ttl_s": 0.6,
+          "age_s": 0.098,
+          "remaining_s": 0.102,
+          "clock_domain": "monotonic"
+        },
+        "last": {
+          "leader_rad": null,
+          "gripper_percent": 50.245,
+          "pre_clip_rad": [
+            0.001445
+          ],
+          "calibration_version": "814b0e219f01|d50c41eda591|2a103ac19be8",
+          "clutch": "engaged",
+          "wall": 104930.036788143
+        },
+        "rejected": null
+      }
+    },
+    "waited_seconds": 31.89,
+    "after_expiry": {
+      "car": {
+        "active": false,
+        "client_id": null,
+        "mode": null,
+        "expires_in_s": 0.0,
+        "stream": {
+          "expected": false,
+          "live": false,
+          "ttl_s": null,
+          "age_s": null,
+          "remaining_s": null,
+          "clock_domain": "monotonic"
+        },
+        "last": {
+          "leader_rad": null,
+          "gripper_percent": 51.249,
+          "pre_clip_rad": [
+            0.02247
+          ],
+          "calibration_version": "814b0e219f01|d50c41eda591|2a103ac19be8",
+          "clutch": "engaged",
+          "wall": 104930.138443167
+        },
+        "rejected": null
+      },
+      "upper_state": "following",
+      "upper_seq": 3
+    },
+    "command_with_expired_token": {
+      "raised": "403:control_token: missing or invalid control token"
+    },
+    "after_reacquire": {
+      "state": "following",
+      "seq": 23,
+      "car": {
+        "active": true,
+        "client_id": "lease-expiry-rehearsal-2",
+        "mode": null,
+        "expires_in_s": 28.78,
+        "stream": {
+          "expected": true,
+          "live": true,
+          "ttl_s": 0.6,
+          "age_s": 0.097,
+          "remaining_s": 0.103,
+          "clock_domain": "monotonic"
+        },
+        "last": {
+          "leader_rad": null,
+          "gripper_percent": 59.879,
+          "pre_clip_rad": [
+            0.085539
+          ],
+          "calibration_version": "814b0e219f01|d50c41eda591|2a103ac19be8",
+          "clutch": "engaged",
+          "wall": 104963.154473094
+        },
+        "rejected": null
+      },
+      "last_before_following": {}
+    }
+  },
+  "expectations": {
+    "the_lease_was_live_before_it_expired": true,
+    "the_car_dropped_control_on_its_own_clock": true,
+    "the_expired_lease_took_the_arm_stream_with_it": true,
+    "the_car_refused_a_command_with_the_expired_token": true,
+    "recovery_needed_a_fresh_acquire": true,
+    "nothing_queued_burst_out_on_recovery": true
+  },
+  "expectations_failed": [],
+  "defect_found_and_fixed": {
+    "symptom": "租约在车端自己过期后，/status.control.active 已是 false、teleop.stream 已 expected=false，但 control.client_id 仍然写着旧持有者名字——过期路径清了 token 与 gate，却漏了名字（主动 release 那条路径是清的）",
+    "why_it_matters": "页面与协调器的独占判定读的就是 control.client_id；一个挂在 active:false 旁边的旧名字，会让任何看名字而不是看标志位的判断以为还有人在控制",
+    "fix": "agent 的过期分支同时置 control_client=None（保留 expires_in_s=0 与事件流做诊断）",
+    "verification_order_note": "第一次复跑仍看到旧名字，是因为那次跑的进程在打补丁之前就已经起来了；用新起的进程再跑才转绿——这条也提醒：改完部署侧代码必须重启被排练的那个进程"
+  },
+  "also_measured": {
+    "refusal_answered": "拿着过期 token 再发一条命令被拒：403 control_token: missing or invalid（token 已经不在了，所以先到的是通用 token 检查，不是 409 control_expired；判据按 4xx 拒绝算成立，不把 409 写成命中）",
+    "recovery": "恢复只能重来：过期后 client_id 为 None，重新 acquire 之后 client_id 变成新名字 lease-expiry-rehearsal-2，并且要重新 align/engage；重新跟随后臂流才再次 live，last 的目标是恢复后新产生的（wall 前进、载荷变化），没有把过期前排队的目标爆出去",
+    "lease_math": "车端 acquire 的 TTL 被 clamp 到 5..300 秒，本次报告 expires_in_s≈29.89，排练等了约 31.9 秒"
+  },
+  "limits": [
+    "上位机这一侧是我主动停掉跟随循环来停止续租，不是真断电；真机上是 LeLab 进程消失/整机没电，车端行为同一条代码但检测时刻不同",
+    "无执行器：能证明车端不再承认任何控制者、不重放旧目标，不能证明舵机停在哪",
+    "硬件急停回路、真拔 USB 插回、真 SSH 半开仍需上车"
+  ],
+  "cleanup": "两个排练 agent 都按 marker 里的 pid SIGTERM 停掉、端口释放；排练 session 全部保留",
+  "test_runs": "tools 全量 273 passed, 5 subtests（改动前后各跑一次）"
+}

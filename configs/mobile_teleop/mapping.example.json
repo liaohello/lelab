@@ -1,0 +1,134 @@
+{
+  "_note": "EXAMPLE ONLY - layer C (leader to follower mapping). Joint-space mapping only: matching joint semantics does not mean the two arms reach the same end-effector pose. The coordinator rebuilds its mapper from this stored document at acquire(), so the profile cannot silently override it.",
+  "identity_hint": "so101-to-mentorpi-v1",
+  "mapping_kind": "joint_space",
+  "end_effector_pose_claimed": false,
+  "bound_identities": {
+    "leader": "so101-leader-5B90149652",
+    "follower": "mentorpi-arm-jetrover-acker-less"
+  },
+  "joint_order": [
+    "joint1",
+    "joint2",
+    "joint3",
+    "joint4",
+    "joint5",
+    "r_joint"
+  ],
+  "joints": [
+    {
+      "leader": "shoulder_pan",
+      "follower": "joint1",
+      "leader_semantic": "base yaw",
+      "follower_semantic": "base yaw",
+      "direction": 1,
+      "scale": 1.0,
+      "wrap": false,
+      "soft_min_rad": -2.0,
+      "soft_max_rad": 2.0,
+      "_provenance": "example_not_measured - direction and scale confirmed per joint only during the authorized low-speed single-joint stage",
+      "_wrap_note": "wrap stays false here: shoulder_pan is a limited SO-101 servo (range in leader.example.json), so the delta must clamp toward the follower limit in the commanded direction instead of taking a shortest path that would swing the base the other way"
+    },
+    {
+      "leader": "shoulder_lift",
+      "follower": "joint2",
+      "leader_semantic": "shoulder pitch",
+      "follower_semantic": "shoulder pitch",
+      "direction": -1,
+      "scale": 0.9,
+      "wrap": false,
+      "soft_min_rad": -1.6,
+      "soft_max_rad": 1.6
+    },
+    {
+      "leader": "elbow_flex",
+      "follower": "joint3",
+      "leader_semantic": "elbow pitch",
+      "follower_semantic": "elbow pitch",
+      "direction": 1,
+      "scale": 1.0,
+      "wrap": false,
+      "soft_min_rad": -1.7,
+      "soft_max_rad": 1.7
+    },
+    {
+      "leader": "wrist_flex",
+      "follower": "joint4",
+      "leader_semantic": "wrist pitch",
+      "follower_semantic": "wrist pitch",
+      "direction": -1,
+      "scale": 1.0,
+      "wrap": false,
+      "soft_min_rad": -1.6,
+      "soft_max_rad": 1.6
+    },
+    {
+      "leader": "wrist_roll",
+      "follower": "joint5",
+      "leader_semantic": "wrist roll (continuous)",
+      "follower_semantic": "wrist roll",
+      "direction": 1,
+      "scale": 1.0,
+      "wrap": true,
+      "soft_min_rad": -2.0,
+      "soft_max_rad": 2.0,
+      "_wrap_note": "wrap=true only for the leader joint that actually crosses +-pi continuously (SO-101 wrist_roll); the delta takes the shortest path, then the follower's mechanical/cable limits still clamp it"
+    }
+  ],
+  "unused_follower_joints": [],
+  "gripper": {
+    "leader_semantic": "0-100 opening percent (lerobot SO-101 leader gripper)",
+    "follower_joint": "r_joint",
+    "follower_servo_id": 10,
+    "conversion": "percent -> pulse -> radians -> jaw width through the four-bar linkage; percent is never reinterpreted as an angle",
+    "pulse_span_per_hundred_pct": 5.0,
+    "direction": -1,
+    "pulse_min": 200,
+    "pulse_max": 700,
+    "flipped": true,
+    "initial_position_raw": 500,
+    "radians_per_pulse": 0.0041887902,
+    "angle_zero": 200.0,
+    "link_bc": 0.03,
+    "link_hb": 0.014,
+    "link_ec": 0.058076,
+    "lcd_plus_ecd": 1.334376,
+    "report_width_mm": true,
+    "_provenance": "derived_not_measured: link_* and lcd_plus_ecd come from the vendor four-bar constants (GRIPPER_HB 0.014, GRIPPER_BC 0.03, GRIPPER_ED 0.037, GRIPPER_DC 0.022, EDC 159deg, GRIPPER_IH 0.02, GRIPPER_IG 0.005). The vendor formula returns a negative width past about pulse 704, so pulse_max 700 keeps the jaws inside the geometrically valid range instead of pretending a closed gripper.",
+    "span_note": "example_not_measured: 5.0 pulses per 1 percent spans pulse 700 (0%) to pulse 200 (100%); re-measure the leader percent range against the real jaw travel before use"
+  },
+  "filter_alpha": 0.4,
+  "max_step_rad_s": 0.8,
+  "command_hz": 20.0,
+  "follow_law": "target = measured follower reference + direction * scale * wrapped(leader - leader_reference), then soft/hard clamp, EMA filter and per-cycle rate limit",
+  "clutch": {
+    "engage_requires_explicit_action": true,
+    "on_release": "stop following, clear filter and target memory",
+    "on_reengage": "capture a fresh reference; never resume the previous target"
+  },
+  "reference_pose": {
+    "_note": "placeholders - the wizard overwrites both sides from live readings at align() and stores them with the calibration version",
+    "leader_deg": {
+      "shoulder_pan": 0.0,
+      "shoulder_lift": 0.0,
+      "elbow_flex": 0.0,
+      "wrist_flex": 0.0,
+      "wrist_roll": 0.0,
+      "gripper_percent": 0.0
+    },
+    "follower_rad": {
+      "joint1": 0.0,
+      "joint2": 0.0,
+      "joint3": 0.0,
+      "joint4": 0.0,
+      "joint5": 0.0,
+      "r_joint": 0.0
+    }
+  },
+  "model_versions": {
+    "leader_calibration": "record the leader layer version hash here when saving",
+    "follower_calibration": "record the follower layer version hash here when saving",
+    "car_profile": "hardware-teleop-v1",
+    "agent_schema": "lelab-mobile-agent-v1"
+  }
+}

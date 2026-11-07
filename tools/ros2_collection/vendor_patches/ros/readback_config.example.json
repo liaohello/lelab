@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "template_only_not_measured",
+  "owner": "ros_robot_controller Board (single /dev/rrc UART owner)",
+  "note": "Six joints are read sequentially by the existing serial owner. The vendor 50 Hz publisher only re-publishes its command cache and is NOT a position readback capability. Do not set max_readback_hz from cache_publish_hz; measure bus latency and scan span on hardware first.",
+  "readback": {
+    "joints": ["joint1", "joint2", "joint3", "joint4", "joint5", "r_joint"],
+    "servo_ids": {"joint1": 1, "joint2": 2, "joint3": 3, "joint4": 4, "joint5": 5, "r_joint": 10},
+    "position_subcommand": 5,
+    "reply_format": "<BBbh",
+    "scan_is_sequential": true,
+    "per_joint_timeout_s": 0.1,
+    "max_scan_span_s": 0.5,
+    "scan_period_s": null,
+    "max_readback_hz": null,
+    "measured_on_hardware": false
+  },
+  "vendor_cache": {
+    "topic": "/controller_manager/joint_states",
+    "publish_hz": 50,
+    "source_kind": "command_cache",
+    "is_readback_capability": false
+  },
+  "base": {
+    "real_topic": "/controller/cmd_vel",
+    "simulation_only_topic": "/lelab/base/cmd_vel",
+    "units": {"vx_m_s": "m/s", "vy_m_s": "m/s", "wz_rad_s": "rad/s"},
+    "kinematics_owner": "vendor_ros/controller/mecanum",
+    "wheel_rps_conversion_in_adapter": false
+  },
+  "unverified_on_hardware": [
+    "six-joint scan period and worst-case reply latency",
+    "servo stop / hold physical effect",
+    "base wheel order, RPS signs and calibration residuals",
+    "firmware reply format and error status semantics on the flashed build"
+  ]
+}

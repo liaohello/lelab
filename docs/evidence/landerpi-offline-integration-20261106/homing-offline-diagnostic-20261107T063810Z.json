@@ -1,0 +1,62 @@
+{
+  "agent_url": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "failures": [
+    {
+      "error": "home_worker_failed:HardwareCompositionError:homing_single_axis_feedback_missing",
+      "stage": "homing_complete"
+    }
+  ],
+  "frame_port": 18123,
+  "hardware_effect": "simulated_only",
+  "phases": {
+    "preflight": {
+      "control_active": false,
+      "data_source": "simulated",
+      "feedback_available": false,
+      "feedback_reason": "invalid_or_untrusted_feedback",
+      "ok": true,
+      "oldest_age_s": 0.17534933396382257,
+      "outputs_enabled": false,
+      "process_age_s": 0.07692771800793707,
+      "publisher_generation": 0,
+      "publisher_instance": 1482503265,
+      "samples": 6,
+      "simulated": true,
+      "torque_publish_count": 0,
+      "torque_state": "idle"
+    },
+    "session": {
+      "bundle_matches_rig": true,
+      "ok": true,
+      "session_epoch": 2311542977438642,
+      "session_id": "dce99c0ee6e643e5a4bc25ced0d54c27"
+    }
+  },
+  "simulated": true,
+  "status": "failed",
+  "timeline": [
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.07591748802224174,
+      "feedback_sample_seq": 39,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 527,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1482503265,
+      "state": "ready",
+      "step_target_raw": 513,
+      "t": 410784.62,
+      "torque_state": "verifying"
+    }
+  ],
+  "training_eligible": false
+}

@@ -1,0 +1,63 @@
+mismatches []
+open {"connected": true, "port_claim": "flock+tioxcl", "healthy": false, "reason": "no_read_yet", "positions_deg": {}, "positions_rad": {}, "gripper_percent": null, "age_s": null, "reads": 0, "failures": 0, "consecutive_failures": 0, "last_error": null, "source": "leader:usb-1a86_USB_Single_Serial_5B90149652-if00", "units": {"joints": "deg\u2192rad (deg from Feetech bus with use_degrees)", "gripper": "0-100 opening percent, not an angle"}, "expected_joints": ["shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper"], "missing_joints": ["shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper"], "config": {"port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00", "ids": {"shoulder_pan": 1, "shoulder_lift": 2, "elbow_flex": 3, "wrist_flex": 4, "wrist_roll": 5, "gripper": 6}, "read_hz": 30.0, "read_timeout_s": 0.35, "num_read_retries": 2, "stale_after_s": 0.5, "unhealthy_after_failures": 3}}
+{
+  "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00",
+  "calibration_sha256_source": "work/ros2_collection/lerobot/calibration/teleoperators/so_leader/right_rig.json",
+  "snapshot": {
+    "connected": true,
+    "port_claim": "flock+tioxcl",
+    "healthy": true,
+    "reason": "ok",
+    "positions_deg": {
+      "shoulder_pan": -2.989010989010989,
+      "shoulder_lift": -105.01098901098901,
+      "elbow_flex": 96.48351648351648,
+      "wrist_flex": 61.142857142857146,
+      "wrist_roll": 1.098901098901099
+    },
+    "positions_rad": {
+      "shoulder_pan": -0.052168,
+      "shoulder_lift": -1.832788,
+      "elbow_flex": 1.683955,
+      "wrist_flex": 1.067144,
+      "wrist_roll": 0.019179
+    },
+    "gripper_percent": 2.477291494632535,
+    "age_s": 0.03,
+    "reads": 87,
+    "failures": 0,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "source": "leader:usb-1a86_USB_Single_Serial_5B90149652-if00",
+    "units": {
+      "joints": "deg\u2192rad (deg from Feetech bus with use_degrees)",
+      "gripper": "0-100 opening percent, not an angle"
+    },
+    "expected_joints": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "missing_joints": [],
+    "config": {
+      "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00",
+      "ids": {
+        "shoulder_pan": 1,
+        "shoulder_lift": 2,
+        "elbow_flex": 3,
+        "wrist_flex": 4,
+        "wrist_roll": 5,
+        "gripper": 6
+      },
+      "read_hz": 30.0,
+      "read_timeout_s": 0.35,
+      "num_read_retries": 2,
+      "stale_after_s": 0.5,
+      "unhealthy_after_failures": 3
+    }
+  }
+}
+close {"closed": true, "reason": "user"}

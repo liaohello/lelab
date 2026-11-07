@@ -1,0 +1,169 @@
+{
+  "_note": "EXAMPLE ONLY - layer A (SO-101 leader). Replace every value marked example_not_measured with a real reading before saving it through POST /ros-mobile/teleop/calibration. The store adds schema_version/kind/identity/created_utc/content_sha256/version itself.",
+  "_example_not_measured": true,
+  "identity_hint": "so101-leader-5B90149652",
+  "device_identity": {
+    "kind": "so101_leader",
+    "usb_by_id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00",
+    "serial": "5B90149652",
+    "attached_to": "upper_host",
+    "attached_to_note": "the leader's USB identity is on the upper computer, not the car; network reachability is not serial access",
+    "baudrate": 1000000,
+    "motor_model": "sts3215",
+    "protocol": "feetech / scservo",
+    "serial_is_the_only_stable_identity": "all four adapters share VID:PID 1a86:55d3, so /dev/ttyACM* numbering drifts between boots; bind the calibration to the by-id serial only",
+    "role_confirmed_by": "2026-10-31 unplug-one-cable audit on the upper host: 5B90149652=right_leader, 5B90149723=left_leader, 5B91045575=right_follower, 5B90149339=left_follower"
+  },
+  "joint_order": [
+    "shoulder_pan",
+    "shoulder_lift",
+    "elbow_flex",
+    "wrist_flex",
+    "wrist_roll"
+  ],
+  "gripper_name": "gripper",
+  "units": {
+    "joints": "degrees (FeetechMotorsBus use_degrees=True)",
+    "gripper": "0-100 opening percent - never an angle and never converted with radians()"
+  },
+  "motors": {
+    "shoulder_pan": {
+      "id": 1,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range": [
+        -200.0,
+        200.0
+      ]
+    },
+    "shoulder_lift": {
+      "id": 2,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range": [
+        -200.0,
+        200.0
+      ]
+    },
+    "elbow_flex": {
+      "id": 3,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range": [
+        -200.0,
+        200.0
+      ]
+    },
+    "wrist_flex": {
+      "id": 4,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range": [
+        -200.0,
+        200.0
+      ]
+    },
+    "wrist_roll": {
+      "id": 5,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range": [
+        -200.0,
+        200.0
+      ]
+    }
+  },
+  "gripper_range_percent": [
+    0.0,
+    100.0
+  ],
+  "reference_pose_deg": {
+    "shoulder_pan": 0.0,
+    "shoulder_lift": 0.0,
+    "elbow_flex": 0.0,
+    "wrist_flex": 0.0,
+    "wrist_roll": 0.0,
+    "gripper_percent": 0.0,
+    "_note": "recorded by the wizard when the operator parks the leader in the agreed rest pose"
+  },
+  "write_audit": {
+    "lerobot_connect_configure_writes_eeprom": true,
+    "eeprom_fields_written_by_the_existing_wizard": [
+      "Homing_Offset",
+      "Moving_Threshold",
+      "Angle_Range_Min",
+      "Angle_Range_Max",
+      "Torque_Enable"
+    ],
+    "calibrate_false_still_writes": "yes - lerobot's teleoperate entry writes calibration files unconditionally, so calibrate=False does NOT mean 'no writes'",
+    "motor_id_changes": "never automatic",
+    "torque_state_after_wizard": "leader servos stay powered; the reader path uses Present_Position reads only",
+    "reader_is_read_only": "SO101LeaderReader only ever issues sync_read; connect(handshake=True) pings and reads, and disconnect is called with disable_torque=False so closing the reader never drops a loaded arm",
+    "examples_do_not_bless_a_calibration_write": "layer A stores what the operator already calibrated elsewhere; saving this file writes no EEPROM"
+  },
+  "reader_config": {
+    "read_hz": 30.0,
+    "read_timeout_s": 0.35,
+    "num_read_retries": 2,
+    "stale_after_s": 0.5,
+    "unhealthy_after_failures": 3,
+    "_note": "tune against measured bus load; these are the defaults in lelab.mobile_leader_reader.LeaderConfig"
+  },
+  "source": {
+    "lerobot_calibration_file": "~/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/<id>.json",
+    "has_schema_or_identity_field": false,
+    "note": "the lerobot file carries no schema/version/identity, so this layer re-states the device identity and hashes it"
+  },
+  "lerobot_calibration_note": "copy the dict produced by the existing SO-101 calibration wizard (HF_LEROBOT_CALIBRATION/teleoperators/<task>/<rig>.json). These five fields per motor are what let the bus report degrees and 0-100 percent; without them the reader refuses to open rather than read raw ticks.",
+  "lerobot_calibration_source": "~/.local/share/lelab-jetson-20261031/approot/hf/calibration/teleoperators/so_leader/right_rig.json",
+  "lerobot_calibration": {
+    "shoulder_pan": {
+      "id": 1,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range_min": 0,
+      "range_max": 4095,
+      "_example_not_measured": true
+    },
+    "shoulder_lift": {
+      "id": 2,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range_min": 0,
+      "range_max": 4095,
+      "_example_not_measured": true
+    },
+    "elbow_flex": {
+      "id": 3,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range_min": 0,
+      "range_max": 4095,
+      "_example_not_measured": true
+    },
+    "wrist_flex": {
+      "id": 4,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range_min": 0,
+      "range_max": 4095,
+      "_example_not_measured": true
+    },
+    "wrist_roll": {
+      "id": 5,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range_min": 0,
+      "range_max": 4095,
+      "_example_not_measured": true
+    },
+    "gripper": {
+      "id": 6,
+      "drive_mode": 0,
+      "homing_offset": 0,
+      "range_min": 0,
+      "range_max": 4095,
+      "_example_not_measured": true
+    }
+  }
+}

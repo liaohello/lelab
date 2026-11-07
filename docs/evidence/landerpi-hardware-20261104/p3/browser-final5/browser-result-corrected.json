@@ -1,0 +1,10 @@
+{
+  "title": "LeLab",
+  "real_feedback_rows": true,
+  "leader_blocker_visible": true,
+  "calibration_readiness_visible": true,
+  "output_closed": true,
+  "execution_submit_zero": true,
+  "video_frame_bound": true,
+  "browser_error_absent": true
+}

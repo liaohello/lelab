@@ -1,0 +1,25 @@
+{
+  "state": "fault",
+  "out": false,
+  "raw": {
+    "joint1": 457,
+    "joint2": 509,
+    "joint3": 538,
+    "joint4": 402,
+    "joint5": 508,
+    "r_joint": 481
+  },
+  "leader": {
+    "shoulder_pan": 0.181054,
+    "shoulder_lift": -0.425784,
+    "elbow_flex": -0.947464,
+    "wrist_flex": 1.871914,
+    "wrist_roll": 0.052935
+  },
+  "sent": 38,
+  "active": false,
+  "frames_emitted": 367,
+  "refused": 0,
+  "last_refusal": null,
+  "error": "frame_follow_failed:HardwareCompositionError:follow_feedback_untrusted:joint1:stale_or_invalid_timestamp,joint2:stale_or_invalid_timestamp,joint3:stale_or_invalid_timestamp,joint4:stale_or_invalid_timestamp,joint5:stale_or_invalid_timestamp,r_joint:stale_or_invalid_timestamp"
+}

@@ -1,0 +1,192 @@
+{
+  "title": "五 与 六 的急停路径，用部署车端 agent 在本机演练（episode 正在录）",
+  "captured_utc": "2026-11-03T17:24:30Z",
+  "branch": "codex/ros2-mobile-collection",
+  "revision_before": "e1877b1",
+  "evidence_level": "本机实测（部署用的 lelab_mobile_agent + 上位机协调器真类 + 真 sqlite3 录包）；无执行器、无真机",
+  "tool": "tools/ros2_collection/local_car_estop_rehearsal.py",
+  "scenario": {
+    "setup": "双层租约 → 预览 → 对齐 → 待命 → 接合 → start_session → start_episode → 跟随 2 s",
+    "injection": "coord.emergency_stop(『rehearsal-operator-estop』)，此时 episode 正在录",
+    "then": "在锁存状态下再塞一条 /control/arm，再 clear_estop，再结束本集与停会话"
+  },
+  "measured": {
+    "before_estop": {
+      "state": "following",
+      "seq": 43,
+      "car": {
+        "active": true,
+        "estop_latched": false,
+        "mode": null,
+        "stream": {
+          "expected": true,
+          "live": true,
+          "ttl_s": 0.6,
+          "age_s": 0.094,
+          "remaining_s": 0.106,
+          "clock_domain": "monotonic"
+        },
+        "last": {
+          "leader_rad": null,
+          "gripper_percent": 56.501,
+          "pre_clip_rad": [
+            0.130363
+          ],
+          "calibration_version": "a6904869a3f9|e17d73ae69be|f796d63812d2",
+          "clutch": "engaged",
+          "wall": 103951.499512058
+        }
+      }
+    },
+    "emergency_stop_call": {
+      "state": "estop",
+      "sent_estop": true
+    },
+    "at_and_after_the_stop": {
+      "detected_downgrade": true,
+      "state": "estop",
+      "seq": 43,
+      "cycles_at_the_stop": 0,
+      "last_error": "estop",
+      "car": {
+        "active": false,
+        "estop_latched": true,
+        "mode": null,
+        "stream": {
+          "expected": true,
+          "live": false,
+          "ttl_s": 0.6,
+          "age_s": 1.601,
+          "remaining_s": -1.401,
+          "clock_domain": "monotonic"
+        },
+        "last": {
+          "leader_rad": null,
+          "gripper_percent": 56.501,
+          "pre_clip_rad": [
+            0.130363
+          ],
+          "calibration_version": "a6904869a3f9|e17d73ae69be|f796d63812d2",
+          "clutch": "engaged",
+          "wall": 103951.499512058
+        }
+      },
+      "car_last_unchanged": true
+    },
+    "car_at_downgrade": {
+      "active": false,
+      "estop_latched": true,
+      "mode": null,
+      "stream": {
+        "expected": true,
+        "live": true,
+        "ttl_s": 0.6,
+        "age_s": 0.1,
+        "remaining_s": 0.1,
+        "clock_domain": "monotonic"
+      },
+      "last": {
+        "leader_rad": null,
+        "gripper_percent": 56.501,
+        "pre_clip_rad": [
+          0.130363
+        ],
+        "calibration_version": "a6904869a3f9|e17d73ae69be|f796d63812d2",
+        "clutch": "engaged",
+        "wall": 103951.499512058
+      }
+    },
+    "command_while_latched": {
+      "raised": "409:mode: arm command requires scripted_expert or leader_arm mode"
+    },
+    "after_clear": {
+      "clear_result": {
+        "estop": false
+      },
+      "state": "estop",
+      "seq": 43,
+      "car": {
+        "active": true,
+        "estop_latched": false,
+        "mode": null,
+        "stream": {
+          "expected": true,
+          "live": false,
+          "ttl_s": 0.6,
+          "age_s": 3.105,
+          "remaining_s": -2.905,
+          "clock_domain": "monotonic"
+        },
+        "last": {
+          "leader_rad": null,
+          "gripper_percent": 56.501,
+          "pre_clip_rad": [
+            0.130363
+          ],
+          "calibration_version": "a6904869a3f9|e17d73ae69be|f796d63812d2",
+          "clutch": "engaged",
+          "wall": 103951.499512058
+        }
+      }
+    },
+    "raw_bag_events": {
+      "db": "bag_0.db3",
+      "event_messages": 41,
+      "estop_messages": 2,
+      "unreadable": null
+    },
+    "session_event_kinds": [
+      "episode_end",
+      "episode_start",
+      "session_start",
+      "session_stop"
+    ],
+    "manifest": {
+      "session_id": "ros_20261103T172417Z_073e3b05",
+      "status": "raw_ready",
+      "episodes": [
+        {
+          "id": "ep_1793726657_656b7c",
+          "invalid": null,
+          "reason": null,
+          "success": "unknown"
+        }
+      ],
+      "has_ready": true
+    }
+  },
+  "expectations": {
+    "was_following_before_the_stop": true,
+    "the_stop_reached_the_car": true,
+    "the_upper_side_left_following": true,
+    "the_car_latched_the_stop": true,
+    "a_latched_car_is_not_an_active_controller": true,
+    "no_sends_after_the_stop": true,
+    "a_new_command_was_refused_while_latched": true,
+    "nothing_was_applied_while_latched": true,
+    "clearing_the_latch_did_not_resume_motion": true,
+    "the_stop_is_in_the_raw_recording": true,
+    "the_recording_survived_the_stop": true,
+    "the_session_finalised_one_way_or_the_other": true
+  },
+  "expectations_failed": [],
+  "what_this_proves": [
+    "上位机侧：状态从 following 直接进 estop，last_error=estop，seq 停在 43（本轮 cycles_at_the_stop=0）；之后没有任何新命令发出。",
+    "车端侧：estop_latched=true、control.active 立刻 false（锁存的车不再算有效控制者）、臂流按自己的单调 TTL 过期（live=false）；锁存期间 control.teleop.last 一字节没变，clear 之后仍没变，也没有重新 live —— 即 清锁存不等于恢复运动。",
+    "锁存期间塞进去的那条机械臂命令被拒：409 mode: arm command requires scripted_expert or leader_arm mode —— 注意回答的是模式门禁，因为 agent 的 estop() 会把 control_mode 打回 idle；estop_latched 那道 409 本身在单测里覆盖，这条排练没有单独命中它，不写成命中。",
+    "急停不等待录包收尾：episode 照常结束、会话照常 raw_ready 且有 READY，事件包里 /lelab/events 共 41 条、其中 2 条含 estop（estop 与 estop_cleared），故障确实进了原始记录而不是只有页面文案。",
+    "数据没被毁：这一路只有一段 episode，evaluation.success=unknown（人工/未知），没有任何静默补标。"
+  ],
+  "witness_fixes_while_writing_this": {
+    "first_run_failed": "[\"the_stop_is_in_the_recorded_events\"]",
+    "why": "两处判据取错了观察点：① 用 events.jsonl 的 type/event 字段找急停事件（会话侧簿记的键其实是 kind，且急停/解除是发在 /lelab/events 话题上、只进原始包）；② 拿急停调用之前的 car last 当『锁存后没再施加』的基线，而急停生效前那一个在飞周期本来就会再施加一次",
+    "fix": "① 判据改成读原始包 bag_*.db3 的 /lelab/events 消息（含 estop 的条数），② 基线取状态降级那一刻的快照，再与观察窗末端比较"
+  },
+  "limits": [
+    "没有执行器：能证明网关不再接受命令、租约降级、锁存生效，不能证明真舵机停在何处，也不能证明 /lelab/estop 的 Bool 在车上让板卡做了什么",
+    "真机急停按钮（硬件回路）与 clear 的现场顺序、按钮有效性仍未验（§八.5 要求现场确认急停有效后才继续）",
+    "estop_latched 那道专用 409 在这条排练里被模式门禁先挡住，需真车或改单测断言才能单独命中"
+  ],
+  "cleanup": "排练 agent 按 marker 里的 pid SIGTERM 停掉，端口释放；三轮排练 session 全部保留（raw_ready），未删任何数据；只用我自己起的进程，无泛用 kill",
+  "test_runs": "tools 全量 273 passed, 5 subtests（本轮只加排练工具与文档，未改产品代码）"
+}

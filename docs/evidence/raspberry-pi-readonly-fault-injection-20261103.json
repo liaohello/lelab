@@ -1,0 +1,56 @@
+{
+  "recorded_utc": "2026-11-03T04:06:00+00:00",
+  "title": "树莓派实机故障注入补测：预览拥塞、磁盘门禁、agent pid 精确化",
+  "target": "pi@<private-ip> / MentorPi (ros:humble, host 网络) / 仅相机驱动 DEPTH_CAMERA_TYPE=aurora",
+  "context": "车于 2026-11-03 重启（uptime 16–21 min），MentorPi 因 restart=no 未自启；本次由上位机 docker start 容器并仅启动 depth_camera（aurora 分支），未运行含 init_pose 的 vendor bringup，全程无执行器输出。SSH 本轮密钥直连，但存在间歇抖动（Connection closed / ICMP 33–50% 丢包），重试后完成。",
+  "fix_verified_on_hardware": {
+    "agent_pid_file": {
+      "before": "readonly_agent.pid 记录的是包装 shell 的 pid（116952），--stop 杀不到 agent 本体",
+      "after": "run_readonly.sh 在 exec 前写自己的 $$，deploy 端不再 echo $!；实测 pidfile=19246 与 `python3 -m lelab_mobile_agent.agent` 同一进程",
+      "file": "tools/ros2_collection/deploy_readonly_agent.sh"
+    }
+  },
+  "preview_congestion_does_not_block_recording": {
+    "session_id": "ros_20261103T035331Z_9cfa28ac",
+    "inject": "录制中并发挂住 32 个慢读者 MJPEG 连接（每 0.5 s 只取 32 KB，制造 TCP 背压），持续 22 s，经 SSH 隧道访问车端 8110",
+    "clients_connected": 32,
+    "clients_errors": 0,
+    "bytes_read_by_clients": 779598,
+    "side_effect": "拥塞窗口内 GET /status 超时未返回（HTTP 线程被慢读者占用），说明预览面可被拖慢，但不影响录制",
+    "bag_result": {
+      "status": "raw_ready",
+      "ready_eligible": true,
+      "duration_s": 63.537,
+      "messages": 1874,
+      "/ascamera/camera_publisher/rgb0/image": {"count": 935, "observed_hz": 14.716},
+      "/ascamera/camera_publisher/rgb0/camera_info": {"count": 936, "observed_hz": 14.732},
+      "stream_gap_count": 0,
+      "episode": {"status": "saved", "end_reason": "operator_end"},
+      "manifest_sha256": "146c920c02941abd7ca5f218db16e80037f82769ca91f4a9863437806c6803f7"
+    },
+    "conclusion": "真机图像在 32 路慢预览拥塞下仍以 14.716 Hz 完整落 bag，零流缺口，READY 正常发布；此前该结论只有仿真证据。",
+    "discarded_first_attempt": "ros_20261102T15:53 之前一次同目的 session（ros_20261103T035201Z_fcfea3a8）因压测脚本未真正建立连接（held=0）而只算普通 session，不作为拥塞证据"
+  },
+  "disk_low_gate_on_car": {
+    "method": "把部署后的 profile 中 min_free_bytes 临时改为 999000000000（999 GB，大于整块 57 GB 盘），重启 agent 后尝试 start_session",
+    "free_space_at_test": "57G 总 / 7.9G 可用（86% 已用）",
+    "response": "{\"error\": \"RuntimeError\", \"detail\": \"disk_low\"}",
+    "artifacts": {
+      "session_dir": "ros_20261103T040256Z_36909fe4",
+      "contents": ["events.jsonl", "raw/ (空)", "episodes/ (空)"],
+      "session_json": "不存在",
+      "READY": "不存在",
+      "bag": "未创建",
+      "ui_effect": "上位机 session 列表把它显示为 invalid_session_json，不会被同步（sync 只接受 raw_ready + ready_eligible）"
+    },
+    "restored": "随后重新 --apply，min_free_bytes 回到 2147483648，agent health ok",
+    "known_nit": "门禁在创建 session 目录之后才判定，留下一个空壳目录；不影响 READY 语义，但可以在下次改为先判定再建目录"
+  },
+  "disk_usage_note": "本轮三个真机 session（含 63 s 拥塞 session）使车端占用从 45G 增至 47G，可用由 9.3G 降至 7.9G；640×400 bgr8 实测约 0.66 GB/min。建议尽快把已完成校验的 session 同步到上位机后清理车端，或改用外置介质。",
+  "not_yet_done": [
+    "车端 IMU/关节/odom 采集（需 vendor controller/servo 节点，本阶段不启动）",
+    "录制中途强制 kill bag 进程与时钟跳动的**车端**复现（目前证据来自本地演练与仿真）",
+    "UI 按钮级点击复跑同步/导出（本轮仍是后端函数 + DOM 状态验证）",
+    "disk_low 空壳目录的门禁顺序优化"
+  ]
+}

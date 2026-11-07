@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# bin/build - stage the vendor message package and build it inside Humble.
+# The vendor reference tree is mounted read-only; nothing here writes to it.
+set -euo pipefail
+source "$(cd "$(dirname "$0")/../lib" && pwd)/common.sh"
+
+STAGED="$WS/src/ros_robot_controller_msgs"
+MANIFEST="$EVIDENCE_DIR/vendor-msgs-manifest.json"
+TOOL_INSIDE="/repo${LROS_TOOL_DIR#"$REPO_ROOT"}/lib/stage_vendor.py"
+
+[ -d "$VENDOR_MSGS_SRC" ] || lros_die "vendor message tree not found: $VENDOR_MSGS_SRC"
+
+mkdir -p "$WS/src"
+lros_log "staging $VENDOR_MSGS_SRC -> $STAGED with a per-file manifest"
+humble_enter "python3 $TOOL_INSIDE --source /vendor --dest /out/ws/src/ros_robot_controller_msgs --manifest /out/evidence/vendor-msgs-manifest.json"
+
+lros_log "building ros_robot_controller_msgs with colcon (Humble, amd64)"
+humble_ros 'cd /out/ws && colcon --log-base /out/ws/log build --base-paths src \
+  --packages-select ros_robot_controller_msgs \
+  --install-base /out/ws/install --build-base /out/ws/build 2>&1 | tail -8'
+
+lros_log "verifying the generated interfaces are importable and described correctly"
+humble_ros 'ros2 interface show ros_robot_controller_msgs/msg/ServosPosition' | tee "$EVIDENCE_DIR/servos-position-interface.txt"
+humble_ros 'python3 - <<PY
+from ros_robot_controller_msgs.msg import ServoPosition, ServosPosition
+from ros_robot_controller_msgs.srv import GetBusServoState, GetPWMServoState
+import rclpy
+rclpy.init()
+node = rclpy.create_node("interface_probe")
+pub = node.create_publisher(ServosPosition, "/lelab_offline/probe/set_position", 1)
+message = ServosPosition(); message.duration = 0.1
+for servo_id in (1, 2, 3, 4, 5, 10):
+    item = ServoPosition(); item.id = servo_id; item.position = 500
+    message.position.append(item)
+pub.publish(message)
+print("MSG_IMPORT_OK fields=", sorted(message.get_fields_and_field_types()))
+print("SRV_IMPORT_OK", GetBusServoState.Request.get_fields_and_field_types())
+node.destroy_publisher(pub); node.destroy_node(); rclpy.shutdown()
+PY' | tee "$EVIDENCE_DIR/interface-probe.txt"
+
+lros_log "recording the installed runtime versions"
+humble_ros 'python3 -V; printenv ROS_DISTRO; ros2 pkg prefix rclpy; python3 -c "import rclpy, rosbag2_py; print(\"rosbag2_py:\", rosbag2_py.__file__)"' > "$EVIDENCE_DIR/runtime-versions.txt" 2>&1
+
+lros_log "build complete: install tree at $WS/install"

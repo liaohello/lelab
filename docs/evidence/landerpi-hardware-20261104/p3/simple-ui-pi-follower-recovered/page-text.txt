@@ -1,0 +1,55 @@
+LanderPi 设置
+
+按 LeRobot 的设备 → 标定 → 测试顺序完成真机配置
+
+执行输出关闭
+设备连接
+主臂、车端和相机
+2
+主臂标定
+复用 LeRobot 标定
+树莓派从臂
+六路位置与限位
+4
+配对预览
+无输出联动确认
+完整诊断与原始数据
+
+STEP 3 / 4
+
+树莓派从臂
+当前目标：树莓派上的 LanderPi 从臂
+
+控制板由 MentorPi 容器内唯一的 `ros_robot_controller` 持有； 关节为 ID 1–5 加夹爪 ID 10。这里不使用上位机枚举到的 SO-101 follower USB。
+
+joint1 / ID 1
+读取
+501
+raw
+0.18 s
+joint2 / ID 2
+读取
+724
+raw
+0.18 s
+joint3 / ID 3
+读取
+111
+raw
+0.18 s
+joint4 / ID 4
+读取
+96
+raw
+0.18 s
+joint5 / ID 5
+读取
+500
+raw
+0.18 s
+r_joint / ID 10
+读取
+150
+raw
+0.18 s
+当前从臂标定边界

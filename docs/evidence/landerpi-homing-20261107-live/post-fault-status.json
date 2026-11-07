@@ -1,0 +1,250 @@
+{
+  "state": "disconnected",
+  "session_id": null,
+  "outputs_enabled": false,
+  "last_error": "release_failed:HardwareCompositionError:car_http_403:control_token: missing or invalid control token",
+  "feedback_valid": true,
+  "raw": {
+    "joint1": 526,
+    "joint2": 573,
+    "joint3": 103,
+    "joint4": 117,
+    "joint5": 906,
+    "r_joint": 457
+  },
+  "homing": {
+    "state": "fault",
+    "generation": 3,
+    "scope": "full_pose",
+    "session_id": "8e7ab56b4eaa4f7b94e7a3c4417ec0ed",
+    "session_epoch": 1976830849468388,
+    "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+    "targets_raw": {
+      "joint1": 500,
+      "joint2": 500,
+      "joint3": 500,
+      "joint4": 500,
+      "joint5": 500,
+      "r_joint": 350
+    },
+    "tolerance_raw": 2,
+    "max_step_raw": 14,
+    "current_joint": null,
+    "observed_raw": {
+      "joint1": 526,
+      "joint2": 573,
+      "joint3": 103,
+      "joint4": 117,
+      "joint5": 906,
+      "r_joint": 457
+    },
+    "step_target_raw": 512,
+    "remaining_raw": -26,
+    "progress_pct": 0.0,
+    "feedback_age_s": 0.16592710000827537,
+    "feedback_sample_seq": 1404,
+    "feedback_publisher_instance": 877237543,
+    "feedback_publisher_generation": 0,
+    "outputs_enabled": false,
+    "started_mono_ns": 414104754285527,
+    "updated_mono_ns": 414106630415011,
+    "last_error": "home_worker_failed:HardwareCompositionError:homing_frame_refused:channel_refused:arm: ValueError: licence_arm_not_permitted",
+    "only_joint": null,
+    "torque": {
+      "state": "verified",
+      "enabled": true,
+      "results": {
+        "1": {
+          "enable_torque": 1,
+          "position": 526,
+          "reason": null,
+          "requested": true,
+          "servo_id": 1,
+          "state": "verified",
+          "verified": true
+        },
+        "2": {
+          "enable_torque": 1,
+          "position": 573,
+          "reason": null,
+          "requested": true,
+          "servo_id": 2,
+          "state": "verified",
+          "verified": true
+        },
+        "3": {
+          "enable_torque": 1,
+          "position": 103,
+          "reason": null,
+          "requested": true,
+          "servo_id": 3,
+          "state": "verified",
+          "verified": true
+        },
+        "4": {
+          "enable_torque": 1,
+          "position": 117,
+          "reason": null,
+          "requested": true,
+          "servo_id": 4,
+          "state": "verified",
+          "verified": true
+        },
+        "5": {
+          "enable_torque": 1,
+          "position": 906,
+          "reason": null,
+          "requested": true,
+          "servo_id": 5,
+          "state": "verified",
+          "verified": true
+        },
+        "10": {
+          "enable_torque": 1,
+          "position": 457,
+          "reason": null,
+          "requested": true,
+          "servo_id": 10,
+          "state": "verified",
+          "verified": true
+        }
+      },
+      "error": null
+    }
+  },
+  "frame_process": {
+    "data_identity": "hardware",
+    "configured_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+    "trial_motion": null,
+    "trial_first_frame_pending": false,
+    "homing_motion": {
+      "axis_order": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "r_joint"
+      ],
+      "enable_torque": true,
+      "first_frame_tolerance_raw": 20,
+      "locked_tolerance_raw": 2,
+      "max_step_raw": 20,
+      "targets_raw": {
+        "joint1": 500,
+        "joint2": 500,
+        "joint3": 500,
+        "joint4": 500,
+        "joint5": 500,
+        "r_joint": 350
+      },
+      "tolerance_raw": 2
+    },
+    "homing_first_frame_pending": true,
+    "homing_active_joint": null,
+    "homing_last_target_raw": null,
+    "publisher_subscriptions": 1,
+    "homing_torque_enabled": true,
+    "homing_torque_state": "verified",
+    "homing_torque_results": {
+      "1": {
+        "enable_torque": 1,
+        "position": 526,
+        "reason": null,
+        "requested": true,
+        "servo_id": 1,
+        "state": "verified",
+        "verified": true
+      },
+      "2": {
+        "enable_torque": 1,
+        "position": 573,
+        "reason": null,
+        "requested": true,
+        "servo_id": 2,
+        "state": "verified",
+        "verified": true
+      },
+      "3": {
+        "enable_torque": 1,
+        "position": 103,
+        "reason": null,
+        "requested": true,
+        "servo_id": 3,
+        "state": "verified",
+        "verified": true
+      },
+      "4": {
+        "enable_torque": 1,
+        "position": 117,
+        "reason": null,
+        "requested": true,
+        "servo_id": 4,
+        "state": "verified",
+        "verified": true
+      },
+      "5": {
+        "enable_torque": 1,
+        "position": 906,
+        "reason": null,
+        "requested": true,
+        "servo_id": 5,
+        "state": "verified",
+        "verified": true
+      },
+      "10": {
+        "enable_torque": 1,
+        "position": 457,
+        "reason": null,
+        "requested": true,
+        "servo_id": 10,
+        "state": "verified",
+        "verified": true
+      }
+    },
+    "homing_torque_error": null,
+    "torque_publish_count": 6,
+    "torque_servo_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      10
+    ],
+    "ticks": 3350,
+    "publish_count": 0,
+    "effective_emit_hz": 0.0,
+    "emit_intervals": {
+      "count": 0,
+      "max_ms": null,
+      "p50_ms": null,
+      "p95_ms": null,
+      "p99_ms": null
+    },
+    "frames_received": 1,
+    "frames_emitted": 0,
+    "frames_refused": 1,
+    "last_refusal": {
+      "frame_seq": "1",
+      "reason": "channel_refused"
+    },
+    "paused": true,
+    "outputs_enabled": false,
+    "latched_fault": null,
+    "reengage_required": false,
+    "last_clear": null,
+    "queue_depth": 0,
+    "context": {
+      "session_id": null,
+      "session_epoch": null,
+      "episode_id": null,
+      "phase": null,
+      "clock_epoch": null,
+      "calibration_bundle_hash": null,
+      "context_seq": null,
+      "agent_boot": null
+    },
+    "age_s": 0.4505716735052374
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "licence": {
+    "authorised": true,
+    "counters": {
+      "context_expired": 0,
+      "contexts": 0,
+      "eof": 0,
+      "expired": 0,
+      "received": 1547,
+      "refreshed": 1540,
+      "refused": 0,
+      "replaced": 5,
+      "revoked": 1
+    },
+    "last_error": null,
+    "licence": {
+      "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+      "control_generation": 7,
+      "deadline_ns": 3083132594077,
+      "outputs_enabled": false,
+      "permits": {
+        "arm": true,
+        "base": false,
+        "gripper": true
+      },
+      "received_ns": 3082832594077,
+      "schema_version": 1,
+      "session_epoch": 4323756389300251,
+      "session_id": "77fd7aecebd84144ab5ed9a5eb55eef7",
+      "token_sha256": "<redacted-token-hash>",
+      "ttl_ms": 300,
+      "type": "licence"
+    },
+    "pending_clear": null,
+    "recording_context": null,
+    "revoked_reason": null
+  },
+  "outputs_enabled": false,
+  "paused": true
+}

@@ -1,0 +1,9 @@
+{
+  "url": "http://127.0.0.1:18286/ros-mobile",
+  "title": "LeLab",
+  "screenshot": "docs/evidence/landerpi-hardware-20261104/p3/browser/hardware-no-output-preview.png",
+  "browser_errors": [],
+  "has_real_feedback": false,
+  "has_leader_blocker": true,
+  "has_no_output": true
+}

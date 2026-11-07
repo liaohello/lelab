@@ -1,0 +1,272 @@
+{
+  "agent_url": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "failures": [
+    {
+      "error": "complete",
+      "stage": "homing_complete"
+    }
+  ],
+  "frame_port": 18123,
+  "hardware_effect": "simulated_only",
+  "phases": {
+    "preflight": {
+      "control_active": false,
+      "data_source": "simulated",
+      "feedback_available": false,
+      "feedback_reason": "invalid_or_untrusted_feedback",
+      "ok": true,
+      "oldest_age_s": 0.15416655800072476,
+      "outputs_enabled": false,
+      "process_age_s": 0.09567837161011994,
+      "publisher_generation": 0,
+      "publisher_instance": 1457572673,
+      "samples": 6,
+      "simulated": true,
+      "torque_publish_count": 0,
+      "torque_state": "idle"
+    },
+    "session": {
+      "bundle_matches_rig": true,
+      "ok": true,
+      "session_epoch": 2653769590224509,
+      "session_id": "8656e5276c9442dc9f2be5371a3fbc89"
+    }
+  },
+  "simulated": true,
+  "status": "failed",
+  "timeline": [
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.053656780044548213,
+      "feedback_sample_seq": 39,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 527,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 513,
+      "t": 410822.441,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.1639213350135833,
+      "feedback_sample_seq": 47,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 527,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 513,
+      "t": 410822.546,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.07274180802050978,
+      "feedback_sample_seq": 48,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 521,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 513,
+      "t": 410822.654,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.18931911810068414,
+      "feedback_sample_seq": 48,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 521,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 513,
+      "t": 410822.76,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.09933144802926108,
+      "feedback_sample_seq": 49,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 517,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 513,
+      "t": 410822.866,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.15385420696111396,
+      "feedback_sample_seq": 49,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 517,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 503,
+      "t": 410822.972,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.11938658996950835,
+      "feedback_sample_seq": 50,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 511,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 503,
+      "t": 410823.078,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.028830375988036394,
+      "feedback_sample_seq": 51,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 507,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 503,
+      "t": 410823.184,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.14016708603594452,
+      "feedback_sample_seq": 51,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 507,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 500,
+      "t": 410823.289,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.05274957499932498,
+      "feedback_sample_seq": 52,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 505,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 500,
+      "t": 410823.397,
+      "torque_state": "verified"
+    },
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.16114911797922105,
+      "feedback_sample_seq": 52,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 505,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1457572673,
+      "state": "ready",
+      "step_target_raw": 500,
+      "t": 410823.507,
+      "torque_state": "verified"
+    }
+  ],
+  "training_eligible": false
+}

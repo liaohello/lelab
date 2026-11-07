@@ -1,0 +1,45 @@
+{
+  "url": "http://127.0.0.1:18286/landerpi/teleop",
+  "checks": [
+    {
+      "name": "teleop_console_title",
+      "ok": true
+    },
+    {
+      "name": "session_acquired",
+      "ok": true
+    },
+    {
+      "name": "five_mapped_joint_cards",
+      "ok": true
+    },
+    {
+      "name": "execution_output_off",
+      "ok": true
+    },
+    {
+      "name": "leader_online",
+      "ok": true
+    },
+    {
+      "name": "mapping_bound",
+      "ok": true
+    },
+    {
+      "name": "stable_mjpeg_not_snapshot_flash",
+      "ok": true
+    }
+  ],
+  "browser_errors": [],
+  "passed": true,
+  "body_excerpt": "硬件控制锁：\nhybrid_teleoperation\nLinux x86_64-91dfe3e2 · 剩余 52s\n紧急停止\nLanderPi 主从遥操作\n\nSO-101 主臂 → 树莓派从臂 · 当前为无输出联动控制台\n\n主臂 在线\n从臂 六路反馈\n相机 实时\n执行输出关闭\n腕部相机 · 0.02 s\n无执行输出\n六路反馈同步跨度 0.046 s · 相机帧序号 10022\n\nSESSION\n\nestop\n\n租约已持有\n获取主从控制权\n无输出预览\n记录对齐\n暂停\n急停\n释放会话\n\n预览模式固定关闭执行输出\n\n主臂移动只更新映射目标，从臂舵机不会收到动作。先检查方向和误差，再进入单独的输出使能阶段。\n\n底盘\n锁定\n映射身份\nlanderpi-so101-mapping-v1\n主臂 → 从臂联动\n\n相对映射，从当前实测位置建立参考；预览目标不会发送到舵机。\n\n对齐参考已采集\n\njoint1\n\n底座旋转\n\n跟随误差 0.000 rad\n\n主臂\n\n-0.057\n\nrad\n\n预览目标\n\n0.130\n\nrad，未下发\n\n从臂实测\n\n0.130\n\n真实反馈\n\njoint2\n\n肩部\n\n跟随误差 0.000 rad\n\n主臂\n\n-1.833\n\nrad\n\n预览目标\n\n0.021\n\nrad，未下发\n\n从臂实测\n\n0.021\n\n真实反馈\n\njoint3\n\n肘部\n\n跟随误差 0.000 rad\n\n主臂\n\n1.712\n\nrad\n\n预览目标\n\n0.092\n\nrad，未下发\n\n从臂实测\n\n0.092\n\n真实反馈\n\njoint4\n\n腕俯仰\n\n跟随误差 0.000 rad\n\n主臂\n\n0.957\n\nrad\n\n预览目标\n\n-1.462\n\nrad，未下发\n\n从臂实测\n\n-1.462\n\n真实反馈\n\njoint5\n\n腕旋转\n\n跟随误差 0.000 rad\n\n主臂\n\n0.015\n\nrad\n\n预览目标\n\n1.583\n\nrad，未下发\n\n从臂实测\n\n1.583\n\n真实反馈\n\n主臂夹爪\n\n2.5%\n\n映射目标\n\n492 raw\n\n从臂实测\n\n492 raw\n\nA · SO-101 主臂\n已绑定\n\nso101-leader-5B90149652\n\nB · LanderPi 从臂\n已绑定\n\nlanderpi-follower-v1\n\nC · 主从映射\n已绑定\n\nlanderpi-so101-mapping-v1\n\n当前页面仅执行无输出预览。输出使能、底盘解锁和真实跟随需要单独安全验收。",
+  "state": {
+    "session": true,
+    "joints": true,
+    "output": true,
+    "motion": true,
+    "leader": true,
+    "mapping": true,
+    "mjpeg": true
+  }
+}

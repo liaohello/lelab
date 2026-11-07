@@ -1,0 +1,84 @@
+{
+  "title": "SO-101 主臂标定复用与身份绑定（上位机，无硬件）",
+  "date_utc": "2026-11-03T12:08Z",
+  "branch": "codex/ros2-mobile-collection",
+  "requirement": "四 A『复用现有设备识别和标定逻辑』与二『复用本地 SO101Leader 与已有标定基础』；同时满足用户顺序要求『不允许设备映射不确定时接合』",
+  "actions_performed": "只在上位机：无串口、无车端流量、无运动指令、不写 LeRobot 标定树。",
+  "gap_found": {
+    "summary": "A 层原本只检查 lerobot_calibration 五个字段是否齐全，从不检查这份标定属于哪台臂；操作员还得把 6 个电机 × 5 个字段手抄进网页。",
+    "why_it_matters": "用右主臂的标定打开左主臂，字段齐全、读数连续、年龄正常，但度数是错的——防跳变状态机与映射层拿不到任何信号，接合后手臂会跟着一个看着合理的错参考走。这正是『设备映射不确定不许接合』要在 A 层挡住的 case。",
+    "second_finding": "本机配置根 ~/.cache/huggingface/lerobot/calibration/teleoperators/so_leader 是空目录；四台已标定主臂实际在 ~/.local/share/lelab-jetson-20261031/approot/hf/calibration/teleoperators/so_leader/{left_rig,right_rig}.json（HF_LEROBOT_CALIBRATION 决定）。若服务进程的 env 不指对，页面列不出任何现有标定，操作员只能手抄。"
+  },
+  "implementation": {
+    "read_only_discovery": "app_ros_mobile/lelab/mobile_leader_reader.py::list_leader_calibrations —— 枚举 teleoperators/<robot_type>/*.json，返回 root/exists/entries（robot_type、name、path、bytes、sha256、motors(id)、missing_motors、incomplete_motors、usable），只有 usable 的条目才带 calibration 原文；不可解析记 unparsable:<类型>，非映射记 not_a_mapping，目录不存在返回 exists=false 而不是抛异常。全程只 read_bytes。",
+    "identity_binding_guard": "app_ros_mobile/lelab/mobile_leader_reader.py::calibration_id_mismatches —— 逐电机比对标定 id 与总线要轮询的 id，点名 shoulder_pan:calibration_id=7!=bus_id=1 / wrist_roll:no_id / extra_motor:unexpected_motor_in_calibration；无标定返回 leader_calibration_missing。",
+    "coordinator": "mobile_teleop_coordinator.open_leader 在建总线之前先取 A 层 calibration 并比对 cfg.ids，任何不一致 → BridgeError(409, leader_calibration_does_not_match_this_arm: …)，且不创建 reader、不产生任何串口流量。",
+    "http": "GET /ros-mobile/teleop/leader-calibrations（只读，无需令牌，与 /teleop/devices 同级）。",
+    "web": "MobileTeleopPanel A 层新增『列出现有主臂标定』：显示读取目录、每个文件的 usable/缺哪个电机/字段不全的是谁、sha256 与电机 id 序列；『填入』把 calibration 原文与来源路径写进草稿并提示仍需人工确认这台就是现在接上的主臂；列表为空时页面直接说明是没标定过还是 HF_LEROBOT_CALIBRATION 指错。"
+  },
+  "real_file_probe": {
+    "note": "对本机真实标定文件做只读探针（不改写），确认发现逻辑吃的是 lerobot 实际产出的形状",
+    "root": "/home/liaozhengyan/.local/share/lelab-jetson-20261031/approot/hf/calibration/teleoperators",
+    "entries": [
+      {
+        "robot_type": "so_leader",
+        "name": "left_rig",
+        "usable": true,
+        "sha256_16": "a3c121c5a9c7c062",
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      {
+        "robot_type": "so_leader",
+        "name": "right_rig",
+        "usable": true,
+        "sha256_16": "4f4d27036eb3d945",
+        "ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      }
+    ],
+    "mismatch_probe": {
+      "right_rig_vs_default_bus_ids": [],
+      "gripper_id_changed_to_2": [
+        "gripper:calibration_id=2!=bus_id=6"
+      ],
+      "calibration_none": [
+        "leader_calibration_missing"
+      ]
+    }
+  },
+  "tests": {
+    "tools_ros2_collection_tests": "212 passed（原 203 + 9）",
+    "new": [
+      "test_mobile_leader_reader.py::LeaderCalibrationReuseTests 6 项：lerobot 真实形状可被发现并带回原文 / 缺夹爪或缺字段与不可解析与非映射都被标不可用且不给 calibration / 目录不存在不抛异常 / 连查两次标定树字节与 mtime 逐字不变（只读取证）/ id 一致通过且单个换 id 被点名 / 缺电机与多余电机与 None 各自被点名",
+      "test_mobile_teleop_coordinator.py::LeaderCalibrationBindingTests 3 项：别的臂的 id → 409 且点名 shoulder_pan 与 bus_id=1 且不创建 reader / A 层没标定 → 409 leader_calibration_missing 且不碰串口 / id 一致 → build_bus 收到的 calibration 与 A 层存的逐字相同（证明是复用不是重算）",
+      "test_ros_mobile_teleop_routes.py::test_leader_calibrations_route_reuses_the_existing_so101_wizard_files 1 项：路由读真实标定树、usable 条目带原文、partial 条目不给原文且文件仍逐字未变"
+    ],
+    "app_teleop_five_files": "33 passed（原 32 + 1 条路由用例）",
+    "app_wide_subset": "116 passed, 416 deselected",
+    "frontend": "npx tsc --noEmit 干净；npm run build 通过（2.12 s）",
+    "mutation_check": "临时把协调器的守卫分支换成 mismatch = []（等价于删掉拒绝路径）→ 两项拒绝用例立刻变红（409 与 leader_calibration_missing），正向复用用例仍绿说明它钉的是『一致时照常工作』而不是跟着一起红；随后从 /tmp/coord.bindbackup.py 还原，sha256 d92b15eaa1cf017176b0dffa28ef837f3945a868ea6df92d1b058464e70f224e 与备份逐字一致，git diff 只剩预期的 +10/-2，tools 212 passed 复现。",
+    "app_full_suite": "531 passed / 1 failed in 676.00s（日志 /tmp/lelab_full_app_suite5.log）；唯一失败是 HEAD 既有的 test_remote_inference 相机参数断言漂移，与本轮无关"
+  },
+  "not_verified": [
+    "真主臂插入后页面里的 by-id 序列与这台文件是否真是同一台臂——仍要操作员肉眼确认物理归属（本改动只保证『标定与总线 id 一致』，不能证明『这台物理臂就是这个 rig 名』）。",
+    "左/右 rig 名与实际串口 by-id 的对应关系尚未在本轮重新取证（2026-11-02 的四臂记录在另一条 memory 里，上车时要重核）。",
+    "页面按钮的真实点击（八.8）仍需主臂在场。"
+  ],
+  "commits_local_not_pushed": [
+    "4033bf6 feat(ros-mobile): reuse existing SO-101 calibrations and refuse the wrong arm's",
+    "37bf4ec docs(ros2-collection): record the layer-A calibration reuse and arm binding"
+  ]
+}

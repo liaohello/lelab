@@ -1,0 +1,321 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "meaning_of_stopped": "software admission and emission stopped; not a physical stop",
+  "cases": [
+    {
+      "name": "lease_expiry_cleanup",
+      "intent": "an expired control lease revokes the frame permission and the old identity on its own, with no legacy publisher present and no status call doing the cleanup",
+      "before": {
+        "agent_control_active": true,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 29.68,
+        "agent_frame_outputs_enabled": true,
+        "agent_frame_stream_connected": false,
+        "bridge_frame_process_age_s": 0.011170235346071422,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": null,
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 0,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 616010510011750
+      },
+      "after": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 0.0,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": false,
+        "bridge_frame_process_age_s": 0.4625398962525651,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": true,
+        "process_latched_fault": null,
+        "process_reengage_required": false,
+        "process_outputs_enabled": true,
+        "process_emitted": 295,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 616010510011750
+      },
+      "identity_dropped_after_s": null
+    },
+    {
+      "name": "estop_car_latch",
+      "intent": "an explicit stop must latch the agent's authority and the control process's emitter, without waiting for the recorder",
+      "before": {
+        "agent_control_active": true,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 29.41,
+        "agent_frame_outputs_enabled": true,
+        "agent_frame_stream_connected": true,
+        "bridge_frame_process_age_s": 0.11304836871568114,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": true,
+        "process_latched_fault": null,
+        "process_reengage_required": false,
+        "process_outputs_enabled": true,
+        "process_emitted": 296,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 1582388312657022
+      },
+      "after": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": true,
+        "agent_lease_expires_in_s": 29.41,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": true,
+        "bridge_frame_process_age_s": 0.002231628866866231,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": "estop",
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 296,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 1582388312657022
+      },
+      "timings_s": {
+        "local_stopped": 0.597,
+        "estop_returned": 0.6,
+        "car_confirmed_or_timed_out": 0.601
+      }
+    },
+    {
+      "name": "clear_then_new_session",
+      "intent": "clearing grants recovery only: the session must leave estop, the old session be released, and a new session reach preview without motion",
+      "state_at_case_start": "estop",
+      "state_after_estop": "estop",
+      "state_after_clear": "fault",
+      "clear_raised": null,
+      "car_right_after_clear": {
+        "agent_control_active": true,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 29.4,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": true,
+        "bridge_frame_process_age_s": 0.012595150852575898,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": "estop",
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 296,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 1582388312657022
+      },
+      "release_raised": null,
+      "reacquire_raised": null,
+      "car_after_reacquire": {
+        "agent_control_active": true,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 29.53,
+        "agent_frame_outputs_enabled": true,
+        "agent_frame_stream_connected": false,
+        "bridge_frame_process_age_s": 0.010463067214004695,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": null,
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 296,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 4133582318242574
+      }
+    }
+  ],
+  "checks": [
+    {
+      "case": "lease_expiry_cleanup",
+      "name": "car_lease_expired",
+      "ok": true,
+      "detail": {
+        "expires_in_s": 0.0,
+        "active": false
+      }
+    },
+    {
+      "case": "lease_expiry_cleanup",
+      "name": "frame_permission_dropped_with_the_lease",
+      "ok": true,
+      "detail": {
+        "agent_frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "detail": "the agent mirror still advertises outputs the emitter will not do"
+      }
+    },
+    {
+      "case": "lease_expiry_cleanup",
+      "name": "old_identity_dropped",
+      "ok": false,
+      "detail": {
+        "agent_client_id": "safety-repro"
+      }
+    },
+    {
+      "case": "lease_expiry_cleanup",
+      "name": "no_queued_targets_survive",
+      "ok": true,
+      "detail": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 0.0,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": false,
+        "bridge_frame_process_age_s": 0.41573902702657506,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": null,
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 296,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 616010510011750
+      }
+    },
+    {
+      "case": "estop_car_latch",
+      "name": "following_before_the_stop",
+      "ok": true,
+      "detail": {
+        "arm": "following",
+        "active": true
+      }
+    },
+    {
+      "case": "estop_car_latch",
+      "name": "agent_latches_the_estop",
+      "ok": true,
+      "detail": {
+        "agent_estop_latched": true,
+        "agent_frame_outputs_enabled": false,
+        "waited_to_s": 0.601
+      }
+    },
+    {
+      "case": "estop_car_latch",
+      "name": "control_process_latches_the_estop",
+      "ok": true,
+      "detail": {
+        "process_latched_fault": "estop",
+        "process_outputs_enabled": false
+      }
+    },
+    {
+      "case": "estop_car_latch",
+      "name": "car_stops_emitting",
+      "ok": true,
+      "detail": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": true,
+        "agent_lease_expires_in_s": 29.41,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": true,
+        "bridge_frame_process_age_s": 0.002231628866866231,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": "estop",
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 296,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 1582388312657022
+      }
+    },
+    {
+      "case": "estop_car_latch",
+      "name": "stop_reported_as_stop_not_lease_loss",
+      "ok": true,
+      "detail": {
+        "last_error": null
+      }
+    },
+    {
+      "case": "clear_then_new_session",
+      "name": "clear_leaves_the_estop_state",
+      "ok": true,
+      "detail": {
+        "state_after_estop": "estop",
+        "state_after_clear": "fault",
+        "raised": null,
+        "estop_requested": false,
+        "estop_latched": false,
+        "detail": "_refresh re-forces estop from _estop_requested, which the clear branch never resets"
+      }
+    },
+    {
+      "case": "clear_then_new_session",
+      "name": "clearing_grants_no_motion",
+      "ok": true,
+      "detail": {
+        "arm": "idle",
+        "state": "fault",
+        "agent_frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "detail": "clearing may allow recovery, never movement"
+      }
+    },
+    {
+      "case": "clear_then_new_session",
+      "name": "a_new_session_can_be_taken_after_a_clear",
+      "ok": true,
+      "detail": {
+        "reacquire_raised": null,
+        "release_raised": null,
+        "state": "ready",
+        "agent_estop_latched": false,
+        "detail": "the upper facade refuses acquire on its own estop flag while the agent never latched one, so neither side can be cleared"
+      }
+    },
+    {
+      "case": "clear_then_new_session",
+      "name": "new_session_reaches_following_only_by_expense_of_engage",
+      "ok": true,
+      "detail": {
+        "arm": "following",
+        "emitter_enabled_after_s": 0.405,
+        "process_outputs_enabled": true,
+        "state": "ready"
+      }
+    }
+  ],
+  "clear_estop_note": "HardwareCompositionError:car_http_403:control_token: missing or invalid control token",
+  "car_after_repro": {
+    "agent_control_active": false,
+    "agent_client_id": null,
+    "agent_estop_latched": false,
+    "agent_lease_expires_in_s": 0.0,
+    "agent_frame_outputs_enabled": false,
+    "agent_frame_stream_connected": false,
+    "bridge_frame_process_age_s": 0.020189061120618135,
+    "bridge_queue_depth": 0,
+    "bridge_process_outputs": true,
+    "process_latched_fault": null,
+    "process_reengage_required": false,
+    "process_outputs_enabled": true,
+    "process_emitted": 300,
+    "process_refused": 0,
+    "process_queue_depth": 0,
+    "process_stream_epoch": 4133582318242574
+  },
+  "failed": [
+    "old_identity_dropped"
+  ]
+}

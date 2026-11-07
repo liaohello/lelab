@@ -1,0 +1,34 @@
+{
+  "agent_url": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "failures": [
+    {
+      "error": "bundle_mismatch:facade=3d049a5448f38976c9233d9b859cc0be557ce227916873650002ac44b11a2dda rig=43f633c1aa5a6425eea6b72325da83138688a19f3e068f2b90e5bdcd23724b64",
+      "stage": "session"
+    }
+  ],
+  "frame_port": 18123,
+  "hardware_effect": "simulated_only",
+  "phases": {
+    "preflight": {
+      "control_active": false,
+      "data_source": "simulated",
+      "feedback_available": false,
+      "feedback_reason": "invalid_or_untrusted_feedback",
+      "ok": true,
+      "oldest_age_s": 0.13030657800845802,
+      "outputs_enabled": false,
+      "process_age_s": 0.08185583062004298,
+      "publisher_generation": 0,
+      "publisher_instance": 665932391,
+      "samples": 6,
+      "simulated": true,
+      "torque_publish_count": 0,
+      "torque_state": "idle"
+    }
+  },
+  "simulated": true,
+  "status": "failed",
+  "timeline": [],
+  "training_eligible": false
+}

@@ -1,0 +1,310 @@
+{
+  "command_event": {
+    "channels": [
+      "base",
+      "arm",
+      "gripper"
+    ],
+    "missing_confirmation": "unavailable",
+    "protocol_version": 1,
+    "required_fields": [
+      "session_id",
+      "session_epoch",
+      "source",
+      "seq",
+      "ttl_ms",
+      "calibration_bundle_hash"
+    ],
+    "ttl_source": "accepted command or effective local command limit"
+  },
+  "features": {
+    "action": {
+      "leader_reading_is_not_action": true,
+      "names": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "r_joint"
+      ],
+      "source": "simulated_gateway_sent_target_after_clamp",
+      "units": [
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad"
+      ]
+    },
+    "fps": 14.0,
+    "image": {
+      "frame": "rgb_camera_link",
+      "name": "observation.images.wrist_simulated",
+      "topic": "/ascamera/camera_publisher/rgb0/image"
+    },
+    "state": {
+      "base_topic": null,
+      "joint_topic": "/ros_robot_controller/bus_servo/get_state",
+      "names": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "r_joint"
+      ],
+      "source": "simulated_servo_position_readback",
+      "units": [
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad"
+      ]
+    }
+  },
+  "feedback_provenance": {
+    "missing_policy": "explicitly_untrusted",
+    "required_for_9d_export": true,
+    "source": "adapter.capabilities+adapter.read_snapshot"
+  },
+  "follower_feedback": {
+    "command_topic": "/lelab_offline/ros_robot_controller/bus_servo/set_position",
+    "enabled": true,
+    "joint_states_topic": "/controller_manager/joint_states",
+    "joints": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5",
+      "r_joint"
+    ],
+    "max_scan_span_s": 0.5,
+    "scan_period_s": 0.2,
+    "servo_ids": {
+      "joint1": 1,
+      "joint2": 2,
+      "joint3": 3,
+      "joint4": 4,
+      "joint5": 5,
+      "r_joint": 10
+    },
+    "servo_pulses_service": "/ros_robot_controller/bus_servo/get_state",
+    "servo_readback_topic": "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+    "source_of_truth": "ros_robot_controller/servo_readback",
+    "stale_after_s": 0.5
+  },
+  "limits": {
+    "arm_command_ttl_s": 0.6,
+    "base_command_ttl_s": 0.3,
+    "base_vx_mps": 0.0,
+    "base_vy_mps": 0.0,
+    "base_wz_radps": 0.0,
+    "joint_positions_rad": {
+      "joint1": [
+        -2.052507,
+        2.086018
+      ],
+      "joint2": [
+        -2.052507,
+        1.931032
+      ],
+      "joint3": [
+        -2.094395,
+        2.052507
+      ],
+      "joint4": [
+        -1.675516,
+        2.010619
+      ],
+      "joint5": [
+        -1.759292,
+        1.717404
+      ],
+      "r_joint": [
+        -2.09,
+        2.09
+      ]
+    },
+    "max_trajectory_duration_s": 2.0
+  },
+  "modes": {
+    "channel_sources": {
+      "arm": "so101_leader",
+      "base": "gamepad",
+      "gripper": "so101_leader"
+    },
+    "exclusive": true,
+    "initial": "idle",
+    "manual_hybrid_available": false
+  },
+  "offline_only": true,
+  "offline_validation": {
+    "data_source": "simulated_offline",
+    "hardware_available": false,
+    "identity": "fixture:landerpi:offline-no-hardware:homing",
+    "profile": "hardware_hybrid_homing_v1_offline",
+    "simulated": true,
+    "training_export": {
+      "enabled": false,
+      "reason": "use the separate hybrid_manual_sim_v1 profile"
+    }
+  },
+  "profile": "hardware_hybrid_homing_v1_offline",
+  "recording": {
+    "clock_domain": "car_system_time",
+    "configuration_status": "offline_humble_simulated_board_homing_profile",
+    "data_identity": "simulated_offline",
+    "event_topic": "/lelab/events",
+    "feedback_provenance_required": true,
+    "min_free_bytes": 2147483648,
+    "raw_storage": "sqlite3",
+    "required_topics": [
+      "/lelab_offline/ascamera/camera_publisher/rgb0/image",
+      "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info",
+      "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+      "/lelab_offline/recording/teleop"
+    ],
+    "servo_readback_topic": "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+    "stream_stale_s": 1.5,
+    "topics": [
+      "/lelab_offline/ascamera/camera_publisher/rgb0/image",
+      "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info",
+      "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+      "/lelab_offline/recording/teleop",
+      "/lelab_offline/ros_robot_controller/bus_servo/set_position",
+      "/controller_manager/joint_states"
+    ],
+    "training_eligible": false
+  },
+  "robot": {
+    "arm_joints": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5"
+    ],
+    "base_frame": null,
+    "gripper_master_joint": "r_joint",
+    "model": "landerpi",
+    "wrist_camera_frame": "rgb_camera_link"
+  },
+  "runtime": {
+    "actuator_outputs": true,
+    "adapter": "ros2_sensor_gateway_arm_only",
+    "base_velocity_topic": null,
+    "camera_profile_default": "wrist_original",
+    "clock_domain": "car_system_time",
+    "control_clock_domain": "car_process_monotonic",
+    "data_source": "simulated",
+    "export_schema": "arm_gripper_6dof_phase1",
+    "feedback_provenance": {
+      "base_estimate_has_covariance": false,
+      "base_source_kind": "locked_no_base_motion",
+      "base_topic": null,
+      "calibration_bundle_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "joint_source_kind": "synthetic",
+      "joint_topic": "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+      "max_state_age_s": 0.5,
+      "scan_span_ms": 200.0
+    },
+    "firmware_capability": "unknown",
+    "joint_record_hz": 0,
+    "joint_state_topic": null,
+    "mode": "offline_humble_simulated_board",
+    "output_transport": "frame_stream",
+    "record_joint_state_topic": "/controller_manager/joint_states",
+    "simulated": true,
+    "task_truth": false,
+    "wheel_odom_topic": null
+  },
+  "safety": {
+    "command_cache_is_measured": false,
+    "default_base_locked": true,
+    "firmware_watchdog_verified": false,
+    "grasp_base_locked": true,
+    "requires_calibration_bundle": true,
+    "trial_scope": "offline staged single-axis raw-pose homing; simulated board only",
+    "trusted_follower_source": "servo_position_readback"
+  },
+  "schema_version": 1,
+  "sensors": {
+    "wrist_rgb": {
+      "camera_info_topic": "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info",
+      "capture_height": 400,
+      "capture_width": 640,
+      "extrinsics": "unverified_real_mount",
+      "mount_chain": null,
+      "optical_frame": "rgb_camera_link",
+      "profile_id": "wrist_original",
+      "qos": "sensor_data",
+      "required": true,
+      "rgb_topic": "/lelab_offline/ascamera/camera_publisher/rgb0/image",
+      "stale_after_s": 1.5
+    }
+  },
+  "task": {
+    "id": "mobile_arm_gripper_teleop",
+    "labels": "manual_or_unknown",
+    "language": "Teleoperate the car arm and gripper from an SO-101 leader; the chassis stays locked.",
+    "success": "unknown"
+  },
+  "teleop": {
+    "chassis_locked": true,
+    "command_ttl_s": 0.6,
+    "control_hz_max": 20.0,
+    "enabled": true,
+    "exclusive_control": true,
+    "exclusive_guard_topics": [
+      "/lelab/arm/trajectory_request",
+      "/lelab/gripper/trajectory_request"
+    ],
+    "hold_policy": "vendor servos hold the last commanded position; torque is never disabled as a substitute for stopping",
+    "homing_motion": {
+      "axis_order": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "r_joint"
+      ],
+      "enable_torque": true,
+      "first_frame_tolerance_raw": 20,
+      "locked_tolerance_raw": 5,
+      "max_step_raw": 20,
+      "targets_raw": {
+        "joint1": 531,
+        "joint2": 492,
+        "joint3": 525,
+        "joint4": 502,
+        "joint5": 510,
+        "r_joint": 457
+      },
+      "tolerance_raw": 5
+    },
+    "leader_arm_mode": false,
+    "max_step_rad_s": 0.15,
+    "output_duration_s": 0.15,
+    "output_watchdog_s": 0.3,
+    "publish_hz": 10.0,
+    "state_topic": "/lelab_offline/recording/teleop"
+  },
+  "training_export": {
+    "enabled": false,
+    "reason": "six-dimensional hardware export remains disabled until real calibration, motion and two-episode acceptance",
+    "requires": [
+      "leader_rad",
+      "pre_clip_rad",
+      "sent_target_rad",
+      "measured_follower_rad",
+      "calibration_version"
+    ],
+    "schema": "arm_gripper_6dof_phase1"
+  }
+}

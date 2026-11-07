@@ -1,0 +1,13 @@
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.6 Python/3.10.12
+Date: Thu, 05 Nov 2026 02:55:27 GMT
+X-LeLab-Frame-Seq: 1072
+X-LeLab-Source-Stamp-Ns: 1793847327392999936
+X-LeLab-Source-Age-Ms: 31.394
+X-LeLab-Source-Age-S: 0.031394
+X-LeLab-Source-Topic: /ascamera/camera_publisher/rgb0/image
+Cache-Control: no-store
+Access-Control-Expose-Headers: X-LeLab-Frame-Seq, X-LeLab-Source-Stamp-Ns, X-LeLab-Source-Age-Ms, X-LeLab-Source-Age-S
+Content-Type: image/jpeg
+Content-Length: 32279
+

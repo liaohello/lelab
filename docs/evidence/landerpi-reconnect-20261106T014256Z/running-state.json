@@ -1,0 +1,49 @@
+{
+  "target": "pi@<private-ip>",
+  "container": "MentorPi",
+  "state_dir": "/home/ubuntu/shared/lelab_car/state/arm-stack-reconnect-20261106T014256Z",
+  "processes": [
+    {
+      "name": "camera",
+      "pid": 2003,
+      "start_ticks": "63698",
+      "command": "/usr/bin/python3 /opt/ros/humble/bin/ros2 launch peripherals depth_camera.launch.py "
+    },
+    {
+      "name": "controller_manager",
+      "pid": 1878,
+      "start_ticks": "63255",
+      "command": "/usr/bin/python3 /opt/ros/humble/bin/ros2 run servo_controller servo_controller --ros-args --params-file /home/ubuntu/ros2_ws/install/servo_controller/share/servo_controller/config/servo_controller.yaml -p base_frame:=base_footprint "
+    },
+    {
+      "name": "ros_robot_controller",
+      "pid": 1649,
+      "start_ticks": "62805",
+      "command": "python3 -m ros_robot_controller.ros_robot_controller_node "
+    },
+    {
+      "name": "readonly_agent",
+      "pid": 2271,
+      "start_ticks": "68610",
+      "command": "python3 -m lelab_mobile_agent.agent --ros-args -p profile_path:=/home/ubuntu/lelab_car/config/hardware-hybrid-manual-v1.json -p car_root:=/home/ubuntu/lelab_car -p host:=127.0.0.1 -p port:=8110 -p use_sim_time:=false "
+    }
+  ],
+  "serial_owners": [
+    {
+      "pid": 1649,
+      "fd": "9"
+    }
+  ],
+  "deployed_hashes": {
+    "/home/ubuntu/lelab_car/lelab_mobile_agent/agent.py": "68675fed34094f0aa81e89a610e0f9eb22be76b9020726f38bac416295e79675",
+    "/home/ubuntu/lelab_car/config/hardware-hybrid-manual-v1.json": "4b5d30f340e2872fc3d709abf7d16f61ef2075b9b0bdb3abe300a0f959e56afb",
+    "/home/ubuntu/lelab_car/vendor/ros_robot_controller/ros_robot_controller_sdk.py": "7ea4e4f5aeea69d778f5cf93e35abd2c5b227bf3a12796fdfd7bc84d6fa2b8b7",
+    "/home/ubuntu/lelab_car/vendor/ros_robot_controller/ros_robot_controller_node.py": "7e171990ecbc7a99179266e00e6c915be10f01d74478b34f8af77d431d8e2615"
+  },
+  "profile_summary": {
+    "profile": "hardware_hybrid_manual_v1",
+    "actuator_outputs": false,
+    "chassis_locked": true,
+    "max_step_rad_s": 3.0
+  }
+}

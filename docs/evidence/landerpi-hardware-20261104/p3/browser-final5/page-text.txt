@@ -1,0 +1,151 @@
+ROS 移动操作小车
+实机只读 · 无执行器输出
+数据集
+返回
+控制权与安全
+hardware_hybrid_manual_v1
+只读模式：不提供控制权、键盘驾驶、机械臂/夹爪、专家、复位或回放入口；启停与退出均不发送速度、零速或力矩指令。采集与预览可用。浏览器不承担串口、手柄采样或实时安全循环；联合控制只通过下方 hybrid 面板的离散事件发起。
+联合遥操作 · 网关控制
+状态已更新
+输出 关闭
+profile hardware_hybrid_manual_v1
+state disconnected
+阶段 grasp
+
+浏览器只发离散操作事件；手柄与主臂采样、实时控制与安全循环由车端网关处理。能力缺失、状态过期或反馈来源不明时控制自动关闭。
+
+获取联合会话
+释放联合会话
+无输出预览
+对齐
+机械臂待命
+接合离合
+释放离合
+使能底盘
+锁定底盘
+清除急停
+暂停全部运动
+急停
+
+会话 未知 / epoch 未知 · 缺少条件 [ "session_not_ready" ] · 最近故障 未知
+
+设备、能力、版本与租约
+契约版本	1	能力来源	后端声明
+允许动作	validate, save, estop
+上位机租约	无	车端租约	无
+底盘通道	enabled=否 · locked=是	机械臂通道	idle
+夹爪通道	idle	状态年龄	0.0 s
+
+三层标定 未就绪 · [ "leader calibration missing for identity 'landerpi-so101-leader-v1'" ]
+
+设备与标定原始声明
+从臂反馈来源与年龄
+不可用于跟随：反馈无效：joint1, joint2, joint3, joint4, joint5, r_joint
+关节	来源	判定	位置 rad	raw	age	valid	错误
+joint1	servo_position_readback	总线实测	0	500	0.281 s	否	calibration_not_configured
+joint2	servo_position_readback	总线实测	0.955044166691297	728	0.281 s	否	calibration_not_configured
+joint3	servo_position_readback	总线实测	-1.574985116999683	124	0.281 s	否	calibration_not_configured
+joint4	servo_position_readback	总线实测	-1.6797048721193426	99	0.281 s	否	calibration_not_configured
+joint5	servo_position_readback	总线实测	-0.0041887902047863905	499	0.281 s	否	calibration_not_configured
+r_joint	servo_position_readback	总线实测	-1.4660765716752366	150	0.281 s	否	calibration_not_configured
+
+只有 `servo_position_readback` 且有效、新鲜、标定匹配才算实测；`command_cache` / `model_placeholder` 永不显示为实测，`synthetic` 仅限排练 profile。缺一路即阻断跟随与九维导出。
+
+真实主臂 → 从臂无输出预览
+calibration_layers_missing
+
+主臂 leader_not_open · 执行提交 0 · 输出 关闭
+
+从臂关节	实测 rad	映射前 rad	限幅后目标 rad	软限位	截断
+主臂、映射与参考姿态原始值
+六类标定资产
+校验标定
+保存标定
+
+资产内容、版本与实测来源由后端校验；示例值或未知数据不可视作实测。保存标定要求当前没有活动联合会话（T3 会拒绝在会话中换标定）。
+
+联合视频
+JPEG 与状态帧序号一致
+
+source /ascamera/camera_publisher/rgb0/image · preview_seq 665 · 源 age 0.093 s · 序号未变化 0.0 s
+
+JPEG 响应必须携带与源 frame_seq/preview_seq 一致的同帧序号头；不把 img onLoad 或旁路计数当作新帧证据。 最近绑定 665 @ 7:12:34 PM
+
+同一 episode · 人工阶段
+录制 未知 · episode 未知 · 阶段 grasp
+
+阶段切换只写 `phase_started/phase_ended` 事件，不发任何运动命令、不自动开新集；结束本集先请求暂停全部运动。
+
+开始联合录制
+开始联合回合
+阶段 observe
+阶段 grasp
+暂停录制期间的运动
+暂停并结束联合回合
+暂停并停止联合录制
+
+成功/失败由操作员在结束时标注，默认 unknown；不套用仿真真值。
+
+同步、导出与阶段检查
+暂存 → 校验 → 原子发布
+
+同步与导出复用现有 `/ros-mobile/sync`、`/ros-mobile/export`；九维导出在缺少有效底盘估计或六路实测时由后端拒绝，本页不补 0。
+
+刷新 session
+同步原始数据
+导出 LeRobot
+
+导出已禁用：未取得联合会话
+
+按 episode/phase 检查视频与曲线
+读取分集
+读取曲线
+
+选择已导出 episode 后显示视频。
+
+该阶段窗口没有可用的 state/action 数值序列；不补零、不外推。
+
+实机只读模式保留无输出默认：不开放主臂串口、遥操作会话与录制入口。要遥操作请部署 hardware-teleop-v1 profile。
+腕部 RGB（link4）
+11.86 fps · 0.094s
+画面过期
+无新图像 0.094 s，显示的是最后一帧
+topic /ascamera/camera_publisher/rgb0/image
+depth — × / —s
+lidar — / —s
+imu —s
+状态
+状态 正常
+joint1
+0.000 rad
+joint2
+0.000 rad
+joint3
+0.000 rad
+joint4
+0.000 rad
+joint5
+0.000 rad
+夹爪主关节
+—
+底盘速度（不可用）
+— 无实测底盘反馈
+采集与专家
+未录制
+开始 session
+开始回合
+结束回合
+弃用重录
+停止 session
+session：—
+episode：—
+状态：idle
+bag：exit — · 未校验
+磁盘余量：9.1 GiB
+流缺口：0
+同步与 LeRobot 导出
+暂存 → 校验 → 原子发布
+同步原始数据
+刷新列表
+打开数据查看器
+只读实机数据只同步原始 bag 与事件；缺少 action / 关节或底盘反馈时，后端拒绝训练导出。

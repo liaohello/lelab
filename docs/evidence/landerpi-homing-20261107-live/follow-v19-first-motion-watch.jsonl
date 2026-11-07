@@ -1,0 +1,10 @@
+{"t": 1794039017.919, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 93, "emitted": 89, "refused": 0, "error": null}
+{"t": 1794039018.948, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 103, "emitted": 99, "refused": 0, "error": null}
+{"t": 1794039019.98, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 114, "emitted": 109, "refused": 0, "error": null}
+{"t": 1794039021.009, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 124, "emitted": 119, "refused": 0, "error": null}
+{"t": 1794039022.038, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 134, "emitted": 129, "refused": 0, "error": null}
+{"t": 1794039023.069, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 145, "emitted": 139, "refused": 0, "error": null}
+{"t": 1794039024.098, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 155, "emitted": 154, "refused": 0, "error": null}
+{"t": 1794039025.125, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 165, "emitted": 164, "refused": 0, "error": null}
+{"t": 1794039026.156, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 176, "emitted": 174, "refused": 0, "error": null}
+{"t": 1794039027.186, "state": "ready", "out": true, "raw": {"joint1": 531, "joint2": 492, "joint3": 525, "joint4": 502, "joint5": 510, "r_joint": 457}, "sent": 186, "emitted": 184, "refused": 0, "error": null}

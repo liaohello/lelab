@@ -1,0 +1,9 @@
+{
+  "url": "http://127.0.0.1:18286/landerpi",
+  "title": "LeLab",
+  "browser_errors": [],
+  "names_pi_target": true,
+  "all_joint_ids": true,
+  "raw_values": false,
+  "outputs_closed": true
+}

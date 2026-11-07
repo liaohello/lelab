@@ -1,0 +1,28 @@
+# 与 Pi 的 MentorPi 形状对照：host 网络 + 固定 domain id；不 privileged、无 devices。
+# 只在 bin/docker 里被使用，方便一条命令起停；不写镜像 tag 之外的凭据。
+services:
+  humble:
+    image: lelab/humble-dev:local
+    build:
+      context: ../../../..
+      dockerfile: tools/ros2_collection/local_ros2/docker/Dockerfile
+      network: host
+    container_name: lelab-humble-dev
+    network_mode: host
+    environment:
+      ROS_DOMAIN_ID: "93"
+      ROS_LOCALHOST_ONLY: "1"
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      LROS_OFFLINE_PROFILE: simulated
+    volumes:
+      - ../../../..:/work/lelab:ro
+      - ../../../../work/ros2_collection:/work/out
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID, NET_RAW]
+    security_opt:
+      - no-new-privileges:true
+    devices: []
+    tmpfs:
+      - /tmp
+    restart: "no"
+    command: ["bash", "-lc", "sleep infinity"]

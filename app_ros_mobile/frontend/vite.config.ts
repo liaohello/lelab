@@ -12,14 +12,6 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean
   ),
-  // Strip console.log / debug / info in production minification; keep
-  // console.warn and console.error for observability of real problems.
-  esbuild: {
-    pure:
-      mode === "production"
-        ? ["console.log", "console.debug", "console.info"]
-        : [],
-  },
   preview: {
     allowedHosts: ["lerobot-lelab.hf.space"],
   },

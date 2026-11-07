@@ -1,0 +1,59 @@
+{
+  "state": "fault",
+  "outputs_enabled": false,
+  "channels": {
+    "base": {
+      "enabled": false,
+      "permitted": false,
+      "locked": true,
+      "gamepad": {
+        "armed": false,
+        "neutral_seen": false,
+        "intent": null,
+        "last_seq": -1,
+        "last_received_mono_ns": null,
+        "reason": "gamepad_unconfigured"
+      },
+      "seq": 0,
+      "pending": null,
+      "source": "gamepad"
+    },
+    "arm": {
+      "state": "idle",
+      "enabled": false,
+      "permitted": false,
+      "seq": 0,
+      "pending": null,
+      "source": "so101_leader"
+    },
+    "gripper": {
+      "state": "idle",
+      "enabled": false,
+      "permitted": false,
+      "seq": 0,
+      "pending": null,
+      "source": "so101_leader"
+    }
+  },
+  "last_error": "frame_follow_failed:HardwareCompositionError:frame_refused:emitter_stopped:homing_no_active_axis",
+  "follow_runtime": {
+    "active": false,
+    "commands_sent": 1,
+    "last_error": "frame_follow_failed:HardwareCompositionError:frame_refused:emitter_stopped:homing_no_active_axis"
+  },
+  "preview": true,
+  "frame": {
+    "outputs_enabled": false,
+    "publish_count": 0,
+    "frames_received": 1,
+    "frames_emitted": 0,
+    "frames_refused": 1,
+    "last_refusal": {
+      "frame_seq": "1",
+      "reason": "homing_no_active_axis"
+    },
+    "queue_depth": 0,
+    "homing_active_joint": null,
+    "effective_emit_hz": 0.0
+  }
+}

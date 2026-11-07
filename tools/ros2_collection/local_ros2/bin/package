@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+"""Build the Pi deployment candidate: an allow-listed archive plus a manifest.
+
+Two rules this exists to enforce:
+* the working tree has a large amount of uncommitted production code, so
+  `git archive HEAD` would silently omit it.  The manifest is built from the file
+  list below, and every entry is hashed;
+* the offline fixtures (simulated board, simulated camera, licence stand-in) are
+  development props, not car code, and are excluded so they can never be mistaken
+  for something that runs on the vehicle.
+
+Nothing here contacts the Pi.  `--dry-run` prints what would be packaged.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import pathlib
+import subprocess
+import sys
+import tarfile
+import time
+
+REPO = pathlib.Path(__file__).resolve().parents[4]
+
+# Runtime source that must exist on the car, as repo-relative paths.
+ALLOW_LIST = [
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/__init__.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent_licence_bridge.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/follower_calibration_job.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/recording_contract.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/rosbridge_source.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/car_control_process.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/licence_ipc.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/teleop_frame_v1.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/teleop_stream.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/ros_servo_output.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/ros_servo_readback.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/follower_feedback.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/hybrid_gateway.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/contract.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/recorder.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/hardware_safety.py",
+    "ros2_ws/src/lelab_mobile_agent/package.xml",
+    "ros2_ws/src/lelab_mobile_agent/setup.py",
+    "ros2_ws/src/lelab_mobile_agent/resource/lelab_mobile_agent",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1.json",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm-trial-v1.json",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-homing-v1.json",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-follow-v1.json",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm2-trial-v1.json",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm3-trial-v1.json",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm4-trial-v1.json",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm5-trial-v1.json",
+    # Upper computer side of the same contract; shipped for version comparison only.
+    # These are every module the frame path imports by name: the list was once a
+    # hand-carved subset, and a deployed package that silently lacks a module the
+    # upper host imports is not a candidate for anything.
+    "app_ros_mobile/lelab/teleop_frame_v1.py",
+    "app_ros_mobile/lelab/teleop_stream.py",
+    "app_ros_mobile/lelab/hybrid_frame_link.py",
+    "app_ros_mobile/lelab/hybrid_channel.py",
+    "app_ros_mobile/lelab/hybrid_hardware.py",
+    "app_ros_mobile/lelab/hybrid_home_plan.py",
+    "app_ros_mobile/lelab/hybrid_stream_hardware.py",
+    "app_ros_mobile/lelab/hybrid_session.py",
+    "app_ros_mobile/lelab/hybrid_recording.py",
+    "app_ros_mobile/lelab/hybrid_facade.py",
+    "app_ros_mobile/lelab/hybrid_calibration.py",
+    "app_ros_mobile/lelab/hybrid_export_schema.py",
+    "app_ros_mobile/lelab/hybrid_fixtures.py",
+    "app_ros_mobile/lelab/hybrid_gamepad.py",
+    "app_ros_mobile/lelab/follower_calibration_asset.py",
+    "tools/ros2_collection/local_ros2/lock/env.lock.json",
+]
+OFFLINE_ONLY = [
+    "tools/ros2_collection/local_ros2/offline/sim_board_owner.py",
+    "tools/ros2_collection/local_ros2/offline/sim_camera.py",
+    "tools/ros2_collection/local_ros2/offline/licence_agent.py",
+    "tools/ros2_collection/local_ros2/offline/frame_drive.py",
+    "tools/ros2_collection/local_ros2/offline/record_session.py",
+    "tools/ros2_collection/local_ros2/offline/bench_links.py",
+]
+
+
+CAR_PACKAGE = "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent"
+
+
+def car_closure_gaps() -> list[str]:
+    """Modules the shipped car package imports that the allow list does not ship.
+
+    The list used to be hand-carved, and a package missing a module the agent imports
+    only fails once it is on the car. Walking the imports turns that into a build gate.
+    """
+    import ast
+
+    root = REPO / CAR_PACKAGE
+    shipped = {pathlib.PurePosixPath(rel).name for rel in ALLOW_LIST
+               if str(rel).startswith(CAR_PACKAGE + "/")}
+    reachable, queue = set(), sorted(shipped)
+    while queue:
+        name = queue.pop()
+        if name in reachable:
+            continue
+        reachable.add(name)
+        path = root / name
+        if not path.exists():
+            continue
+        for node in ast.walk(ast.parse(path.read_text(), filename=str(path))):
+            found = []
+            if isinstance(node, ast.ImportFrom):
+                if node.level and node.module:
+                    found.append(node.module.split(".")[0])
+                elif str(node.module or "").startswith("lelab_mobile_agent"):
+                    found.append(str(node.module).split(".")[1])
+                for alias in node.names:
+                    if node.level and (root / f"{alias.name}.py").exists():
+                        found.append(alias.name)
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    if str(alias.name).startswith("lelab_mobile_agent"):
+                        found.append(str(alias.name).split(".")[1])
+            for item in found:
+                candidate = item if item.endswith(".py") else f"{item}.py"
+                if (root / candidate).exists() and candidate not in shipped:
+                    queue.append(candidate)
+    return sorted(f"{CAR_PACKAGE}/{name}" for name in reachable - shipped)
+
+
+def sha256(path: pathlib.Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(65536), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--out", default=str(REPO / "work/ros2_collection/local_humble/dist"))
+    parser.add_argument("--release-id", default=time.strftime("landerpi-frame-%Y%m%dT%H%M%SZ", time.gmtime()))
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+
+    missing = [rel for rel in ALLOW_LIST if not (REPO / rel).exists()]
+    excluded_present = [rel for rel in OFFLINE_ONLY if not (REPO / rel).exists()]
+    if missing:
+        print("refusing to package, allow-list entries are absent:", file=sys.stderr)
+        for rel in missing:
+            print(f"  missing  {rel}", file=sys.stderr)
+        return 1
+    gaps = car_closure_gaps()
+    if gaps:
+        print("refusing to package: the car package imports modules the allow list omits",
+              file=sys.stderr)
+        for rel in gaps:
+            print(f"  unclosured  {rel}", file=sys.stderr)
+        return 1
+    manifest = {
+        "release_id": args.release_id,
+        "closure_check": {"car_package_imports_shipped": True,
+                          "car_package_modules": len([rel for rel in ALLOW_LIST
+                                                      if rel.startswith(CAR_PACKAGE)]),
+                          "upper_shipment": ("frame-contract subset for version comparison, "
+                                             "not the whole app import closure")},
+        "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "source_head": subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
+                                      capture_output=True, text=True).stdout.strip(),
+        "working_tree_is_clean": subprocess.run(["git", "-C", str(REPO), "status", "--porcelain"],
+                                                capture_output=True, text=True).stdout.strip() == "",
+        "runtime_requirements": {
+            "distribution": "Ubuntu 22.04 (jammy)",
+            "ros_distro": "humble",
+            "python": "3.10",
+            "arch_verified_for": ["amd64"],
+            "arm64_note": ("this release was built and run only on amd64; the arm64 build "
+                           "on the Pi is a separate gate and has not been executed"),
+        },
+        "files": [],
+        "excluded_offline_only": OFFLINE_ONLY,
+        "offline_only_absent": excluded_present,
+        "data_identity_policy": "simulated_offline for anything produced by the offline fixtures",
+    }
+    for rel in ALLOW_LIST:
+        path = REPO / rel
+        entry = {"path": rel, "sha256": sha256(path), "bytes": path.stat().st_size}
+        if path.is_symlink():
+            entry["symlink_resolves_to"] = str(path.resolve().relative_to(REPO))
+            entry["content_sha256_equals_source"] = entry["sha256"] == sha256(path.resolve())
+        manifest["files"].append(entry)
+
+    out_dir = pathlib.Path(args.out)
+    archive = out_dir / f"{args.release_id}.tar.gz"
+    manifest_path = out_dir / f"{args.release_id}.manifest.json"
+    print(f"[package] {len(manifest['files'])} files, "
+          f"{sum(entry['bytes'] for entry in manifest['files'])} bytes -> {archive}")
+    for entry in manifest["files"]:
+        print(f"  {entry['bytes']:>9}  {entry['sha256'][:12]}  {entry['path']}")
+    if args.dry_run:
+        print("[package] dry run: nothing written")
+        return 0
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(archive, "w:gz") as bundle:
+        for rel in ALLOW_LIST:
+            path = REPO / rel
+            payload = path.resolve().read_bytes() if path.is_symlink() else path.read_bytes()
+            info = tarfile.TarInfo(name=f"{args.release_id}/code/{rel}")
+            info.size = len(payload)
+            info.mtime = int(path.stat().st_mtime)
+            bundle.addfile(info, __import__("io").BytesIO(payload))
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"[package] manifest: {manifest_path}")
+    print(f"[package] archive:  {archive} sha256={sha256(archive)}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

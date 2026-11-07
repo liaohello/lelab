@@ -1,0 +1,626 @@
+{
+  "captured_at_utc": "2026-11-05T11:30:00Z",
+  "identity": {
+    "session_id": "de9b75e313ca4d0bbaf13825ec9d3a5a",
+    "session_epoch": 2639499310038755,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "preview_http": 200,
+  "align_http": 200,
+  "arm_http": 200,
+  "engage_http": 200,
+  "arm_error": null,
+  "engage_error": null,
+  "pre_state": "ready",
+  "pre_error": null,
+  "initial_raw": {
+    "joint1": 533,
+    "joint2": 815,
+    "joint3": 16,
+    "joint4": 117,
+    "joint5": 880,
+    "r_joint": 492
+  },
+  "samples": [
+    {
+      "t": 0.056,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 0,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.208,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 2,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.386,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 6,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.541,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 8,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.737,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 10,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.937,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 12,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.148,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 14,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.305,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 16,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.501,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 18,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.677,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 20,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.842,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 22,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.043,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 24,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.253,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 26,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.452,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 28,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.658,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 30,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.875,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 32,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.045,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 34,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.259,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 36,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.471,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 38,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.683,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 40,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.902,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 44,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.083,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 46,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.256,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 48,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.482,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 50,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.658,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 52,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.83,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 54,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 5.011,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 56,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 5.234,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 58,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 5.445,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 60,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 5.65,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 62,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "read_only_hardware_inventory_for_planning",
+  "observed_at_utc": "2026-11-05 02:10:34 UTC",
+  "client_date": "2026-11-04",
+  "client_timezone": "America/Los_Angeles",
+  "provenance_note": "Curated summary of this chat's read-only probes; raw graph, camera metadata and final runtime probe stdout are included below. This is not motion, feedback-readback or recording acceptance.",
+  "host": {
+    "hostname": "raspberrypi",
+    "board": "Raspberry Pi 5 Model B Rev 1.1",
+    "architecture": "aarch64",
+    "os": "Debian GNU/Linux 12 (bookworm)",
+    "ram_total_display": "7.9 GiB",
+    "ram_available_display": "6.3 GiB",
+    "root_size_display": "57G",
+    "root_available_display": "9.4G",
+    "root_used_percent": 83
+  },
+  "network": {
+    "wireless_ipv4": "<private-network>",
+    "wired_ipv4": "<private-network>",
+    "ssid": "<wifi-ssid>",
+    "wireless_mac": "<hardware-mac>",
+    "wifi_address_method": "manual (verified in preceding Wi-Fi task)",
+    "wifi_reconnect": "preceding task verified radio off/on automatic reconnect and wireless SSH; autoconnect-retries=0"
+  },
+  "container": {
+    "name": "MentorPi",
+    "image": "ros:humble",
+    "state": "running",
+    "python": "3.10.12",
+    "ros": "Humble",
+    "network": "host",
+    "privileged": true,
+    "restart_policy": "always",
+    "device_mount": "/dev -> /dev",
+    "ros_setup": "/opt/ros/humble/setup.bash",
+    "overlay_setup": "/home/ubuntu/ros2_ws/install/setup.bash",
+    "rclpy": "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py",
+    "rosbag2_storage": "package prefix /opt/ros/humble",
+    "sqlite3_cli_help": "passed; no bag recording started",
+    "lelab_car_root": "/home/ubuntu/lelab_car absent",
+    "lelab_agent_8110": "not listening at probe time"
+  },
+  "configured_runtime_identity": {
+    "MACHINE_TYPE": "LanderPi_Mecanum",
+    "DEPTH_CAMERA_TYPE": "aurora",
+    "ROS_DISTRO": "humble",
+    "ROS_DOMAIN_ID": "0",
+    "LIDAR_TYPE": "MS200",
+    "note": "Read from running vendor-node /proc environment. Not proof of physical wheel geometry, lidar model or firmware version."
+  },
+  "serial": {
+    "board": {
+      "link": "/dev/rrc",
+      "target": "/dev/ttyACM0",
+      "usb_id": "1a86:55d4",
+      "by_id": "usb-1a86_USB_Single_Serial_5AE2006307-if00",
+      "owner_host_pid": 3263,
+      "owner_process": "ros_robot_controller"
+    },
+    "lidar": {
+      "device": "/dev/ttyUSB0",
+      "usb_id": "1a86:7523",
+      "owner_host_pid": 3275,
+      "owner_process": "ldlidar_stl_ros2"
+    },
+    "port_opened_by_probe": false
+  },
+  "input": {
+    "usb_id": "2563:0575",
+    "usb_product": "ShanWan ZD-V+ / USB_WirelessGamepad",
+    "device": "/dev/input/js0",
+    "by_id": "usb-2563_USB_WirelessGamepad-joystick",
+    "joy_publisher": "/joy_node",
+    "axes_and_buttons_calibrated": false
+  },
+  "camera": {
+    "topic": "/ascamera/camera_publisher/rgb0/image",
+    "frames_received": 20,
+    "test_kind": "passive_subscription_no_camera_start",
+    "width": 640,
+    "height": 400,
+    "encoding": "bgr8",
+    "step": 1920,
+    "frame_id": "rgb_camera_link",
+    "observed_receive_hz": 13.35
+  },
+  "running_control_entries": {
+    "launch": "ros2 launch bringup bringup.launch.py",
+    "init_pose_running": true,
+    "base_publishers": [
+      "lidar_app",
+      "line_following",
+      "object_tracking",
+      "hand_gesture",
+      "joystick_control"
+    ],
+    "servo_publishers": [
+      "lidar_app",
+      "line_following",
+      "object_tracking",
+      "ar_app",
+      "hand_gesture",
+      "init_pose"
+    ],
+    "note": "Endpoint presence is not proof that a node is actively sending commands at every instant. Exclusivity is not established."
+  },
+  "installed_source_identity": {
+    "board_node": {
+      "resolved": "/home/ubuntu/ros2_ws/src/driver/ros_robot_controller/ros_robot_controller/ros_robot_controller_node.py",
+      "sha256": "0c4b5df728f18c4a7d1850f0647e26a0d1c892ab2455f3fa0079319a9d2c619f"
+    },
+    "sdk": {
+      "resolved": "/home/ubuntu/ros2_ws/src/driver/ros_robot_controller/ros_robot_controller/ros_robot_controller_sdk.py",
+      "sha256": "f7c1584b5b1f393041bd86c16c68310d38969c15bf8dfd1f92df10373a6cc504"
+    },
+    "servo_controller": {
+      "resolved": "/home/ubuntu/ros2_ws/src/driver/servo_controller/servo_controller/servo_controller.py",
+      "sha256": "709e42977ea8c98b0e31a4f58f89f5fdf2e2e83a35589eef1e37a39e2e7c84a4"
+    },
+    "note": "Import resolution traverses build paths to source. SDK/node hashes match T1 patch_guard BASE, not PATCHED. No patch applied."
+  },
+  "configured_joints": {
+    "arm_ids": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "gripper": {
+      "name": "r_joint",
+      "id": 10,
+      "configured_min": 1000,
+      "configured_max": 0
+    },
+    "extra": {
+      "name": "w_joint",
+      "id": 9,
+      "physical_presence_and_purpose": "unknown"
+    },
+    "note": "YAML configuration only; not servo discovery or physical calibration."
+  },
+  "upper_host": {
+    "so101_serial": "No /dev/serial/by-id entry or SO101 USB adapter detected in this probe",
+    "arm_none_eabi_gcc": "not found on PATH; no installation attempted"
+  },
+  "unknown_or_unverified": [
+    "actual controller board model and firmware build",
+    "real servo positions, servo models and physical ranges",
+    "wheel encoder telemetry and chassis odometry validity",
+    "hardware hold/stop, worst-case latency and emergency-stop loop",
+    "SO101 USB identity and calibration on upper host",
+    "camera full pipeline timestamp/frame binding",
+    "real bag recording, synchronization and 6D hardware dataset export"
+  ],
+  "raw_graph_stdout": "[graph after 5s discovery]\n{\"nodes\": [\"/LD19\", \"/_web_video_server\", \"/ar_app\", \"/arm_controller\", \"/aurora/aurora\", \"/controller_manager\", \"/ekf_filter_node\", \"/gripper_controller\", \"/hand_gesture\", \"/hand_trajectory\", \"/imu_calib\", \"/imu_filter\", \"/init_pose\", \"/joint_state_publisher\", \"/joy_node\", \"/joystick_control\", \"/lelab_readonly_planning_probe\", \"/lidar_app\", \"/line_following\", \"/object_tracking\", \"/odom_publisher\", \"/robot_state_publisher\", \"/ros_robot_controller\", \"/rosapi\", \"/rosapi_params\", \"/rosbridge_websocket\", \"/scan_to_scan_filter_chain\", \"/servo_manager\", \"/static_transform_publisher_oI6893iIXp7eNIop\", \"/transform_listener_impl_555560877480\", \"/web_video_server\"]}\n{\"topics\": [[\"/ar_app/image_result\", [\"sensor_msgs/msg/Image\"]], [\"/arm_controller/follow_joint_trajectory/_action/feedback\", [\"control_msgs/action/FollowJointTrajectory_FeedbackMessage\"]], [\"/arm_controller/follow_joint_trajectory/_action/status\", [\"action_msgs/msg/GoalStatusArray\"]], [\"/ascamera/camera_publisher/depth0/image_raw\", [\"sensor_msgs/msg/Image\"]], [\"/ascamera/camera_publisher/ir0/image\", [\"sensor_msgs/msg/Image\"]], [\"/ascamera/camera_publisher/rgb0/image\", [\"sensor_msgs/msg/Image\"]], [\"/cmd_vel\", [\"geometry_msgs/msg/Twist\"]], [\"/controller/cmd_vel\", [\"geometry_msgs/msg/Twist\"]], [\"/controller_manager/joint_states\", [\"sensor_msgs/msg/JointState\"]], [\"/controller_manager/servo_states\", [\"servo_controller_msgs/msg/ServoStateList\"]], [\"/gripper_controller/follow_joint_trajectory/_action/feedback\", [\"control_msgs/action/FollowJointTrajectory_FeedbackMessage\"]], [\"/gripper_controller/follow_joint_trajectory/_action/status\", [\"action_msgs/msg/GoalStatusArray\"]], [\"/hand_trajectory/image_result\", [\"sensor_msgs/msg/Image\"]], [\"/imu\", [\"sensor_msgs/msg/Imu\"]], [\"/imu/rpy/filtered\", [\"geometry_msgs/msg/Vector3Stamped\"]], [\"/imu/steady_state\", [\"std_msgs/msg/Bool\"]], [\"/imu_corrected\", [\"sensor_msgs/msg/Imu\"]], [\"/joint_controller\", [\"sensor_msgs/msg/JointState\"]], [\"/joint_states\", [\"sensor_msgs/msg/JointState\"]], [\"/joy\", [\"sensor_msgs/msg/Joy\"]], [\"/joy/set_feedback\", [\"sensor_msgs/msg/JoyFeedback\"]], [\"/line_following/image_result\", [\"sensor_msgs/msg/Image\"]], [\"/object_tracking/image_result\", [\"sensor_msgs/msg/Image\"]], [\"/odom\", [\"nav_msgs/msg/Odometry\"]], [\"/odom_raw\", [\"nav_msgs/msg/Odometry\"]], [\"/odom_rf2o\", [\"nav_msgs/msg/Odometry\"]], [\"/ros_robot_controller/battery\", [\"std_msgs/msg/UInt16\"]], [\"/ros_robot_controller/bus_servo/set_position\", [\"ros_robot_controller_msgs/msg/ServosPosition\"]], [\"/ros_robot_controller/bus_servo/set_state\", [\"ros_robot_controller_msgs/msg/SetBusServoState\"]], [\"/ros_robot_controller/imu_raw\", [\"sensor_msgs/msg/Imu\"]], [\"/ros_robot_controller/joy\", [\"sensor_msgs/msg/Joy\"]], [\"/ros_robot_controller/pwm_servo/set_state\", [\"ros_robot_controller_msgs/msg/SetPWMServoState\"]], [\"/servo_controller\", [\"servo_controller_msgs/msg/ServosPosition\"]], [\"/set_odom\", [\"geometry_msgs/msg/Pose2D\"]]]}\n{\"topic\": \"/controller/cmd_vel\", \"publishers\": [{\"name\": \"lidar_app\", \"namespace\": \"/\", \"type\": \"geometry_msgs/msg/Twist\"}, {\"name\": \"line_following\", \"namespace\": \"/\", \"type\": \"geometry_msgs/msg/Twist\"}, {\"name\": \"object_tracking\", \"namespace\": \"/\", \"type\": \"geometry_msgs/msg/Twist\"}, {\"name\": \"hand_gesture\", \"namespace\": \"/\", \"type\": \"geometry_msgs/msg/Twist\"}, {\"name\": \"joystick_control\", \"namespace\": \"/\", \"type\": \"geometry_msgs/msg/Twist\"}], \"subscribers\": [{\"name\": \"odom_publisher\", \"namespace\": \"/\", \"type\": \"geometry_msgs/msg/Twist\"}]}\n{\"topic\": \"/servo_controller\", \"publishers\": [{\"name\": \"lidar_app\", \"namespace\": \"/\", \"type\": \"servo_controller_msgs/msg/ServosPosition\"}, {\"name\": \"line_following\", \"namespace\": \"/\", \"type\": \"servo_controller_msgs/msg/ServosPosition\"}, {\"name\": \"object_tracking\", \"namespace\": \"/\", \"type\": \"servo_controller_msgs/msg/ServosPosition\"}, {\"name\": \"ar_app\", \"namespace\": \"/\", \"type\": \"servo_controller_msgs/msg/ServosPosition\"}, {\"name\": \"hand_gesture\", \"namespace\": \"/\", \"type\": \"servo_controller_msgs/msg/ServosPosition\"}, {\"name\": \"init_pose\", \"namespace\": \"/\", \"type\": \"servo_controller_msgs/msg/ServosPosition\"}], \"subscribers\": [{\"name\": \"controller_manager\", \"namespace\": \"/\", \"type\": \"servo_controller_msgs/msg/ServosPosition\"}]}\n{\"topic\": \"/controller_manager/joint_states\", \"publishers\": [{\"name\": \"controller_manager\", \"namespace\": \"/\", \"type\": \"sensor_msgs/msg/JointState\"}], \"subscribers\": [{\"name\": \"joint_state_publisher\", \"namespace\": \"/\", \"type\": \"sensor_msgs/msg/JointState\"}]}\n{\"topic\": \"/ascamera/camera_publisher/rgb0/image\", \"publishers\": [{\"name\": \"aurora\", \"namespace\": \"/aurora\", \"type\": \"sensor_msgs/msg/Image\"}], \"subscribers\": []}\n{\"topic\": \"/joy\", \"publishers\": [{\"name\": \"joy_node\", \"namespace\": \"/\", \"type\": \"sensor_msgs/msg/Joy\"}], \"subscribers\": []}\n",
+  "raw_runtime_probe_stdout": "[rosbag recorder CLI import test; no recording]\nusage: ros2 bag record [-h] [-a] [-e REGEX] [-x EXCLUDE]\n                       [--include-unpublished-topics]\n                       [--include-hidden-topics] [-o OUTPUT]\n                       [-s {sqlite3,my_test_plugin}] [-f {a,s}]\n                       [--no-discovery] [-p POLLING_INTERVAL]\n                       [-b MAX_BAG_SIZE] [-d MAX_BAG_DURATION]\n                       [--max-cache-size MAX_CACHE_SIZE]\n                       [--compression-mode {none,file,message}]\n                       [--compression-format {zstd,fake_comp}]\n                       [--compression-queue-size COMPRESSION_QUEUE_SIZE]\n                       [--compression-threads COMPRESSION_THREADS]\n                       [--snapshot-mode] [--ignore-leaf-topics]\n[runtime servo configuration]\n/**:\n  ros__parameters:\n    joint1:\n      id: 1\n      init: 500\n      min: 0\n      max: 1000\n\n    joint2:\n      id: 2\n      init: 500\n      min: 0\n      max: 1000\n\n    joint3:\n      id: 3\n      init: 500\n      min: 0\n      max: 1000\n\n    joint4:\n      id: 4\n      init: 500\n      min: 0\n      max: 1000\n\n    joint5:\n      id: 5\n      init: 500\n      min: 0\n      max: 1000\n\n    r_joint:\n      id: 10\n      init: 500\n      min: 1000\n      max: 0\n\n    w_joint:\n      id: 9\n      init: 500\n      min: 0\n      max: 1000\n\n    arm_controller:\n      joint_trajectory_action_node:\n        min_velocity: 0.1\n        constraints:\n          goal_time: 0.05\n      joint_controllers:\n        - \"joint1\"\n        - \"joint2\"\n        - \"joint3\"\n        - \"joint4\"\n        - \"joint5\"\n\n    gripper_controller:\n      joint_trajectory_action_node:\n        min_velocity: 0.1\n        constraints:\n          goal_time: 0.05\n      joint_controllers:\n        - \"r_joint\"\n[available deployment roots]\nabsent: /home/ubuntu/lelab_car\nabsent: /home/ubuntu/shared/lelab_car\nabsent: /home/ubuntu/robot_pi/start_node.sh\n",
+  "hardware_writes_issued": false,
+  "robot_processes_started_or_stopped": false
+}

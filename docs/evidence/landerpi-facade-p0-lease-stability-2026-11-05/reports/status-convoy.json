@@ -1,0 +1,132 @@
+{
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "freshness_window_s": 0.5,
+  "checks": [
+    {
+      "name": "idle_status_under_freshness",
+      "ok": true,
+      "detail": {
+        "count": 100,
+        "p50_s": 0.0013,
+        "p95_s": 0.0017,
+        "max_s": 0.0023,
+        "over_freshness_s": 0
+      }
+    },
+    {
+      "name": "recording_started",
+      "ok": true,
+      "detail": "ros_20261106T080751Z_104b9d6f"
+    },
+    {
+      "name": "frames_followed",
+      "ok": true,
+      "detail": {
+        "frames": 6,
+        "state": "ready",
+        "error": null
+      }
+    },
+    {
+      "name": "no_status_poll_timed_out_during_close",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "status_under_close_under_freshness",
+      "ok": true,
+      "detail": {
+        "count": 105,
+        "p50_s": 0.0014,
+        "p95_s": 0.0019,
+        "max_s": 0.0021,
+        "over_freshness_s": 0
+      }
+    },
+    {
+      "name": "renewals_during_close_all_succeeded",
+      "ok": true,
+      "detail": {
+        "attempted": 4,
+        "ok": 4,
+        "errors": []
+      }
+    },
+    {
+      "name": "locked_window_was_observed",
+      "ok": true,
+      "detail": {
+        "cache_served_polls": 23,
+        "detail": "0 means the close never held the lock when a poll arrived; that run proves nothing about the convoy"
+      }
+    },
+    {
+      "name": "no_lease_lost_during_close",
+      "ok": true,
+      "detail": {
+        "state": "ready",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "follow_error": null
+      }
+    }
+  ],
+  "phases": {
+    "idle": {
+      "count": 100,
+      "p50_s": 0.0013,
+      "p95_s": 0.0017,
+      "max_s": 0.0023,
+      "over_freshness_s": 0
+    },
+    "stop_session": {
+      "close_duration_s": 2.103,
+      "summary": {
+        "count": 105,
+        "p50_s": 0.0014,
+        "p95_s": 0.0019,
+        "max_s": 0.0021,
+        "over_freshness_s": 0
+      },
+      "cache_served_polls": 23,
+      "poll_errors": [],
+      "renewals": {
+        "attempted": 4,
+        "ok": 4,
+        "errors": []
+      }
+    }
+  },
+  "recording_id": "ros_20261106T080751Z_104b9d6f",
+  "diagnostics": {
+    "heartbeats": 4,
+    "heartbeat_failures": 0,
+    "last_heartbeat_outcome": "ok",
+    "last_heartbeat_duration_s": 0.003,
+    "operator_presence_age_s": 0.405,
+    "state": "ready",
+    "state_changes": [
+      {
+        "kind": "state_change",
+        "mono_ns": 329760801218030,
+        "state": "ready",
+        "arm_state": "idle",
+        "session_epoch": 945855510226062,
+        "previous": "disconnected",
+        "reason": "session_acquired",
+        "last_error": null
+      }
+    ],
+    "observation_cache": {
+      "running": true,
+      "poll_period_s": 0.05,
+      "polls": 129,
+      "cache_age_s": 0.047,
+      "last_poll_duration_s": 0.004,
+      "last_error": null
+    }
+  },
+  "car_disarmed": true,
+  "failed": []
+}

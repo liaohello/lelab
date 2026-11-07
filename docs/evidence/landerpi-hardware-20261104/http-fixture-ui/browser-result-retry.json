@@ -1,0 +1,8 @@
+{
+  "url": "http://127.0.0.1:18287/landerpi",
+  "browser_errors": [],
+  "step_button_available": true,
+  "shows_pi_follower_target": true,
+  "shows_pass": true,
+  "outputs_closed": true
+}

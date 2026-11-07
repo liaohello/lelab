@@ -8,7 +8,7 @@
 
 先读根 AGENTS.md、README、MIGRATION、部署说明，以及 `docs/milestones/2026-10-31-raspberry-pi-environment-assessment.md`、`docs/ros2-vla-base-interface-decision.md` 和仿真运行手册。核对仓库状态、子目录规则和既有服务，不覆盖用户修改。基线为 `codex/ros2-mobile-collection` / `4beecee`；开发代码在 `ros2_ws/`、`app_ros_mobile/`、`configs/ros2_collection/`。评估收尾时已出现额外 agent/recorder、hardware-readonly profile 和 launch 等未提交开发变更，本轮未验收；先审阅并复用当前实现，再补缺口，不按旧清单覆盖它们。保留发布快照和 current 指向，保留本地定制 LeRobot 依赖。
 
-实机为 `pi@192.168.19.138`，已测 Pi 5 / Debian 12 / aarch64 / 宿主Python3.11.2，根盘约剩8.7GiB。用户重启后 SSH/Docker 恢复，已确认运行容器 `MentorPi`（ros:humble，Ubuntu22.04，Python3.10.12，host网络）。工作区是 `/home/ubuntu/ros2_ws` 和 `/home/ubuntu/third_party_ros2/third_party_ws`。以驱动同一UID1000、ROS_DOMAIN_ID=0、ROS_LOCALHOST_ONLY=0被动订阅，已收到Aurora RGB/depth/IR/camera_info、IMU、joint和odom消息；默认UID0探测曾无数据，原因尚未完全隔离。RGB实际为640×400/bgr8，depth为640×400/mono16。雷达两次短窗没有scan消息；MCAP插件未发现；Pi日期为2026-04-08，而本机为2026-10-31，NTP未同步。上述为本次评估快照，开工复核；详细证据见评估报告第6节及 `docs/evidence/raspberry-pi-recheck-20261031.json`。使用已有授权认证方式，不把密码、令牌或私密配置写入命令、脚本、报告或 Git。
+实机为 `pi@<private-ip>`，已测 Pi 5 / Debian 12 / aarch64 / 宿主Python3.11.2，根盘约剩8.7GiB。用户重启后 SSH/Docker 恢复，已确认运行容器 `MentorPi`（ros:humble，Ubuntu22.04，Python3.10.12，host网络）。工作区是 `/home/ubuntu/ros2_ws` 和 `/home/ubuntu/third_party_ros2/third_party_ws`。以驱动同一UID1000、ROS_DOMAIN_ID=0、ROS_LOCALHOST_ONLY=0被动订阅，已收到Aurora RGB/depth/IR/camera_info、IMU、joint和odom消息；默认UID0探测曾无数据，原因尚未完全隔离。RGB实际为640×400/bgr8，depth为640×400/mono16。雷达两次短窗没有scan消息；MCAP插件未发现；Pi日期为2026-04-08，而本机为2026-10-31，NTP未同步。上述为本次评估快照，开工复核；详细证据见评估报告第6节及 `docs/evidence/raspberry-pi-recheck-20261031.json`。使用已有授权认证方式，不把密码、令牌或私密配置写入命令、脚本、报告或 Git。
 
 按以下顺序执行，并持续报告可验证结果：
 

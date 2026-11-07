@@ -1,0 +1,151 @@
+{
+  "archive_files": [
+    "READY",
+    "episodes/ep_1793905503_a3db24.json",
+    "episodes/ep_1793905510_c37a08.json",
+    "events.jsonl",
+    "manifest.json",
+    "raw/bag/bag_0.db3",
+    "raw/bag/metadata.yaml",
+    "recording.log",
+    "session.json"
+  ],
+  "archive_sha256": "409eb78caf8bd780eeb5dfb0b65d5c0857cacb0094c4d0290c7de0289bce25f6",
+  "bag_files": [
+    {
+      "bytes": 163303424,
+      "path": "raw/bag/bag_0.db3"
+    }
+  ],
+  "checks": [
+    {
+      "detail": "['bag_0.db3']",
+      "name": "sqlite3_bag_present",
+      "passed": true
+    },
+    {
+      "detail": "/work/out/local_humble/docker/sessions/ros_20261105T190502Z_349c6350/raw/bag/metadata.yaml",
+      "name": "bag_metadata_written",
+      "passed": true
+    },
+    {
+      "detail": "108 rows on /lelab_offline/recording/teleop",
+      "name": "teleop_frame_rows_recorded",
+      "passed": true
+    },
+    {
+      "detail": "[(640, 400)]",
+      "name": "camera_resolution_640x400",
+      "passed": true
+    },
+    {
+      "detail": "|header-bag| p50 54.97 ms p95 56.75 ms max 59.81 ms over 211 images",
+      "name": "camera_header_and_bag_stamp_same_clock_domain",
+      "passed": true
+    },
+    {
+      "detail": "108 rows, 108 distinct (stream_epoch, frame_seq) pairs",
+      "name": "frame_seq_unique_within_its_stream_epoch",
+      "passed": true
+    },
+    {
+      "detail": "{'ep_1793905503_a3db24': [6], 'ep_1793905510_c37a08': [7]}",
+      "name": "each_episode_has_exactly_one_stream_generation",
+      "passed": true
+    },
+    {
+      "detail": "{'ep_1793905503_a3db24': 54, 'ep_1793905510_c37a08': 54}",
+      "name": "every_row_names_a_recorded_episode",
+      "passed": true
+    },
+    {
+      "detail": "['grasp', 'observe']",
+      "name": "both_phases_recorded",
+      "passed": true
+    },
+    {
+      "detail": "['814d02d677514575967dde76b8615c3e']",
+      "name": "clock_epoch_consistent",
+      "passed": true
+    },
+    {
+      "detail": "max offset 0.3 ms, median 0.2 ms",
+      "name": "row_stamp_is_the_bag_clock",
+      "passed": true
+    },
+    {
+      "detail": "manifest clock_domain=car_system_time, row control domain stays monotonic",
+      "name": "monotonic_clock_never_equal_to_recorded_clock",
+      "passed": true
+    },
+    {
+      "detail": "108 inside, 0 outside",
+      "name": "rows_inside_their_phase_window",
+      "passed": true
+    },
+    {
+      "detail": "[]",
+      "name": "sent_targets_inside_calibrated_limits",
+      "passed": true
+    },
+    {
+      "detail": "28 rows where pre-clip joint5 differs from the sent value",
+      "name": "clipping_is_visible_in_the_data",
+      "passed": true
+    },
+    {
+      "detail": "108/108",
+      "name": "six_axis_target_and_state_per_row",
+      "passed": true
+    },
+    {
+      "detail": "['simulated_offline']",
+      "name": "rows_tagged_simulated_offline",
+      "passed": true
+    },
+    {
+      "detail": "['driver_sent']",
+      "name": "confirmation_never_claims_controller_ack",
+      "passed": true
+    },
+    {
+      "detail": "['raw/bag/bag_0.db3']",
+      "name": "archive_carries_the_bag",
+      "passed": true
+    },
+    {
+      "detail": "9",
+      "name": "archive_carries_manifest_and_events",
+      "passed": true
+    },
+    {
+      "detail": "9",
+      "name": "archive_excludes_the_archive_itself",
+      "passed": true
+    }
+  ],
+  "clock_domain": "car_system_time",
+  "clock_epoch": "814d02d677514575967dde76b8615c3e",
+  "data_identity": "simulated_offline",
+  "failed": [],
+  "rows_by_episode": {
+    "ep_1793905503_a3db24": 54,
+    "ep_1793905510_c37a08": 54
+  },
+  "rows_by_phase": {
+    "ep_1793905503_a3db24/grasp": 27,
+    "ep_1793905503_a3db24/observe": 27,
+    "ep_1793905510_c37a08/grasp": 27,
+    "ep_1793905510_c37a08/observe": 27
+  },
+  "session_id": "ros_20261105T190502Z_349c6350",
+  "started_utc": "2026-11-05T19:05:19Z",
+  "topic_counts": {
+    "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info": 211,
+    "/lelab_offline/ascamera/camera_publisher/rgb0/image": 211,
+    "/lelab_offline/lelab/ros_robot_controller/servo_readback": 70,
+    "/lelab_offline/recording/teleop": 248,
+    "/lelab_offline/ros_robot_controller/bus_servo/set_position": 110
+  },
+  "training_eligible": false
+}

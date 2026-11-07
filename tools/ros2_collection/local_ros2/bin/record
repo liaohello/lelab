@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# bin/record - two short episodes recorded by the production SessionRecorder into a
+# real sqlite3 ROS 2 bag, driven through the same frame stream as the control loop.
+# Simulated board and camera only; the recorder and the bag are the real ones.
+set -uo pipefail
+source "$(cd "$(dirname "$0")/../lib" && pwd)/common.sh"
+
+PROFILE_INSIDE="/repo/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d.json"
+EPISODES="${LROS_RECORD_EPISODES:-2}"
+OBSERVE="${LROS_OBSERVE_S:-2}"
+GRASP="${LROS_GRASP_S:-2}"
+SERIES="${LROS_RECORD_SERIES:-$(date -u +%Y%m%dT%H%M%SZ)}"
+REPORT="$EVIDENCE_DIR/recording-$SERIES.json"
+DRIVER="$REPO_ROOT/tools/ros2_collection/local_ros2/offline/frame_drive.py"
+
+[ -f "$RUN_DIR/offline_stack.json" ] || lros_die "the stack is not up: run bin/up first"
+# Arm the licence for this run: the recorder must see the same permission the
+# control process obeys, and an earlier phase may have left it disarmed.
+stop_instance licence_agent TERM >/dev/null 2>&1
+wait_instance_gone licence_agent 15 >/dev/null 2>&1
+bundle="$(sed -n 's/.*"calibration_bundle_hash": "\([^"]*\)".*/\1/p' "$RUN_DIR/offline_stack.json")"
+humble_enter_detached licence_agent licence_agent.log \
+  "python3 \$OFFLINE_DIR/licence_agent.py --session-id offline-session --session-epoch 1 \
+   --bundle $bundle --token offline-lease-token --permits arm,gripper --outputs true \
+   --status-path /out/state/licence_agent_status.json"
+sleep 2
+
+humble_enter_detached sim_camera sim_camera.log 'python3 $OFFLINE_DIR/sim_camera.py --rate-hz 15'
+sleep 1
+
+DRIVE_SECONDS=$(( (OBSERVE + GRASP + 1) * EPISODES ))
+echo "[record] driving frames at 10Hz for ${DRIVE_SECONDS}s while the recorder runs"
+"$REPO_ROOT/app_ros_mobile/.venv/bin/python" "$DRIVER" --phase follow \
+  --hz 10 --duration-s "$DRIVE_SECONDS" \
+  --report "$EVIDENCE_DIR/follow-during-record-$SERIES.json" &
+DRIVE_JOB=$!
+
+humble_ros "python3 \$OFFLINE_DIR/record_session.py --profile $PROFILE_INSIDE \
+  --car-root /out/data --episodes $EPISODES --observe-s $OBSERVE --grasp-s $GRASP \
+  --report /out/evidence/recording-$SERIES.json" 2>&1 | tail -40
+RECORD_RC=$?
+
+wait "$DRIVE_JOB"
+DRIVE_RC=$?
+stop_instance sim_camera TERM
+wait_instance_gone sim_camera 15
+
+echo "[record] recorder exit=$RECORD_RC driver exit=$DRIVE_RC report=$REPORT"
+if [ -f "$REPORT" ]; then
+  python3 - "$REPORT" <<'PY'
+import json, sys
+report = json.loads(open(sys.argv[1]).read())
+print("sessions:", len(report["sessions"]))
+for entry in report["sessions"]:
+    counts = entry.get("topic_message_counts") or {}
+    print(f"  {entry['session_id']}: ready={entry.get('ready')} "
+          f"manifest={entry.get('manifest_status')} bag_dir={entry.get('bag_dir_exists')} "
+          f"topics={len(counts)}")
+    for topic, count in sorted(counts.items()):
+        print(f"      {topic}: {count}")
+    if entry.get("bag_read_error"):
+        print("      BAG READ ERROR:", entry["bag_read_error"])
+PY
+fi
+exit "$RECORD_RC"

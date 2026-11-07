@@ -1,0 +1,352 @@
+#!/usr/bin/env bash
+# bin/docker - the offline teleop loop inside a real Docker container.
+# Subcommands: doctor | build | up | arm | accept | disarm | down
+#
+# Identity rules - this launcher must never touch somebody else's container or process:
+#   * containers it creates carry com.lelab.owner=... and com.lelab.instance=... ;
+#     a container without that label is refused, even if it has our exact name;
+#   * processes inside are started and stopped through offline/container_ops.py, which
+#     verifies /proc/<pid>/cmdline and the recorded start time before signalling, so a
+#     recycled pid or a foreign process is never killed by name or pattern;
+#   * LROS_ADOPT_UNLABELLED=1 is the only way to operate on a pre-hardening container,
+#     and it still requires the image to be ours.
+#
+# Safety shape, deliberately different from the Pi's MentorPi container: not privileged,
+# no --device, no /dev mapping, no pyserial in the image, repo mounted read-only, every
+# ROS name under /lelab_offline, and the frame port bound to loopback by the server.
+set -uo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+source "$HERE/lib/common.sh"
+
+IMAGE="${LROS_IMAGE:-lelab/humble-dev:local}"
+BASE_PINNED="ros:humble-ros-base-jammy@sha256:a3f4de78e42cca693a543ece5798aedcf1cae0171fe71c334a047332cc72ef93"
+NAME="${LROS_CONTAINER:-lelab-humble-dev}"
+OWNER_VALUE="tools/ros2_collection/local_ros2/bin/docker"
+# The instance value is per-workspace and per-task: two checkouts of this repo, or a
+# different task sharing the same image, must not manage each other's containers.
+# Deliberately not an environment override: if the expected instance could be set to
+# whatever a foreign container carries, the check would be decorative.
+INSTANCE_VALUE="landerpi-local-humble-offline"
+OWNER_LABEL="com.lelab.owner=$OWNER_VALUE"
+INSTANCE_LABEL="com.lelab.instance=$INSTANCE_VALUE"
+DOMAIN="${LROS_DOCKER_DOMAIN_ID:-93}"
+STREAM_PORT="${LROS_DOCKER_STREAM_PORT:-18122}"
+AGENT_PORT="${LROS_DOCKER_AGENT_PORT:-18130}"
+AGENT_URL="http://127.0.0.1:$AGENT_PORT"
+C_SESSION=/work/lelab/tools/ros2_collection/local_ros2/offline/agent_session.py
+C_MARKER=/work/out/local_humble/run/docker_session.json
+H_MARKER="$RUN_DIR/docker_session.json"
+DRIVER="$REPO_ROOT/tools/ros2_collection/local_ros2/offline/frame_drive.py"
+PY="$REPO_ROOT/app_ros_mobile/.venv/bin/python"
+
+# Container-side absolute paths, kept literal so a single-quoted remote command cannot
+# silently expand into an empty string.
+C_WS=/work/out/local_humble/docker/ws
+C_STATE=/work/out/local_humble/docker/state
+C_EVID=/work/out/local_humble/docker/evidence
+C_OPS=/work/lelab/tools/ros2_collection/local_ros2/offline/container_ops.py
+C_OFF=/work/lelab/tools/ros2_collection/local_ros2/offline
+C_PROFILE="${LROS_DOCKER_PROFILE:-/work/lelab/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d.json}"
+C_SRC=/work/lelab/ros2_ws/src/lelab_mobile_agent
+H_STATE="$WORK_DIR/docker/state"
+H_EVID="$WORK_DIR/docker/evidence"
+BUNDLE="${LROS_DOCKER_BUNDLE:-$(printf 'a%.0s' {1..64})}"
+# Sourcing preamble for anything that needs rclpy inside the container.
+C_INIT="source /opt/ros/humble/setup.bash; [ -f $C_WS/install/setup.bash ] && source $C_WS/install/setup.bash; export PYTHONPATH=$C_SRC:\${PYTHONPATH:-} CAR_PKG=$C_SRC"
+
+require_docker() { command -v docker >/dev/null || lros_die "docker is not installed"; }
+
+# Every container operation goes through the verified id, never the name: a name can
+# be re-pointed at a different container between resolution and use.
+cexec() {
+  local id
+  id="$(owned_container)"
+  case "$id" in ""|FOREIGN:*) lros_die "refusing to exec: $NAME is not an owned container ($id)" ;; esac
+  docker exec "$id" bash -lc "$*"
+}
+
+# is_owned succeeds only when the id is ours: FOREIGN:<id> and empty are both refusals.
+is_owned() {
+  case "$(owned_container)" in
+    "") return 1 ;;
+    FOREIGN:*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+# owned_container echoes the container id when BOTH ownership labels match this
+# launcher exactly, FOREIGN:<id> when the name belongs to somebody else, and
+# nothing when the container is absent.
+#
+# Exact value comparison matters: a second instance of this tool (different task or
+# a different workspace) carries the same owner but a different instance, and it must
+# never be managed from here.  The explicit adopt path is only for the pre-hardening
+# containers that carry no ownership label at all - a container that has any
+# com.lelab.* label but not the expected pair is refused even under the opt-in.
+owned_container() {
+  local id image owner instance
+  id="$(docker ps -aq --filter "name=^${NAME}$" 2>/dev/null | head -1)"
+  [ -n "$id" ] || { echo ""; return 0; }
+  # Compare label VALUES; the base image carries its own labels, and "key=value"
+  # never appears in the {"key":"value"} rendering of the whole blob.
+  owner="$(docker inspect --format "{{ index .Config.Labels \"com.lelab.owner\" }}" "$id" 2>/dev/null)"
+  instance="$(docker inspect --format "{{ index .Config.Labels \"com.lelab.instance\" }}" "$id" 2>/dev/null)"
+  if [ "$owner" = "$OWNER_VALUE" ] && [ "$instance" = "$INSTANCE_VALUE" ]; then
+    echo "$id"; return 0
+  fi
+  if [ "$owner" = "$OWNER_VALUE" ] && [ -n "$instance" ]; then
+    lros_log "refusing: same owner but a different instance label ($instance != $INSTANCE_VALUE)"
+    echo "FOREIGN:$id"; return 0
+  fi
+  any_lelab_label="$(docker inspect --format '{{json .Config.Labels}}' "$id" 2>/dev/null | grep -o 'com\.lelab\.' | head -1)"
+  if [ "${LROS_ADOPT_UNLABELLED:-0}" = "1" ] && [ -z "$owner" ] && [ -z "$instance" ] \
+     && [ -z "$any_lelab_label" ]; then
+    image="$(docker inspect --format '{{.Config.Image}}' "$id" 2>/dev/null)"
+    case "$image" in
+      *"$IMAGE"*|*"lelab/humble-dev"*)
+        lros_log "adopting a pre-hardening container $id (image $image) under explicit opt-in"
+        echo "$id"; return 0 ;;
+    esac
+  fi
+  echo "FOREIGN:$id"
+}
+
+show_control_state() {
+  [ -f "$H_STATE/car_control_status.json" ] || { echo "no control status file yet"; return 0; }
+  python3 - "$H_STATE/car_control_status.json" <<'PY'
+import json, pathlib, sys
+d = json.loads(pathlib.Path(sys.argv[1]).read_text())
+licence = d["licence"]["licence"] or {}
+print("licence:", d["licence"]["authorised"], "| licence outputs:", licence.get("outputs_enabled"),
+      "| feedback:", d["feedback"]["available"], "| outputs_enabled:", d["outputs_enabled"],
+      "| paused:", d["paused"], "| latched:", d["latched_fault"],
+      "| publish_count:", d["publish_count"], "| ticks:", d["counters"]["ticks"])
+PY
+}
+
+case "${1:-doctor}" in
+  doctor)
+    require_docker
+    echo "== daemon =="
+    docker version --format 'client={{.Client.Version}} server={{.Server.Version}}' 2>&1 | tail -1
+    echo "== images =="
+    docker image inspect --format 'pinned base: {{.Id}} {{.Architecture}} {{.Created}}' "$BASE_PINNED" 2>&1 | tail -1
+    docker image inspect --format 'our image  : {{.Id}} {{.Size}} bytes' "$IMAGE" 2>&1 | tail -1
+    echo "== ownership =="
+    echo "container $NAME -> [$(owned_container)]"
+    docker ps --filter "name=$NAME" --format '{{.Names}}  {{.Status}}  labels={{.Labels}}'
+    echo "== inside =="
+    cexec "$C_INIT; python3 -V; printenv ROS_DISTRO ROS_LOCALHOST_ONLY RMW_IMPLEMENTATION ROS_DOMAIN_ID;
+      head -1 /etc/os-release;
+      python3 -c 'import serial' 2>/dev/null && echo 'FAIL pyserial present' || echo 'no pyserial: real bus unreachable by construction';
+      ls /dev/rrc /dev/ttyACM* /dev/video* 2>/dev/null | head -3;
+      ros2 bag record --help >/dev/null 2>&1 && echo ROS2_BAG_CLI_OK;
+      ros2 interface show ros_robot_controller_msgs/msg/ServosPosition >/dev/null 2>&1 && echo VENDOR_MSG_OK || echo VENDOR_MSG_NOT_BUILT_YET" 2>&1 | tail -10
+    echo "== mounts =="
+    cexec 'touch /work/lelab/.rw_probe 2>/dev/null && { rm -f /work/lelab/.rw_probe; echo "FAIL repo writable"; } || echo "repo mounted read-only"; ls /work/vendor | head -3' 2>&1 | tail -5
+    echo "== owned processes =="
+    cexec "python3 $C_OPS status --state-dir $C_STATE" 2>&1 | tail -16
+    echo "== control state =="
+    show_control_state
+    ;;
+
+  build)
+    require_docker
+    lros_log "building $IMAGE from the pinned base"
+    docker build --network=host -f "$HERE/docker/Dockerfile" -t "$IMAGE" "$REPO_ROOT" 2>&1 | tail -5
+    ;;
+
+  up)
+    require_docker
+    existing="$(owned_container)"
+    case "$existing" in
+      FOREIGN:*) lros_die "a container named $NAME exists but is not ours (id ${existing#FOREIGN:}). Refusing to remove it. Use LROS_CONTAINER=<name>, remove it yourself, or LROS_ADOPT_UNLABELLED=1 if it is a pre-hardening container of ours." ;;
+      "") : ;;
+      *) lros_log "removing our previous container $existing"; docker rm -f "$existing" >/dev/null ;;
+    esac
+    mkdir -p "$WORK_DIR/docker/state" "$WORK_DIR/docker/evidence" "$WORK_DIR/docker/logs"
+    # The lease marker is written by the host user; a root-owned leftover from an
+    # earlier container-side run would make the write fail with EACCES.
+    rm -f "$H_MARKER"
+    free_port "$STREAM_PORT" || lros_die "port $STREAM_PORT is already listening; not stealing another session's socket"
+    free_port "$AGENT_PORT" || lros_die "agent port $AGENT_PORT is already listening"
+    lros_log "starting $NAME: host network, no --device, repo ro, domain $DOMAIN, frame port $STREAM_PORT"
+    docker run -d --name "$NAME" --network host --hostname lelab-humble \
+      --label "$OWNER_LABEL" --label "$INSTANCE_LABEL" \
+      -e ROS_DOMAIN_ID="$DOMAIN" -e ROS_LOCALHOST_ONLY=1 -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
+      -e LROS_OFFLINE_PROFILE=simulated \
+      -v "$REPO_ROOT:/work/lelab:ro" -v "$WORK_DIR/..:/work/out" \
+      -v "$VENDOR_MSGS_SRC:/work/vendor:ro" \
+      --cap-drop ALL --cap-add CHOWN --cap-add DAC_OVERRIDE --cap-add FOWNER \
+      --cap-add SETUID --cap-add SETGID --cap-add NET_RAW --security-opt no-new-privileges:true \
+      --tmpfs /tmp --restart no "$IMAGE" bash -lc 'sleep infinity' >/dev/null
+    sleep 1
+
+    lros_log "staging vendor messages (per-file SHA256) and building them in the container"
+    cexec "mkdir -p $C_WS $C_STATE $C_EVID && python3 /work/lelab/tools/ros2_collection/local_ros2/lib/stage_vendor.py --source /work/vendor --dest $C_WS/src/ros_robot_controller_msgs --manifest $C_EVID/vendor-msgs-manifest.json" 2>&1 | tail -2
+    cexec "cd $C_WS && $C_INIT && colcon --log-base log build --base-paths src --packages-select ros_robot_controller_msgs --install-base install --build-base build 2>&1 | tail -3"
+
+    lros_log "starting the simulated board and the standalone control process"
+    # Rotate, never delete: a status file left by a crashed previous run reads exactly
+    # like a live one, and that is how a dead control process gets mistaken for a
+    # healthy stack.
+    cexec "for f in $C_STATE/car_control_status.json $C_STATE/licence_agent_status.json $C_STATE/sim_board_owner.json; do
+      [ -f \"\$f\" ] && mv \"\$f\" \"\${f%.json}.prev.json\"; done; echo rotated" 2>&1 | tail -1
+    cexec "$C_INIT; python3 $C_OPS start-board --state-dir $C_STATE --script $C_OFF/sim_board_owner.py --arg=--state-path --arg=$C_STATE/sim_board_owner.json ${LROS_DOCKER_BOARD_RAW:+--arg=--initial-raw --arg=$LROS_DOCKER_BOARD_RAW}" 2>&1 | tail -1
+    # The recorder refuses to start while a required topic is stale, so the synthetic
+    # wrist camera is part of the standing stack, not something each phase re-launches.
+    cexec "$C_INIT; python3 $C_OPS start-camera --state-dir $C_STATE --script $C_OFF/sim_camera.py --arg=--rate-hz --arg=15" 2>&1 | tail -1
+    cexec "$C_INIT; python3 $C_OPS start-control --state-dir $C_STATE --module lelab_mobile_agent.car_control_process --arg=--profile --arg=$C_PROFILE --arg=--stream-port --arg=$STREAM_PORT --arg=--licence-socket --arg=$C_STATE/licence.sock --arg=--status-path --arg=$C_STATE/car_control_status.json --arg=--control-hz --arg=10 --arg=--window-ms --arg=250 --arg=--bundle-hash --arg=$BUNDLE" 2>&1 | tail -1
+    sleep 2
+    lros_log "starting the PRODUCTION agent: it owns the car lease, the licence mirror and the recorder"
+    cexec "$C_INIT; python3 $C_OPS start-agent --state-dir $C_STATE --module lelab_mobile_agent.agent --arg=--ros-args --arg=-p --arg=profile_path:=$C_PROFILE --arg=-p --arg=car_root:=/work/out/local_humble/docker --arg=-p --arg=host:=127.0.0.1 --arg=-p --arg=port:=$AGENT_PORT --arg=-p --arg=licence_socket:=$C_STATE/licence.sock --arg=-p --arg=control_status_path:=$C_STATE/car_control_status.json" 2>&1 | tail -1
+    sleep 4
+    cexec "curl -fsS -m 5 $AGENT_URL/health >/dev/null && echo agent_health_ok || echo agent_health_FAIL"
+
+    # Two files, deliberately: the stack marker holds shareable container facts, the
+    # session marker holds the live lease and is 0600 because it carries the real token.
+    printf '{"container":"%s","container_id":"%s","stream_port":%s,"agent_url":"%s","domain_id":"%s","data_identity":"simulated_offline","training_eligible":false}\n' \
+      "$NAME" "$(owned_container)" "$STREAM_PORT" "$AGENT_URL" "$DOMAIN" > "$RUN_DIR/docker_stack.json"
+    printf '{"stream_port":%s,"agent_url":"%s","client_id":"acceptance","session_id":"offline-acceptance","session_epoch":1,"calibration_bundle_hash":"%s","lease_token":"","data_identity":"simulated_offline","training_eligible":false}\n' \
+      "$STREAM_PORT" "$AGENT_URL" "$BUNDLE" > "$H_MARKER"
+    chmod 600 "$H_MARKER"
+    echo "status: $(docker ps --filter "name=$NAME" --format '{{.Status}}')"
+    echo "DISARMED by construction: no lease acquired, no epoch bound, no output permission"
+    show_control_state
+    ;;
+
+  arm)
+    require_docker
+    outputs="${2:-true}"
+    case "$outputs" in true|false) : ;; *) lros_die "usage: bin/docker arm true|false" ;; esac
+    is_owned || lros_die "no owned container; run bin/docker up"
+    # The simulated issuer is a protocol-test fixture.  It must not be running while the
+    # production agent owns the licence, so any leftover copy is stopped here and this
+    # launcher never starts it again.
+    cexec "python3 $C_OPS stop-licence --state-dir $C_STATE" >/dev/null 2>&1 || true
+    action=start
+    [ "$outputs" = "true" ] && action=enable
+    lros_log "arm through the production agent: acquire + bind epoch (+ enable output)"
+    python3 "$LROS_TOOL_DIR/offline/agent_session.py" --agent-url $AGENT_URL --stream-port $STREAM_PORT \
+      --marker "$H_MARKER" --control-status "$H_STATE/car_control_status.json" \
+      --bundle $BUNDLE --client-id acceptance --action $action 2>&1 | tail -24
+    sleep 1
+    show_control_state
+    ;;
+
+  disarm)
+    require_docker
+    is_owned || lros_die "no owned container (a foreign container with our name is never touched)"
+    lros_log "pausing following over the stream, then revoking the agent's own output permission"
+    # The pause travels the same stream the frames do, so it is the frame path that is
+    # stopped - not a side channel that only the fixture understood.
+    export LROS_STATE_DIR="$H_STATE"
+    "$PY" "$DRIVER" --marker "$H_MARKER" --phase stop --report "$H_EVID/disarm-pause.json" 2>&1 | tail -4
+    # Hand the car back completely: revoke the output permission and release the lease,
+    # so "disarmed" does not quietly mean "somebody still holds control for 300 seconds".
+    python3 "$LROS_TOOL_DIR/offline/agent_session.py" --agent-url $AGENT_URL --stream-port $STREAM_PORT \
+      --marker "$H_MARKER" --action release 2>&1 | tail -10
+    sleep 2
+    show_control_state
+    ;;
+
+  renew)
+    require_docker
+    is_owned || lros_die "no owned container"
+    python3 "$LROS_TOOL_DIR/offline/agent_session.py" --agent-url $AGENT_URL --stream-port $STREAM_PORT \
+      --marker "$H_MARKER" --action renew 2>&1 | tail -2
+    ;;
+
+  assert-legacy)
+    require_docker
+    is_owned || lros_die "no owned container"
+    routes="${2:-/hybrid/apply,/control/arm,/control/gripper,/expert/run,/task/reset}"
+    lros_log "every legacy action route must refuse while the frame transport owns the output"
+    python3 "$LROS_TOOL_DIR/offline/agent_session.py" --agent-url $AGENT_URL --stream-port $STREAM_PORT \
+      --marker "$H_MARKER" --action assert-legacy-refused --expect-refusal $routes 2>&1 | tail -12
+    ;;
+
+  accept)
+    require_docker
+    marker="$RUN_DIR/docker_stack.json"
+    [ -f "$marker" ] || lros_die "run bin/docker up first"
+    is_owned || lros_die "refusing: $NAME is not an owned container"
+    lros_log "shared contract + stream + frame link tests inside the container (Python 3.10)"
+    # PYTHONPATH must be appended, never replaced: /opt/ros/humble/setup.bash puts the
+    # dist-packages path there, and clobbering it makes rclpy unimportable.
+    cexec "$C_INIT; cd /work/lelab && PYTHONPATH=app_ros_mobile:ros2_ws/src/lelab_mobile_agent:\${PYTHONPATH:-} python3 -m pytest -p no:cacheprovider -q tools/ros2_collection/tests/test_teleop_frame_v1.py tools/ros2_collection/tests/test_teleop_stream.py tools/ros2_collection/tests/test_hybrid_frame_link.py tools/ros2_collection/tests/test_licence_ipc.py tools/ros2_collection/tests/test_agent_licence_bridge.py tools/ros2_collection/tests/test_agent_frame_arbitration.py" 2>&1 | tail -4
+    lros_log "9A: the production agent is the only licence sender"
+    cexec "python3 $C_OPS assert-single-issuer --needle licence_agent.py" 2>&1 | tail -6
+    export LROS_STATE_DIR="$H_STATE"
+    "$0" arm false >/dev/null
+    lros_log "preview: frames arrive, the board sees nothing"
+    "$PY" "$DRIVER" --marker "$H_MARKER" --phase preview --hz 10 --duration-s 5 \
+      --report "$H_EVID/preview.json" 2>&1 | tail -6
+    "$0" arm true >/dev/null
+    lros_log "9B: legacy action routes must refuse while the frame stream owns the output"
+    "$0" assert-legacy 2>&1 | tail -7
+    lros_log "follow: one admitted frame becomes one six-axis message"
+    "$PY" "$DRIVER" --marker "$H_MARKER" --phase follow --hz 10 --duration-s 12 \
+      --report "$H_EVID/follow.json" 2>&1 | tail -10
+    lros_log "faults: bad frame, stale window, TTL ceiling, emergency stop"
+    "$PY" "$DRIVER" --marker "$H_MARKER" --phase faults --report "$H_EVID/faults.json" 2>&1 | tail -10
+    cexec "curl -fsS -m 5 $AGENT_URL/status" > "$H_EVID/agent-status-after-accept.json" 2>&1 || true
+    "$0" disarm >/dev/null
+    ;;
+
+  faults)
+    require_docker
+    is_owned || lros_die "no owned container"
+    lros_log "9E: the live fault matrix over the agent's own HTTP and frame stream"
+    "$PY" "$LROS_TOOL_DIR/offline/fault_matrix.py" --agent-url $AGENT_URL --stream-port $STREAM_PORT \
+      --marker "$H_MARKER" --control-status "$H_STATE/car_control_status.json" \
+      --bundle $BUNDLE --report "$H_EVID/fault-matrix.json" "${@:2}" 2>&1 | tail -26
+    ;;
+
+  record)
+    require_docker
+    is_owned || lros_die "no owned container; run bin/docker up first"
+    lros_log "9D: one production session, two episodes, real sqlite3 recording, archive over HTTP"
+    "$PY" "$LROS_TOOL_DIR/offline/hybrid_session.py" --marker "$H_MARKER" \
+      --control-status "$H_STATE/car_control_status.json" --bundle "$BUNDLE" \
+      --episodes "${LROS_EPISODES:-2}" --observe-s "${LROS_OBSERVE_S:-3}" \
+      --grasp-s "${LROS_GRASP_S:-3}" --hz 10 \
+      --archive-to "$H_EVID/agent-session-archive.tar.gz" \
+      --report "$H_EVID/hybrid-session.json" 2>&1 | tail -26
+    sid=$(python3 -c "import json,sys; print(json.load(open('$H_EVID/hybrid-session.json'))['recording_session_id'])")
+    [ -n "$sid" ] || lros_die "no recording session id in the report"
+    lros_log "reading the bag back with the ROS 2 storage API ($sid)"
+    cexec "source /opt/ros/humble/setup.bash; source $C_WS/install/setup.bash; cd /work/lelab && \
+      python3 $C_OFF/verify_bag.py --session-dir /work/out/local_humble/docker/sessions/$sid \
+      --manifest /work/out/local_humble/docker/sessions/$sid/manifest.json \
+      --archive /work/out/local_humble/docker/evidence/agent-session-archive.tar.gz \
+      --report /work/out/local_humble/docker/evidence/bag-verify.json" 2>&1 | grep -v '^\[INFO\]' | tail -24
+    lros_log "production sync + the restricted offline 6D export"
+    LELAB_ROS_AGENT_URL="$AGENT_URL" LELAB_ROS_COLLECTION_ROOT="$WORK_DIR/upper6d" \
+    HF_LEROBOT_HOME="$WORK_DIR/lerobot_offline" \
+      "$PY" "$LROS_TOOL_DIR/offline/sync_and_export.py" --session-id "$sid" \
+        --report "$H_EVID/sync-export.json" 2>&1 | tail -14
+    "$0" disarm >/dev/null
+    lros_log "data left under $WORK_DIR/docker/sessions/$sid and $WORK_DIR/upper6d; stack disarmed"
+    ;;
+
+  down)
+    require_docker
+    id="$(owned_container)"
+    case "$id" in
+      "") lros_log "nothing to stop: no owned container named $NAME" ;;
+      FOREIGN:*) lros_die "refusing to stop $NAME: it is not labelled as ours (${id#FOREIGN:})" ;;
+      *)
+        lros_log "stopping our owned processes first, then the container"
+        for kind in agent licence control board; do
+          cexec "python3 $C_OPS stop-$kind --state-dir $C_STATE" 2>&1 | tail -1 || true
+        done
+        docker stop "$id" >/dev/null && docker rm "$id" >/dev/null && lros_log "stopped and removed $id"
+        ;;
+    esac
+    rm -f "$RUN_DIR/docker_stack.json"
+    lros_log "mounted data and evidence under $WORK_DIR/docker are kept"
+    ;;
+
+  *) lros_die "usage: bin/docker doctor|build|up|arm true|false|renew|assert-legacy|accept|disarm|down" ;;
+esac

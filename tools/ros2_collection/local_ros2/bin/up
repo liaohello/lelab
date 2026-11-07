@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# bin/up - start the offline Humble car stack (simulated board + control process +
+# licence issuer).  Nothing here can reach hardware: no serial module exists in the
+# runtime, no device node is mapped, and every topic is remapped under /lelab_offline.
+set -euo pipefail
+source "$(cd "$(dirname "$0")/../lib" && pwd)/common.sh"
+
+PROFILE="${LROS_PROFILE:-/repo/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d.json}"
+STREAM_PORT="${LROS_STREAM_PORT:-18121}"
+BUNDLE="${LROS_BUNDLE:-$(printf 'a%.0s' {1..64})}"
+SESSION_ID="${LROS_SESSION_ID:-offline-session}"
+EPOCH="${LROS_SESSION_EPOCH:-1}"
+LEASE_TOKEN="${LROS_LEASE_TOKEN:-offline-lease-token}"
+CONTROL_HZ="${LROS_CONTROL_HZ:-10}"
+WINDOW_MS="${LROS_WINDOW_MS:-250}"
+BOARD_SCAN_PERIOD="${LROS_SCAN_PERIOD_S:-0.2}"
+
+[ -d "$WS/install/ros_robot_controller_msgs" ] || lros_die "vendor messages not built: run bin/build first"
+for name in sim_board_owner car_control licence_agent; do
+  if [ -f "$(instance_file "$name")" ]; then
+    existing="$(read_instance_field "$name" pid)"
+    [ -d "/proc/$existing" ] && lros_die "$name is already running as pid $existing; run bin/down first"
+  fi
+done
+free_port "$STREAM_PORT" || lros_die "port $STREAM_PORT is already in use; not stealing another session's socket"
+[ -d "$STATE_DIR" ] || mkdir -p "$STATE_DIR"
+rm -f "$STATE_DIR"/licence.sock "$STATE_DIR"/*.json "$RUN_DIR"/*.pid 2>/dev/null || true
+
+lros_log "checking that ROS domain $LROS_ROS_DOMAIN_ID is idle before starting"
+humble_ros 'ros2 daemon stop >/dev/null 2>&1 || true; sleep 1; ros2 topic list 2>/dev/null | grep -c "lelab_offline" || true' \
+  | tail -1 | grep -qx 0 || lros_log "note: the domain already shows lelab_offline topics; continuing with remapped names"
+
+humble_enter_detached sim_board_owner sim_board_owner.log \
+  "python3 \$OFFLINE_DIR/sim_board_owner.py --scan-period-s $BOARD_SCAN_PERIOD \
+   --state-path /out/state/sim_board_owner.json"
+
+humble_enter_detached car_control car_control.log \
+  "python3 -m lelab_mobile_agent.car_control_process --profile $PROFILE \
+   --stream-port $STREAM_PORT --licence-socket /out/state/licence.sock \
+   --status-path /out/state/car_control_status.json \
+   --control-hz $CONTROL_HZ --window-ms $WINDOW_MS --bundle-hash $BUNDLE"
+
+humble_enter_detached licence_agent licence_agent.log \
+  "python3 \$OFFLINE_DIR/licence_agent.py --session-id $SESSION_ID \
+   --session-epoch $EPOCH --bundle $BUNDLE --token $LEASE_TOKEN \
+   --permits arm,gripper --outputs ${LROS_OUTPUTS:-false} --status-path /out/state/licence_agent_status.json"
+
+python3 - "$RUN_DIR" "$STATE_DIR" "$STREAM_PORT" "$BUNDLE" "$SESSION_ID" "$EPOCH" "$LEASE_TOKEN" <<'PY'
+import json, sys
+from pathlib import Path
+run_dir, state_dir, port, bundle, session_id, epoch, token = sys.argv[1:8]
+marker = {"stream_port": int(port), "calibration_bundle_hash": bundle,
+          "session_id": session_id, "session_epoch": epoch, "lease_token": token,
+          "readback_topic": "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+          "output_topic": "/lelab_offline/ros_robot_controller/bus_servo/set_position",
+          "data_identity": "simulated_offline", "training_eligible": False,
+          "instances": sorted(p.name for p in Path(run_dir).glob("*.json")),
+          "state_dir": state_dir}
+Path(run_dir, "offline_stack.json").write_text(json.dumps(marker, indent=2, sort_keys=True) + "\n")
+print(json.dumps(marker, sort_keys=True))
+PY
+lros_log "offline stack is up; outputs start disabled (bin/accept arms them explicitly)"

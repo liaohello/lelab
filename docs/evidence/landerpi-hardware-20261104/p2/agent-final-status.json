@@ -1,0 +1,52 @@
+{
+  "profile": "hardware_hybrid_manual_v1",
+  "driver_bound": true,
+  "outputs_enabled": false,
+  "feedback_reason": "no_feedback_yet",
+  "raw": {},
+  "scan_span_s": null,
+  "training_export": {
+    "trusted": false,
+    "available": false,
+    "reason": "joint_facts_incomplete,base_estimate_missing_or_untrusted,base_covariance_missing,scan_span_unavailable",
+    "joint_source_kind": "unavailable",
+    "base_source_kind": "unavailable",
+    "calibration_hash": null,
+    "base_estimate_has_covariance": false,
+    "max_state_age_s": 0.5,
+    "joint_topic": "/ros_robot_controller/bus_servo/get_state",
+    "base_topic": null,
+    "scan_span_ms": null,
+    "fact_source": "adapter.capabilities+adapter.read_snapshot",
+    "execution_observed": "unavailable",
+    "simulated": false,
+    "hardware_measurement": false,
+    "data_source": "hardware"
+  }
+}
+{
+  "profile": "hardware_hybrid_manual_v1",
+  "driver_bound": true,
+  "outputs_enabled": false,
+  "feedback_reason": "no_feedback_yet",
+  "raw": {},
+  "scan_span_s": null,
+  "training_export": {
+    "trusted": false,
+    "available": false,
+    "reason": "joint_facts_incomplete,base_estimate_missing_or_untrusted,base_covariance_missing,scan_span_unavailable",
+    "joint_source_kind": "unavailable",
+    "base_source_kind": "unavailable",
+    "calibration_hash": null,
+    "base_estimate_has_covariance": false,
+    "max_state_age_s": 0.5,
+    "joint_topic": "/ros_robot_controller/bus_servo/get_state",
+    "base_topic": null,
+    "scan_span_ms": null,
+    "fact_source": "adapter.capabilities+adapter.read_snapshot",
+    "execution_observed": "unavailable",
+    "simulated": false,
+    "hardware_measurement": false,
+    "data_source": "hardware"
+  }
+}

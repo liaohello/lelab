@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-03",
+  "title": "SO-101 移动遥操作：故障注入「车端 agent 被杀」在本机部署代码链路实测（合成话题，非实机）",
+  "grade": "local_rehearsal_fault_injection_synthetic_topics",
+  "not": [
+    "实机验收",
+    "真实舵机是否停住",
+    "真实控制器回执",
+    "急停按钮物理有效性"
+  ],
+  "scenario": "teleop 会话正在 following 且 episode 已开录时，对车端 agent 进程发 SIGKILL（正是 MentorPi 容器被杀 / 车断电时容器以 137 退出的同一种死法），然后按同一路径重启 agent，观察上位机与车端各自怎么收尾。",
+  "reproduce": {
+    "1": "work/ros2_collection/envs/ros_jazzy/bin/python tools/ros2_collection/local_car_rehearsal.py --root /tmp/lelab_car_rehearsal",
+    "2": "HF_LEROBOT_HOME=~/.cache/lelab-ros-mobile-tests/hf app_ros_mobile/.venv/bin/python tools/ros2_collection/local_car_fault_injection.py --root /tmp/lelab_car_rehearsal",
+    "3": "cd /tmp/lelab_car_rehearsal && ROS_DOMAIN_ID=57 nohup ./run_local_agent.sh > agent2.log 2>&1 &",
+    "artifacts": {
+      "session": "/tmp/lelab_car_rehearsal/sessions/ros_20261103T131846Z_20098c98",
+      "agent_log_2nd_start": "/tmp/lelab_car_rehearsal/agent2.log"
+    }
+  },
+  "coordinator_after_kill": {
+    "session_id": "ros_20261103T131846Z_20098c98",
+    "seq_before_kill": 43,
+    "state_after_kill": "paused",
+    "last_error_after_kill": "gate_lost:car_lease_invalid,follower_feedback_missing_or_stale,control_not_exclusive",
+    "car_token_active_after_kill": true,
+    "seq_after_wait": 43,
+    "stopped_sending": true,
+    "state_stays_downgraded": true,
+    "still_holds_upper_lease": true,
+    "state_after_release": "disconnected"
+  },
+  "reading": {
+    "left_following": true,
+    "reason_names_the_failed_gates": "gate_lost:car_lease_invalid,follower_feedback_missing_or_stale,control_not_exclusive",
+    "stopped_sending": true,
+    "did_not_resume_by_itself": true,
+    "caveat": "car_token_active 仍为 true：车没了以后上位机无从知道租约已被收回，真正的判据是 gate 里的 car_lease_invalid 与发送流已停；从 HTTP 侧无法区分“agent 进程没了”和“隧道断了”，因此错误原因按失效的门禁命名，不假称知道死因。"
+  },
+  "car_side_on_restart": {
+    "status_before": "recording",
+    "status_after": "error",
+    "stop_reason": "agent_restarted_mid_session",
+    "error_detail": "left open by the previous agent process; recorders [1031515] stopped=[1031515]",
+    "ready_eligible": false,
+    "bag_finalised_by_sigint": [
+      "bag_0.db3",
+      "metadata.yaml"
+    ],
+    "agent_log_line": "recovered interrupted session ros_20261103T131846Z_20098c98: stopped orphan recorder pids [1031515]",
+    "orphan_recorders_left_after": "无（ps 精确匹配 `ros2 bag record` 结果为空）"
+  },
+  "blocker_found": {
+    "id": "killed_agent_orphaned_its_bag_recorder",
+    "before": "崩溃收尾只存在于优雅退出路径：agent 被 SIGKILL 后 `ros2 bag record` 变成孤儿继续往旧 session 目录里写，session.json 永远停在 recording，既没有 manifest/READY 也没人再管它——在车上表现为磁盘被慢慢写满、而这轮采集在页面与同步列表里以“未结束”状态悬着。",
+    "fix": "recorder.recover_interrupted_sessions()：按 `--output <session>/raw/bag` 精确匹配只属于本 car_root 该会话的录包进程，对它所在进程组发 SIGINT（让 rosbag2 写完 metadata.yaml，绝不 SIGKILL），再把 session 记为 error / agent_restarted_mid_session / ready_eligible=false；已定稿的 session 与不可解析的 session.json 都不动。",
+    "tests": [
+      "tools/ros2_collection/tests/test_recorder_faults.py::InterruptedSessionRecoveryTests (3 项：只停自己那个录包进程、已定稿会话不动、缺目录/坏 json 不影响)",
+      "本机端到端：真杀进程 + 真重启 agent，见 car_side_on_restart"
+    ]
+  },
+  "counts_measured_this_round": {
+    "tools_suite": "PYTHONPATH=tools/ros2_collection work/ros2_collection/envs/ros_jazzy/bin/python -m pytest tools/ros2_collection/tests -q → 228 passed, 5 subtests（本轮 +3：崩溃恢复用例；上一轮 225）"
+  },
+  "still_needs_hardware": [
+    "SIGKILL 之后真机上舵机/控制器是否仍保持在最后指令位置（这里没有任何执行器，队列丢弃与车端 TTL 只能看代码路径）",
+    "拔主臂 USB、杀隧道、租约过期在真链路下的表现（本机只有合成 leader）",
+    "急停按钮按下后的物理停止与手臂不下坠"
+  ]
+}

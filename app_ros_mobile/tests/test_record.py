@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 
@@ -163,3 +164,93 @@ def test_build_camera_configs_skips_non_opencv_type() -> None:
     configs = _build_camera_configs(cameras, Cv2Backends.ANY)
 
     assert configs == {}
+
+
+def _recording_devices(tmp_lerobot_home, leader_cal: dict, follower_cal: dict, log: list):
+    """Fake robot/teleop pointing at real calibration files in the redirected trees."""
+    import json
+    from types import SimpleNamespace
+
+    from lelab.utils import config as cfg
+
+    paths = {}
+    for role, directory, name, payload in (("leader", cfg.LEADER_CONFIG_PATH, "left_rig", leader_cal),
+                                           ("follower", cfg.FOLLOWER_CONFIG_PATH, "left_rig", follower_cal)):
+        path = Path(directory) / f"{name}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        paths[role] = path
+
+    class _Bus:
+        motors = {}
+
+        def __init__(self, label: str) -> None:
+            self.label = label
+
+        def connect(self) -> None:
+            log.append(f"connect:{self.label}")
+
+        def write_calibration(self, calibration, cache=True) -> None:
+            log.append(f"write:{self.label}")
+
+    robot = SimpleNamespace(bus=_Bus("follower"), calibration={},
+                            calibration_fpath=str(paths["follower"]))
+    teleop = SimpleNamespace(bus=_Bus("leader"), calibration={}, calibration_fpath=str(paths["leader"]))
+    cfg_obj = SimpleNamespace(robot=SimpleNamespace(port=""), teleop=SimpleNamespace(port=""))
+    return robot, teleop, cfg_obj
+
+
+def test_recording_writes_the_calibration_only_after_the_identity_check(
+    tmp_lerobot_home, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from lelab import arm_bindings, record
+
+    leader_port = "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00"
+    follower_port = "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149339-if00"
+    monkeypatch.setenv("LELAB_ARM_BINDINGS", str(tmp_lerobot_home / "lelab" / "arm_bindings.json"))
+    joints = ["shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper"]
+    leader_cal = {n: {"id": i + 1, "drive_mode": 0, "homing_offset": -1000 + i,
+                      "range_min": 800, "range_max": 3200} for i, n in enumerate(joints)}
+    follower_cal = {n: {"id": i + 1, "drive_mode": 0, "homing_offset": 2000 - i,
+                       "range_min": 800, "range_max": 3100} for i, n in enumerate(joints)}
+
+    log: list = []
+    robot, teleop, cfg_obj = _recording_devices(tmp_lerobot_home, leader_cal, follower_cal, log)
+    cfg_obj.teleop.port = leader_port
+    cfg_obj.robot.port = follower_port
+    arm_bindings.record(leader_port, "teleop", "left_rig", leader_cal)
+    arm_bindings.record(follower_port, "robot", "left_rig", follower_cal)
+
+    verdict = record.bring_up_devices(robot, teleop, cfg_obj)
+
+    assert verdict["refusals"] == []
+    assert log == ["connect:follower", "connect:leader", "write:follower", "write:leader"]
+
+
+def test_recording_refuses_a_calibration_measured_on_the_other_arm(
+    tmp_lerobot_home, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Recording writes the same boards teleoperation does; refusing only on /move-arm
+    would leave the same wrong calibration one button away from being applied."""
+    from lelab import arm_bindings, record
+
+    leader_port = "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00"
+    follower_port = "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149339-if00"
+    bindings = tmp_lerobot_home / "lelab" / "arm_bindings.json"
+    monkeypatch.setenv("LELAB_ARM_BINDINGS", str(bindings))
+    joints = ["shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper"]
+    cal = {n: {"id": i + 1, "drive_mode": 0, "homing_offset": -1000 + i,
+               "range_min": 800, "range_max": 3200} for i, n in enumerate(joints)}
+
+    log: list = []
+    robot, teleop, cfg_obj = _recording_devices(tmp_lerobot_home, cal, cal, log)
+    # The ports are swapped relative to what was measured here.
+    cfg_obj.teleop.port = follower_port
+    cfg_obj.robot.port = leader_port
+    arm_bindings.record(leader_port, "teleop", "left_rig", cal, path=bindings)
+    arm_bindings.record(follower_port, "robot", "left_rig", cal, path=bindings)
+
+    with pytest.raises(arm_bindings.ArmIdentityError, match="last calibrated as"):
+        record.bring_up_devices(robot, teleop, cfg_obj)
+
+    assert log == [], "a refusal must not open a port or write a board"

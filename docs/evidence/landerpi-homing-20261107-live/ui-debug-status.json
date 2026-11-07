@@ -1,0 +1,47 @@
+{
+  "state": "fault",
+  "session_id": null,
+  "outputs_enabled": false,
+  "last_error": "lease_lost:upper=upper_lease_not_held:idle,car=car_local_lease_expired, calibration_changed_or_unavailable, leader_connected_missing, leader_healthy_missing",
+  "leader": {
+    "connected": false,
+    "detected": true,
+    "healthy": false,
+    "reason": "leader_detected_not_opened",
+    "source": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+    "positions_rad": {},
+    "gripper_percent": null
+  },
+  "feedback": {
+    "joint1": 530,
+    "joint2": 492,
+    "joint3": 525,
+    "joint4": 502,
+    "joint5": 510,
+    "r_joint": 457
+  },
+  "preview": {
+    "available": false,
+    "reason": "leader_unhealthy",
+    "targets": null,
+    "gripper": null
+  },
+  "follow_runtime": {
+    "active": false,
+    "commands_sent": 272,
+    "last_error": "frame_follow_failed:HardwareCompositionError:frame_refused:emitter_stopped:joint3_target_step_exceeded"
+  },
+  "frame": {
+    "publish_count": 271,
+    "frames_received": 272,
+    "frames_emitted": 271,
+    "frames_refused": 1,
+    "last_refusal": {
+      "frame_seq": "272",
+      "reason": "joint3_target_step_exceeded"
+    },
+    "queue_depth": 0,
+    "homing_motion": null,
+    "trial_motion": null
+  }
+}

@@ -1,23 +1,23 @@
 {
   "recorded_utc": "2026-11-01T03:20:00+00:00",
-  "target": "pi@192.168.19.138",
-  "host": "liaozhengyan workstation, iface enx00e04c68034c = 192.168.19.137/24 (Realtek USB, 00:e0:4c:68:03:4c)",
+  "target": "pi@<private-ip>",
+  "host": "liaozhengyan workstation, iface <wired-interface> = <private-network> (Realtek USB, <hardware-mac>)",
   "summary": "树莓派在本窗口内间歇可达：约 20:00–20:15 (本地) 链路恢复并拿到真实相机帧与 ROS 话题清单，随后接口再次 NO-CARRIER。SSH 仍无已授权的非交互凭据，车端 agent 未能部署。",
   "link_timeline_local_tz": [
-    {"time": "2026-10-31 19:5x", "state": "enx00e04c68034c NO-CARRIER，ping 100% 丢包，SSH Connection timed out"},
-    {"time": "2026-10-31 20:05", "state": "LOWER_UP，1000Mb/s Full，链路对端 advertise 可见；ARP 192.168.19.138 由 INCOMPLETE/FAILED 转为 REACHABLE，lladdr 88:a2:9e:62:6a:a5"},
+    {"time": "2026-10-31 19:5x", "state": "<wired-interface> NO-CARRIER，ping 100% 丢包，SSH Connection timed out"},
+    {"time": "2026-10-31 20:05", "state": "LOWER_UP，1000Mb/s Full，链路对端 advertise 可见；ARP <private-ip> 由 INCOMPLETE/FAILED 转为 REACHABLE，lladdr <hardware-mac>"},
     {"time": "2026-10-31 20:06-20:10", "state": "IPv4 可达但 ICMP 丢包 50%→65%；22/8080/9090/5900 TCP 开放；rosbridge 可完成 /rosapi/topics，随后 /rosapi/services 超时并关闭连接"},
     {"time": "2026-10-31 20:15", "state": "再次 NO-CARRIER，ping 100% 丢包，三个 TCP 端口 0/6 连接成功"}
   ],
   "verified_this_window": {
-    "network_path": "192.168.19.137 -> enx00e04c68034c -> 192.168.19.138 (同二层，ARP 直接解析，无网关参与)",
-    "ipv6_neighbor": "fe80::5377:38bf:100e:3764%enx00e04c68034c，同一 MAC，链路本地可达",
+    "network_path": "<private-ip> -> <wired-interface> -> <private-ip> (同二层，ARP 直接解析，无网关参与)",
+    "ipv6_neighbor": "fe80::5377:38bf:100e:3764%<wired-interface>，同一 MAC，链路本地可达",
     "real_camera_frame": {
       "file": "docs/evidence/pi-rgb-snapshot-20261031.jpg",
       "sha256": "3de68274d6bde3fc54b09c2650daef353394fee69d0f1d4990d981bc8ffa9c47",
       "bytes": 58731,
       "decoded": "JPEG 640x400 RGB（Pillow 实际解码核对）",
-      "source": "http://192.168.19.138:8080/snapshot?topic=/ascamera/camera_publisher/rgb0/image",
+      "source": "http://<private-ip>:8080/snapshot?topic=/ascamera/camera_publisher/rgb0/image",
       "note": "8 次连续 snapshot 全部 200 OK，尺寸与内容来自真实 Aurora 相机驱动话题"
     },
     "rosbridge_topic_evidence_sha256": "657f7c1566505e00034a3ca4667c70c277b5784f63ffb0d678237302beac1ca1",

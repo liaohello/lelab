@@ -1,0 +1,294 @@
+{
+  "steps": [
+    {
+      "step": "acquire",
+      "http": 200
+    },
+    {
+      "step": "preview",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "arm_state": "preview",
+        "last_error": null,
+        "gripper": null
+      }
+    },
+    {
+      "step": "align",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "arm_state": null,
+        "last_error": null,
+        "gripper": {
+          "joint": "r_joint",
+          "leader_percent": 0.649,
+          "leader_percent_ref": 0.649,
+          "mapping_mode": "absolute_normalized",
+          "pre_clip_pulse": 495.981,
+          "target_pulse": 437.988,
+          "clipped": false,
+          "target_rad": 0.259753,
+          "pulse_unit": "pulse",
+          "radians_per_pulse": 0.0041887902047863905,
+          "flipped": true,
+          "jaw_width_mm_estimate": null,
+          "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+        }
+      }
+    },
+    {
+      "step": "arm",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "arm_state": null,
+        "last_error": null,
+        "gripper": {
+          "joint": "r_joint",
+          "leader_percent": 0.649,
+          "leader_percent_ref": 0.649,
+          "mapping_mode": "absolute_normalized",
+          "pre_clip_pulse": 495.981,
+          "target_pulse": 437.988,
+          "clipped": false,
+          "target_rad": 0.259753,
+          "pulse_unit": "pulse",
+          "radians_per_pulse": 0.0041887902047863905,
+          "flipped": true,
+          "jaw_width_mm_estimate": null,
+          "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+        }
+      }
+    },
+    {
+      "step": "engage",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "arm_state": null,
+        "last_error": null,
+        "gripper": {
+          "joint": "r_joint",
+          "leader_percent": 0.649,
+          "leader_percent_ref": 0.649,
+          "mapping_mode": "absolute_normalized",
+          "pre_clip_pulse": 495.981,
+          "target_pulse": 437.988,
+          "clipped": false,
+          "target_rad": 0.259753,
+          "pulse_unit": "pulse",
+          "radians_per_pulse": 0.0041887902047863905,
+          "flipped": true,
+          "jaw_width_mm_estimate": null,
+          "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+        }
+      }
+    }
+  ],
+  "samples": [
+    {
+      "mono_ns": 430792891252851,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 351,
+      "target": 437.988
+    },
+    {
+      "mono_ns": 430793402251058,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 351,
+      "target": 486.702
+    },
+    {
+      "mono_ns": 430793913024649,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 389,
+      "target": 495.387
+    },
+    {
+      "mono_ns": 430794432497616,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 422,
+      "target": 495.886
+    },
+    {
+      "mono_ns": 430794943312297,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 450,
+      "target": 495.975
+    },
+    {
+      "mono_ns": 430795463854746,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 488,
+      "target": 495.98
+    },
+    {
+      "mono_ns": 430795973475952,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430796486706232,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430796997053538,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430797506950161,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430798020172707,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430798530829084,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430799041160924,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430799551237262,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430800066905885,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430800579672873,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430801095753989,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430801605957834,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430802132926249,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430802642419957,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430803163972743,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430803676263844,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430804187849040,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    },
+    {
+      "mono_ns": 430804698809838,
+      "http": 200,
+      "state": "ready",
+      "error": null,
+      "raw": 490,
+      "target": 495.981
+    }
+  ],
+  "cleanup": [
+    {
+      "step": "release_clutch",
+      "http": 200
+    },
+    {
+      "step": "release_session",
+      "http": 200
+    }
+  ]
+}

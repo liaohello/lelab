@@ -3,7 +3,7 @@
   "artifact_type": "sanitized_assessment_summary_not_full_command_transcript",
   "assessment_date_utc": "2026-10-31",
   "report_prepared_after_utc": "2026-10-31T15:33:09Z",
-  "target": {"address": "192.168.19.138", "user": "pi"},
+  "target": {"address": "<private-ip>", "user": "pi"},
   "scope": "read_only_environment_assessment",
   "overall_status": "partial_remote_runtime_unverified",
   "project_baseline": {"branch": "codex/ros2-mobile-collection", "short_commit": "4beecee"},
@@ -36,10 +36,10 @@
     "running_mcu_firmware_version": "unverified"
   },
   "network": {
-    "workstation_route": "192.168.19.138 dev enx00e04c68034c src 192.168.19.137",
+    "workstation_route": "<private-ip> dev <wired-interface> src <private-ip>",
     "transport_observed": "wired Ethernet",
-    "pi_eth0": "UP, LOWER_UP; default route via 192.168.19.1",
-    "pi_wlan0": "UP, DORMANT; route for 192.168.149.0/24 observed",
+    "pi_eth0": "UP, LOWER_UP; default route via <private-ip>",
+    "pi_wlan0": "UP, DORMANT; route for <private-network> observed",
     "pi_interface_counter_snapshot": "eth0 and wlan0 reported zero errors/dropped at sampling time",
     "ping_samples": [
       {"sent": 3, "received": 2, "loss_percent": 33.3, "rtt_average_ms_approx": 0.224},

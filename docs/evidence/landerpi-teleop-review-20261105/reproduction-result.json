@@ -1,0 +1,31 @@
+{
+  "kind": "offline_bug_reproduction",
+  "actuator_output": false,
+  "mapper_shared_dt": {
+    "joint1": 0.5,
+    "joint2": 0.0
+  },
+  "fresh_mapper_bypasses_rate_limit": {
+    "target_after_0_1s": 1.0,
+    "allowed_delta_at_0_5rad_s": 0.05,
+    "source_correspondence": "HardwareObserver._preview constructs a fresh mapper per snapshot"
+  },
+  "cross_identity_readiness": {
+    "mapping_binds_leader": "different-leader-device",
+    "loaded_leader": "fixture-leader-001",
+    "ready": true
+  },
+  "observer_promotes_invalid_feedback": {
+    "input_available": false,
+    "input_source": "command_cache",
+    "scan_span_s": 2.0,
+    "output_valid": true,
+    "first_sample_valid": true,
+    "first_sample_source": "command_cache"
+  },
+  "estop_blocked_by_status_lock": {
+    "blocked_for_at_least_s": 0.2,
+    "finished_after_status_unblocked": true,
+    "thread_errors": []
+  }
+}

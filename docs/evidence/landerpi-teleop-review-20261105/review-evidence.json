@@ -1,0 +1,98 @@
+{
+  "recorded_at_utc": "2026-11-05 09:03:00 UTC",
+  "client_date": "2026-11-05",
+  "client_timezone": "America/Los_Angeles",
+  "review_scope": "upper preview/control chain, car output boundary, mapping, calibration binding, feedback trust, stop/heartbeat/UI",
+  "hardware_actions": "No SSH, new serial opens, motion, torque changes, or control POSTs were performed. Runtime requests were GET status/capabilities only.",
+  "runtime_status": [
+    {
+      "path": "/ros-mobile/hybrid/status",
+      "elapsed_s": 0.021,
+      "result": {
+        "state": "disconnected",
+        "session_id": null,
+        "session_epoch": null,
+        "profile": "hardware_hybrid_manual_v1",
+        "control_semantics": "offline_intent_only",
+        "outputs_enabled": false,
+        "hardware_probe": {
+          "available": false,
+          "reason": "car_unreachable:<urlopen error [Errno 111] Connection refused>"
+        },
+        "last_error": null,
+        "missing_for_following": [
+          "session_not_ready"
+        ],
+        "feedback_valid": false,
+        "leader_healthy": null,
+        "lease_held": {
+          "upper": false,
+          "car": false
+        }
+      }
+    },
+    {
+      "path": "/ros-mobile/hybrid/capabilities",
+      "elapsed_s": 0.005,
+      "result": {
+        "profile": "hardware_hybrid_manual_v1",
+        "control_semantics": "preview_readback_only",
+        "outputs_enabled": false,
+        "actions": [
+          "preview",
+          "align",
+          "release_clutch",
+          "pause_all",
+          "estop",
+          "clear_estop",
+          "lock_base",
+          "validate",
+          "save",
+          "start_session",
+          "start_episode",
+          "set_phase",
+          "end_episode",
+          "stop_session",
+          "sync",
+          "export"
+        ],
+        "hardware_verified": false
+      }
+    }
+  ],
+  "runtime_services": {
+    "upper": {
+      "name": "lelab-landerpi-left.service",
+      "state": "active/running",
+      "port": 18286,
+      "working_directory": "/home/liaozhengyan/Desktop/lelab/app_ros_mobile"
+    },
+    "tunnel": {
+      "name": "lelab-pi-tunnel.service",
+      "state": "activating/auto-restart",
+      "last_exit": 255,
+      "local_forward_port": 18110
+    },
+    "old_debug_port_18287": "not listening in this inspection"
+  },
+  "selected_environment": {
+    "LELAB_HYBRID_HARDWARE": "1",
+    "LELAB_HYBRID_LEADER_ID": "so101-leader-5B90149723",
+    "LELAB_HYBRID_FOLLOWER_ID": "landerpi-follower-v1",
+    "LELAB_HYBRID_MAPPING_ID": "landerpi-so101-mapping-v1",
+    "LELAB_ROS_AGENT_URL": "http://127.0.0.1:18110",
+    "LELAB_HYBRID_CALIBRATION_ROOT": "/home/liaozhengyan/Desktop/lelab/work/ros2_collection/hardware-20261104/calibration"
+  },
+  "tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=tools/ros2_collection app_ros_mobile/.venv/bin/python -m pytest app_ros_mobile/tests/test_hybrid_hardware.py app_ros_mobile/tests/test_integration_upper.py app_ros_mobile/tests/test_t3_wave_a.py app_ros_mobile/tests/test_hardware_lease_api.py tools/ros2_collection/tests/test_t3_hybrid.py -q -p no:cacheprovider",
+    "exit_code": 0,
+    "summary": "89 passed, 4 warnings in 4.66s",
+    "environment": "upper Python 3.12.16 / pytest 9.2.0; not target Humble Python 3.10 acceptance",
+    "log_scope": "targeted-tests-final-output.txt contains only the final captured output chunk; early tool output was not archived"
+  },
+  "reproductions": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 app_ros_mobile/.venv/bin/python docs/evidence/landerpi-teleop-review-20261105/reproduce.py",
+    "exit_code": 0,
+    "meaning": "The five existing failure modes were reproduced. No production fix was applied."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "scope": "offline AST extraction; no serial constructed",
+  "source": "work/ros2_collection/vendor-candidate-torque-v2-20261107/ros_robot_controller/ros_robot_controller_sdk.py",
+  "rows": [
+    {
+      "enable_argument": true,
+      "function": 5,
+      "payload_hex": "0c 01",
+      "firmware_action": "load"
+    },
+    {
+      "enable_argument": false,
+      "function": 5,
+      "payload_hex": "0b 01",
+      "firmware_action": "unload"
+    }
+  ]
+}

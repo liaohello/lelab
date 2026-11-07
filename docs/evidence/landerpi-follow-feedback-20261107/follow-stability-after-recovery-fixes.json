@@ -1,0 +1,5145 @@
+{
+  "started_wall": 1794050135.320444,
+  "steps": [
+    {
+      "step": "acquire",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+        "session_epoch": 3509154773830772,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.249,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.396,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.067
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 0,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": null,
+          "last_heartbeat_duration_s": null,
+          "operator_presence_age_s": null,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 427427845735745,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 3509154773830772,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": false,
+            "poll_period_s": 0.1,
+            "polls": 0,
+            "cache_age_s": null,
+            "last_poll_duration_s": null,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 360.0,
+              "position_rad": -0.5864306286700947,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 314.0,
+              "position_rad": -0.7791149780902686,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 360.0,
+              "position_rad": -0.5864306286700947,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 314.0,
+              "position_rad": -0.7791149780902686,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428049994054,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.014973704959174938,
+              "age_ns": 14973704
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5864306286700947,
+            "joint3": -0.7791149780902686,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 360,
+            "joint3": 314,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.018241,
+          "scan_span_ns": 18241000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.012206,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 8306,
+          "source_stamp_ns": 1794050135943000064,
+          "age_s": 0.091,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "primary_error": null,
+        "fault_detail": null,
+        "last_stop": null,
+        "missing_for_following": [],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+          "session_epoch": 3509154773830772,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 3509154773830772,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 0,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.0309,
+          "reads": 22,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "alignment_reference_not_captured",
+          "motion_commands_sent": 0
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 5490,
+          "publish_count": 62,
+          "effective_emit_hz": 0.11,
+          "emit_intervals": {
+            "count": 61,
+            "max_ms": 205.69,
+            "p50_ms": 199.96,
+            "p95_ms": 202.79,
+            "p99_ms": 205.69
+          },
+          "frames_received": 62,
+          "frames_emitted": 62,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": true,
+          "outputs_enabled": false,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.13504190283174466
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    },
+    {
+      "step": "preview",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "arm_state": "preview",
+        "alignment": null,
+        "gamepad": {
+          "armed": false,
+          "intent": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "outputs_enabled": false,
+        "motion_commands_sent": 0,
+        "command_submitted": false,
+        "reason": "preview_only_no_trusted_hardware_driver_bound",
+        "channels_meta": {
+          "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+          "session_epoch": 3509154773830772,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 3509154773830772,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "trusted_feedback": {
+          "valid": true,
+          "trusted": true,
+          "reasons": [],
+          "source_kind": "servo_position_readback",
+          "scan_span_ns": 0,
+          "joints": {
+            "joint1": {
+              "age_ns": 158957086,
+              "position_rad": -0.33091442617812483,
+              "raw_position": 421.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint2": {
+              "age_ns": 158957086,
+              "position_rad": -0.5864306286700947,
+              "raw_position": 360.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint3": {
+              "age_ns": 158957086,
+              "position_rad": -0.7791149780902686,
+              "raw_position": 314.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint4": {
+              "age_ns": 158957086,
+              "position_rad": -1.6671385015049833,
+              "raw_position": 102.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint5": {
+              "age_ns": 158957086,
+              "position_rad": 0.19268434942017396,
+              "raw_position": 546.0,
+              "source_kind": "servo_position_readback"
+            },
+            "r_joint": {
+              "age_ns": 158957086,
+              "position_rad": 0.749793446656764,
+              "raw_position": 321.0,
+              "source_kind": "servo_position_readback"
+            }
+          },
+          "note": "six sequential readbacks, not a simultaneous sample; oldest joint age gates the set"
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "preview_not_advanced",
+          "motion_commands_sent": 0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.04773033097581938,
+          "reads": 26,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "follower_feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 360.0,
+              "position_rad": -0.5864306286700947,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 314.0,
+              "position_rad": -0.7791149780902686,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 360.0,
+              "position_rad": -0.5864306286700947,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 314.0,
+              "position_rad": -0.7791149780902686,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12737,
+              "received_mono_ns": 427428051123639,
+              "sample_time_ns": 1794050136054641395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.14685404400961488,
+              "age_ns": 146854044
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5864306286700947,
+            "joint3": -0.7791149780902686,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 360,
+            "joint3": 314,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.018241,
+          "scan_span_ns": 18241000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.009241,
+          "reason": "ok",
+          "calibration_binding": "bound"
+        }
+      }
+    },
+    {
+      "step": "align",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+        "session_epoch": 3509154773830772,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.51,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.51,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 1,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.096,
+          "operator_presence_age_s": 0.405,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 427427845735745,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 3509154773830772,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 5,
+            "cache_age_s": 0.025,
+            "last_poll_duration_s": 0.011,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "aligned",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "aligned",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 360.0,
+              "position_rad": -0.5864306286700947,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 311.0,
+              "position_rad": -0.7916813487046278,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 360.0,
+              "position_rad": -0.5864306286700947,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 311.0,
+              "position_rad": -0.7916813487046278,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490503987,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.05016751401763031,
+              "age_ns": 50167514
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5864306286700947,
+            "joint3": -0.7916813487046278,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 360,
+            "joint3": 311,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.01857,
+          "scan_span_ns": 18570000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.008404,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 8307,
+          "source_stamp_ns": 1794050136287000064,
+          "age_s": 0.023,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "primary_error": null,
+        "fault_detail": null,
+        "last_stop": null,
+        "missing_for_following": [],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+          "session_epoch": 3509154773830772,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 3509154773830772,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 0,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.04982765200138092,
+          "reads": 36,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5864306286700947,
+            "joint3": -0.7916813487046278,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 427428530916311,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.5864306286700947,
+              "joint3": -0.7916813487046278,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.586431,
+              "target_rad": -0.586431,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.791681,
+              "target_rad": -0.791681,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false,
+          "preview_mapper": "independent_alignment_snapshot"
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 5495,
+          "publish_count": 62,
+          "effective_emit_hz": 0.11,
+          "emit_intervals": {
+            "count": 61,
+            "max_ms": 205.69,
+            "p50_ms": 199.96,
+            "p95_ms": 202.79,
+            "p99_ms": 205.69
+          },
+          "frames_received": 62,
+          "frames_emitted": 62,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": true,
+          "outputs_enabled": false,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.11415271184705489
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    },
+    {
+      "step": "arm",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+        "session_epoch": 3509154773830772,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.483,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.483,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 1,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.096,
+          "operator_presence_age_s": 0.432,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 427427845735745,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 3509154773830772,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 6,
+            "cache_age_s": 0.025,
+            "last_poll_duration_s": 0.022,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "armed",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "armed",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 360.0,
+              "position_rad": -0.5864306286700947,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 311.0,
+              "position_rad": -0.7916813487046278,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 360.0,
+              "position_rad": -0.5864306286700947,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 311.0,
+              "position_rad": -0.7916813487046278,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12739,
+              "received_mono_ns": 427428490349688,
+              "sample_time_ns": 1794050136494797724,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08398001695559287,
+              "age_ns": 83980016
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5864306286700947,
+            "joint3": -0.7916813487046278,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 360,
+            "joint3": 311,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.01857,
+          "scan_span_ns": 18570000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.013779,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 8307,
+          "source_stamp_ns": 1794050136287000064,
+          "age_s": 0.052,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "primary_error": null,
+        "fault_detail": null,
+        "last_stop": null,
+        "missing_for_following": [],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+          "session_epoch": 3509154773830772,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 3509154773830772,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 0,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.04844823299720884,
+          "reads": 37,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5864306286700947,
+            "joint3": -0.7916813487046278,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 427428530916311,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.5864306286700947,
+              "joint3": -0.7916813487046278,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.586431,
+              "target_rad": -0.586431,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.791681,
+              "target_rad": -0.791681,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false,
+          "preview_mapper": "independent_alignment_snapshot"
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 5495,
+          "publish_count": 62,
+          "effective_emit_hz": 0.11,
+          "emit_intervals": {
+            "count": 61,
+            "max_ms": 205.69,
+            "p50_ms": 199.96,
+            "p95_ms": 202.79,
+            "p99_ms": 205.69
+          },
+          "frames_received": 62,
+          "frames_emitted": 62,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": true,
+          "outputs_enabled": false,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.1425868218470896
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    },
+    {
+      "step": "engage",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+        "session_epoch": 3509154773830772,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.012,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.012,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 1,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.096,
+          "operator_presence_age_s": 0.903,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 427427845735745,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 3509154773830772,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 11,
+            "cache_age_s": 0.138,
+            "last_poll_duration_s": 0.017,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "following",
+            "enabled": false,
+            "permitted": true,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "following",
+            "enabled": false,
+            "permitted": true,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 359.0,
+              "position_rad": -0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 315.0,
+              "position_rad": -0.7749261878854823,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 359.0,
+              "position_rad": -0.590619418874881,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 315.0,
+              "position_rad": -0.7749261878854823,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12741,
+              "received_mono_ns": 427428931452603,
+              "sample_time_ns": 1794050136938851773,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.11836785398554639,
+              "age_ns": 118367853
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.590619418874881,
+            "joint3": -0.7749261878854823,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 359,
+            "joint3": 315,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.019962,
+          "scan_span_ns": 19962000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.015633,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 8310,
+          "source_stamp_ns": 1794050136763000064,
+          "age_s": 0.256,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "primary_error": null,
+        "fault_detail": null,
+        "last_stop": null,
+        "missing_for_following": [],
+        "outputs_enabled": true,
+        "control_semantics": "hardware_follow_with_verified_stop_pending",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+          "session_epoch": 3509154773830772,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 3509154773830772,
+            "granted": {
+              "base": false,
+              "arm": true,
+              "gripper": true
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": true,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 0,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.03395083196219057,
+          "reads": 51,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.590619418874881,
+            "joint3": -0.7749261878854823,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 427428609788478,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.5864306286700947,
+              "joint3": -0.7916813487046278,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.586431,
+              "target_rad": -0.586431,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.791681,
+              "target_rad": -0.791681,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false,
+          "preview_mapper": "independent_alignment_snapshot"
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 5500,
+          "publish_count": 62,
+          "effective_emit_hz": 0.11,
+          "emit_intervals": {
+            "count": 61,
+            "max_ms": 205.69,
+            "p50_ms": 199.96,
+            "p95_ms": 202.79,
+            "p99_ms": 205.69
+          },
+          "frames_received": 62,
+          "frames_emitted": 62,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": false,
+          "outputs_enabled": true,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.11521392901977379
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": true
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": {
+          "engaged": true,
+          "stream_epoch": 3,
+          "frame_seq": 0,
+          "channel_seq": {
+            "arm": 0,
+            "gripper": 0
+          },
+          "counts": {
+            "submitted": 0,
+            "skipped_no_window": 0,
+            "admitted": 0,
+            "refused": 0,
+            "receipts": 0,
+            "superseded": 0,
+            "errors": 0
+          },
+          "refusals": {},
+          "last_error": null,
+          "sender": {
+            "connected": true,
+            "stream_epoch": 3,
+            "counters": {
+              "frames_sent": 0,
+              "frames_dropped": 0,
+              "reconnects": 1,
+              "receipts": 0,
+              "windows": 0
+            },
+            "waiting": 0
+          },
+          "status": null,
+          "frame_protocol_version": 1,
+          "transport": "frame_stream"
+        },
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    }
+  ],
+  "samples": [
+    {
+      "mono_ns": 427429073430417,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.11836785398554639,
+        "cache_age_s": 0.036,
+        "cache_last_poll_s": 0.025,
+        "commands_sent": 1,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427429584477806,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.17233261999035676,
+        "cache_age_s": 0.068,
+        "cache_last_poll_s": 0.03,
+        "commands_sent": 3,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427430094338451,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.20655707095693288,
+        "cache_age_s": 0.108,
+        "cache_last_poll_s": 0.028,
+        "commands_sent": 6,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427430605219888,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.11277941502203248,
+        "cache_age_s": 0.024,
+        "cache_last_poll_s": 0.02,
+        "commands_sent": 8,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427431145671990,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.1320607210241178,
+        "cache_age_s": 0.087,
+        "cache_last_poll_s": 0.013,
+        "commands_sent": 10,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427431655554696,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.16931188599301095,
+        "cache_age_s": 0.122,
+        "cache_last_poll_s": 0.013,
+        "commands_sent": 13,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427432169152488,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.25555871598589874,
+        "cache_age_s": 0.137,
+        "cache_last_poll_s": 0.03,
+        "commands_sent": 16,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427432679174827,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.1664747390213961,
+        "cache_age_s": 0.045,
+        "cache_last_poll_s": 0.012,
+        "commands_sent": 19,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427433190641756,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.24461905701127762,
+        "cache_age_s": 0.072,
+        "cache_last_poll_s": 0.034,
+        "commands_sent": 21,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427433700038045,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.04036998601623054,
+        "cache_age_s": 0.09,
+        "cache_last_poll_s": 0.019,
+        "commands_sent": 24,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427434211068692,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.17770238898629032,
+        "cache_age_s": 0.096,
+        "cache_last_poll_s": 0.055,
+        "commands_sent": 26,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427434720919036,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.1770994650519242,
+        "cache_age_s": 0.086,
+        "cache_last_poll_s": 0.019,
+        "commands_sent": 29,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427435230780311,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.22261677102187605,
+        "cache_age_s": 0.101,
+        "cache_last_poll_s": 0.014,
+        "commands_sent": 31,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427435740879333,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.02425566702413562,
+        "cache_age_s": 0.15,
+        "cache_last_poll_s": 0.021,
+        "commands_sent": 34,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427436253675725,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.20517655298954196,
+        "cache_age_s": 0.036,
+        "cache_last_poll_s": 0.017,
+        "commands_sent": 36,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427436764886811,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.05348984105648924,
+        "cache_age_s": 0.051,
+        "cache_last_poll_s": 0.033,
+        "commands_sent": 39,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427437275995063,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.0936586089769662,
+        "cache_age_s": 0.073,
+        "cache_last_poll_s": 0.026,
+        "commands_sent": 42,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427437785919406,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.13130492201889865,
+        "cache_age_s": 0.107,
+        "cache_last_poll_s": 0.025,
+        "commands_sent": 44,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427438296527927,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.15444791002073543,
+        "cache_age_s": 0.135,
+        "cache_last_poll_s": 0.017,
+        "commands_sent": 47,
+        "frame_refusal": null
+      }
+    },
+    {
+      "mono_ns": 427438821820209,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "primary_error": null,
+        "last_stop": null,
+        "fault_detail_present": false,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_age_s": 0.10103190596828426,
+        "cache_age_s": 0.055,
+        "cache_last_poll_s": 0.017,
+        "commands_sent": 49,
+        "frame_refusal": null
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "step": "release_clutch",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+        "session_epoch": 3509154773830772,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 57.716,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 27.716,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 4,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.022,
+          "operator_presence_age_s": 2.281,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 427427845735745,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 3509154773830772,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 96,
+            "cache_age_s": 0.131,
+            "last_poll_duration_s": 0.022,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 345.0,
+              "position_rad": -0.6492624817418905,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 305.0,
+              "position_rad": -0.8168140899333461,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 547.0,
+              "position_rad": 0.19687313962496036,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 345.0,
+              "position_rad": -0.6492624817418905,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 305.0,
+              "position_rad": -0.8168140899333461,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 547.0,
+              "position_rad": 0.19687313962496036,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12787,
+              "received_mono_ns": 427439115763217,
+              "sample_time_ns": 1794050147124944327,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.13367474103779386,
+              "age_ns": 133674741
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.6492624817418905,
+            "joint3": -0.8168140899333461,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19687313962496036,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 345,
+            "joint3": 305,
+            "joint4": 102,
+            "joint5": 547,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.023481,
+          "scan_span_ns": 23481000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.019235,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 8364,
+          "source_stamp_ns": 1794050147153999872,
+          "age_s": 0.055,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "primary_error": null,
+        "fault_detail": null,
+        "last_stop": null,
+        "missing_for_following": [],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "d615b7d39c674cf4ba6c6a2c9e9e23e0",
+          "session_epoch": 3509154773830772,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 3509154773830772,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 52,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.16514362600613386,
+          "reads": 344,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.6492624817418905,
+            "joint3": -0.8168140899333461,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19687313962496036,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 427428609788478,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.5864306286700947,
+              "joint3": -0.7916813487046278,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.586431,
+              "target_rad": -0.586431,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.791681,
+              "target_rad": -0.791681,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 5600,
+          "publish_count": 112,
+          "effective_emit_hz": 0.2,
+          "emit_intervals": {
+            "count": 111,
+            "max_ms": 487301.03,
+            "p50_ms": 199.95,
+            "p95_ms": 204.92,
+            "p99_ms": 297.91
+          },
+          "frames_received": 112,
+          "frames_emitted": 112,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": false,
+          "outputs_enabled": true,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.3124029622990747
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    },
+    {
+      "step": "release_session",
+      "http": 200,
+      "result": {
+        "state": "disconnected",
+        "session_id": null,
+        "session_epoch": null,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": false,
+            "expires_in_s": null,
+            "reason": "upper_lease_held",
+            "state": "idle",
+            "task": null
+          },
+          "car": {
+            "held": false,
+            "expires_in_s": null,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.234
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 4,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.022,
+          "operator_presence_age_s": 2.526,
+          "state": "disconnected",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 427427845735745,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 3509154773830772,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            },
+            {
+              "kind": "state_change",
+              "mono_ns": 427439598380701,
+              "state": "disconnected",
+              "arm_state": "idle",
+              "session_epoch": null,
+              "previous": "ready",
+              "reason": "recovery-fix-hold-test-complete",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 98,
+            "cache_age_s": 0.128,
+            "last_poll_duration_s": 0.025,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 345.0,
+              "position_rad": -0.6492624817418905,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 305.0,
+              "position_rad": -0.8168140899333461,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 345.0,
+              "position_rad": -0.6492624817418905,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 305.0,
+              "position_rad": -0.8168140899333461,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 12788,
+              "received_mono_ns": 427439340902188,
+              "sample_time_ns": 1794050147349070751,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1559784260048218,
+              "age_ns": 155978426
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.6492624817418905,
+            "joint3": -0.8168140899333461,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 345,
+            "joint3": 305,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.023918,
+          "scan_span_ns": 23918000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.017857,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 8365,
+          "source_stamp_ns": 1794050147228000000,
+          "age_s": 0.234,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "primary_error": null,
+        "fault_detail": null,
+        "last_stop": {
+          "state": "confirmed",
+          "reason": "recovery-fix-hold-test-complete",
+          "result": null,
+          "started_mono_ns": 427439433056595,
+          "finished_mono_ns": 427439491764870
+        },
+        "missing_for_following": [
+          "session_not_ready"
+        ],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": null,
+        "channels_meta": null,
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 52,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.1342697749841027,
+          "reads": 352,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.6492624817418905,
+            "joint3": -0.8168140899333461,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19687313962496036,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 427428609788478,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.5864306286700947,
+              "joint3": -0.7916813487046278,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.586431,
+              "target_rad": -0.586431,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.791681,
+              "target_rad": -0.791681,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 5600,
+          "publish_count": 112,
+          "effective_emit_hz": 0.2,
+          "emit_intervals": {
+            "count": 111,
+            "max_ms": 487301.03,
+            "p50_ms": 199.95,
+            "p95_ms": 204.92,
+            "p99_ms": 297.91
+          },
+          "frames_received": 112,
+          "frames_emitted": 112,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": false,
+          "outputs_enabled": true,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.5607185135054351
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    }
+  ],
+  "final_status": {
+    "state": "disconnected",
+    "last_error": null,
+    "primary_error": null,
+    "last_stop": {
+      "state": "confirmed",
+      "reason": "recovery-fix-hold-test-complete",
+      "result": null,
+      "started_mono_ns": 427439433056595,
+      "finished_mono_ns": 427439491764870
+    },
+    "fault_detail_present": false,
+    "outputs_enabled": false,
+    "feedback_valid": true,
+    "feedback_trusted": true,
+    "feedback_age_s": 0.0731366709901522,
+    "cache_age_s": null,
+    "cache_last_poll_s": 0.014,
+    "commands_sent": 52,
+    "frame_refusal": null
+  },
+  "finished_wall": 1794050147.6777313
+}

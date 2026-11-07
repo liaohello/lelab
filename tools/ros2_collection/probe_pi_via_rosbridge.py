@@ -123,7 +123,8 @@ async def probe(url, duration, topics):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--url", default="ws://192.168.19.138:9090")
+    ap.add_argument("--url", default="ws://127.0.0.1:9090",
+                    help="ROS bridge URL, normally the local end of an SSH tunnel")
     ap.add_argument("--duration", type=float, default=8.0)
     ap.add_argument("--output", default="/tmp/pi_rosbridge_probe.json")
     ap.add_argument("--topic", action="append", default=None, help="topic:type; repeats")

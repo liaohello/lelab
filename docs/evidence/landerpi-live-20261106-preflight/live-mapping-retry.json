@@ -1,0 +1,1876 @@
+{
+  "samples": [
+    {
+      "seconds": 0.021,
+      "state": "ready",
+      "pan": 0.16571,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.150796,
+        "target_rad": 0.150796,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1087,
+        "source_stamp_ns": 1793980723936999936,
+        "age_s": 0.026,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 0.331,
+      "state": "ready",
+      "pan": 0.16571,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.150796,
+        "target_rad": 0.150796,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1090,
+        "source_stamp_ns": 1793980724404999936,
+        "age_s": 0.014,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 0.647,
+      "state": "ready",
+      "pan": 0.110474,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.09556,
+        "target_rad": 0.09556,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.055236
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1092,
+        "source_stamp_ns": 1793980724544999936,
+        "age_s": 0.283,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 0.959,
+      "state": "ready",
+      "pan": 0.090527,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.075613,
+        "target_rad": 0.075613,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.075183
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1094,
+        "source_stamp_ns": 1793980724952999936,
+        "age_s": 0.158,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 1.27,
+      "state": "ready",
+      "pan": 0.082855,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.067941,
+        "target_rad": 0.067941,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.082855
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1095,
+        "source_stamp_ns": 1793980725361999872,
+        "age_s": 0.092,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 1.582,
+      "state": "ready",
+      "pan": 0.088993,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.074079,
+        "target_rad": 0.074079,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.076717
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1095,
+        "source_stamp_ns": 1793980725361999872,
+        "age_s": 0.358,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 1.895,
+      "state": "ready",
+      "pan": 0.093596,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.078682,
+        "target_rad": 0.078682,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.072114
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1097,
+        "source_stamp_ns": 1793980725832999936,
+        "age_s": 0.228,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 2.206,
+      "state": "ready",
+      "pan": 0.243963,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.229049,
+        "target_rad": 0.229049,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.078253
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1098,
+        "source_stamp_ns": 1793980726244999936,
+        "age_s": 0.032,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 2.516,
+      "state": "ready",
+      "pan": 0.348299,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.333385,
+        "target_rad": 0.333385,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.182589
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1099,
+        "source_stamp_ns": 1793980726308999936,
+        "age_s": 0.369,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 2.827,
+      "state": "ready",
+      "pan": 0.271581,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.256667,
+        "target_rad": 0.256667,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.105871
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1099,
+        "source_stamp_ns": 1793980726308999936,
+        "age_s": 0.697,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 3.136,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1099,
+        "source_stamp_ns": 1793980726308999936,
+        "age_s": 0.966,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 3.45,
+      "state": "ready",
+      "pan": -0.087458,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": -0.102372,
+        "target_rad": -0.102372,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.253168
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1100,
+        "source_stamp_ns": 1793980727400000000,
+        "age_s": 0.215,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 3.764,
+      "state": "ready",
+      "pan": -0.069046,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": -0.08396,
+        "target_rad": -0.08396,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.234756
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1101,
+        "source_stamp_ns": 1793980727672999936,
+        "age_s": 0.013,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 4.074,
+      "state": "ready",
+      "pan": 0.28539,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.270476,
+        "target_rad": 0.270476,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.11968
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1104,
+        "source_stamp_ns": 1793980728151000064,
+        "age_s": 0.003,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 4.386,
+      "state": "ready",
+      "pan": 0.316077,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.301163,
+        "target_rad": 0.301163,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.150367
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1106,
+        "source_stamp_ns": 1793980728420000000,
+        "age_s": 0.075,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 4.699,
+      "state": "ready",
+      "pan": 0.116611,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.101697,
+        "target_rad": 0.101697,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.049099
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1108,
+        "source_stamp_ns": 1793980728691000064,
+        "age_s": 0.149,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 5.015,
+      "state": "ready",
+      "pan": 0.087458,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.072544,
+        "target_rad": 0.072544,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.078252
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1109,
+        "source_stamp_ns": 1793980728963000064,
+        "age_s": 0.03,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 5.326,
+      "state": "ready",
+      "pan": 0.316077,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.301163,
+        "target_rad": 0.301163,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.150367
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1110,
+        "source_stamp_ns": 1793980729168000000,
+        "age_s": 0.283,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 5.635,
+      "state": "ready",
+      "pan": 0.553902,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.538988,
+        "target_rad": 0.538988,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.388192
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1112,
+        "source_stamp_ns": 1793980729635000064,
+        "age_s": 0.148,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 5.945,
+      "state": "ready",
+      "pan": 0.331421,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.316507,
+        "target_rad": 0.316507,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.165711
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1115,
+        "source_stamp_ns": 1793980730051000064,
+        "age_s": 0.007,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 6.256,
+      "state": "ready",
+      "pan": 0.042962,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.028048,
+        "target_rad": 0.028048,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.122748
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1117,
+        "source_stamp_ns": 1793980730249999872,
+        "age_s": 0.154,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 6.565,
+      "state": "ready",
+      "pan": 0.204069,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.189155,
+        "target_rad": 0.189155,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1120,
+        "source_stamp_ns": 1793980730600000000,
+        "age_s": 0.053,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 6.876,
+      "state": "ready",
+      "pan": 0.507872,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.492958,
+        "target_rad": 0.492958,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.342162
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1122,
+        "source_stamp_ns": 1793980730934000128,
+        "age_s": 0.099,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 7.185,
+      "state": "ready",
+      "pan": 0.517078,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.502164,
+        "target_rad": 0.502164,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.351368
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1123,
+        "source_stamp_ns": 1793980731137999872,
+        "age_s": 0.169,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 7.497,
+      "state": "ready",
+      "pan": 0.483322,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.468408,
+        "target_rad": 0.468408,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.317612
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1125,
+        "source_stamp_ns": 1793980731404999936,
+        "age_s": 0.276,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 7.818,
+      "state": "ready",
+      "pan": 0.222482,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.207568,
+        "target_rad": 0.207568,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.056772
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1126,
+        "source_stamp_ns": 1793980731743000064,
+        "age_s": 0.229,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 8.132,
+      "state": "ready",
+      "pan": -0.036825,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": -0.051739,
+        "target_rad": -0.051739,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.202535
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1128,
+        "source_stamp_ns": 1793980732152000000,
+        "age_s": 0.077,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 8.442,
+      "state": "ready",
+      "pan": -0.01074,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": -0.025654,
+        "target_rad": -0.025654,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.17645
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1129,
+        "source_stamp_ns": 1793980732224999936,
+        "age_s": 0.014,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 8.754,
+      "state": "ready",
+      "pan": 0.191794,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.17688,
+        "target_rad": 0.17688,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.026084
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1131,
+        "source_stamp_ns": 1793980732840000000,
+        "age_s": 0.006,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 9.068,
+      "state": "ready",
+      "pan": 0.067512,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.052598,
+        "target_rad": 0.052598,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.098198
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1132,
+        "source_stamp_ns": 1793980732911000064,
+        "age_s": 0.001,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 9.378,
+      "state": "ready",
+      "pan": -0.009206,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": -0.02412,
+        "target_rad": -0.02412,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.174916
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1133,
+        "source_stamp_ns": 1793980733244999936,
+        "age_s": 0.281,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 9.689,
+      "state": "ready",
+      "pan": 0.211741,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.196827,
+        "target_rad": 0.196827,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.046031
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1135,
+        "source_stamp_ns": 1793980733646000128,
+        "age_s": 0.006,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 10.001,
+      "state": "ready",
+      "pan": 0.030687,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.015773,
+        "target_rad": 0.015773,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.135023
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1136,
+        "source_stamp_ns": 1793980733856000000,
+        "age_s": 0.289,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 10.311,
+      "state": "ready",
+      "pan": 0.133489,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.118575,
+        "target_rad": 0.118575,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.032221
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1137,
+        "source_stamp_ns": 1793980734264000000,
+        "age_s": 0.212,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 10.639,
+      "state": "ready",
+      "pan": 0.076718,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.061804,
+        "target_rad": 0.061804,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.088992
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1137,
+        "source_stamp_ns": 1793980734264000000,
+        "age_s": 0.001,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 10.949,
+      "state": "ready",
+      "pan": 0.101267,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.086353,
+        "target_rad": 0.086353,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.064443
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1140,
+        "source_stamp_ns": 1793980735004000000,
+        "age_s": 0.024,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 11.258,
+      "state": "ready",
+      "pan": 0.121214,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.1063,
+        "target_rad": 0.1063,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.044496
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1141,
+        "source_stamp_ns": 1793980735083000064,
+        "age_s": 0.353,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 11.572,
+      "state": "ready",
+      "pan": 0.075183,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.060269,
+        "target_rad": 0.060269,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.090527
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1141,
+        "source_stamp_ns": 1793980735083000064,
+        "age_s": 0.676,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 11.882,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1142,
+        "source_stamp_ns": 1793980735895000064,
+        "age_s": 0.136,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 12.191,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1142,
+        "source_stamp_ns": 1793980735895000064,
+        "age_s": 0.479,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 12.503,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1143,
+        "source_stamp_ns": 1793980736439000064,
+        "age_s": 0.203,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 12.814,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1143,
+        "source_stamp_ns": 1793980736439000064,
+        "age_s": 0.01,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 13.123,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1145,
+        "source_stamp_ns": 1793980736977999872,
+        "age_s": 0.275,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 13.433,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1145,
+        "source_stamp_ns": 1793980736977999872,
+        "age_s": 0.609,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 13.743,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1147,
+        "source_stamp_ns": 1793980737799000064,
+        "age_s": 0.106,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 14.055,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1149,
+        "source_stamp_ns": 1793980738071000064,
+        "age_s": 0.12,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 14.366,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1150,
+        "source_stamp_ns": 1793980738480000000,
+        "age_s": 0.002,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 14.678,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1151,
+        "source_stamp_ns": 1793980738539000064,
+        "age_s": 0.309,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 14.987,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1152,
+        "source_stamp_ns": 1793980738884999936,
+        "age_s": 0.083,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 15.297,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1153,
+        "source_stamp_ns": 1793980739088999936,
+        "age_s": 0.347,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 15.607,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1155,
+        "source_stamp_ns": 1793980739702000128,
+        "age_s": 0.072,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    },
+    {
+      "seconds": 15.916,
+      "state": "ready",
+      "pan": 0.127351,
+      "joint1": {
+        "joint": "joint1",
+        "pre_clip_rad": 0.112437,
+        "target_rad": 0.112437,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": -0.038359
+      },
+      "valid": true,
+      "outputs_enabled": false,
+      "video": {
+        "available": true,
+        "valid": true,
+        "stale": false,
+        "reason": "fresh_camera_frame",
+        "preview_seq": 1156,
+        "source_stamp_ns": 1793980739904000000,
+        "age_s": 0.198,
+        "topic": "/ascamera/camera_publisher/rgb0/image",
+        "source": "/ascamera/camera_publisher/rgb0/image"
+      }
+    }
+  ]
+}

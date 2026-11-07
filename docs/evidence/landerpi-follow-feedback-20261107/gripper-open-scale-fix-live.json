@@ -1,0 +1,81 @@
+{
+  "steps": [
+    {
+      "step": "acquire",
+      "http": 200
+    },
+    {
+      "step": "preview",
+      "http": 200,
+      "gripper": {
+        "joint": "r_joint",
+        "leader_percent": 57.386,
+        "leader_percent_ref": 57.386,
+        "mapping_mode": "absolute_normalized",
+        "pre_clip_pulse": 326.136,
+        "target_pulse": 327.835,
+        "clipped": false,
+        "target_rad": 0.721164,
+        "pulse_unit": "pulse",
+        "radians_per_pulse": 0.0041887902047863905,
+        "flipped": true,
+        "jaw_width_mm_estimate": null,
+        "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+      }
+    },
+    {
+      "step": "align",
+      "http": 200,
+      "gripper": {
+        "joint": "r_joint",
+        "leader_percent": 57.386,
+        "leader_percent_ref": 57.386,
+        "mapping_mode": "absolute_normalized",
+        "pre_clip_pulse": 326.136,
+        "target_pulse": 392.482,
+        "clipped": false,
+        "target_rad": 0.450371,
+        "pulse_unit": "pulse",
+        "radians_per_pulse": 0.0041887902047863905,
+        "flipped": true,
+        "jaw_width_mm_estimate": null,
+        "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+      }
+    },
+    {
+      "step": "arm",
+      "http": 200,
+      "gripper": {
+        "joint": "r_joint",
+        "leader_percent": 57.386,
+        "leader_percent_ref": 57.386,
+        "mapping_mode": "absolute_normalized",
+        "pre_clip_pulse": 326.136,
+        "target_pulse": 392.482,
+        "clipped": false,
+        "target_rad": 0.450371,
+        "pulse_unit": "pulse",
+        "radians_per_pulse": 0.0041887902047863905,
+        "flipped": true,
+        "jaw_width_mm_estimate": null,
+        "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+      }
+    },
+    {
+      "step": "engage",
+      "http": 409,
+      "gripper": null
+    }
+  ],
+  "samples": [],
+  "cleanup": [
+    {
+      "step": "release_clutch",
+      "http": 200
+    },
+    {
+      "step": "release_session",
+      "http": 200
+    }
+  ]
+}

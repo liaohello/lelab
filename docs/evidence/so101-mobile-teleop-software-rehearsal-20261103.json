@@ -1,0 +1,518 @@
+{
+  "kind": "software_rehearsal_not_hardware_acceptance",
+  "title": "SO-101 主臂遥操作：隔离桩 + 实机只读页面的软件路径演练",
+  "date_utc": "2026-11-03",
+  "repo": {
+    "branch": "codex/ros2-mobile-collection",
+    "head_before_this_round": "8aebd04",
+    "committed": false,
+    "note": "本轮全部改动仍在工作区，未提交、未推送。"
+  },
+  "verdict_summary": "映射/标定/租约/导出/网页门禁的软件路径已通过单元、契约与真实页面点击核验；主臂实机只读读数与串口独占已实测（docs/evidence/so101-leader-serial-read-20261103.json）。车端真实从臂反馈与任何执行器输出仍未验证；本文件中每一条车端反馈数值都来自合成桩，不是硬件证据。",
+  "test_suites": {
+    "tools/ros2_collection/tests": {
+      "result": "146 passed",
+      "cmd": "PYTHONPATH=tools/ros2_collection work/ros2_collection/envs/ros_jazzy/bin/python -m pytest tools/ros2_collection/tests -q",
+      "env": "work/ros2_collection/envs/ros_jazzy",
+      "new_this_round": "指令信封契约 25 项：信封/限位/底盘锁定 12 + 手臂流 TTL 6 + 遥操作录制行 5 + profile 记录契约 2；另 1 项预览透传车端手臂流"
+    },
+    "app_ros_mobile -k 'ros or leader or teleop'": {
+      "result": "54 passed",
+      "cmd": "cd app_ros_mobile && HF_LEROBOT_HOME=… .venv/bin/python -m pytest tests -q -k 'ros or leader or teleop'"
+    },
+    "app_ros_mobile full suite": {
+      "result": "512 passed / 1 failed（794 s）",
+      "fixed_this_round": "tests/test_train_server.py::test_status_endpoint_is_registered 用 {route.path for route in app.routes} 撞上 FastAPI 的 _IncludedRouter（由 4beecee 就存在的 include_router 引发，非本轮改动）→ 加 hasattr(route,'path') 守卫，与 test_server.py 一致",
+      "still_failing_and_unrelated": "tests/test_remote_inference.py::test_client_command_targets_the_tunnel 期望 '--robot.cameras={wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}'，但安装版 LeRobot 现在还会序列化 backend: 200, fourcc: MJPG。属远程推理链路的既有断言漂移，与本轮遥操作无关，未改动（不在本阶段范围内）。",
+      "ruff": "app_ros_mobile/.venv 与 ros_jazzy 环境均未安装 ruff，本轮未执行 Ruff 检查",
+      "result_this_round": "519 passed / 1 failed（733.84 s）——唯一失败仍是 test_remote_inference 的既有断言漂移"
+    },
+    "frontend": {
+      "tsc": "no new errors (pre-existing Training.tsx errors excluded)",
+      "build": "npm run build ok (rolldown chunk-size warning only)"
+    },
+    "flaky_note": "本轮全套里 `test_rosbridge_source.py::test_large_fragmented_message_and_ping_pong` 失败一次；单跑 3 次与紧随其后的全套均通过，仍属已知本地时序敏感项，不改代码。"
+  },
+  "leader_hardware_read": {
+    "status": "已实测（见 docs/evidence/so101-leader-serial-read-20261103.json）",
+    "summary": "5B90149652（右主臂）在上位机 by-id 口打开，port_claim=flock+tioxcl，3.01 s 内 88 次采样（29.2 Hz，配置 30 Hz），年龄 0.008 s，六轴全部有值、0 次失败；二次 O_EXCL 打开被拒 EBUSY，close 后端口可再次打开。全程只读，disconnect(disable_torque=False)。"
+  },
+  "status_contract_round": {
+    "date_utc": "2026-11-03 (later the same day; car powered off by the user, leader USB no longer attached to the upper host)",
+    "what_changed": [
+      "缺陷：合成桩用 control.acquired 且把 follower_feedback/teleop 放在顶层，而部署版 agent 只在 control 块内报告它们（ros2_ws/.../agent.py:1584-1599），coordinator 也只读顶层 → 双层租约都在手时 gate_missing 仍报 upper_lease_invalid/car_lease_invalid/follower_feedback_missing_or_stale/control_not_exclusive，所有门禁在真车上永久关闭。修：_gate() 与 preview_step() 同时接受嵌套与顶层两种形状；桩改为逐字段镜像部署版（active/client_id/expires_in_s/estop_latched/follower_feedback/teleop.chassis_locked）。",
+      "回归测试：tools/ros2_collection 新增 DeployedStatusShapeTests 4 项、app_ros_mobile 新增 gate 形状 4 项。逐条验证过它们确实会失败——临时把 _gate/preview 改回“只读顶层”后 4 项 nested 测试全红（AssertionError + 'align needs leader and follower readings (None)'），恢复修复后 119/54 全绿（本项修完后 120/54）。",
+      "缺陷：/teleop/status 的 chassis_locked 取自本机 profile（teleop.chassis_locked 默认 True），把配置默认值当成车端实际状态呈现给操作者。修：status() 不再自行请求车端，而是回报最近一次真实观测到的 gate（chassis_locked/gate/gate_age_s/missing_for_following），profile 值另列 chassis_locked_profile；从未观测过时为 null。",
+      "网页：底盘 pill 三态化——null→“未知（尚未取得车端状态）”，否则“锁定/未锁定 + 观测 Xs 前”；跟随前置缺失改为 preview → readiness → status 缓存三级回退。空闲（未取得租约）时页面停止轮询 /teleop/readiness，只在持有车端租约期间用它刷新真值，实测网络面板里 disconnected 状态下 0 次 readiness 请求。",
+      "缺陷：控制环每周期重复读取车端 /status —— send_once 先 _gate()（1 次），preview_step 再 _gate()（2 次）又自取一次（3 次）。command_hz=20 时相当于 60 req/s 的额外 GET，正是隧道被自己打满的成因之一。修：一次 _status_snapshot() 供 gate 与预览共用，新增 test_send_once_reads_the_car_status_once_per_control_cycle（临时退回旧写法时该测试报 got 2 而失败，修复后 120 passed）。"
+    ],
+    "live_http_check": {
+      "setup": "后端 127.0.0.1:18193（pid 464895）+ 嵌套形状合成桩 127.0.0.1:18111（pid 464648）；车端 8110 与用户隧道未被触碰",
+      "before_first_observation": "{state: disconnected, chassis_locked: null, chassis_locked_profile: true, gate: null, gate_age_s: null}",
+      "after_gate_observation": "chassis_locked=true, gate_age_s=0.04, missing=[leader_not_connected, leader_unhealthy, calibration_missing_or_mismatched, upper_lease_invalid, car_lease_invalid, control_not_exclusive]",
+      "car_says_unlocked_while_profile_says_locked": "chassis_locked=false 且 missing 追加 chassis_must_stay_locked_in_phase_1；重新上锁后回到 true",
+      "preview_under_no_leader": "GET /teleop/preview → error=leader_unreachable, outputs_actuators=false（无主臂时预览依旧零输出）"
+    },
+    "page_state_check": {
+      "page": "http://127.0.0.1:18193/ros-mobile（合成桩，profile hardware-teleop-v1）",
+      "rendered": "底盘 未锁定 · 观测 5.2s 前 + 跟随前置缺失列出 chassis_must_stay_locked_in_phase_1 —— 证明页面跟随车端而非本机 profile",
+      "caveat": "应用内浏览器可见视口仍受限，状态由 evaluate_script 读取渲染文本；预览按钮在 disconnected 下 disabled=true（符合门禁），因此本次没有真实鼠标点击与截图，属于“页面状态核验”。"
+    },
+    "not_hardware_evidence": "本节所有车端数值来自合成桩。真车已被用户关机；主臂 USB 已从上位机拔出（/dev/serial 目录不存在，无 ttyACM/ttyUSB），因此本轮无法重跑“取双层租约→预览→对齐”的实主臂网页流程，此前该流程的实测证据见 docs/evidence/so101-leader-serial-read-20261103.json。"
+  },
+  "isolated_stub_run": {
+    "purpose": "在没有真机授权的前提下，验证标定库、租约顺序、状态机门禁和导出分支",
+    "car_agent": "本地合成桩 /tmp/lelab_stub_car_agent.py，监听 127.0.0.1:18110（profile hardware-teleop-v1-stub）；真实车端 8110 未被写入任何请求",
+    "backend": "127.0.0.1:18191，LELAB_MOBILE_TELEOP_HOME=/tmp/lelab_ui_teleop",
+    "not_hardware_evidence": true
+  },
+  "web_click_verification": {
+    "page": "http://127.0.0.1:18191/ros-mobile（合成桩）与 http://127.0.0.1:18192/ros-mobile（实机只读，经既有 SSH 隧道 127.0.0.1:8110）",
+    "input_mechanism_caveat": "应用内浏览器面板在点击阶段失去可见视口（visibilityState=hidden），指针事件不可用；后续按钮触发通过 DOM click 事件驱动真实 React 处理器，并读取渲染后的文本作为结果。因此本节是“页面状态核验”，不等价于人工鼠标点击与截图证据。",
+    "wizard": {
+      "save_layers": "三层各自原子落盘，含 version 与 content_sha256：leader=3a493c6def75 / follower=01b1430c88d6 / mapping=7e5b0f178118（示例身份）；第二组 leader=d98086fca22b / follower=b1600f9ff0db / mapping=773870818ae6",
+      "identity_mismatch_blocked": "就绪：否 · 标定版本 d98086fca22b|b1600f9ff0db|773870818ae6，原因逐条显示：mapping binds leader='so101-leader-5B91045575' but loaded 'leader_A'；mapping binds follower='mentorpi-arm-jetrover-acker-less' but loaded 'car_A'",
+      "identity_match_ready": "改用匹配身份后：就绪：是 · 标定版本 3a493c6def75|01b1430c88d6|7e5b0f178118"
+    },
+    "acquire_gate": {
+      "mismatch_case": "点击“取得双层租约”→ 页面显示 calibration not ready: …；状态 disconnected；租约 上位机 无 / 车端 无",
+      "ready_but_no_leader": "点击“取得双层租约”→ 页面显示 leader reader is not configured; open the leader serial first；两个租约 pill 仍为“无”，状态停在 disconnected，无半开会话",
+      "disabled_until_live": "preview/记录参考/待命/接合跟随/暂停/急停/急停恢复在 disconnected 下全部 disabled=true"
+    },
+    "readonly_page_on_real_car": {
+      "profile": "hardware_readonly_v1",
+      "runtime_mode": "hardware_readonly",
+      "read_only": true,
+      "rgb": "14.72 fps · 年龄 0.037 s（真实 Aurora 相机帧）",
+      "buttons_present": [
+        "开始 session",
+        "开始回合",
+        "结束回合",
+        "弃用重录",
+        "停止 session",
+        "同步原始数据",
+        "尝试训练导出（应被拒绝）",
+        "刷新列表"
+      ],
+      "buttons_absent": [
+        "获取控制权",
+        "键盘驾驶",
+        "专家模式",
+        "急停",
+        "机械臂滑杆",
+        "取得双层租约",
+        "无输出预览",
+        "接合跟随",
+        "遥操作录制按钮"
+      ],
+      "teleop_panel_render": "实机只读模式保留无输出默认：不开放主臂串口、遥操作会话与录制入口。要遥操作请部署 hardware-teleop-v1 profile。",
+      "car_sessions_seen": [
+        "4 个 raw_ready",
+        "3 个 invalid_session_json（未删除，保留可复现）"
+      ],
+      "sync_pull": "对 ros_20261103T035331Z_9cfa28ac 触发只读拉取；暂存 session.tar.gz 增长到 >295 MB 期间 /status 与 /health 超时"
+    },
+    "defects_found_by_clicking_and_fixed": [
+      {
+        "defect": "面板提交 {...identities}，后端收到空 leader_identity，报 calibration not ready: leader calibration missing for identity ''",
+        "fix": "MobileTeleopPanel.tsx 显式提交 owner/port/leader_identity/follower_identity/mapping_identity"
+      },
+      {
+        "defect": "acquire 成功并占住双层租约，但状态仍是 disconnected，拒绝原因 leader_not_connected/leader_unhealthy",
+        "fix": "mobile_teleop_coordinator.acquire() 在取任何租约前要求主臂已配置、已连接且健康；/teleop/acquire 先开主臂串口，失败即 HTTPException(409, 'leader_open_failed: …')"
+      },
+      {
+        "defect": "遥操作持有车端租约时，旧页面心跳持续刷 409 ROS mobile control is not acquired",
+        "fix": "RosMobile.tsx 用 localControl 门控心跳，只在本页自行取得控制权时续租"
+      },
+      {
+        "defect": "隧道卡住时 socket 读超时以裸 500 抛出（TimeoutError 不是 URLError 子类），实机同步期间 /status 直接崩",
+        "fix": "ros_mobile._http 增加 TimeoutError/OSError → BridgeError(503, 'car agent timeout after Ns')，并加 3 项回归测试；实测现在返回 503 + 可读 detail"
+      },
+      {
+        "defect": "对 >200 MB 实机 session 触发同步后，传输中断同样以裸 500 抛出",
+        "fix": "sync_session 把传输中断映射为 503 'archive transfer interrupted after N bytes'；实测暂存目录被清理且没有发布半包副本（新增 2 项测试，断流与文件未打开两种情形）"
+      },
+      {
+        "defect": "车端不可达时 /sessions 整体 503，已经把数据校验同步到上位机的 session 也从页面上消失",
+        "fix": "sessions() 改为车端列表尽力而为：返回本地已校验副本 + agent_error 字段；新增降级与合并两条测试"
+      },
+      {
+        "defect": "车端不可达时页面沿用最后一次成功回复渲染，仍显示“已取得控制权”和关节滑杆等执行器入口",
+        "fix": "RosMobile.tsx 把 statusStale 计入 readOnly（fail-closed），并显示“车端状态未知 · 控制入口已禁用”；重连成功后自动恢复原模式"
+      },
+      {
+        "defect": "只读页面仍以 900 ms 轮询 /teleop/status，徒增隧道负载",
+        "fix": "MobileTeleopPanel 状态轮询加 readOnly 门控"
+      }
+    ]
+  },
+  "defects_found_by_real_hardware_and_fixed": [
+    {
+      "defect": "首次真机打开主臂即 ImportError：build_bus 用的是不存在的 LeRobot API（从 motors_bus 导入 OperatingMode、给 Motor 传 operating_mode）——纯单元测试和合成桩都碰不到这条路",
+      "fix": "按安装版 API 重写 build_bus：Motor(id, model, norm_mode) + MotorCalibration(id, drive_mode, homing_offset, range_min, range_max)；新增 app_ros_mobile/tests/test_mobile_leader_bus_api.py，在没有硬件的情况下用真实安装版 LeRobot 构造总线并校验参数，另覆盖标定缺失/字段不全/关节缺项三种拒绝"
+    },
+    {
+      "defect": "port_claim 报 unverified:no_fileno，尽管串口已连上",
+      "fix": "fd 实际在 bus.port_handler.ser 上；_claim_port 改为按 port_handler.ser / serobj / handler / serial 顺序探测，找不到时明确报告未验证而不是假装独占"
+    },
+    {
+      "defect": "一层 A 已保存，打开主臂仍返回 409 leader calibration missing for identity ''",
+      "fix": "身份原先只在 acquire 时写入，/teleop/leader 单独开串口时无身份可用；改为路由与协调器透传 leader_identity，前端按钮带身份且在缺失时禁用"
+    },
+    {
+      "defect": "一层 A 缺少 lerobot_calibration 时 build_bus 会用默认值连上真机",
+      "fix": "把强制校验放在真正开串口的地方（ValueError→409），不再放在 readiness 里（readiness 只描述跨层一致性，之前放在那里会连带破坏 17 个采集用例）"
+    },
+    {
+      "defect": "示例配置里主臂身份指向的是从臂序列",
+      "fix": "leader.example.json 与 mapping.example.json 绑定改为 so101-leader-5B90149652，并补 role_confirmed_by / serial_is_the_only_stable_identity / write_audit 说明"
+    }
+  ],
+  "real_car_readonly_checks": {
+    "what_is_real_here": "以下条目直接读自 Pi 上的 hardware_readonly_v1 agent 与已同步到上位机的实机只读 session，不是合成桩；但不涉及任何执行器输出。",
+    "agent": {
+      "profile": "hardware_readonly_v1",
+      "runtime_mode": "hardware_readonly",
+      "read_only": true,
+      "rgb_observed": "14.22 → 14.72 fps，帧年龄 0.037 s"
+    },
+    "export_ban_on_real_readonly_session": {
+      "session": "ros_20261031T172216Z_8f66db5c（2026-10-31 实机只读录制，已校验同步在上位机）",
+      "ui_click": "选择该 session 后点击“尝试训练导出（应被拒绝）”",
+      "backend": "POST /ros-mobile/export → 409 Conflict",
+      "detail": "only sessions with a defined action and measured feedback can be exported (read-only hardware sessions stay excluded)",
+      "side_effects": "临时 HF_LEROBOT_HOME 保持为空，未写出任何数据集"
+    },
+    "sessions_during_outage": {
+      "car_agent": "2026-11-03 06:00Z 起持续 socket 超时（Wi‑Fi/隧道劣化，非本任务代码所致）",
+      "observed": "agent_error=car agent timeout after 5.0s: timed out；列表仍返回 local-only 的已同步实机 session"
+    },
+    "sync_load_observation": "对 ros_20261103T035331Z_9cfa28ac（车端 manifest 约 229–339 MB 量级）触发只读拉取，暂存包增长到 295 MB 期间 /status 与 /health 均超时；结论：同步与遥操作/录制不能并行，已写入运行手册。",
+    "invalid_sessions_preserved": "车端列表含 3 个 invalid_session_json，未被删除或改写"
+  },
+  "hardware_gaps": {
+    "so101_leader_real_read": "已闭合：见本文件 leader_hardware_read 与 docs/evidence/so101-leader-serial-read-20261103.json。仍缺人手扳动主臂的连续性/回绕证据；2026-11-03 晚些时候主臂 USB 已离开上位机（无 /dev/serial、无 ttyACM/ttyUSB），故“取双层租约→预览→对齐”的实主臂网页流程当轮无法重跑，网络可达不等于串口可用。",
+    "real_follower_feedback": "未验证：需要 tools/ros2_collection/start_car_arm_stack.sh --apply --i-authorize-board-writes 启动 ros_robot_controller + servo_controller；该操作在构造时即写板卡（enable_reception、舵机偏移、机型、LED、底盘零速），未获授权前不实跑",
+    "any_actuator_motion": "未验证：本轮无速度、无力矩、无轨迹下发；预览路径不产生执行器输出",
+    "teleop_profile_deployed_on_car": "未验证：车端当前仍运行只读 profile；部署属于用户操作",
+    "real_teleop_episodes_and_export": "未验证：六维导出只有合成 bag 与单元测试证据",
+    "vendor_co_control": "未验证：joystick/厂商 App 是否可能与从臂同时控制，需在车端只读审计节点后再决定使能"
+  },
+  "operational_notes": [
+    "大 session 同步会把 Wi-Fi + SSH 隧道带宽占满，期间 /status、心跳与控制命令都可能超时；遥操作或录制进行中不要同步。",
+    "本任务自身的临时进程用记录的 PID 管理（桩 334034、隔离后端 340039/368838），不使用 pkill 清场；一次 pkill -f 匹配到自身命令行导致本任务 shell 被误杀，后续改为 PID 文件方式。"
+  ],
+  "command_contract_round": {
+    "date_utc": "2026-11-03",
+    "why": "需求六要求车端拒绝旧 session/乱序/过期命令，需求八.1 要求超时与状态机有测试；此前 contract.CommandGate 的拒绝逻辑在仓库里没有任何测试覆盖（grep stale_seq/session_mismatch 只命中源码与 install 副本）。",
+    "new_tests": {
+      "file": "tools/ros2_collection/tests/test_command_contract.py",
+      "count": 18,
+      "envelope": [
+        "session_mismatch 拒绝旧会话",
+        "stale_seq 拒绝相等/更小序号（重放与乱序）",
+        "被拒命令不推进 seq 水位（否则一次拒绝会让后续陈旧帧合法）",
+        "bad_seq 拒绝字符串/浮点/bool/None/负数",
+        "bad_source 拒绝未在 profile 白名单内的来源",
+        "mode_mismatch 拒绝模式不符"
+      ],
+      "arm_gripper": [
+        "超限关节角被夹取并回报 clipped",
+        "关节数不为 5 → bad_arm_shape",
+        "NaN/Inf → not_finite，非数值 → not_numeric",
+        "轨迹时长夹在 [0.1, profile max]",
+        "夹爪按 gripper_base_rad 夹取"
+      ],
+      "chassis_lock": [
+        "hardware-teleop-v1 的 modes.base 为空且三个底盘速度上限均为 0.0，任何速度指令都因 bad_source 被拒（底盘锁定是 profile 事实，不是页面细节）"
+      ],
+      "arm_stream_ttl": [
+        "无手臂指令时 expected=False",
+        "被接受的手臂指令按 profile 上限 0.6s 开窗（客户端声明 5s 被夹到 0.6）",
+        "窗口在单调时钟上关闭（deadline±1ms 两侧判定）",
+        "被拒绝的命令不延长窗口",
+        "更短的声明 ttl 被尊重",
+        "夹爪命令共用同一窗口"
+      ]
+    },
+    "code_changes": [
+      "contract.py：seq 显式排除 bool（Python 里 True 是 int 子类，一条 `true` 的指令会被当成序号 1 接受）",
+      "contract.py：新增 arm_hold_deadline/_note_arm_ttl/arm_stream —— profile 里已声明却无人执行的 arm_command_ttl_s 现在真的有语义：车端按自己的单调时钟判断‘手臂流是否还在时效内’",
+      "agent.py：/status 的 control.teleop.stream 报告该窗口（纯检测，不新增任何执行器流量；保持策略本身仍待实机验证）",
+      "mobile_teleop_coordinator.py：preview_step 透传 arm_stream，网页新增‘车端手臂流’pill（在时效内 / 已超龄 / 尚未收到目标 / 未知）"
+    ],
+    "live_page_check": {
+      "page": "http://127.0.0.1:18193/ros-mobile（嵌套形状合成桩 18111）",
+      "readback": "车端手臂流 未知（车端未上报）；底盘 锁定 · 观测 15.52s 前；租约 上位机 无 / 车端 无；跟随前置缺失列出 6 项（无 leader/无租约）",
+      "note": "主臂不在上位机 USB 上时 preview 早退（error=leader_unreachable, outputs_actuators=false），pill 因此保持‘未知’；live/超龄两态由单元测试覆盖，待主臂插上后再做页面核验。",
+      "not_hardware_evidence": true
+    },
+    "deployment_note": "contract.py/agent.py 属车端代码：本改动只在上位机仓库里测试过，Pi 上运行的仍是 install/ 副本，需由用户重新部署后才在车上生效。",
+    "recording_row_contract": {
+      "extracted": "contract.teleop_state_payload()（agent._publish_teleop_state 只转发取值，行为不变）",
+      "pinned": [
+        "TELEOP_STATE_FIELDS 18 个字段齐全",
+        "leader 读数 / 映射前目标 / 实发目标三者独立且各有语义标签",
+        "executed 只能标注为不可直接观测",
+        "无指令时字段为 None、不补零",
+        "反馈带 source/age/servo_pulses",
+        "ack 仅保留最近三次"
+      ],
+      "profile_contract": [
+        "导出需要的 5 类话题都在 recording.topics",
+        "required_topics ⊆ topics",
+        "configs/ 与 ros2_ws 包内两份 teleop profile 的 recording/teleop/limits/modes 完全一致",
+        "只读 profile 的 arm_sources 不含 leader_arm"
+      ]
+    }
+  },
+  "exclusivity_guard_round": {
+    "date_utc": "2026-11-03 (car still powered off by the user; leader USB still absent from the upper host)",
+    "requirement_clause": "六: 确认vendor joystick/app等入口不会同时控制从臂；无法取得独占控制就拒绝使能",
+    "previous_gap": "审计发现 set_mode 只检查了 profile 是否启用 leader_arm 与从臂反馈是否存在，从未验证独占：拿到 HTTP 租约并不证明没有 vendor 摇杆/手机 App 在直接发布同一批舵机轨迹。",
+    "what_changed": [
+      "contract.py 新增纯函数 exclusivity_report(topology, own_node, exempt)：只有本网关节点在发布才算干净；出现任何外来节点名 → vendor_publisher_present；某个守卫话题枚举失败（值为 None）→ publisher_topology_unknown，两种情况都不 clean，即无法证明独占就拒绝（fail closed），不会因为图形查询失败而默认放行。",
+      "agent.py 新增 _guard_topics()（profile 的 exclusive_guard_topics，缺省为手臂+夹爪两条 trajectory_request，设置了 base_topic 时一并纳入）、_publisher_names()（取裸 node_name，异常时告警并返回 None）、_exclusivity_report()；set_mode 在进入 leader_arm 时先跑报告，不干净就 self._reject(...) 并抛 ApiError(409, reason, ...)，control_mode 保持原值、不发任何轨迹。",
+      "车端 /status 的 control.teleop 块新增 exclusivity_required / exclusivity_guard_topics / exclusivity（最近一次判定，未尝试使能时为 null）。两份 hardware-teleop-v1.json 新增 exclusive_control: true、exclusive_guard_topics（手臂+夹爪两条）、exclusive_exempt_nodes: []；只读 profile 未加这些键也未加 leader_arm。",
+      "上位机把车端结论透出：coordinator._gate() 顺带缓存 control.teleop.exclusivity 到 last_car_exclusivity，/teleop/status 以 car_exclusivity 原样回报（不额外请求车端，沿用已有那次观测）；被拒时 _http 已把车端 JSON 拼成 'vendor_publisher_present: exclusive arm control unavailable: …' 并原样抛出，acquire() 随即 release(upper lease, reason=car-acquire-failed) 回滚。",
+      "网页新增 pill“车端独占”：未观测 → 未检测（车端尚未尝试使能）；clean → 可用（绿）；不 clean → 不可用（红，并列出外来节点名或“无法枚举发布者”）。前端 tsc --noEmit 干净，npm run build 通过并刷新 dist。"
+    ],
+    "tests": {
+      "new_file": "tools/ros2_collection/tests/test_agent_exclusivity_guard.py，17 项：纯报告 7 项（仅本网关/无发布者/外来节点按话题点名/重复名折叠/豁免名/None 失败即拒/外来优先于未知），部署版 set_mode 接线 8 项，profile 守卫 2 项。",
+      "wiring_harness": "用 object.__new__(MobileAgent) 绕过 ROS 节点构造、直接调用部署版 set_mode（上位机 Jazzy 环境里 rclpy 与消息包可导入），get_publishers_info_by_topic 用假拓扑替换：clean 才允许 leader_arm；被拒时 control_mode 仍为 idle、last_reject 与 command_rejected 事件已写、last_exclusivity 留证；keyboard 模式不触发该门禁；切换成功会清空旧的 last_teleop。这只证明 set_mode 的逻辑与接线，不证明真车上 rclpy 的拓扑查询结果。",
+      "mutation_check": "临时删掉 set_mode 里的拒绝分支后重跑：ModeSwitchTests 的 3 项（vendor 阻断、拓扑未知阻断、阻断后可重试）全红；恢复守卫后 17/17 绿。",
+      "coordinator_tests": "tools/ros2_collection/tests/test_mobile_teleop_coordinator.py 新增 ExclusivityRefusalTests（车端 409 vendor_publisher_present → 上位机租约回滚、两个 token 均空、状态仍 disconnected、异常原对象透出）与 2 项嵌套形状测试（未观测前 car_exclusivity 为 null，观测后为 clean）；FakeGateway 的 teleop 块补上 exclusivity 字段以逐字段镜像部署版。",
+      "suite_counts": "tools/ros2_collection/tests 166 passed（上一轮 146，本轮 +17 独占 +3 协调器）；app_ros_mobile 目标子集 -k 'ros or leader or teleop' 54 passed；前端 tsc 干净、构建通过。本轮未重跑 app 全套。"
+    },
+    "live_http_and_page_check": {
+      "setup": "嵌套形状合成桩 127.0.0.1:18112（只实现 GET /status，逐字段照部署版 control 块）+ 后端 127.0.0.1:18194（profile hardware-teleop-v1，独立 LELAB_MOBILE_TELEOP_HOME=/tmp 临时目录）；车端 8110 与用户 18186 实例未被触碰。桩用 /tmp/lelab_stub_exclusivity_dirty 标志文件切换判定。",
+      "before_any_observation": "GET /teleop/status → car_exclusivity: null（页面“未检测（车端尚未尝试使能）”）",
+      "after_readiness_clean": "car_exclusivity = {clean: true, foreign: {}, unknown: [], reason: null}，gate_age_s = 0.01",
+      "after_stub_reports_vendor_nodes": "car_exclusivity = {clean: false, foreign: {'/lelab/arm/trajectory_request': ['joy_to_motor', 'mentorpi_app']}, reason: vendor_publisher_present}；删除标志并再次刷新后回到 clean",
+      "rendered_pill_text": [
+        "车端独占 不可用（joy_to_motor、mentorpi_app）",
+        "车端独占 可用"
+      ],
+      "cleanup": "18112/18194 两个监听进程按实际 pid 停止（nohup 的 $! 记录的是包装 shell，端口仍被真实子进程占用，已按 ss -ltnp 的 pid 逐个停掉并确认端口释放）；桩脚本、日志与临时 home 已删除。"
+    },
+    "not_yet_verified": [
+      "真车上到底有哪些节点在发布这两条轨迹话题未实测（车已关机）：vendor 摇杆/App 的真实节点名、是否常驻、是否需要在 exclusive_exempt_nodes 里点名，都要在车上跑一次 ros2 topic info -v 或让 /status 的 exclusivity 直接上报后才能定案；当前 exempt 为空表意味着任何非本网关发布者都会拒绝使能。",
+      "车端守卫逻辑需重新部署到 Pi 才生效（Pi 运行 deploy_readonly_agent.sh 投递到 /home/ubuntu/lelab_car/lelab_mobile_agent 的副本，PYTHONPATH 优先于 ros2_ws/install），且 get_publishers_info_by_topic 在 Humble 上的行为（超时、未就绪时的异常形态）要现场确认——本项目实现按“查询失败即拒绝”，现场若因 DDS 未就绪频繁误拒，需要的是把拓扑枚举变可靠，不是放宽门禁。",
+      "被拒之后的实际运动安全仍只在上位机侧证明过“没有发出轨迹”；车端 servos 是否被 vendor 节点同时驱动，属八.5/八.6 的实机项。"
+    ],
+    "live_ros_graph_rehearsal": {
+      "what": "上一轮唯一没验的是 rclpy 拓扑枚举本身是否真能点名外来发布者（当时只用假拓扑测过逻辑）。这次把部署版 agent 直接跑在上位机上，对着真实 DDS 图形演练。",
+      "setup": "上位机 Jazzy conda 环境里 `python -m lelab_mobile_agent.agent -p profile_path:=configs/ros2_collection/hardware-teleop-v1.json -p car_root:=/tmp/... -p host:=127.0.0.1 -p port:=18121`（ROS_DOMAIN_ID=71，独立 car_root，不碰车端 8110 与用户 18186）；“侵入者”是一个真实 ROS 节点 vendor_joystick_bridge，在 /lelab/arm/trajectory_request 上发布 JointTrajectory。无机器人、无运动指令落地（没有从臂反馈，也没有真实执行器）。",
+      "observed": [
+        "使能前 /status.control.teleop.exclusivity 为 null，guard topics 为手臂+夹爪两条；/control/acquire 200。",
+        "只有网关在发布时：POST /control/mode leader_arm → 200，随后 /status 的 exclusivity = {clean: true, foreign: {}, unknown: []}。",
+        "侵入节点在发布时：切回 idle 再请求 leader_arm → 409 {'error': 'vendor_publisher_present', 'detail': \"exclusive arm control unavailable: {'/lelab/arm/trajectory_request': ['vendor_joystick_bridge']}\"}，/status 的 control.mode 仍为 idle，last_reject 记录了 foreign 节点名与 unknown 列表。",
+        "侵入节点退出后再次请求 leader_arm → 200（不需要重启 agent）。"
+      ],
+      "cleanup": "按 ss 报出的监听 pid 停掉 agent 并确认 18121 释放；临时节点脚本与 car_root 已删除；未启动 Gazebo，也未向任何真机发指令。",
+      "still_open": "Humble/Python3.10 上 get_publishers_info_by_topic 的行为（含 DDS 未就绪时是否抛异常）与 vendor 摇杆/App 的真实节点名仍需在车上确认；本演练只证明 Jazzy 上的 rclpy 枚举按裸 node_name 返回、且被拒时不改模式。"
+    }
+  },
+  "upper_exit_round": {
+    "date_utc": "2026-11-03 (same day; car still powered off)",
+    "requirement_clauses": [
+      "六: 覆盖主臂拔线、读取失败、上位机退出、隧道断开、租约过期和车端agent退出",
+      "六: 任一获取失败则回滚，任一失效则退出跟随",
+      "七: 停止控制优先于录包收尾"
+    ],
+    "defects_found_by_audit": [
+      "上位机退出完全没有收尾路径：server.py 的 shutdown_event 只 stop_watchdog + preempt（本地释放上位机租约）+ 停广播线程，从不通知协调器——跟随线程随进程一起死，但车端控制租约会一直 active 到自身 TTL，录包也不会结束。修：coordinator.shutdown() 先 stop_follow_loop，再 end_episode/stop_session（尽力而为，隧道死了就记 recording_close_error），最后 release() 释放在手的双层租约；shutdown_event 用新的 peek_mobile_teleop_coordinator()（而不是 get_…()）取已存在的单例，没打开过遥操作页面的服务不会在关闭时凭空构造一个。",
+      "更严重：看门狗会误杀活跃的遥操作会话。hardware_lease.tick() 在租约持有超过 ACTIVITY_GRACE_SECONDS=10 s 后用 activity_probe(task) 判断“任务是否还在跑”，而 server 的 _hardware_task_active('teleoperation') 只看桌面 SO-101 的 teleoperate.teleoperation_active——小车遥操作用同一个 task 名（UPPER_LEASE_TASK='teleoperation'）却不上报这个标志，于是真车会话开到第 10 秒就会被以 reason=task-finished 抢下租约，门禁里 upper_lease_valid 变假、跟随流被降级（心跳续租也救不回来，因为 renew 之后 acquired_at 不变）。修：活动探针改成“桌面在跑 或 车端会话 is_live()（在手租约/跟随线程）”。",
+      "租约到期与全局急停只停桌面臂：_hardware_stop_task('teleoperation') 以前直接 return handle_stop_teleoperation()，车端会话的跟随线程和车端 token 都不管。修：同一路径里若 is_live() 就 release(reason='hardware-stop:<reason>')，把 stop 原因带到车端；并给 _hardware_stop_task 增加 reason 形参，由 _hardware_stop_hook 与 /emergency-stop 传入（原来签名里没有 reason，第一版补丁写成了 NameError，被测试逼出来了）。",
+      "租约被抢走时车端只是“不再收到新目标”：stop hook 原先只 release()，手臂保持最后指令。补成先 emergency_stop(原因) 再 release(原因)——遥操作租约到期或全局 /emergency-stop 时车端要锁存急停，而不是静默保持；没有活跃会话（is_live() 为假）时不产生任何车端流量。"
+    ],
+    "tests": {
+      "tools_suite": "新增 UpperExitTests 3 项（tools/ros2_collection/tests/test_mobile_teleop_coordinator.py）：退出时网关调用序列里没有任何 /control/arm、两条录包收尾都在 /control/release 之前、跟随线程与两个 token 清空、is_live() 变假；隧道断开时 shutdown 仍记 recording_close_error 并清掉本地会话；is_live 只在真有会话时为真。tools 全套 169 passed。",
+      "app_suite": "app_ros_mobile/tests/test_hardware_lease_api.py 新增 3 项：活的小车会话让 _hardware_task_active('teleoperation') 为真（无会话时为假）；_hardware_stop_task/_hardware_stop_hook 必须按 [estop, release] 顺序带上 hardware-stop:<原因>，且 is_live() 为假时不得发出任何车端调用；shutdown 不会构造未用过的协调器。`-k 'ros or leader or teleop or lease'` 88 passed，tools 全套 169 passed。",
+      "mutation_check": "临时把两处 hook 回退成旧写法 → 2 项租约 hook 测试红（AssertionError），恢复后 12/12 绿；证明它们盯的是接线而不是断言本身。",
+      "mutation_check_lease_hooks": "临时把两处 hook 回退成旧写法（探针只看桌面标志、hook 不碰车端会话）→ 2 项 hook 测试红、恢复后 test_hardware_lease_api.py 12/12 绿。",
+      "full_app_suite": "完成的一次 app 全套：**522 passed / 1 failed（599.47 s）**，唯一失败仍是既有的 `test_remote_inference.py::test_client_command_targets_the_tunnel`（LeRobot 序列化断言漂移，与本阶段无关，未改动）。加入 estop 顺序后的全套正在重跑。"
+    },
+    "not_yet_verified": [
+      "以上都是上位机进程内的语义：真机上“上位机退出后车端还能撑多久、手臂是否保持最后指令”要靠车端 TTL 实测（八.6 故障注入项），需要车上跑起来才能确认 control_ttl_s 与 arm_command_ttl_s 的实际行为。",
+      "shutdown_event 里对车端的两次 POST 会在持有租约 RLock 时进行（沿用现有 recording 分支 bridge.emergency_stop 的同一模式），隧道卡住时最坏会多占一个 request_timeout_s；本轮没有把它改成异步，以免扩大改动面。"
+    ],
+    "full_app_suite": {
+      "date_utc": "2026-11-03",
+      "command": "cd app_ros_mobile && HF_LEROBOT_HOME=~/.cache/lelab-ros-mobile-tests/hf .venv/bin/python -m pytest tests -q",
+      "result": "522 passed / 1 failed in 794.28 s (exit 1)",
+      "only_failure": "tests/test_remote_inference.py::test_client_command_targets_the_tunnel",
+      "note": "既有断言漂移（安装版 LeRobot 把相机配置序列化成带 fps/backend 的字典），与本阶段无关，未改动。",
+      "superseded_by": "teleop_export_round.full_app_suite（含导出轮改动后的重跑）"
+    }
+  },
+  "car_deploy_round": {
+    "date_utc": "2026-11-03 (same day)",
+    "why": "用户要做的下一步就是在车上部署 teleop profile 与新的 agent/contract，但 deploy_readonly_agent.sh 把 profile 名硬编码成 hardware-readonly-v1，也没有任何不连车的干跑：既无法部署新 profile，也无法在按 --apply 之前看清将要投递什么。",
+    "what_changed": [
+      "PROFILE_NAME 环境变量选择要投递的车端 profile，默认 hardware-readonly-v1（已验收的只读那份保持默认，不被放宽）；名字必须是裸文件名且文件必须存在于 configs/ros2_collection/，否则 REFUSED + exit 2，且在建立任何 SSH 连接之前就拒绝。",
+      "生成的 wrapper 用选中的 profile 名启动 agent（profile_path 与随包的 config/<name>.json 一致）；pid/log 文件名保持不变，因此 --stop/--rollback 仍能找回用别的 profile 启起来的 agent，不会留下没人看的孤儿进程。",
+      "新增 --render：本地打包并打印 wrapper，不连 Pi；--check/--apply 都会先打印将要部署的 profile 名。",
+      "tools/ros2_collection/tests/test_deploy_readonly_agent_script.py 6 项：shell 语法、无泛用 pkill/killall、默认只读 profile、teleop 必须显式选、未知或含路径的 PROFILE_NAME 被拒（不触网）、pid 记录的是 exec 后的 agent 本身、stop/rollback 的命令只针对 pid 与投递的代码而不涉及 sessions。"
+    ],
+    "verification": "bash -n 通过；`PROFILE_NAME=hardware-teleop-v1 … --render` 实际打印出 `-p profile_path:=/home/ubuntu/lelab_car/config/hardware-teleop-v1.json` 与 `echo $$ > …/readonly_agent.pid` + `exec python3 -m lelab_mobile_agent.agent`；`--render` 默认仍是只读 profile；两个非法 PROFILE_NAME 均 exit 2。tools 全套 **175 passed**。",
+    "caveat": "以上都是本地干跑：真正的 --apply 需要车通电与既有 SSH 授权，由用户执行；本轮未连车。"
+  },
+  "hold_policy_round": {
+    "date_utc": "2026-11-03 (same day)",
+    "requirement": "需求五：“保持”策略必须来自真实控制器能力，不能用断力矩代替停止；需求六：不能把上位机停止发包当成车端已经停止。",
+    "gap_found": [
+      "车端 /status 的 teleop 块此前只说 enabled/chassis_locked/stream，没有说明“停止”在这套舵机上物理上是什么；上位机和网页只能按我们的假设显示。",
+      "没有任何检查阻止将来有人用 torque-off 来实现停止——那会让带载手臂和被抓物直接坠落。"
+    ],
+    "what_changed": [
+      "hardware-teleop-v1（configs/ 与 ros2_ws 包内两份）新增 teleop.hold_policy：position-mode 下舵机保持最后指令位置，且力矩永不被当作停止手段；只读 profile 未被加入该段，也没被放宽。",
+      "agent.py 的 /status.control.teleop 上报 hold_policy 与 torque_control_offered=False（网关只发位置，从不写力矩）。",
+      "mobile_teleop_coordinator 缓存车端声明的 hold_policy 并在 status() 导出为 car_hold_policy；网页“车端手臂流”徽标把它作为悬停说明显示，缺失时写“车端未上报保持策略”。",
+      "新增静态守卫：test_the_deployed_agent_never_writes_torque_state 扫 agent/follower_feedback/watchdog/contract 四个文件里的 torque 调用形状与键名，命中即失败（注释里的散文不算）。",
+      "新增 test_the_deployed_status_block_declares_hold_and_torque_claims：直接从部署源码里切出 teleop 状态块，断言 hold_policy/torque_control_offered/exclusivity_required/exclusivity 四个键都还在——status() 需要真实节点才能执行，静态断言是这里可行的等价检查。"
+    ],
+    "verification": [
+      "tools/ros2_collection/tests 191 passed（该轮开始时 178）。",
+      "变异检查：删掉 profile 的 hold_policy → test_both_profiles_state_a_real_hold_policy_that_is_not_torque_off 失败；把 car_hold_policy 导出改成 None → test_status_carries_the_cars_declared_hold_policy 失败；从 agent.py 状态块删掉 hold_policy → test_the_deployed_status_block_declares_hold_and_torque_claims 失败；三处均已还原。",
+      "npx tsc --noEmit 无输出，npm run build 成功并重写 frontend/dist。"
+    ],
+    "not_verified": "真机上“手臂停在最后指令位置”仍只是 vendor 位置模式的文档/代码声明，需要用户通电后按计划小幅动作确认；本轮没有发过任何运动指令。"
+  },
+  "success_label_round": {
+    "date_utc": "2026-11-03 (same day)",
+    "requirement": "需求七：成功/失败允许人工标注或 unknown，不套用 Gazebo 真值判定。",
+    "gap_found": [
+      "车端 _evaluate() 只在 runtime.mode==hardware_readonly 时走 unknown 分支；遥操作 profile 的 mode 是 hardware_teleop，因此会落进物理判定分支去读 cube/container/box 的 Gazebo 特权位姿。",
+      "真机上这些话题永远不会出现，结果是每条遥操作 episode 都被记成 success=False（failure_reasons=insufficient_lift/no_gripper_contact/not_inside_container），而上位机导出过滤正好把 success is False 的集丢掉——采集的数据会在检查环节被无声删光。",
+      "网页按钮发的 success/note 车端根本不读，人工标注无处落地。"
+    ],
+    "what_changed": [
+      "contract.py 新增纯函数 evaluation_policy(task_cfg)（task.labels==manual_or_unknown ⇒ 无仿真真值）、manual_success_label(value)（把客户端各种写法归一成 True/False/None，读不懂的保持不标注）、manual_evaluation(...)（默认 success=\"unknown\"，带 manual_label/note/evaluation_policy）。",
+      "agent._evaluate(manual_success=None, note=\"\") 在 profile 声明无仿真真值时直接返回 manual/unknown 判定；只读分支原样保留，reason/labels 字段不变。",
+      "agent.end_episode(..., manual_success, note) 接收标注并写进 finish_episode 的 evaluation（即 manifest）与 record_end phase；HTTP /recording/end_episode 透传 body 的 success/note。",
+      "ros_mobile.py 的 /recording/end-episode 不再丢弃 success/note；遥操作走协调器的 recording()，载荷原样转发。",
+      "网页“结束本集”增加人工标注下拉（unknown 默认／成功／失败）与备注输入；请求成功后才把标注复位为 unknown，失败时保留操作员刚选的东西。",
+      "导出报告里的 success_labeling 继续区分 manual_or_unknown_no_simulator_ground_truth 与 gazebo_physics_success_gate；过滤规则保持：遥操作只剔显式 False，仿真仍只留 True。"
+    ],
+    "verification": [
+      "新增 tools/ros2_collection/tests/test_episode_success_labeling.py 14 项：三份 profile 的策略归属、仿真物理门未被放松、默认 unknown 不是 False、人工标注进入 record_end、垃圾标签仍保持 unknown、只读分支不变，以及协调器把标注原样送达车端；其中 2 项跑真实 SessionRecorder，从 end_episode 一直写到磁盘上的 manifest.json（导出过滤读的就是它）。",
+      "变异检查：删掉 agent._evaluate 里的策略分支 ⇒ 5 项失败（失败信息正是物理分支去读不存在的 cube 特权位姿，证明这个 bug 真实存在）。",
+      "该轮结束时 tools 194 passed、app 目标用例 88 passed（完整 app 套件数字在 upper_exit_round.full_app_suite 与本轮后续补记里）。"
+    ],
+    "accepted_scope": [
+      "标注时机是“结束本集”那一刻；episode 关闭后不提供改写入口，manifest 有写保护，事后改判需要新的、显式的修订流程——本阶段不实现，也不假装已有。",
+      "导出默认过滤只剔显式“失败”，unknown 与人工“成功”都保留；因此验收时要把 unknown 集当作待标注数据看，而不是当作成功集。"
+    ],
+    "browser_status": "本轮新增的下拉与备注控件已确认进入构建产物（dist/assets/index-*.js 内含“本集人工标注”，保持策略 pill 的“车端未上报保持策略”也在同一 bundle）。但“结束本集”按钮的实点击仍未做：它只在 teleop 会话已 acquire 且有 open episode 时启用，而 acquire 需要真实主臂串口在线（无主臂时协调器直接拒绝、不占租约）。因此该按钮的浏览器点击属八.3/八.8，等主臂接回上位机后由用户或在我这轮通知后完成；本轮只以“协调器把 success/note 原样送到车端”+“真实 SessionRecorder 落盘 manifest”两项测试覆盖代码路径，不声称已点击验收。"
+  },
+  "teleop_export_round": {
+    "date_utc": "2026-11-03 (same day)",
+    "requirement": "八.7 要求符合 schema 的遥操作数据由本地 LeRobot SDK 及网页读回；七 要求 action 用定义好的目标指令、不能复制主臂读数，state 用真实反馈。",
+    "gap_found": [
+      "六维遥操作导出此前只在 schema 选择与 _read_bag 解析两个缝隙上测过，从未真的写过 LeRobotDataset，也没用本地 SDK 读回过——车录完之后才发现导出对不上，代价就是浪费一次实机采集。",
+      "新的端到端测试第一次跑就暴露一个真实阻塞：本机 torchcodec 加载不了任何 libavutil（.56/.57/.58/.59/.60 全缺），LeRobot 退回 pyav 编码器，而 pyav 的 Fraction 不接受浮点 fps。export_session 一直把 profile 声明的相机频率原样传下去（真车腕相机约 14.74 Hz），所以真机遥操作 session 会在读完 bag、开始编码视频时整轮崩溃。仿真的 10.0 是同一类浮点值，此前能过是因为当时编码器可用（环境已变化），不是代码更安全。",
+      "验证块里读回影像用的是硬编码 observation.images.wrist_rgb，遥操作数据集的影像键是 observation.images.wrist_real，于是 sample_image_shape 一直是 null——读回证明被静默跳过。"
+    ],
+    "what_changed": [
+      "新增 app_ros_mobile/tests/test_ros_mobile_teleop_export.py：6 项，用真实 LeRobotDataset 走完 create→add_frame→save_episode→finalize→SDK 读回；只替换录包读取器与首帧几何探测，其余（导出门禁、对齐、维度、过滤、发布保护、报告）都是生产代码。",
+      "导出器把数据集采样频率取整（round）后再交给编码器，并在报告里同时保留 declared_camera_fps 与一条 warning，说明声明频率与实际采样频率不一致的原因；仿真的 10.0 → 10 行为不变。",
+      "验证块改用 schema 自己的影像键（sim 仍是 observation.images.wrist_rgb，遥操作是 observation.images.wrist_real），sample_image_shape 重新有意义。",
+      "测试钉住：六维且不含底盘、action=限幅后发送目标（断言与主臂读数不相等）、state=实测从臂反馈、逐帧 provenance 保留 leader/pre_clip/clipped/seq/clutch/calibration_version、executed 只写“由后续反馈推断”、unknown 与人工“成功”默认可导出而显式 false 被剔、include_failed=True 时两条都留、同一 session 重复导出仍被 409 拒绝、缺少臂指令时 ExportRejected 而不是伪造动作。",
+      "同一个导出用例之后再接一项网页侧读回：直接调用数据集页面用的 dataset_viewer.list_episodes / video_path / episode_timeseries，断言相机列表是 wrist_real、robot_type 与 fps 是遥操作那套、episode 长度与导出报告一致、mp4 真实存在、state/action 序列每行正好 6 列且数值等于限幅后目标与实测反馈（不是补零的 9 列，也不是主臂读数）。"
+    ],
+    "verification": [
+      "变异检查 A：把 fps 还原成 profile 的浮点值 → 三项导出测试直接复现 AttributeError: 'float' object has no attribute 'numerator'（即真机将来会撞的错），改回后全绿。",
+      "变异检查 B：把 action 的来源从 target 换成 leader_rad → 读回断言以 5/6 元素不匹配失败，证明“主臂读数不是 action”这条语义真的被钉住。",
+      "两处变异后均已还原，源码与 /tmp 备份逐字一致（grep 确认 arm[\"target\"] 计数回到 1）。",
+      "该文件 7 passed（导出+SDK 读回 6 项、页面 viewer 读回 1 项）；viewer 变异检查之后整套计数复跑：受影响 app 子集 -k 'ros or leader or teleop or lease or export or sync' 114 passed（比上一轮的 113 多的正是这条页面读回用例）、tools/ros2_collection/tests 196 passed、遥操作五个 app 文件单独 37 passed。",
+      "变异检查 C（推迟到 app 全套跑完之后做，避免编辑正在被导入的模块）：把 dataset_viewer.camera_names 的短名截取从 key.split(\".\")[-1] 改成 [-2] → 页面 viewer 用例以 assert ['images'] == ['wrist_real'] 失败，证明相机名解析真的被这条用例钉住；改回后 sha256 与备份逐字一致（0ab51bc3…，git diff 对该文件为空），该文件 7 passed 复现。",
+      "全套重跑：app 528 passed / 1 failed in 796.90 s（日志 /tmp/lelab_full_app_suite2.log）。唯一失败 tests/test_remote_inference.py::test_client_command_targets_the_tunnel 与本轮无关，是 HEAD（4beecee）带来的既有红：rollout._format_cameras_arg 会给 linux opencv 相机追加 backend: 200, fourcc: MJPG，而该用例仍断言不含这两个字段；lelab/rollout.py 与 tests/test_remote_inference.py 在工作区都没有改动（git diff 为空），第一次全套也是同一条失败（522 passed / 1 failed）。本轮遥操作用例单独重跑 37 passed（coordinator / lease / export / routes / leader-bus 五个文件），先前协调器变异窗口没有污染结果。"
+    ],
+    "environment_finding": "torchcodec 在本机 app_ros_mobile/.venv 下无法加载（缺 libavutil 各版本），视频编码退回 pyav；取整 fps 之后编码可用。若之后有人升级 ffmpeg/环境，应重跑这条测试确认仍然通过。",
+    "full_app_suite": "528 passed / 1 failed in 796.90 s；失败项是 HEAD 既有的推理客户端用例（相机参数字段断言过期），与遥操作无关，详见 verification 最后两条。",
+    "not_verified": "这仍是上位机合成数据：真实车端 bag、真实相机帧与真实反馈下的导出只在用户采集之后才算验收；本轮没有接触硬件。",
+    "pending": "无（viewer 变异检查已完成，全套数字已回填）。剩余缺口只有实机项：八.3–八.8 需车端 teleop profile 部署、真实从臂反馈与主臂 USB 重新接上之后由操作员按 runbook §5.2 执行。"
+  },
+  "lease_exclusivity_round": {
+    "date_utc": "2026-11-03 (same day)",
+    "requirement": "需求六：标定、普通 SO101 遥操作、小车遥操作、策略控制四者互斥。",
+    "audit_finding": "互斥此前只有结构性依据（HardwareLeaseManager 单槽 + server 四个入口都 acquire：teleoperation/inference/recording/calibration），但小车遥操作侧没有任何测试证明“上位机租约被策略控制占着时会拒绝使能”，FakeLease 永远发放成功。",
+    "what_changed": [
+      "tools 侧新增 LeaseContentionTests 两项：① 真实 HardwareLeaseError（inference 持有）下 coordinator.acquire 必须 409、detail 里带持有者、并且 gateway.calls 为空——策略控制在前面时车端连 /status 都不会被问一次，也不会 release 一个没拿到的租约；② 直接跑真实 HardwareLeaseManager，证明 inference 占槽时 teleoperation 被拒、release 后同一槽位可再取得。"
+    ],
+    "verification": "tools/ros2_collection/tests **196 passed**；变异检查：删掉 coordinator 里 `except HardwareLeaseError` 专用分支后 contention 测试以 500 != 409 失败，恢复后全绿。",
+    "boundary": "这是上位机侧互斥；车端控制租约仍是第二道（同一时刻只有一个 client_id 能控制手臂），vendor 直连舵机那条已由独占发布者门禁覆盖，但真机上的实际节点名仍需上车确认。"
+  },
+  "follow_loop_parking_round": {
+    "date_utc": "2026-11-03 (same day, car still powered off, leader USB still away)",
+    "requirement": "六 的“任一失效则退出跟随 / 覆盖主臂拔线、读取失败…”，五 的“重连…必须重新对齐，不能自动恢复运动”，七 的“页面显示…错误原因”，八.6 的故障注入项。",
+    "gap_found": [
+      "stop_follow_loop() 会被跟随线程自己调用：send_once 里任何一次 /control/arm 或 /control/gripper 失败、预览出错、网关异常都走 demote_to_paused → stop_follow_loop → thread.join(自己) → RuntimeError: cannot join current thread。异常在写 last_error 和发 invalidate 事件之前就抛出，所以真机上第一次故障不会记录原因，页面只会看到外层兜底出来的 follow_error:RuntimeError:…，而状态名义上仍停在 following。这是先跑复现脚本证实的，不是推测：coord.follow_thread=current_thread() 后直接调用即抛。",
+      "主臂拔线/读失败这一类“门失效”路径更安静：guard_following 已经在机器里清空对齐并把状态降到 paused（原因字符串由 _on_clear_targets 写进 last_error，页面能显示），但 send_once 直接 return None 且没有停线程——暂停期间仍以 command_hz 轮询车端 /status。本轮最初把这条写成“页面根本没有原因可显示”，是过度陈述：后来做变异检查（把新增分支改成恒假）时用例仍然通过，才确认 last_error 早已由 hook 记录，真正缺的只有“停掉发送流”。据此删掉了协调器里重复写 last_error 的那段，只保留 stop_follow_loop。",
+      "把跟随线程改成能自己停之后暴露的次生风险：自停路径不做 join（不能自 join），线程可能还睡在 _stop.wait() 里；此时操作员重新对齐并再次 engage 会再起一个循环，旧循环醒来后与新循环同时发包，等于双倍频率驱动同一批舵机。"
+    ],
+    "what_changed": [
+      "app_ros_mobile/lelab/mobile_teleop_coordinator.py: stop_follow_loop 不再 join 当前线程（thread is not threading.current_thread()）。",
+      "send_once 里门失效不再静默返回：把丢掉的 gate 名字写进 last_error（gate_lost:<列表>，经 /teleop/status 透出、页面“最近错误”显示）并停掉跟随线程；状态本来就不是 following 的一次性调用不产生这些副作用。",
+      "跟随循环加世代号：start_follow_loop 递增 _loop_generation 并把世代传进线程，每周期先核对世代，被取代的旧循环直接退出、不再发任何指令；同时新增 _loop_generation 初始化。",
+      "tools/ros2_collection/tests/test_mobile_teleop_coordinator.py 新增 3 项：mid-stream 发送失败必须把线程停下并保留自己的原因（断言 last_error 以 arm_send_failed: 开头）；主臂读失败必须点名 leader_unhealthy、清空 alignment、零新增 /control/arm、且再次 engage 被 realign_required_after_release 拒绝；被取代的旧世代循环不得产生任何车端调用。",
+      "顺手修掉一条一直在和活跃线程赛跑的旧测试：test_send_once_reads_the_car_status_once_per_control_cycle 原先在 engage 启动真实循环后立刻数 /status，读到 1 只是运气（这次改动把时序挪开就稳定读到 2）。现在 engage 后先 park 线程再测，一个周期 1 次读；单独探针也确认生产路径本来就是 1 次，不是回归。"
+    ],
+    "verification": [
+      "变异检查（反向）：先把两处修复临时还原（join 不判当前线程 + 门失效不记录不park），3 项新测试里前两项立刻变红，第一项以 RuntimeError: cannot join current thread 失败 —— 证明钉住的正是这次修的缺陷；第三项（旧世代不得发包）在还原世代判断后会走真实 send_once，因此加了 1 s 看门狗保证失败时是断言红而不是挂住。",
+      "还原后核对：grep 确认 thread is not threading.current_thread() 与 'state_not_following\" not in reasons' 两处都在，_loop_generation 初始化存在。",
+      "计数：tools/ros2_collection/tests 199 passed（连跑三次稳定，含 3 项新增），app 侧遥操作四个文件 30 passed；上一轮全套 528/1，本轮改动后的全套正在重跑（数字随后回填 full_app_suite）。",
+      "测试卫生：新增的 engage 辅助函数会在 engage 之后 park 线程，避免每个用例泄漏一个仍在轮询合成网关的后台线程。",
+      "自我纠错记录：变异检查暴露了上面那条过度陈述——把 gate-lost 分支改成恒假后，lost-gate 用例只在 assertIsNone(coord.follow_thread) 上失败，last_error 断言仍通过（来自 _on_clear_targets）。因此代码里去掉重复写 last_error、注释改成“原因由 hook 记录，本分支负责停流”，并给租约过期用例补上 follow_thread 断言，让它真的钉住这次改动。"
+    ],
+    "not_verified": [
+      "仍是上位机合成网关：真机上“拔线到页面出现 gate_lost:leader_unhealthy 大约多久”“车端手臂流超龄后舵机实际保持在哪”属八.6 故障注入项，需要操作员现场看。",
+      "上位机退出、隧道断、租约过期三条路径此前已各自有测试；本轮补齐的是“跟随中主臂读数失败/发送失败”这一类，六 里列的六种失联来源现在都有对应的上位机用例，但没有一种是实机验证。"
+    ],
+    "full_app_suite": "529 passed / 1 failed（672.59 s，日志 /tmp/lelab_full_app_suite4.log）；唯一失败仍是 HEAD 既有的 test_remote_inference 相机参数断言漂移。该次运行覆盖跟随线程自停与 episode 结束暂停两项改动；其后又做的“删除重复 last_error 写入 + 强化租约过期用例”属于行为等价精简，由 tools 203 passed 与 app 遥操 37 passed 覆盖。"
+  },
+  "episode_end_pause_round": {
+    "date_utc": "2026-11-03 (same day, car still powered off)",
+    "requirement": "七 的“定义明确的开始/结束episode、暂停跟随…默认结束本集后暂停跟随，下一次显式接合”。",
+    "gap_found": [
+      "这条语义此前只存在于页面的点击顺序里：MobileTeleopPanel 的“结束本集”按钮先发一次 /teleop/state {event: pause}（仅当当前状态是 following），再发 /teleop/recording {action: end_episode}。协调器与车端都不负责暂停——直接调用 REST（脚本、复现、以后的自动化）或在两次请求之间掉线/失败时，episode 已经结束而手臂仍在 following，下一次目标会继续下发。这是“要求写的是系统语义、实现却放在 UI 时序里”的典型漏法。"
+    ],
+    "what_changed": [
+      "app_ros_mobile/lelab/mobile_teleop_coordinator.py: recording() 在 end_episode 成功后，如果当前仍是 following，就走既有 set_state(\"pause\")（停止跟随线程、清空对齐、需要重新对齐+显式接合）。页面的两次点击仍保留，但不再是唯一保证。",
+      "tools/ros2_collection/tests/test_mobile_teleop_coordinator.py 新增 1 项：engage→start_session→start_episode→end_episode 之后必须是 paused、aligned 为假、follow_thread 为 None、recording_episode 清空，且随后直接 engage 被 realign_required_after_release 拒绝。"
+    ],
+    "verification": [
+      "变异检查 D：把该分支条件改成恒假 → 新用例以 assert 'following' != 'paused' 失败；改回后测试通过。",
+      "第一次变异尝试没生效（锚点里的中文引号与源码不一致，assert 直接拒绝写入），因此先用 grep 确认锚点计数再改；最终还原后的文件与备份 sha256 一致（8b7a58c1…，sha256sum -c OK）。",
+      "计数：tools/ros2_collection/tests 200 passed；app 遥操五个文件（coordinator/routes/lease/leader-bus/export）37 passed；含本轮两项改动的 app 全套重跑中（b84pdbv9q，日志 /tmp/lelab_full_app_suite4.log），结果回填 full_app_suite。中途那一轮（b12uovxde）在 end_episode 改动之前启动，已作废并停掉，只作为跟随线程改动的一次检查。"
+    ],
+    "not_verified": "这条仍是上位机语义：真机上“结束本集后手臂是否真的停止下发、是否保持到最后指令位置”属八.5/八.6 项，需要操作员现场确认；页面按钮的真实点击（八.8）需要主臂 USB 接回上位机才有可点路径。",
+    "full_app_suite": "同一轮：529 passed / 1 failed（672.59 s），失败项为 HEAD 既有的推理客户端断言漂移。"
+  },
+  "mapping_wrap_flag_round": {
+    "date_utc": "2026-11-03 (same day, car still powered off)",
+    "requirement": "五 的“连续转动关节须处理角度回绕，同时遵守从臂机械和线缆限制”，八 交付里的“标定与映射 schema 示例”。",
+    "gap_found": [
+      "configs/mobile_teleop/mapping.example.json 给 joint1（base yaw，leader=shoulder_pan）也设了 wrap=true。回绕只让“差值取最短路径”，对本来就被机械限位约束的关节是错的：leader.example.json 声明 shoulder_pan 范围 ±200°（3.49 rad > π），ref=-3.3 → now=+3.3 这种合法大幅移动差值 6.6 rad 会被折成 -0.08 rad，页面/预览看到的是“几乎没动”，实际映射目标却把底座往反方向带；wrap=false 时同一输入会被夹到 +2.0（命令方向上的软限位）。也就是“把主臂大幅动作静默翻译成反向小幅动作”，正是防跳变要防的东西。",
+      "旧用例 test_continuous_joint_delta_wraps_to_the_shortest_path 用的正是 joint1，所以这个错标志被测试“背书”而不是被发现——测试选关节只是为了让 wrap 分支跑到，没有对照硬件语义。",
+      "对照依据来自用户给的参考库：/home/liaozhengyan/Desktop/resource/lander_pi/src/driver/kinematics/kinematics/transform.py 里 joint1 = [-120.2, 120.2]、joint5 = [-120.2, 120.2]（2026-11-03 查阅），即从臂各关节在厂商运动学里都是有限位关节；我们 profile 的 limits 也全是 ±2.09 rad。"
+    ],
+    "what_changed": [
+      "mapping.example.json：joint1 wrap 改成 false 并写明理由；joint5 保持 wrap=true，但注释改成“只有主臂侧会连续越过 ±pi 的关节（SO-101 wrist_roll）才需要回绕，回绕之后仍按从臂机械/线缆限位夹取”——即回绕解决的是主臂读数环绕，不等于宣称从臂关节无限位。",
+      "tools/ros2_collection/tests/test_mobile_teleop_examples.py：回绕用例改用 joint5；新增“示例里只有 joint5 允许 wrap”的守卫用例；新增“有限位主臂关节的大差值必须夹向命令方向、不得反向”的用例（+3 −1，净 +2）。",
+      "没动 TeleopMapper 的算法：wrap 一直是按关节开关实现，缺的是配置与语义对应关系，交给 B/C 层标定人决定；页面模板读的就是这份 example，所以模板正确性是这条链的入口。"
+    ],
+    "verification": [
+      "反向证据：还原成 joint1 wrap=true 时，新加的“不得反向”用例应失败（pre_clip 变负、clipped 方向相反）；本次先改配置后写测试，两个用例在最终代码下通过，joint1 的最终目标为 +2.0 方向不变。",
+      "计数：tools/ros2_collection/tests **202 passed**；连跑期间 test_rosbridge_source.py::test_large_fragmented_message_and_ping_pong 与 app 全套并行时失败一次、单跑与重跑通过（已知的本地时序敏感项，与本轮无关）。",
+      "计数已更新：包含租约过期用例后 tools/ros2_collection/tests **203 passed**、app 遥操五个文件 **37 passed**；app 全套 529 passed / 1 failed（11:12，同上）。"
+    ],
+    "not_verified": [
+      "真车上 wrist_roll 是否真的能连续转过 ±pi、以及从臂 joint5 的实际机械/线缆范围，仍需操作员现场确认；本轮只保证“示例不会把有限位关节静默反向”。",
+      "示例里的方向/比例仍是 example_not_measured，逐关节确认属于八.5 的授权小幅验证阶段。"
+    ]
+  },
+  "count_correction_20261103T1155Z": "本文件各轮里写的“遥操作五个 app 文件 37 passed”在 11:55Z 那一轮无法复现。逐个文件实测为 test_mobile_leader_bus_api 4 / test_mobile_teleop_coordinator 7 / test_ros_mobile_export_schema 6 / test_ros_mobile_teleop_export 7（加时间戳用例后 8）/ test_ros_mobile_teleop_routes 7 = 31（现 32）；再加 tests/test_hardware_lease_api.py 的 12 项是 43（现 44）。宽子集 -k 'ros or leader or teleop or lease or export or sync' 114（现 115）。各轮原文保留为当时的记录，后续引用请以逐个文件计数为准。见 docs/evidence/so101-teleop-export-timestamp-check-20261103.json。"
+}

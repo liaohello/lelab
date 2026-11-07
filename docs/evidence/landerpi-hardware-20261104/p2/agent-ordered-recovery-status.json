@@ -1,0 +1,34 @@
+{
+  "driver_bound": true,
+  "outputs_enabled": false,
+  "feedback_reason": "invalid_or_untrusted_feedback",
+  "last_error": null,
+  "raw": {
+    "joint1": 500.0,
+    "joint2": 728.0,
+    "joint3": 124.0,
+    "joint4": 99.0,
+    "joint5": 499.0,
+    "r_joint": 150.0
+  },
+  "scan_span_s": 0.0521226070004559,
+  "successful_scans": 41,
+  "failed_scans": 0
+}
+{
+  "driver_bound": true,
+  "outputs_enabled": false,
+  "feedback_reason": "invalid_or_untrusted_feedback",
+  "last_error": null,
+  "raw": {
+    "joint1": 500.0,
+    "joint2": 728.0,
+    "joint3": 124.0,
+    "joint4": 99.0,
+    "joint5": 499.0,
+    "r_joint": 150.0
+  },
+  "scan_span_s": 0.0521226070004559,
+  "successful_scans": 41,
+  "failed_scans": 0
+}

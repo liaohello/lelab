@@ -1,0 +1,8 @@
+{
+  "url": "http://127.0.0.1:18286/landerpi",
+  "browser_errors": [],
+  "has_all_six": true,
+  "has_raw_values": true,
+  "pi_target": true,
+  "outputs_closed": true
+}

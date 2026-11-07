@@ -32,6 +32,11 @@ const RobotConfigManager: React.FC<RobotConfigManagerProps> = ({
     navigate("/calibration", { state: { robot_name: name } });
   };
 
+  const handleWorkbench = (name: string) => {
+    selectRobot(name);
+    navigate("/so101");
+  };
+
   const handleTeleop = async (robot: RobotRecord) => {
     try {
       const res = await fetchWithHeaders(`${baseUrl}/move-arm`, {
@@ -42,6 +47,9 @@ const RobotConfigManager: React.FC<RobotConfigManagerProps> = ({
           follower_port: robot.follower_port,
           leader_config: robot.leader_config,
           follower_config: robot.follower_config,
+          // This entry means "follow": without it the session comes up with the clutch out
+          // and only streams readings.
+          engage: true,
         }),
       });
       const data = await res.json();
@@ -79,6 +87,7 @@ const RobotConfigManager: React.FC<RobotConfigManagerProps> = ({
       onSelect={selectRobot}
       onCreateNew={createRobot}
       onConfigure={handleConfigure}
+      onWorkbench={handleWorkbench}
       onTeleop={handleTeleop}
       onDelete={deleteRobot}
     />

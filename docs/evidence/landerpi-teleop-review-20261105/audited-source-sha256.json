@@ -1,0 +1,21 @@
+{
+  "head": "e4312f05eea4f319d7402d570f5b3fd073b04af5",
+  "note": "Hashes identify reviewed working-tree files, including untracked files. HEAD alone does not include them.",
+  "files": {
+    "app_ros_mobile/lelab/hybrid_hardware.py": "3aa0f4151ee8a22b32c4f0d7e6778b2803fb6725dbe90a94a1662f71ec75c8f6",
+    "app_ros_mobile/lelab/hybrid_session.py": "8dc6f877eb1832672c607fb692f1b4d38bf03b4a305da4391bca85fb96bb1edc",
+    "app_ros_mobile/lelab/hybrid_facade.py": "eea519c7bcfb8da6c68a93ee07c298895afd1c691bb28d231ece8133ff3a9002",
+    "app_ros_mobile/lelab/hybrid_channel.py": "79fa55014739ff23c80f7bd67c4b328ebfabb635a2e73722890164a51dd91d14",
+    "app_ros_mobile/lelab/mobile_teleop.py": "fdd781bbf8b9fc9d1e13ea358300e4f81280c2f615e4e645f58ee205d1a5df4e",
+    "app_ros_mobile/lelab/hybrid_calibration.py": "8eb464f68097b5609321665b6abdc772abe7816b582c22bf612c3c4a212ab119",
+    "app_ros_mobile/lelab/follower_calibration_asset.py": "ab198fbe476904cb322378507116871509c0701e198e0c5a1d210829773250a9",
+    "app_ros_mobile/lelab/hybrid_recording.py": "8e703cf3a5b7984f6dc637e0ba6775e313d71d35a87724232d6cc387192ec482",
+    "app_ros_mobile/lelab/ros_mobile.py": "c5bd46a276ed4acf3ac14934f7e752f3f9cb98eb3c1c4aa035fce93b5682c672",
+    "app_ros_mobile/frontend/src/pages/LanderpiTeleop.tsx": "2fd355eb0742c435fc6b4d2ad555139cb02b7962691d18e1e9a46777a2baf68a",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py": "e18655cce5317a3148a0aa4a6a78665097ec6c0909d2573447d2f828492aa288",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/hybrid_gateway.py": "95581576a20fbff339a16685bab5b485be2d6acca9f80854173a6b316ec96df8",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/ros_servo_readback.py": "132e6ec855e2795bb4683d45ca283b65260c67725da8f23b5e1bb637e472a9c1",
+    "configs/ros2_collection/hardware-hybrid-manual-v1.json": "9dd8bea695bbe408c59c050c82259a9d713670582abf777aec043a6141c97941",
+    "tools/ros2_collection/vendor_patches/ros/0002-ros-uint16-state-guard.patch": "e366f2b7df7d8de2c97b23f2cba219ea4789bd6bbac97e0cab1e37a7920c96f1"
+  }
+}

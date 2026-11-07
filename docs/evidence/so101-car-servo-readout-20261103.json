@@ -1,0 +1,407 @@
+{
+  "device": "/dev/rrc",
+  "baudrate": 1000000,
+  "port_holders": [],
+  "servos": {
+    "1": {
+      "id": {
+        "value": [
+          1
+        ],
+        "attempts": [],
+        "raw": [
+          1,
+          18,
+          0,
+          1
+        ]
+      },
+      "position": {
+        "value": [
+          483
+        ],
+        "attempts": [],
+        "raw": [
+          1,
+          5,
+          0,
+          227,
+          1
+        ]
+      },
+      "temp": {
+        "value": [
+          27
+        ],
+        "attempts": [],
+        "raw": [
+          1,
+          9,
+          0,
+          27
+        ]
+      },
+      "vin": {
+        "value": [
+          6298
+        ],
+        "attempts": [],
+        "raw": [
+          1,
+          7,
+          0,
+          154,
+          24
+        ]
+      },
+      "torque_state": {
+        "value": [
+          0
+        ],
+        "attempts": [],
+        "raw": [
+          1,
+          13,
+          0,
+          0
+        ]
+      }
+    },
+    "2": {
+      "id": {
+        "value": [
+          2
+        ],
+        "attempts": [],
+        "raw": [
+          2,
+          18,
+          0,
+          2
+        ]
+      },
+      "position": {
+        "value": [
+          740
+        ],
+        "attempts": [],
+        "raw": [
+          2,
+          5,
+          0,
+          228,
+          2
+        ]
+      },
+      "temp": {
+        "value": [
+          23
+        ],
+        "attempts": [],
+        "raw": [
+          2,
+          9,
+          0,
+          23
+        ]
+      },
+      "vin": {
+        "value": [
+          6265
+        ],
+        "attempts": [],
+        "raw": [
+          2,
+          7,
+          0,
+          121,
+          24
+        ]
+      },
+      "torque_state": {
+        "value": [
+          0
+        ],
+        "attempts": [],
+        "raw": [
+          2,
+          13,
+          0,
+          0
+        ]
+      }
+    },
+    "3": {
+      "id": {
+        "value": [
+          3
+        ],
+        "attempts": [],
+        "raw": [
+          3,
+          18,
+          0,
+          3
+        ]
+      },
+      "position": {
+        "value": [
+          31
+        ],
+        "attempts": [],
+        "raw": [
+          3,
+          5,
+          0,
+          31,
+          0
+        ]
+      },
+      "temp": {
+        "value": [
+          22
+        ],
+        "attempts": [],
+        "raw": [
+          3,
+          9,
+          0,
+          22
+        ]
+      },
+      "vin": {
+        "value": [
+          6298
+        ],
+        "attempts": [],
+        "raw": [
+          3,
+          7,
+          0,
+          154,
+          24
+        ]
+      },
+      "torque_state": {
+        "value": [
+          0
+        ],
+        "attempts": [],
+        "raw": [
+          3,
+          13,
+          0,
+          0
+        ]
+      }
+    },
+    "4": {
+      "id": {
+        "value": [
+          4
+        ],
+        "attempts": [],
+        "raw": [
+          4,
+          18,
+          0,
+          4
+        ]
+      },
+      "position": {
+        "value": [
+          117
+        ],
+        "attempts": [],
+        "raw": [
+          4,
+          5,
+          0,
+          117,
+          0
+        ]
+      },
+      "temp": {
+        "value": [
+          23
+        ],
+        "attempts": [],
+        "raw": [
+          4,
+          9,
+          0,
+          23
+        ]
+      },
+      "vin": {
+        "value": [
+          6265
+        ],
+        "attempts": [],
+        "raw": [
+          4,
+          7,
+          0,
+          121,
+          24
+        ]
+      },
+      "torque_state": {
+        "value": [
+          0
+        ],
+        "attempts": [],
+        "raw": [
+          4,
+          13,
+          0,
+          0
+        ]
+      }
+    },
+    "5": {
+      "id": {
+        "value": [
+          5
+        ],
+        "attempts": [],
+        "raw": [
+          5,
+          18,
+          0,
+          5
+        ]
+      },
+      "position": {
+        "value": [
+          495
+        ],
+        "attempts": [],
+        "raw": [
+          5,
+          5,
+          0,
+          239,
+          1
+        ]
+      },
+      "temp": {
+        "value": [
+          23
+        ],
+        "attempts": [],
+        "raw": [
+          5,
+          9,
+          0,
+          23
+        ]
+      },
+      "vin": {
+        "value": [
+          6254
+        ],
+        "attempts": [],
+        "raw": [
+          5,
+          7,
+          0,
+          110,
+          24
+        ]
+      },
+      "torque_state": {
+        "value": [
+          0
+        ],
+        "attempts": [],
+        "raw": [
+          5,
+          13,
+          0,
+          0
+        ]
+      }
+    },
+    "6": {
+      "id": {
+        "value": null,
+        "attempts": [
+          "servo_error(-1)"
+        ],
+        "raw": [
+          6,
+          18,
+          255,
+          101
+        ]
+      },
+      "position": {
+        "value": null,
+        "attempts": [
+          "servo_error(-1)"
+        ],
+        "raw": [
+          6,
+          5,
+          255,
+          0,
+          0
+        ]
+      },
+      "temp": {
+        "value": null,
+        "attempts": [
+          "servo_error(-1)"
+        ],
+        "raw": [
+          6,
+          9,
+          255,
+          0
+        ]
+      },
+      "vin": {
+        "value": null,
+        "attempts": [
+          "servo_error(-1)"
+        ],
+        "raw": [
+          6,
+          7,
+          255,
+          0,
+          0
+        ]
+      },
+      "torque_state": {
+        "value": null,
+        "attempts": [
+          "servo_error(-1)"
+        ],
+        "raw": [
+          6,
+          13,
+          255,
+          101
+        ]
+      }
+    }
+  },
+  "writes_sent": 0,
+  "responding_ids": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+  ],
+  "expected_joints": [
+    "joint1",
+    "joint2",
+    "joint3",
+    "joint4",
+    "joint5",
+    "r_joint"
+  ]
+}

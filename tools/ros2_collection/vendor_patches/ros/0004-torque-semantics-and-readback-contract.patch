@@ -1,0 +1,126 @@
+--- a/ros_robot_controller_sdk.py
++++ b/ros_robot_controller_sdk.py
+@@ -335,7 +335,6 @@
+         buf.append(len(data))
+         buf.extend(data)
+         buf.append(checksum_crc8(bytes(buf[2:])))
+-        print(buf)
+         buf = bytes(buf)
+         if not self.port_write_lock.acquire(timeout=self.servo_read_timeout):
+             raise IOError("serial writer busy")
+@@ -443,9 +442,9 @@
+ 
+     def bus_servo_enable_torque(self, servo_id, enable):
+         if enable:
+-            data = struct.pack("<BB", 0x0B, servo_id)
+-        else:
+             data = struct.pack("<BB", 0x0C, servo_id)
++        else:
++            data = struct.pack("<BB", 0x0B, servo_id)
+         self.buf_write(PacketFunction.PACKET_FUNC_BUS_SERVO, data)
+         time.sleep(0.02)
+ 
+--- a/ros_robot_controller_node.py
++++ b/ros_robot_controller_node.py
+@@ -262,35 +262,54 @@
+         data = []
+         servo_id = []
+         for i in msg.state:
+-            if i.present_id:
+-                if i.present_id[0]:
+-                    if i.target_id:
+-                        if i.target_id[0]:
+-                            self.board.bus_servo_set_id(i.present_id[1], i.target_id[1])
+-                    if i.position:
+-                        if i.position[0]:
+-                            data.extend([[i.present_id[1], i.position[1]]])
+-                    if i.offset:
+-                        if i.offset[0]:
+-                            self.board.bus_servo_set_offset(i.present_id[1], i.offset[1])
+-                    if i.position_limit:
+-                        if i.position_limit[0]:
+-                            self.board.bus_servo_set_angle_limit(i.present_id[1], i.position_limit[1:])
+-                    if i.voltage_limit:
+-                        if i.voltage_limit[0]:
+-                            self.board.bus_servo_set_vin_limit(i.present_id[1], i.voltage_limit[1:])
+-                    if i.max_temperature_limit:
+-                        if i.max_temperature_limit[0]:
+-                            self.board.bus_servo_set_temp_limit(i.present_id[1], i.max_temperature_limit[1])
+-                    if i.enable_torque:
+-                        if i.enable_torque[0]:
+-                            self.board.bus_servo_enable_torque(i.present_id[1], i.enable_torque[1])
+-                    if i.save_offset:
+-                        if i.save_offset[0]:
+-                            self.board.bus_servo_save_offset(i.present_id[1])
+-                    if i.stop:
+-                        if i.stop[0]:
+-                            servo_id.append(i.present_id[1])
++            if len(i.present_id) != 2 or i.present_id[0] != 1:
++                self.get_logger().warning(
++                    f"invalid present_id contract: {list(i.present_id)}")
++                continue
++            fields = (
++                ("target_id", i.target_id, 2),
++                ("position", i.position, 2),
++                ("offset", i.offset, 2),
++                ("position_limit", i.position_limit, 3),
++                ("voltage_limit", i.voltage_limit, 3),
++                ("max_temperature_limit", i.max_temperature_limit, 2),
++                ("enable_torque", i.enable_torque, 2),
++                ("save_offset", i.save_offset, 1),
++                ("stop", i.stop, 1),
++            )
++            if any(values and (len(values) != size or values[0] not in (0, 1))
++                   for _name, values, size in fields):
++                self.get_logger().warning(
++                    f"invalid servo state arrays for id {i.present_id[1]}")
++                continue
++            if i.present_id[1]:
++                if i.target_id:
++                    if i.target_id[0] == 1:
++                        self.board.bus_servo_set_id(i.present_id[1], i.target_id[1])
++                if i.position:
++                    if i.position[0] == 1:
++                        data.extend([[i.present_id[1], i.position[1]]])
++                if i.offset:
++                    if i.offset[0] == 1:
++                        self.board.bus_servo_set_offset(i.present_id[1], i.offset[1])
++                if i.position_limit:
++                    if i.position_limit[0] == 1:
++                        self.board.bus_servo_set_angle_limit(i.present_id[1], i.position_limit[1:])
++                if i.voltage_limit:
++                    if i.voltage_limit[0] == 1:
++                        self.board.bus_servo_set_vin_limit(i.present_id[1], i.voltage_limit[1:])
++                if i.max_temperature_limit:
++                    if i.max_temperature_limit[0] == 1:
++                        self.board.bus_servo_set_temp_limit(i.present_id[1], i.max_temperature_limit[1])
++                if i.enable_torque:
++                    if i.enable_torque[0] == 1:
++                        self.board.bus_servo_enable_torque(i.present_id[1], i.enable_torque[1])
++                if i.save_offset:
++                    if i.save_offset[0] == 1:
++                        self.board.bus_servo_save_offset(i.present_id[1])
++                if i.stop:
++                    if i.stop[0] == 1:
++                        servo_id.append(i.present_id[1])
+         if data != []:
+             with self.board.servo_read_lock:
+                 self.board.bus_servo_set_position(msg.duration, data)
+@@ -377,7 +396,7 @@
+                 if not _set_uint16_state(data, 'offset', state):
+                     all_succeeded = False
+             if i.get_voltage:
+-                state = self.board.bus_servo_read_voltage(i.id)
++                state = self.board.bus_servo_read_vin(i.id)
+                 if not _set_uint16_state(data, 'voltage', state):
+                     all_succeeded = False
+             if i.get_temperature:
+@@ -397,7 +416,7 @@
+                 if not _set_uint16_state(data, 'max_temperature_limit', state):
+                     all_succeeded = False
+             if i.get_torque_state:
+-                state = self.board.bus_servo_read_torque(i.id)
++                state = self.board.bus_servo_read_torque_state(i.id)
+                 if not _set_uint16_state(data, 'enable_torque', state):
+                     all_succeeded = False
+             states.append(data)

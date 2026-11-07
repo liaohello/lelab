@@ -1,0 +1,212 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "meaning_of_stopped": "software admission and emission stopped; not a physical stop",
+  "cases": [
+    {
+      "name": "stale_generation_online",
+      "intent": "while the first control socket stays open, rotate the car's stream generation and prove a frame from the old generation is refused without touching sequences, the queue or the published count",
+      "retired_stream_epoch": "5",
+      "frames_captured": 2,
+      "generation_after_clear": {
+        "retired": "5",
+        "live": "6",
+        "counters_after_clear": {
+          "emitted": 19,
+          "accepted": 2,
+          "refused": 0,
+          "queue_depth": 0,
+          "outputs_enabled": false,
+          "reengage_required": true,
+          "latched_fault": null
+        }
+      },
+      "receipts_seen": [
+        {
+          "type": "receipt",
+          "state": "admitted",
+          "frame_seq": 2,
+          "sample_seq": 14,
+          "window_remaining_ms": 223.5,
+          "window_age_at_arrival_ms": 26.5,
+          "deadline_in_ms": 150.0,
+          "confirmation": "gateway_accepted",
+          "controller_acknowledged": "unavailable",
+          "execution_observed": "unavailable",
+          "data_identity": "simulated_offline"
+        },
+        {
+          "type": "receipt",
+          "state": "stopped",
+          "action": "estop",
+          "reason": "safety_repro_generation",
+          "latched": "estop",
+          "hold_published": true,
+          "driver_sent": true,
+          "hardware_effect": "unverified"
+        },
+        {
+          "type": "receipt",
+          "state": "refused",
+          "reason": "stream_epoch_retired",
+          "detail": "this admission serves generation 6, the frame carries 5",
+          "frame_seq": 10002
+        }
+      ],
+      "stale_frame_answer": {
+        "type": "receipt",
+        "state": "refused",
+        "reason": "stream_epoch_retired",
+        "detail": "this admission serves generation 6, the frame carries 5",
+        "frame_seq": 10002
+      },
+      "stale_frame_sent": {
+        "frame_seq": 10002,
+        "stream_epoch": "5"
+      },
+      "counters_across_the_stale_frame": {
+        "before": {
+          "emitted": 19,
+          "accepted": 2,
+          "refused": 0,
+          "queue_depth": 0,
+          "outputs_enabled": false,
+          "reengage_required": true,
+          "latched_fault": null
+        },
+        "after": {
+          "emitted": 19,
+          "accepted": 2,
+          "refused": 5,
+          "queue_depth": 0,
+          "outputs_enabled": false,
+          "reengage_required": true,
+          "latched_fault": null
+        }
+      },
+      "new_generation": {
+        "stream_epoch": "7",
+        "emitted_delta": 11
+      }
+    }
+  ],
+  "checks": [
+    {
+      "case": "stale_generation_online",
+      "name": "the_link_was_actually_sending",
+      "ok": true,
+      "detail": {
+        "captured": 2,
+        "stream_epoch": "5"
+      }
+    },
+    {
+      "case": "stale_generation_online",
+      "name": "car_latched_from_the_frame_channel",
+      "ok": true,
+      "detail": {
+        "latched_fault": "estop",
+        "waited_s": 0.002
+      }
+    },
+    {
+      "case": "stale_generation_online",
+      "name": "agent_confirmed_the_clear",
+      "ok": true,
+      "detail": {
+        "estop": false,
+        "clear_estop_sent": true,
+        "authorised_by": "control_token",
+        "motion_granted": false,
+        "announcements": "partial_no_actuator_topics"
+      }
+    },
+    {
+      "case": "stale_generation_online",
+      "name": "clearing_rotated_the_generation",
+      "ok": true,
+      "detail": {
+        "retired": "5",
+        "live": "6"
+      }
+    },
+    {
+      "case": "stale_generation_online",
+      "name": "clearing_left_the_process_disarmed",
+      "ok": true,
+      "detail": {
+        "emitted": 19,
+        "accepted": 2,
+        "refused": 0,
+        "queue_depth": 0,
+        "outputs_enabled": false,
+        "reengage_required": true,
+        "latched_fault": null
+      }
+    },
+    {
+      "case": "stale_generation_online",
+      "name": "the_old_generation_frame_is_refused",
+      "ok": true,
+      "detail": {
+        "state": "refused",
+        "reason": "stream_epoch_retired",
+        "stale_frame_seq": 10002,
+        "stale_carries_epoch": "5",
+        "answer": "{'type': 'receipt', 'state': 'refused', 'reason': 'stream_epoch_retired', 'detail': 'this admission serves generation 6, the frame carries 5', 'frame_seq': 10002}",
+        "other_receipts": 3
+      }
+    },
+    {
+      "case": "stale_generation_online",
+      "name": "refusal_consumed_nothing_new",
+      "ok": true,
+      "detail": {
+        "emitted": [
+          19,
+          19
+        ],
+        "accepted": [
+          2,
+          2
+        ],
+        "queue_depth": 0,
+        "refused": [
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "case": "stale_generation_online",
+      "name": "a_new_generation_works_again",
+      "ok": true,
+      "detail": {
+        "retired": "5",
+        "live": "7",
+        "emitted_delta": 11
+      }
+    }
+  ],
+  "clear_estop_note": "HardwareCompositionError:car_http_403:control_token: missing or invalid control token",
+  "car_after_repro": {
+    "agent_control_active": false,
+    "agent_client_id": null,
+    "agent_estop_latched": false,
+    "agent_lease_expires_in_s": 0.0,
+    "agent_frame_outputs_enabled": false,
+    "agent_frame_stream_connected": false,
+    "bridge_frame_process_age_s": 0.4332859515561722,
+    "bridge_queue_depth": 0,
+    "bridge_process_outputs": true,
+    "process_latched_fault": null,
+    "process_reengage_required": false,
+    "process_outputs_enabled": true,
+    "process_emitted": 30,
+    "process_refused": 9,
+    "process_queue_depth": 0,
+    "process_stream_epoch": 1562297129426809
+  },
+  "failed": []
+}

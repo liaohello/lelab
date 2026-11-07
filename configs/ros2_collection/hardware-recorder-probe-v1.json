@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "profile": "hardware_recorder_probe_v1",
+  "created": "2026-11-04",
+  "runtime": {
+    "mode": "hardware_readonly",
+    "adapter": "ros2_sensor_only",
+    "actuator_outputs": false,
+    "clock_domain": "hardware_system_time",
+    "base_velocity_topic": null,
+    "wheel_odom_topic": null,
+    "joint_state_topic": null,
+    "record_joint_state_topic": null,
+    "joint_record_hz": 0,
+    "task_truth": false,
+    "training_export": false,
+    "data_source": "hardware_readonly"
+  },
+  "robot": {
+    "model": "raspberry_pi5_landerpi_humble_container",
+    "arm_joints": [],
+    "gripper_master_joint": null,
+    "wrist_camera_frame": "rgb_camera_link",
+    "base_frame": null,
+    "odom_frame": null
+  },
+  "task": {
+    "id": "hardware_recorder_probe",
+    "language": "Record the existing camera stream only; no actuator output.",
+    "labels": "unknown",
+    "success": "unknown"
+  },
+  "sensors": {
+    "wrist_rgb": {
+      "required": true,
+      "rgb_topic": "/ascamera/camera_publisher/rgb0/image",
+      "profile_id": "wrist_original",
+      "mount_chain": null,
+      "optical_frame": "rgb_camera_link",
+      "extrinsics": "unverified_real_mount",
+      "qos": "sensor_data",
+      "stale_after_s": 1.5,
+      "capture_width": 640,
+      "capture_height": 400
+    }
+  },
+  "features": {
+    "fps": 14.0,
+    "image": {
+      "name": "observation.images.wrist_real",
+      "topic": "/ascamera/camera_publisher/rgb0/image",
+      "frame": "rgb_camera_link"
+    },
+    "state": {
+      "names": [],
+      "units": [],
+      "source": "unavailable_readonly"
+    },
+    "action": {
+      "names": [],
+      "units": [],
+      "source": "unavailable_readonly"
+    }
+  },
+  "limits": {},
+  "modes": {
+    "base": [],
+    "initial": "idle",
+    "leader_arm_available": false,
+    "exclusive": true
+  },
+  "recording": {
+    "raw_storage": "sqlite3",
+    "topics": [
+      "/ascamera/camera_publisher/rgb0/image",
+      "/lelab/events"
+    ],
+    "required_topics": [
+      "/ascamera/camera_publisher/rgb0/image"
+    ],
+    "event_topic": "/lelab/events",
+    "min_free_bytes": 2147483648,
+    "stream_stale_s": 1.5,
+    "clock_domain": "hardware_system_time",
+    "capacity_note": "Short recorder probes only; this profile never produces training-eligible hardware data."
+  },
+  "training_export": {
+    "enabled": false,
+    "reason": "camera_only_recorder_probe_has_no_action_or_feedback"
+  },
+  "hardware": {
+    "serial_devices": "enumerated; controller identity unverified",
+    "leader_arm": "not_used",
+    "camera_interface": "existing Aurora 930 ROS driver",
+    "actuator_topics_published": []
+  }
+}

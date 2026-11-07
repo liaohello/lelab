@@ -1,0 +1,1985 @@
+{
+  "captured_at_utc": "2026-11-05T11:34:01Z",
+  "identity": {
+    "session_id": "6576a1778df248fd87e16cce00f68dd1",
+    "session_epoch": 4364145757449059,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "engage_http": 200,
+  "pause_http": 200,
+  "pause_response": {
+    "state": "fault",
+    "session_id": "6576a1778df248fd87e16cce00f68dd1",
+    "session_epoch": 4364145757449059,
+    "profile": "hardware_hybrid_manual_v1",
+    "simulated": false,
+    "leases": {
+      "upper": {
+        "held": true
+      },
+      "car": {
+        "held": true
+      }
+    },
+    "channels": {
+      "base": {
+        "enabled": false,
+        "permitted": false,
+        "locked": true,
+        "gamepad": {
+          "armed": false,
+          "neutral_seen": false,
+          "intent": null,
+          "last_seq": -1,
+          "last_received_mono_ns": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "seq": 0,
+        "pending": null,
+        "source": "gamepad"
+      },
+      "arm": {
+        "state": "idle",
+        "enabled": false,
+        "permitted": false,
+        "seq": 57,
+        "pending": null,
+        "source": "so101_leader"
+      },
+      "gripper": {
+        "state": "idle",
+        "enabled": false,
+        "permitted": false,
+        "seq": 57,
+        "pending": null,
+        "source": "so101_leader"
+      }
+    },
+    "devices": {
+      "leader": {
+        "connected": true,
+        "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+        "simulated": false
+      },
+      "follower": {
+        "driver_bound": true,
+        "source": "ros_robot_controller/servo_readback",
+        "simulated": false
+      },
+      "camera": {
+        "source": "/ascamera/camera_publisher/rgb0/image",
+        "stale": false,
+        "simulated": false
+      }
+    },
+    "calibrations": {
+      "ready": true,
+      "bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+      "reasons": [],
+      "layout": "so101_three_layer",
+      "layers": {
+        "leader": {
+          "identity": "so101-leader-5B90149723",
+          "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+          "version": "cbf6d23f79d3"
+        },
+        "follower": {
+          "identity": "landerpi-follower-v1",
+          "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+          "version": "46da965c331d"
+        },
+        "mapping": {
+          "identity": "landerpi-so101-mapping-v1",
+          "sha256": "030a2df762deeb0aa691d9151de2fe68c119e77d515570831c8b14ed24a2ffc9",
+          "version": "3a8e4edf229d"
+        }
+      },
+      "simulated": false,
+      "camera_capability": "observed_real",
+      "firmware_capability": "unknown"
+    },
+    "feedback": {
+      "valid": true,
+      "source_kind": "servo_position_readback",
+      "clock_domain": "upper_receipt_monotonic",
+      "samples": [
+        {
+          "name": "joint1",
+          "servo_id": 1,
+          "raw_position": 533.0,
+          "position_rad": 0.13823007675795088,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        {
+          "name": "joint2",
+          "servo_id": 2,
+          "raw_position": 815.0,
+          "position_rad": 1.319468914507713,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        {
+          "name": "joint3",
+          "servo_id": 3,
+          "raw_position": 16.0,
+          "position_rad": -2.027374459116613,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        {
+          "name": "joint4",
+          "servo_id": 4,
+          "raw_position": 118.0,
+          "position_rad": -1.6001178582284012,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        {
+          "name": "joint5",
+          "servo_id": 5,
+          "raw_position": 880.0,
+          "position_rad": 1.5917402778188283,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        {
+          "name": "r_joint",
+          "servo_id": 10,
+          "raw_position": 492.0,
+          "position_rad": 0.033510321638291124,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        }
+      ],
+      "joint_samples": {
+        "joint1": {
+          "name": "joint1",
+          "servo_id": 1,
+          "raw_position": 533.0,
+          "position_rad": 0.13823007675795088,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        "joint2": {
+          "name": "joint2",
+          "servo_id": 2,
+          "raw_position": 815.0,
+          "position_rad": 1.319468914507713,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        "joint3": {
+          "name": "joint3",
+          "servo_id": 3,
+          "raw_position": 16.0,
+          "position_rad": -2.027374459116613,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        "joint4": {
+          "name": "joint4",
+          "servo_id": 4,
+          "raw_position": 118.0,
+          "position_rad": -1.6001178582284012,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        "joint5": {
+          "name": "joint5",
+          "servo_id": 5,
+          "raw_position": 880.0,
+          "position_rad": 1.5917402778188283,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        },
+        "r_joint": {
+          "name": "r_joint",
+          "servo_id": 10,
+          "raw_position": 492.0,
+          "position_rad": 0.033510321638291124,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 3499,
+          "received_mono_ns": 255732879952648,
+          "sample_time_ns": 1793878440873722248,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.08365888699700008,
+          "age_ns": 83658886
+        }
+      },
+      "positions_rad": {
+        "joint1": 0.13823007675795088,
+        "joint2": 1.319468914507713,
+        "joint3": -2.027374459116613,
+        "joint4": -1.6001178582284012,
+        "joint5": 1.5917402778188283,
+        "r_joint": 0.033510321638291124
+      },
+      "servo_pulses": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "scan_span_s": 0.018939,
+      "scan_span_ns": 18939000,
+      "stale_after_s": 0.5,
+      "input_available": true,
+      "input_reason": "ok",
+      "network_elapsed_s": 0.009716,
+      "reason": "ok",
+      "calibration_binding": "bound",
+      "trusted": true,
+      "trusted_reasons": [],
+      "note": "six measured servo positions relayed with age; no command cache"
+    },
+    "video": {
+      "available": true,
+      "valid": true,
+      "stale": false,
+      "reason": "fresh_camera_frame",
+      "preview_seq": 364,
+      "source_stamp_ns": 1793878440828000000,
+      "age_s": 0.017,
+      "topic": "/ascamera/camera_publisher/rgb0/image",
+      "source": "/ascamera/camera_publisher/rgb0/image"
+    },
+    "last_error": "heartbeat_failed:RuntimeError",
+    "missing_for_following": [
+      "heartbeat_failed:RuntimeError"
+    ],
+    "outputs_enabled": false,
+    "control_semantics": "preview_readback_only",
+    "phase": "grasp",
+    "recording": {
+      "source": "hybrid_recording_controller",
+      "status": "not_started",
+      "session_id": null,
+      "session_epoch": null,
+      "clock_domain": null,
+      "clock_epoch": null,
+      "calibration_bundle_hash": null,
+      "car_session_path": null,
+      "episode_id": null,
+      "episode_started_time_ns": null,
+      "phase": null,
+      "phases": [],
+      "episodes": [],
+      "phase_timeline_complete": true,
+      "paused_before_wrapup": null,
+      "motion_commands_sent": 0,
+      "lease_acquired": false,
+      "outputs_enabled": false,
+      "last_error": null,
+      "error_detail": null,
+      "event_count": 0,
+      "estop_save_pending": false
+    },
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+    "channels_meta": {
+      "session_id": "6576a1778df248fd87e16cce00f68dd1",
+      "session_epoch": 4364145757449059,
+      "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+      "permits": {
+        "epoch": 4364145757449059,
+        "granted": {
+          "base": false,
+          "arm": false,
+          "gripper": false
+        }
+      },
+      "sequences": {
+        "slots": 0,
+        "last_seq": {}
+      },
+      "pending": {},
+      "outputs_enabled": false,
+      "last_error": "driver_submit_failed:HardwareCompositionError",
+      "trusted_feedback_source": "servo_position_readback",
+      "confirmation_levels": [
+        "requested",
+        "gateway_accepted",
+        "driver_sent",
+        "controller_acknowledged",
+        "execution_observed"
+      ]
+    },
+    "follow_runtime": {
+      "active": false,
+      "commands_sent": 702,
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_gripper_driver_send_failed"
+    },
+    "leader": {
+      "connected": true,
+      "port_claim": "flock+tioxcl",
+      "healthy": true,
+      "reason": "ok",
+      "positions_deg": {
+        "shoulder_pan": 0.7912087912087912,
+        "shoulder_lift": -105.36263736263736,
+        "elbow_flex": 92.35164835164835,
+        "wrist_flex": 73.93406593406593,
+        "wrist_roll": 2.681318681318681
+      },
+      "positions_rad": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "gripper_percent": 73.62012987012987,
+      "age_s": 0.0165,
+      "reads": 888,
+      "failures": 0,
+      "consecutive_failures": 0,
+      "last_error": null,
+      "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+      "units": {
+        "joints": "deg\u2192rad (deg from Feetech bus with use_degrees)",
+        "gripper": "0-100 opening percent, not an angle"
+      },
+      "expected_joints": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "missing_joints": [],
+      "config": {
+        "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+        "ids": {
+          "shoulder_pan": 1,
+          "shoulder_lift": 2,
+          "elbow_flex": 3,
+          "wrist_flex": 4,
+          "wrist_roll": 5,
+          "gripper": 6
+        },
+        "read_hz": 30.0,
+        "read_timeout_s": 0.35,
+        "num_read_retries": 2,
+        "stale_after_s": 0.5,
+        "unhealthy_after_failures": 3
+      }
+    },
+    "hardware_preview": {
+      "available": true,
+      "reason": "preview_only_no_execution_output",
+      "leader_rad": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_rad": {
+        "joint1": 0.13823007675795088,
+        "joint2": 1.319468914507713,
+        "joint3": -2.027374459116613,
+        "joint4": -1.6001178582284012,
+        "joint5": 1.5917402778188283,
+        "r_joint": 0.033510321638291124
+      },
+      "reference": {
+        "captured_mono_ns": 255703580260210,
+        "leader_rad": {
+          "joint1": 0.013809,
+          "joint2": -1.838925,
+          "joint3": 1.61184,
+          "joint4": 1.290393,
+          "joint5": 0.046798
+        },
+        "follower_rad": {
+          "joint1": 0.13823007675795088,
+          "joint2": 1.319468914507713,
+          "joint3": -2.027374459116613,
+          "joint4": -1.6043066484331876,
+          "joint5": 1.5917402778188283,
+          "r_joint": 0.033510321638291124
+        },
+        "leader_gripper_percent": 73.62012987012987,
+        "follower_gripper_raw": 492,
+        "leader_identity": "so101-leader-5B90149723",
+        "follower_identity": "landerpi-follower-v1",
+        "mapping_identity": "landerpi-so101-mapping-v1"
+      },
+      "targets": [
+        {
+          "joint": "joint1",
+          "pre_clip_rad": 0.13823,
+          "target_rad": 0.13823,
+          "clipped": false,
+          "soft_limits_rad": [
+            -2.052507,
+            2.086018
+          ],
+          "hardware_limits_rad": [
+            -2.052507,
+            2.086018
+          ],
+          "direction": 1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.0
+        },
+        {
+          "joint": "joint2",
+          "pre_clip_rad": 1.319469,
+          "target_rad": 1.319469,
+          "clipped": false,
+          "soft_limits_rad": [
+            -2.052507,
+            1.931032
+          ],
+          "hardware_limits_rad": [
+            -2.052507,
+            1.931032
+          ],
+          "direction": -1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.0
+        },
+        {
+          "joint": "joint3",
+          "pre_clip_rad": -2.027374,
+          "target_rad": -2.027374,
+          "clipped": false,
+          "soft_limits_rad": [
+            -2.094395,
+            2.052507
+          ],
+          "hardware_limits_rad": [
+            -2.094395,
+            2.052507
+          ],
+          "direction": 1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.0
+        },
+        {
+          "joint": "joint4",
+          "pre_clip_rad": -1.604307,
+          "target_rad": -1.604307,
+          "clipped": false,
+          "soft_limits_rad": [
+            -1.675516,
+            2.010619
+          ],
+          "hardware_limits_rad": [
+            -1.675516,
+            2.010619
+          ],
+          "direction": -1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.0
+        },
+        {
+          "joint": "joint5",
+          "pre_clip_rad": 1.59174,
+          "target_rad": 1.59174,
+          "clipped": false,
+          "soft_limits_rad": [
+            -1.759292,
+            1.717404
+          ],
+          "hardware_limits_rad": [
+            -1.759292,
+            1.717404
+          ],
+          "direction": 1.0,
+          "scale": 1.0,
+          "wrapped": true,
+          "leader_delta_rad": 0.0
+        }
+      ],
+      "gripper": {
+        "joint": "r_joint",
+        "leader_percent": 73.62,
+        "leader_percent_ref": 73.62,
+        "pre_clip_pulse": 492.0,
+        "target_pulse": 492.0,
+        "clipped": false,
+        "target_rad": 0.03351,
+        "pulse_unit": "pulse",
+        "radians_per_pulse": 0.0041887902047863905,
+        "flipped": true,
+        "jaw_width_mm_estimate": null,
+        "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+      },
+      "motion_commands_sent": 0,
+      "outputs_enabled": false
+    },
+    "hardware_probe": {
+      "available": true,
+      "leader_connected": true,
+      "leader_healthy": true,
+      "feedback_valid": true,
+      "exclusive_control": true,
+      "outputs_enabled": false
+    }
+  },
+  "heartbeats": [
+    {
+      "t": 0.0,
+      "http": 200,
+      "state": "ready"
+    },
+    {
+      "t": 2.915,
+      "http": 200,
+      "state": "ready"
+    },
+    {
+      "t": 5.496,
+      "http": 200,
+      "state": "ready"
+    },
+    {
+      "t": 8.111,
+      "http": 200,
+      "state": "ready"
+    },
+    {
+      "t": 10.73,
+      "http": 200,
+      "state": "ready"
+    },
+    {
+      "t": 13.235,
+      "http": 409,
+      "state": null
+    },
+    {
+      "t": 15.762,
+      "http": 409,
+      "state": null
+    },
+    {
+      "t": 18.551,
+      "http": 409,
+      "state": null
+    }
+  ],
+  "samples": [
+    {
+      "t": 0.669,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 592,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.053,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 594,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.501,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 596,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.875,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 600,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 2.293,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 602,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 2.715,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 604,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.265,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 608,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.539,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 612,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.857,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 616,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.121,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 620,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.386,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 622,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.699,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 626,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.972,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 628,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 5.296,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 634,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 5.851,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 636,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.162,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 640,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.424,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 642,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.722,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 644,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.045,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 648,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.324,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 652,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.635,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 654,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.911,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 658,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.368,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 662,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.691,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 666,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.956,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 668,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 9.259,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 672,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 9.583,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 674,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 9.903,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 678,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 10.209,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 682,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 10.53,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 686,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 11.084,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 690,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 11.392,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 694,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 11.775,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 696,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 12.241,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 698,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 12.616,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 700,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 13.035,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "commands_sent": 700,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 14.239,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 14.55,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 14.944,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 15.261,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 15.562,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 15.887,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 16.181,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 16.52,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 16.833,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 17.145,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 17.463,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 17.724,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 18.028,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 18.351,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 18.798,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 19.159,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 19.556,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 19.93,
+      "state": "fault",
+      "last_error": "heartbeat_failed:RuntimeError",
+      "outputs_enabled": false,
+      "commands_sent": 702,
+      "leader_shoulder_pan": 0.013809,
+      "leader_all": {
+        "shoulder_pan": 0.013809,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.61184,
+        "wrist_flex": 1.290393,
+        "wrist_roll": 0.046798
+      },
+      "follower_raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    }
+  ],
+  "final": {
+    "state": "fault",
+    "last_error": "heartbeat_failed:RuntimeError",
+    "outputs_enabled": false,
+    "follow_runtime": {
+      "active": false,
+      "commands_sent": 702,
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_gripper_driver_send_failed"
+    },
+    "leader": {
+      "shoulder_pan": 0.013809,
+      "shoulder_lift": -1.838925,
+      "elbow_flex": 1.61184,
+      "wrist_flex": 1.290393,
+      "wrist_roll": 0.046798
+    },
+    "follower_raw": {
+      "joint1": 533,
+      "joint2": 815,
+      "joint3": 16,
+      "joint4": 118,
+      "joint5": 880,
+      "r_joint": 492
+    }
+  }
+}

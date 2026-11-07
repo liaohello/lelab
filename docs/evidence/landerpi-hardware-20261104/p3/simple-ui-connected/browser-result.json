@@ -1,0 +1,9 @@
+{
+  "url": "http://127.0.0.1:18286/landerpi",
+  "title": "LeLab",
+  "browser_errors": [],
+  "leader_detected": true,
+  "leader_readback": false,
+  "six_follower_raw": false,
+  "outputs_closed": true
+}

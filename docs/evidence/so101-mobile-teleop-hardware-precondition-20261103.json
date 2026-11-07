@@ -1,0 +1,75 @@
+{
+  "title": "SO-101 移动遥操作——上车前置条件只读核查（§5.2 第 0/1 步之前）",
+  "date_utc": "2026-11-03T11:32Z",
+  "branch": "codex/ros2-mobile-collection",
+  "head_before": "8aebd04",
+  "requested_by": "用户顺序要求：先接回主臂 USB 并做只读检查，核对串口/主从身份/标定版本/物理安装方向；映射不确定不得接合；再部署只读 Agent；再用 ros2 topic info -v 确认控制权；最后才谈写板授权与运动",
+  "actions_performed": "全部只读：本上位机枚举 /dev、lsusb、journalctl -k；对 Pi 的 ping 与 ssh 只读取系统信息（hostname/date/uptime/docker ps/docker inspect）。没有部署、没有写板、没有起栈、没有发任何运动指令、没有打开任何串口。",
+  "leader_arm_on_upper_host": {
+    "verdict": "未接回上位机",
+    "checks": [
+      {"cmd": "ls -l /dev/serial/by-id/", "result": "No such file or directory"},
+      {"cmd": "ls /dev/ttyACM* /dev/ttyUSB*", "result": "No such file or directory"},
+      {"cmd": "ls /sys/bus/usb-serial/devices/", "result": "No such file or directory（无 usb-serial 驱动实例）"},
+      {"cmd": "lsusb", "result": "只有 Realtek RTS5411/RTL8153 集线器与网卡、IMC Networks 无线网卡与 USB2.0 HD UVC 摄像头；没有任何串口/Feetech/CH34x/CP210x 设备"},
+      {"cmd": "journalctl -k --since -24h | grep -c 'usb .*new (high|full|low) speed'", "result": "0 —— 上位机过去 24 小时没有发生过任何 USB 插桩事件"}
+    ],
+    "note": "对照 docs/evidence/so101-leader-serial-read-20261103.json：那时 5B90149652（右主臂）在上位机可按 by-id 打开并实测 29.2 Hz。现在上位机侧完全没有串口设备，因此 §5.2 第 3 步（A 层主臂标定向导）与八.8 的真实按钮点击路径仍然不可执行。用户已说明由其确定主臂，等待接回上位机。",
+    "consequence": "主从身份映射无法核对，按用户要求这是禁止接合的前置；未做任何 leader 相关操作。"
+  },
+  "car_side_reachability": {
+    "ping": "2 发 1 收（rtt 0.241 ms），说明链路可达但不稳定",
+    "ssh": "BatchMode 公钥认证成功（无需口令）。5 次尝试里 3 次成功、2 次超时/空返回（ConnectTimeout 8/15/20 s），与 2026-11-03 既有的“Pi Wi‑Fi/SSH 频繁 socket 超时”记录一致",
+    "hostname": "raspberrypi",
+    "date_utc_observed": "2026-11-03T11:32:40Z",
+    "uptime_observed": "up 19 minutes"
+  },
+  "vendor_ros_container": {
+    "verdict": "未运行——§5.2 第 0/2 步在车侧被卡住",
+    "docker_ps": "无运行中容器",
+    "docker_ps_all": [
+      {"name": "MentorPi", "status": "Exited (137) 5 hours ago"},
+      {"name": "objective_dhawan", "status": "Exited (255) 11 months ago"}
+    ],
+    "inspect": "MentorPi: RestartPolicy=no, ExitCode=137, FinishedAt=2026-11-03T06:36:10Z",
+    "reading": "06:36Z 正是用户给小车断电的时刻（137=被杀）；19 分钟前 Pi 重新开机，但 restart=no 所以 vendor 的 ROS 容器没有自动回来。deploy_readonly_agent.sh 的 --check/--render/--apply 与 ros2 topic info -v 都要求 MentorPi 在跑（agent 投递在容器内的 /home/ubuntu/lelab_car）。",
+    "host_path_note": "宿主机上 ls /home/ubuntu/lelab_car 报 No such file or directory —— 部署目录在容器文件系统内，不在宿主机，这与既有部署方式一致。"
+  },
+  "decision_left_to_operator": {
+    "why_not_started_by_agent": "启动 MentorPi 会把 vendor 侧 ROS 栈带起来，其中 ros_robot_controller 在构造阶段就会写控制板（enable_reception、舵机偏移、机型、LED、底盘零速）。用户明确把“是否授权写板”留给现场人员决定，因此我没有 docker start，也没有执行 start_car_arm_stack.sh --apply。",
+    "minimal_next_actions": [
+      "1) 由用户按平时方式把车端栈起起来（或直接 docker start MentorPi），并确认自己接受该容器的既有板卡写入副作用。",
+      "2) 把主臂 USB 接回上位机，我这边只做只读枚举与 by-id 身份核对，供用户确认哪一台是主臂。",
+      "3) 车端起来后我按顺序执行 PI=… deploy_readonly_agent.sh --check → --render（只读，不改远端），并把输出存进本目录的新证据文件；--apply 需要用户再点头。",
+      "4) ros2 topic info -v /lelab/arm/trajectory_request 与 /lelab/gripper/trajectory_request（只读枚举发布者/订阅者），据此决定 hardware-teleop-v1.teleop.exclusive_exempt_nodes；白名单保持为空是安全默认。"
+    ]
+  },
+  "git_round": {
+    "verdict": "55 项改动已按功能分组提交（本地，未推送）",
+    "read_only_review": [
+      "凭据扫描：diff 与新增文件里没有口令/令牌/私钥；命中的 raspberrypi 是主机名，两处提及 SSH 认证的原文都写明未采集未记录任何口令。",
+      "临时产物：install/（108 KB colcon 安装目录）与 log/（289 MB colcon 构建日志，2026-11-02 08:01–08:12）不属于源码，已加进 .gitignore 的根级 /install/、/log/，未删除磁盘上的任何文件；releases/training-monitor-20261030-01/02（51/58 MB，别的阶段的快照）保持未跟踪、未改动。",
+      "构建产物：app_ros_mobile/frontend/dist/ 由仓库既有 .gitignore 规则忽略，本支只提交前端源码。",
+      "profile 一致性：两份 hardware-readonly-v1.json 与两份 hardware-teleop-v1.json 各自 sha256 逐字相同；只读 profile 的改动只是补实测相机事实与 rosbridge 只读中继默认关闭的段落，arm_sources 仍不含 leader_arm。",
+      "顺手修正：只读 profile 结尾缺少的换行补回，去掉 git 的 No newline at end of file 噪声。"
+    ],
+    "commits": [
+      {"sha": "300d65b", "subject": "feat(car-agent): gate teleop commands on observed control state, not on intent"},
+      {"sha": "18d799e", "subject": "feat(ros-mobile): read-only SO-101 leader reader, mapper and anti-jump session"},
+      {"sha": "31d007b", "subject": "feat(ros-mobile): coordinate one teleop session across both control leases"},
+      {"sha": "02662de", "subject": "feat(ros-mobile): teleop wizard routes, car-status surfacing and 6-DOF export"},
+      {"sha": "088fc4b", "subject": "test(ros-mobile): pin the wizard guards that only a sequence can trip"},
+      {"sha": "10958bc", "subject": "fix(ros2-collection): record the real agent pid and keep car bringup opt-in"}
+    ],
+    "pushed": false,
+    "not_committed_as_accepted": "台账里所有 未验证 项保持不变；提交只说明代码进了版本库，不代表八.3–八.8 过实机。"
+  },
+  "counts_measured_this_round": {
+    "tools_ros2_collection_tests": "203 passed（另 5 subtests passed）",
+    "app_ros_mobile_teleop_files": "31 passed —— 逐个实测 test_mobile_leader_bus_api 4、test_mobile_teleop_coordinator 7、test_ros_mobile_export_schema 6、test_ros_mobile_teleop_export 7、test_ros_mobile_teleop_routes 7",
+    "app_ros_mobile_teleop_plus_lease_api": "43 passed（test_hardware_lease_api 实际 12 项）",
+    "app_ros_mobile_wide_subset": "114 passed, 416 deselected（-k 'ros or leader or teleop or lease or export or sync'）",
+    "correction": "早前几轮写的“遥操作五个 app 文件 37 passed”本轮无法复现：同一组文件按不同选择方式实测是 31（不含租约 API）或 43（含 test_hardware_lease_api 全 12 项），凑不出 37。以本轮逐个文件计数为准，历史叙述里的 37 只当作当时那次选择的记录，不再照抄。",
+    "known_failing": "app 全套唯一失败仍是 test_remote_inference.py::test_client_command_targets_the_tunnel 的既有断言漂移（HEAD 起就红，与遥操作无关），按用户要求保留为已知问题而不是忽略或改测试。"
+  }
+}

@@ -837,6 +837,48 @@ def handle_upload_dataset(request: UploadRequest) -> dict[str, Any]:
         return {"success": False, "message": f"Failed to upload dataset: {str(e)}"}
 
 
+def bring_up_devices(robot, teleop, cfg: RecordConfig) -> dict[str, Any]:
+    """Open the buses, then write the calibration — after the arm-binding check.
+
+    Recording writes the same calibration to the same boards that teleoperation does, so it
+    has to pass the same refusal: a hole in this entry point would let a calibration measured
+    on a different arm reach the servos just because the operator pressed record. Nothing is
+    opened when it refuses. Returns the verdict so the caller can surface the warnings.
+    """
+    from . import arm_bindings
+
+    verdict: dict[str, Any] = {"refusals": [], "warnings": []}
+    if teleop is not None:
+        verdict = arm_bindings.check_desktop_pair(cfg.teleop.port, cfg.robot.port, teleop, robot)
+        for warning in verdict["warnings"]:
+            logger.warning("Recording identity: %s", warning)
+
+    try:
+        logger.info("🔧 ROBOT CONNECTION: Attempting to connect robot...")
+        robot.bus.connect()
+        logger.info("✅ ROBOT CONNECTION: Robot bus connected successfully")
+    except Exception as e:
+        logger.error(f"❌ ROBOT CONNECTION: Failed to connect robot: {e}")
+        raise
+
+    if teleop is not None:
+        try:
+            logger.info("🔧 TELEOP CONNECTION: Attempting to connect teleoperator...")
+            teleop.bus.connect()
+            logger.info("✅ TELEOP CONNECTION: Teleoperator bus connected successfully")
+        except Exception as e:
+            logger.error(f"❌ TELEOP CONNECTION: Failed to connect teleoperator: {e}")
+            raise
+
+    # Torque is still disabled at this point, which is what writing the
+    # calibration registers requires.
+    logger.info("Writing calibration to motors...")
+    robot.bus.write_calibration(robot.calibration)
+    if teleop is not None:
+        teleop.bus.write_calibration(teleop.calibration)
+    return verdict
+
+
 def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDataset:
     """
     Implement recording with phase tracking - exactly mirrors original record() function behavior
@@ -936,29 +978,7 @@ def record_with_web_events(cfg: RecordConfig, web_events: dict) -> LeRobotDatase
     # through it still leaves buses and cameras open, and the teardown below is
     # what frees them for the next attempt (see issue #50).
     try:
-        try:
-            logger.info("🔧 ROBOT CONNECTION: Attempting to connect robot...")
-            robot.bus.connect()
-            logger.info("✅ ROBOT CONNECTION: Robot bus connected successfully")
-        except Exception as e:
-            logger.error(f"❌ ROBOT CONNECTION: Failed to connect robot: {e}")
-            raise
-
-        if teleop is not None:
-            try:
-                logger.info("🔧 TELEOP CONNECTION: Attempting to connect teleoperator...")
-                teleop.bus.connect()
-                logger.info("✅ TELEOP CONNECTION: Teleoperator bus connected successfully")
-            except Exception as e:
-                logger.error(f"❌ TELEOP CONNECTION: Failed to connect teleoperator: {e}")
-                raise
-
-        # Torque is still disabled at this point, which is what writing the
-        # calibration registers requires.
-        logger.info("Writing calibration to motors...")
-        robot.bus.write_calibration(robot.calibration)
-        if teleop is not None:
-            teleop.bus.write_calibration(teleop.calibration)
+        bring_up_devices(robot, teleop, cfg)
 
         try:
             logger.info("🔧 CAMERA CONNECTION: Connecting cameras...")

@@ -1,0 +1,16 @@
+{
+  "generated_utc": "2026-11-06T08:20:00Z",
+  "scope": "P0 lease_lost fix",
+  "files": {
+    "app_ros_mobile/lelab/hybrid_session.py": "9e5dd2e5942852bec4524b4d3a2fbb5a1888da8d47ebb3b64488d61155f266f3",
+    "app_ros_mobile/lelab/hybrid_hardware.py": "8189d58b365c8b3be19206c84af2ed041d97ca73e6a350d661ed8ec3285df790",
+    "app_ros_mobile/lelab/hybrid_stream_hardware.py": "0622a48049f2919bf56149d593ca24e51043612f76dccc9194c94e193e22988d",
+    "app_ros_mobile/lelab/hybrid_recording.py": "d2e01b59fc12597c9671daea9528f72badbd947d80c99499a3c4af9c9002b2fe",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py": "e4bda94117065c3b7acad57ed581d4ead612c553379f8dad43e0aff9afb0ac3e",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/recorder.py": "4e532d6bf238f152e92f87cf1a3c84b59c02e7839483f45df46e03d0be54cb47",
+    "tools/ros2_collection/local_ros2/offline/facade_convoy.py": "4ec749e3579c2166b7db66009ddc5ef1b64f071d8bc71b7a22a4f7f4e6892de7",
+    "app_ros_mobile/tests/test_hybrid_stream_hardware.py": "f0d46beb9686573c287cd8cd9298a5206f74b8eea9e360de77fa9ea54c4bf7ea",
+    "tools/ros2_collection/tests/test_t3_hybrid.py": "f3ceefda64c183bc50ba6c301dc99ed9e4c97569342dc1da65bb2bb059118a47",
+    "tools/ros2_collection/tests/test_recorder_faults.py": "3b864cf01924c6e4ad7205be47bbfb455c13b4b6fe588f1b89e4842c4a186792"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "state": "ready",
+  "arm": {
+    "state": "aligned",
+    "enabled": false,
+    "permitted": false,
+    "seq": 0,
+    "pending": null,
+    "source": "so101_leader"
+  },
+  "outputs_enabled": false,
+  "preview": {
+    "available": true,
+    "reason": "preview_only_no_execution_output",
+    "targets": [
+      {
+        "joint": "joint1",
+        "pre_clip_rad": 0.129852,
+        "target_rad": 0.129852,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      {
+        "joint": "joint2",
+        "pre_clip_rad": -0.03351,
+        "target_rad": -0.03351,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          1.931032
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          1.931032
+        ],
+        "direction": -1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      {
+        "joint": "joint3",
+        "pre_clip_rad": 0.10472,
+        "target_rad": 0.10472,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.094395,
+          2.052507
+        ],
+        "hardware_limits_rad": [
+          -2.094395,
+          2.052507
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      {
+        "joint": "joint4",
+        "pre_clip_rad": 0.008378,
+        "target_rad": 0.008378,
+        "clipped": false,
+        "soft_limits_rad": [
+          -1.675516,
+          2.010619
+        ],
+        "hardware_limits_rad": [
+          -1.675516,
+          2.010619
+        ],
+        "direction": -1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      {
+        "joint": "joint5",
+        "pre_clip_rad": 0.041888,
+        "target_rad": 0.041888,
+        "clipped": false,
+        "soft_limits_rad": [
+          -1.759292,
+          1.717404
+        ],
+        "hardware_limits_rad": [
+          -1.759292,
+          1.717404
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": true,
+        "leader_delta_rad": 0.0
+      }
+    ],
+    "gripper": {
+      "joint": "r_joint",
+      "leader_percent": 12.419,
+      "leader_percent_ref": 12.419,
+      "pre_clip_pulse": 457.0,
+      "target_pulse": 457.0,
+      "clipped": false,
+      "target_rad": 0.180118,
+      "pulse_unit": "pulse",
+      "radians_per_pulse": 0.0041887902047863905,
+      "flipped": true,
+      "jaw_width_mm_estimate": null,
+      "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+    }
+  },
+  "last_error": null
+}

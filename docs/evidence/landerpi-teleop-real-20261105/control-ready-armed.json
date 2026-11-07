@@ -1,0 +1,32 @@
+{
+  "captured_at_utc": "2026-11-05T11:50:23Z",
+  "session_id": "e1326485f9e04948924832d0d42a0f2d",
+  "session_epoch": 2386838942338181,
+  "state": "ready",
+  "last_error": null,
+  "arm_state": "armed",
+  "outputs_enabled": false,
+  "leases": {
+    "upper": {
+      "held": true
+    },
+    "car": {
+      "held": true
+    }
+  },
+  "leader": {
+    "shoulder_pan": 0.254703,
+    "shoulder_lift": -0.952068,
+    "elbow_flex": 1.36174,
+    "wrist_flex": 1.047965,
+    "wrist_roll": -0.066744
+  },
+  "follower": {
+    "joint1": 538,
+    "joint2": 815,
+    "joint3": 13,
+    "joint4": 120,
+    "joint5": 877,
+    "r_joint": 492
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "car_control": {
+    "admission": {
+      "channel_seq": {
+        "arm": 61,
+        "gripper": 61
+      },
+      "counters": {
+        "accepted": 61,
+        "expired_in_queue": 0,
+        "received": 61,
+        "refused": 0
+      },
+      "data_identity": "simulated_offline",
+      "last_frame_seq": 61,
+      "next_frame_seq": 62,
+      "queue_age_ms": 14455.105381,
+      "queue_depth": 1,
+      "refusals": {},
+      "session_epoch": 5329506985390061
+    },
+    "control_hz": 10.0,
+    "counters": {
+      "contexted_rows": 108,
+      "empty_ticks": 387,
+      "fault_clears": 1,
+      "frames_emitted": 217,
+      "frames_expired": 0,
+      "frames_received": 307,
+      "frames_refused": 74,
+      "hold_frames": 3,
+      "licences_lost": 0,
+      "ticks": 795,
+      "uncontexted_rows": 109,
+      "window_issues": 795
+    },
+    "data_identity": "simulated_offline",
+    "effective_emit_hz": 2.73,
+    "emit_intervals": {
+      "count": 216,
+      "max_ms": 15400.06,
+      "p50_ms": 100.0,
+      "p95_ms": 299.95,
+      "p99_ms": 300.47
+    },
+    "feedback": {
+      "ages_ms": {
+        "joint1": 107.9,
+        "joint2": 107.9,
+        "joint3": 107.9,
+        "joint4": 107.9,
+        "joint5": 107.9,
+        "r_joint": 107.9
+      },
+      "available": true,
+      "ingests": 2382,
+      "last_error": null,
+      "oldest_age_s": 0.1078989320085384,
+      "position_rad": {
+        "joint1": 0.4272566008882118,
+        "joint2": 0.4440117617073574,
+        "joint3": 0.46495571273128933,
+        "joint4": 0.4858996637552213,
+        "joint5": 1.4744541520848093,
+        "r_joint": -0.050265482457436686
+      },
+      "raw": {
+        "joint1": 602,
+        "joint2": 606,
+        "joint3": 611,
+        "joint4": 616,
+        "joint5": 852,
+        "r_joint": 488
+      },
+      "reason": "ok",
+      "rejects": 0,
+      "sample_seq": 401,
+      "scan_period_s": 0.2,
+      "scan_span_s": 0.2,
+      "stale_after_s": 0.5
+    },
+    "last_clear": {
+      "control_generation": 155,
+      "reason": "operator_cleared_estop"
+    },
+    "last_refusal": {
+      "frame_seq": "51",
+      "reason": "joint1_target_step_exceeded"
+    },
+    "latched_fault": null,
+    "licence": {
+      "authorised": false,
+      "counters": {
+        "context_expired": 1,
+        "contexts": 29,
+        "eof": 0,
+        "expired": 0,
+        "received": 403,
+        "refreshed": 394,
+        "refused": 0,
+        "replaced": 6,
+        "revoked": 3
+      },
+      "last_error": null,
+      "licence": null,
+      "pending_clear": null,
+      "recording_context": null,
+      "revoked_reason": "car_lease_released"
+    },
+    "outputs_enabled": false,
+    "paused": true,
+    "publish_count": 217,
+    "reengage_required": false,
+    "stop_count": 5,
+    "stream": {
+      "client_connected": false,
+      "counters": {
+        "connections": 6,
+        "frames": 307,
+        "handler_errors": 0,
+        "malformed": 0,
+        "preempts": 3,
+        "push_failures": 0,
+        "refused_hellos": 1
+      },
+      "generation": 6,
+      "hello": {
+        "capabilities": [
+          "teleop_frame_v1"
+        ],
+        "frame_protocols": [
+          1
+        ],
+        "protocol": 1,
+        "session_epoch": 5329506985390061,
+        "session_id": "offline-hybrid-frames",
+        "type": "hello"
+      },
+      "last_error": "idle"
+    },
+    "stream_epoch": 7,
+    "training_eligible": false,
+    "uptime_s": 79.5,
+    "window_ms": 250
+  },
+  "checks": [
+    {
+      "detail": "the session marker holds no lease token: the car has already given control back, so there is nothing to pause",
+      "name": "stop_no_lease_to_pause",
+      "passed": true
+    }
+  ],
+  "data_identity": "simulated_offline",
+  "duration_s": 8.0,
+  "failed": [],
+  "hardware_effect": "not_tested_no_serial_port_reachable",
+  "phase": "stop",
+  "receipt_sample": [],
+  "sender_window_skips": 0,
+  "sim_board": {
+    "commands_rejected": 0,
+    "data_identity": "simulated_offline",
+    "faults": {
+      "extra_servo_id": 0,
+      "reject_commands": false,
+      "stall_after_s": 0.0
+    },
+    "hardware_effect": "simulated_only",
+    "last_command": {
+      "duration_s": 0.05,
+      "ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        10
+      ],
+      "positions": [
+        602,
+        606,
+        611,
+        616,
+        852,
+        488
+      ],
+      "sequence": 222
+    },
+    "node": "lelab_sim_board_owner",
+    "outputs_received": 222,
+    "positions_applied": 1332,
+    "raw": {
+      "joint1": 602,
+      "joint2": 606,
+      "joint3": 611,
+      "joint4": 616,
+      "joint5": 852,
+      "r_joint": 488
+    },
+    "readback_sequence": 403,
+    "scan_period_s": 0.2,
+    "target": {
+      "joint1": 602,
+      "joint2": 606,
+      "joint3": 611,
+      "joint4": 616,
+      "joint5": 852,
+      "r_joint": 488
+    },
+    "training_eligible": false,
+    "uptime_s": 80.603
+  },
+  "started_utc": "2026-11-05T19:05:30Z",
+  "stream_stats": {
+    "connected": false,
+    "counters": {
+      "frames_dropped": 0,
+      "frames_sent": 0,
+      "receipts": 0,
+      "reconnects": 0,
+      "windows": 0
+    },
+    "stream_epoch": null,
+    "waiting": 0
+  },
+  "target_hz": 10.0,
+  "training_eligible": false
+}

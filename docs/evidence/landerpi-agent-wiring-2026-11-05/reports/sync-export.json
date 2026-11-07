@@ -1,0 +1,79 @@
+{
+  "data_identity": "simulated_offline",
+  "export": {
+    "data_identity": "simulated_offline",
+    "dataset_root": "/home/liaozhengyan/Desktop/lelab/work/ros2_collection/local_humble/lerobot_offline/lelab/ros-mobile-20261105t190502z-349c6350",
+    "declared_camera_fps": 14.0,
+    "episodes": [
+      {
+        "episode_id": "ep_1793905503_a3db24",
+        "frames": 54,
+        "phases": [
+          [
+            "observe",
+            0,
+            27
+          ],
+          [
+            "grasp",
+            27,
+            54
+          ]
+        ],
+        "success": "unknown"
+      },
+      {
+        "episode_id": "ep_1793905510_c37a08",
+        "frames": 54,
+        "phases": [
+          [
+            "observe",
+            0,
+            27
+          ],
+          [
+            "grasp",
+            27,
+            54
+          ]
+        ],
+        "success": "unknown"
+      }
+    ],
+    "export_contract": "simulated_offline_6d_v1",
+    "fps": 10,
+    "repo_id": "lelab/ros-mobile-20261105t190502z-349c6350",
+    "sampling": "event_paced_teleop_rows",
+    "status": "validated",
+    "total_episodes": 2,
+    "total_frames": 108,
+    "training_eligible": false,
+    "warnings": [
+      "phase 1 export is arm+gripper only: the locked chassis is excluded rather than zero-filled",
+      "action is the target the control process recorded sending; the leader reading and the pre-clamp value are recorded next to it and are not the action",
+      "state is the servo readback the control process recorded at that instant; the board behind it is simulated, so nothing here is a hardware measurement",
+      "offline simulated 6D evidence: the action is the target the car's control process recorded sending, and the state is the servo readback it saw at that instant - neither is a hardware measurement",
+      "one dataset frame per recorded teleop row, so the dataset rate is the measured row rate (10 Hz), not the declared camera rate",
+      "the dataset is not training-eligible and must not be mixed with hardware sessions",
+      "dataset sampled at 10 Hz because the video encoder requires a whole-number rate; the profile declared 14.0 Hz"
+    ]
+  },
+  "failed": [],
+  "session_id": "ros_20261105T190502Z_349c6350",
+  "started_utc": "2026-11-05T19:05:20Z",
+  "sync": {
+    "manifest_sha256": "3eb5d558a8cc63dc2f6d39ac60c94697b00c43ac7183984726c3f60e62b526bb",
+    "path": "/home/liaozhengyan/Desktop/lelab/work/ros2_collection/local_humble/upper6d/upper/sessions/ros_20261105T190502Z_349c6350",
+    "session_id": "ros_20261105T190502Z_349c6350",
+    "status": "raw_ready",
+    "topics": [
+      "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info",
+      "/lelab_offline/ascamera/camera_publisher/rgb0/image",
+      "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+      "/lelab_offline/recording/teleop",
+      "/lelab_offline/ros_robot_controller/bus_servo/set_position"
+    ],
+    "verified_files": 7
+  },
+  "training_eligible": false
+}

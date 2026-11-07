@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "wave": "A",
+  "session": "T2",
+  "reference_tree": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811",
+  "reference_head_informational_only": "a72a60d331c614b32ef438b6fb89ac86be52c512",
+  "reference_tree_dirty": true,
+  "baseline": {
+    "Hiwonder/Portings/motor_porting.c": {
+      "sha256": "ad10b41299c5f119a196e7c5848da3edc6ffb60324755dd945600f4dea2ff02f",
+      "bytes": 6959
+    },
+    "Hiwonder/System/packet_handle.c": {
+      "sha256": "a3bdf756ebf42f11110dc51e7cec4a2875fde4986e0060d9ec1b7bc6b84164b9",
+      "bytes": 19110
+    },
+    "Hiwonder/System/app.c": {
+      "sha256": "1c82cadfbdedc198cc0aaaf734ad92bb24dba429d251522c3b6d042d293431b0",
+      "bytes": 4164
+    },
+    "Hiwonder/Misc/packet.h": {
+      "sha256": "94038e16cb5ce8adeaadcd1c0a9c6fa5cfef9f93c6b3056c1aa215ec0eee0a82",
+      "bytes": 3450
+    },
+    "Core/Src/stm32f4xx_it.c": {
+      "sha256": "03a1a5391a8cb00d4117295030a3bccbf0a25f9c1eade3dbdd903571cf700492",
+      "bytes": 14907
+    }
+  },
+  "existing_hex_not_a_build_product": {
+    "file": "RosRobotControllerLite_ros_250811.hex",
+    "sha256": "31c31d48db766c2bcecf545de1776c76247864780b681aa7caa40e12c1127f7b"
+  },
+  "patches": [
+    {
+      "name": "0001-encoder-timer-fixes.patch",
+      "sha256": "7b15a479b6548a5075d28f37c37f99069db1df8f3f44ffc0b65b0dec785e70ca",
+      "bytes": 815
+    },
+    {
+      "name": "0002-standalone-candidate.patch",
+      "sha256": "209612286ff99598a4a9621a2d415e988f3e6385a1bf0aa093ead5415ef138a1",
+      "bytes": 16503
+    },
+    {
+      "name": "0003-t2-board-integration.patch",
+      "sha256": "bebb2c3d63efb99ea5b4d4e3574102e4e0be3fcbe2d5eebfa5e0a173410db7d0",
+      "bytes": 9843
+    }
+  ],
+  "apply_order": [
+    "0001-encoder-timer-fixes.patch",
+    "0002-standalone-candidate.patch",
+    "0003-t2-board-integration.patch"
+  ],
+  "apply_command": "patch -p1 --dry-run < PATCH && patch -p1 < PATCH (isolated copy only)",
+  "revert_command": "patch -R -p1 < PATCH (reverse order)",
+  "never": [
+    "modify the reference tree",
+    "flash",
+    "connect a board"
+  ]
+}

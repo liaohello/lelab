@@ -1,6 +1,6 @@
 # 树莓派实机环境评估与开发规划
 
-评估日期：2026-10-31。目标：`pi@192.168.19.138`。源码基线：`codex/ros2-mobile-collection` / `4beecee`。最新状态：**用户重启后已确认 Humble 容器，实收 RGB/深度/IR/IMU/状态数据；MCAP、时钟、雷达及数据语义仍需处理**。
+评估日期：2026-10-31。目标：`pi@<private-ip>`。源码基线：`codex/ros2-mobile-collection` / `4beecee`。最新状态：**用户重启后已确认 Humble 容器，实收 RGB/深度/IR/IMU/状态数据；MCAP、时钟、雷达及数据语义仍需处理**。
 
 第 1–5 节保留首次断连前的评估快照。第 6 节为重启后的新证据，运行环境与传感器现状以第 6 节为准；此前“容器和相机未确认”已被后续核验补齐。
 
@@ -27,7 +27,7 @@ USB 枚举包含 CH340、USB Single Serial、音频设备、hub 和名称为 Lin
 
 ### 连接与无线边界
 
-本机到目标的实际路由是 `192.168.19.137 → enx00e04c68034c → 192.168.19.138`，本轮走有线。Pi 的 eth0 为 UP/LOWER_UP，默认路由经 `192.168.19.1`；wlan0 为 UP/DORMANT，另有 `192.168.149.0/24` 路由。没有核实无线接入方式，不把它解释成正常的 Wi-Fi 上行连接。
+本机到目标的实际路由是 `<private-ip> → <wired-interface> → <private-ip>`，本轮走有线。Pi 的 eth0 为 UP/LOWER_UP，默认路由经 `<private-ip>`；wlan0 为 UP/DORMANT，另有 `<private-network>` 路由。没有核实无线接入方式，不把它解释成正常的 Wi-Fi 上行连接。
 
 两次短 ping 分别收到 2/3 和 6/10，后者 RTT 平均约 0.283 ms。SSH 曾成功认证并返回系统信息，后续多次停滞、断开或超时；三次单独的 TCP banner 探测一次超时、两次成功。最后直接 SSH 尝试超时。接口累计 errors/dropped 的零值不能否定这些端到端现象。
 

@@ -1,0 +1,2361 @@
+{
+  "captured_at_utc": "2026-11-05T11:46:17Z",
+  "identity": {
+    "session_id": "842460f212ea439bbb1f8a6db7db419b",
+    "session_epoch": 3945210530697839,
+    "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf"
+  },
+  "engage_http": 200,
+  "pause_http": 200,
+  "pause_response": {
+    "state": "fault",
+    "session_id": "842460f212ea439bbb1f8a6db7db419b",
+    "session_epoch": 3945210530697839,
+    "profile": "hardware_hybrid_manual_v1",
+    "simulated": false,
+    "leases": {
+      "upper": {
+        "held": true
+      },
+      "car": {
+        "held": true
+      }
+    },
+    "channels": {
+      "base": {
+        "enabled": false,
+        "permitted": false,
+        "locked": true,
+        "gamepad": {
+          "armed": false,
+          "neutral_seen": false,
+          "intent": null,
+          "last_seq": -1,
+          "last_received_mono_ns": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "seq": 0,
+        "pending": null,
+        "source": "gamepad"
+      },
+      "arm": {
+        "state": "idle",
+        "enabled": false,
+        "permitted": false,
+        "seq": 65,
+        "pending": null,
+        "source": "so101_leader"
+      },
+      "gripper": {
+        "state": "idle",
+        "enabled": false,
+        "permitted": false,
+        "seq": 64,
+        "pending": null,
+        "source": "so101_leader"
+      }
+    },
+    "devices": {
+      "leader": {
+        "connected": true,
+        "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+        "simulated": false
+      },
+      "follower": {
+        "driver_bound": true,
+        "source": "ros_robot_controller/servo_readback",
+        "simulated": false
+      },
+      "camera": {
+        "source": "/ascamera/camera_publisher/rgb0/image",
+        "stale": false,
+        "simulated": false
+      }
+    },
+    "calibrations": {
+      "ready": true,
+      "bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+      "reasons": [],
+      "layout": "so101_three_layer",
+      "layers": {
+        "leader": {
+          "identity": "so101-leader-5B90149723",
+          "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+          "version": "cbf6d23f79d3"
+        },
+        "follower": {
+          "identity": "landerpi-follower-v1",
+          "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+          "version": "46da965c331d"
+        },
+        "mapping": {
+          "identity": "landerpi-so101-mapping-v1",
+          "sha256": "96e1c054563a70ef74475ce44664d6451ba5d16d5061d7716df2ca53baab70d0",
+          "version": "dde8229e3fab"
+        }
+      },
+      "simulated": false,
+      "camera_capability": "observed_real",
+      "firmware_capability": "unknown"
+    },
+    "feedback": {
+      "valid": true,
+      "source_kind": "servo_position_readback",
+      "clock_domain": "upper_receipt_monotonic",
+      "samples": [
+        {
+          "name": "joint1",
+          "servo_id": 1,
+          "raw_position": 538.0,
+          "position_rad": 0.15917402778188283,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        {
+          "name": "joint2",
+          "servo_id": 2,
+          "raw_position": 815.0,
+          "position_rad": 1.319468914507713,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        {
+          "name": "joint3",
+          "servo_id": 3,
+          "raw_position": 13.0,
+          "position_rad": -2.039940829730972,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        {
+          "name": "joint4",
+          "servo_id": 4,
+          "raw_position": 119.0,
+          "position_rad": -1.5959290680236147,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        {
+          "name": "joint5",
+          "servo_id": 5,
+          "raw_position": 876.0,
+          "position_rad": 1.574985116999683,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        {
+          "name": "r_joint",
+          "servo_id": 10,
+          "raw_position": 492.0,
+          "position_rad": 0.033510321638291124,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        }
+      ],
+      "joint_samples": {
+        "joint1": {
+          "name": "joint1",
+          "servo_id": 1,
+          "raw_position": 538.0,
+          "position_rad": 0.15917402778188283,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        "joint2": {
+          "name": "joint2",
+          "servo_id": 2,
+          "raw_position": 815.0,
+          "position_rad": 1.319468914507713,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        "joint3": {
+          "name": "joint3",
+          "servo_id": 3,
+          "raw_position": 13.0,
+          "position_rad": -2.039940829730972,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        "joint4": {
+          "name": "joint4",
+          "servo_id": 4,
+          "raw_position": 119.0,
+          "position_rad": -1.5959290680236147,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        "joint5": {
+          "name": "joint5",
+          "servo_id": 5,
+          "raw_position": 876.0,
+          "position_rad": 1.574985116999683,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        },
+        "r_joint": {
+          "name": "r_joint",
+          "servo_id": 10,
+          "raw_position": 492.0,
+          "position_rad": 0.033510321638291124,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+          "sample_seq": 6836,
+          "received_mono_ns": 256468162105366,
+          "sample_time_ns": 1793879176152021206,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.04378946299584641,
+          "age_ns": 43789462
+        }
+      },
+      "positions_rad": {
+        "joint1": 0.15917402778188283,
+        "joint2": 1.319468914507713,
+        "joint3": -2.039940829730972,
+        "joint4": -1.5959290680236147,
+        "joint5": 1.574985116999683,
+        "r_joint": 0.033510321638291124
+      },
+      "servo_pulses": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "scan_span_s": 0.019053,
+      "scan_span_ns": 19053000,
+      "stale_after_s": 0.5,
+      "input_available": true,
+      "input_reason": "ok",
+      "network_elapsed_s": 0.014794,
+      "reason": "ok",
+      "calibration_binding": "bound",
+      "trusted": true,
+      "trusted_reasons": [],
+      "note": "six measured servo positions relayed with age; no command cache"
+    },
+    "video": {
+      "available": true,
+      "valid": true,
+      "stale": false,
+      "reason": "fresh_camera_frame",
+      "preview_seq": 288,
+      "source_stamp_ns": 1793879175774000128,
+      "age_s": 0.387,
+      "topic": "/ascamera/camera_publisher/rgb0/image",
+      "source": "/ascamera/camera_publisher/rgb0/image"
+    },
+    "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+    "missing_for_following": [
+      "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}"
+    ],
+    "outputs_enabled": false,
+    "control_semantics": "preview_readback_only",
+    "phase": "grasp",
+    "recording": {
+      "source": "hybrid_recording_controller",
+      "status": "not_started",
+      "session_id": null,
+      "session_epoch": null,
+      "clock_domain": null,
+      "clock_epoch": null,
+      "calibration_bundle_hash": null,
+      "car_session_path": null,
+      "episode_id": null,
+      "episode_started_time_ns": null,
+      "phase": null,
+      "phases": [],
+      "episodes": [],
+      "phase_timeline_complete": true,
+      "paused_before_wrapup": null,
+      "motion_commands_sent": 0,
+      "lease_acquired": false,
+      "outputs_enabled": false,
+      "last_error": null,
+      "error_detail": null,
+      "event_count": 0,
+      "estop_save_pending": false
+    },
+    "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+    "channels_meta": {
+      "session_id": "842460f212ea439bbb1f8a6db7db419b",
+      "session_epoch": 3945210530697839,
+      "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+      "permits": {
+        "epoch": 3945210530697839,
+        "granted": {
+          "base": false,
+          "arm": false,
+          "gripper": false
+        }
+      },
+      "sequences": {
+        "slots": 0,
+        "last_seq": {}
+      },
+      "pending": {},
+      "outputs_enabled": false,
+      "last_error": "driver_submit_failed:HardwareCompositionError",
+      "trusted_feedback_source": "servo_position_readback",
+      "confirmation_levels": [
+        "requested",
+        "gateway_accepted",
+        "driver_sent",
+        "controller_acknowledged",
+        "execution_observed"
+      ]
+    },
+    "follow_runtime": {
+      "active": false,
+      "commands_sent": 128,
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}"
+    },
+    "leader": {
+      "connected": true,
+      "port_claim": "flock+tioxcl",
+      "healthy": true,
+      "reason": "ok",
+      "positions_deg": {
+        "shoulder_pan": -9.67032967032967,
+        "shoulder_lift": -25.0989010989011,
+        "elbow_flex": 10.417582417582418,
+        "wrist_flex": 92.04395604395604,
+        "wrist_roll": -13.054945054945055
+      },
+      "positions_rad": {
+        "shoulder_pan": -0.168779,
+        "shoulder_lift": -0.438058,
+        "elbow_flex": 0.181821,
+        "wrist_flex": 1.60647,
+        "wrist_roll": -0.227852
+      },
+      "gripper_percent": 12.824675324675324,
+      "age_s": 0.0249,
+      "reads": 859,
+      "failures": 0,
+      "consecutive_failures": 0,
+      "last_error": null,
+      "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+      "units": {
+        "joints": "deg\u2192rad (deg from Feetech bus with use_degrees)",
+        "gripper": "0-100 opening percent, not an angle"
+      },
+      "expected_joints": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ],
+      "missing_joints": [],
+      "config": {
+        "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+        "ids": {
+          "shoulder_pan": 1,
+          "shoulder_lift": 2,
+          "elbow_flex": 3,
+          "wrist_flex": 4,
+          "wrist_roll": 5,
+          "gripper": 6
+        },
+        "read_hz": 30.0,
+        "read_timeout_s": 0.35,
+        "num_read_retries": 2,
+        "stale_after_s": 0.5,
+        "unhealthy_after_failures": 3
+      }
+    },
+    "hardware_preview": {
+      "available": true,
+      "reason": "preview_only_no_execution_output",
+      "leader_rad": {
+        "shoulder_pan": -0.168779,
+        "shoulder_lift": -0.438058,
+        "elbow_flex": 0.181821,
+        "wrist_flex": 1.60647,
+        "wrist_roll": -0.227852
+      },
+      "follower_rad": {
+        "joint1": 0.15917402778188283,
+        "joint2": 1.319468914507713,
+        "joint3": -2.039940829730972,
+        "joint4": -1.5959290680236147,
+        "joint5": 1.574985116999683,
+        "r_joint": 0.033510321638291124
+      },
+      "reference": {
+        "captured_mono_ns": 256440157085055,
+        "leader_rad": {
+          "joint1": -0.056771,
+          "joint2": -1.841994,
+          "joint3": 1.631787,
+          "joint4": 1.284255,
+          "joint5": 0.336791
+        },
+        "follower_rad": {
+          "joint1": 0.171740398396242,
+          "joint2": 1.319468914507713,
+          "joint3": -2.039940829730972,
+          "joint4": -1.6001178582284012,
+          "joint5": 1.5917402778188283,
+          "r_joint": 0.033510321638291124
+        },
+        "leader_gripper_percent": 9.415584415584416,
+        "follower_gripper_raw": 492,
+        "leader_identity": "so101-leader-5B90149723",
+        "follower_identity": "landerpi-follower-v1",
+        "mapping_identity": "landerpi-so101-mapping-v1"
+      },
+      "targets": [
+        {
+          "joint": "joint1",
+          "pre_clip_rad": 0.059732,
+          "target_rad": 0.059732,
+          "clipped": false,
+          "soft_limits_rad": [
+            -2.052507,
+            2.086018
+          ],
+          "hardware_limits_rad": [
+            -2.052507,
+            2.086018
+          ],
+          "direction": 1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": -0.112008
+        },
+        {
+          "joint": "joint2",
+          "pre_clip_rad": -0.084467,
+          "target_rad": -0.084467,
+          "clipped": false,
+          "soft_limits_rad": [
+            -2.052507,
+            1.931032
+          ],
+          "hardware_limits_rad": [
+            -2.052507,
+            1.931032
+          ],
+          "direction": -1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 1.403936
+        },
+        {
+          "joint": "joint3",
+          "pre_clip_rad": -3.489907,
+          "target_rad": -2.094395,
+          "clipped": true,
+          "soft_limits_rad": [
+            -2.094395,
+            2.052507
+          ],
+          "hardware_limits_rad": [
+            -2.094395,
+            2.052507
+          ],
+          "direction": 1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": -1.449966
+        },
+        {
+          "joint": "joint4",
+          "pre_clip_rad": -1.922333,
+          "target_rad": -1.675516,
+          "clipped": true,
+          "soft_limits_rad": [
+            -1.675516,
+            2.010619
+          ],
+          "hardware_limits_rad": [
+            -1.675516,
+            2.010619
+          ],
+          "direction": -1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.322215
+        },
+        {
+          "joint": "joint5",
+          "pre_clip_rad": 1.027097,
+          "target_rad": 1.027097,
+          "clipped": false,
+          "soft_limits_rad": [
+            -1.759292,
+            1.717404
+          ],
+          "hardware_limits_rad": [
+            -1.759292,
+            1.717404
+          ],
+          "direction": 1.0,
+          "scale": 1.0,
+          "wrapped": true,
+          "leader_delta_rad": -0.564643
+        }
+      ],
+      "gripper": {
+        "joint": "r_joint",
+        "leader_percent": 12.825,
+        "leader_percent_ref": 9.416,
+        "pre_clip_pulse": 481.909,
+        "target_pulse": 481.909,
+        "clipped": false,
+        "target_rad": 0.075779,
+        "pulse_unit": "pulse",
+        "radians_per_pulse": 0.0041887902047863905,
+        "flipped": true,
+        "jaw_width_mm_estimate": null,
+        "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+      },
+      "motion_commands_sent": 0,
+      "outputs_enabled": false
+    },
+    "hardware_probe": {
+      "available": true,
+      "leader_connected": true,
+      "leader_healthy": true,
+      "feedback_valid": true,
+      "exclusive_control": true,
+      "outputs_enabled": false
+    }
+  },
+  "heartbeats": [
+    {
+      "t": 0.0,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t": 2.586,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t": 5.362,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t": 7.923,
+      "http": 409,
+      "state": null,
+      "last_error": null
+    },
+    {
+      "t": 10.661,
+      "http": 409,
+      "state": null,
+      "last_error": null
+    },
+    {
+      "t": 13.376,
+      "http": 409,
+      "state": null,
+      "last_error": null
+    },
+    {
+      "t": 16.022,
+      "http": 409,
+      "state": null,
+      "last_error": null
+    },
+    {
+      "t": 18.761,
+      "http": 409,
+      "state": null,
+      "last_error": null
+    }
+  ],
+  "samples": [
+    {
+      "t": 0.264,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 2,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 0.552,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 8,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 0.877,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 16,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.174,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 22,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.489,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 28,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.808,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 34,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 2.111,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 40,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 2.386,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 46,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 2.99,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 52,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.308,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 58,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.607,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 66,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.932,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 74,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.288,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 84,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.552,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 90,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.858,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 94,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 5.162,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 98,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 5.648,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 104,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 5.97,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 110,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.287,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 116,
+      "leader_shoulder_pan": -0.082855,
+      "leader_all": {
+        "shoulder_pan": -0.082855,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.631787,
+        "wrist_flex": 1.284255,
+        "wrist_roll": 0.336791
+      },
+      "target_joint1": 0.145656,
+      "follower_raw": {
+        "joint1": 541,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.539,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 122,
+      "leader_shoulder_pan": -0.102802,
+      "leader_all": {
+        "shoulder_pan": -0.102802,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.630253,
+        "wrist_flex": 1.281187,
+        "wrist_roll": 0.329119
+      },
+      "target_joint1": 0.125709,
+      "follower_raw": {
+        "joint1": 540,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.806,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "arm_state": "following",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.099733,
+      "leader_all": {
+        "shoulder_pan": -0.099733,
+        "shoulder_lift": -1.841994,
+        "elbow_flex": 1.547397,
+        "wrist_flex": 1.288859,
+        "wrist_roll": 0.249333
+      },
+      "target_joint1": 0.128778,
+      "follower_raw": {
+        "joint1": 540,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.086,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.101267,
+      "leader_all": {
+        "shoulder_pan": -0.101267,
+        "shoulder_lift": -1.838925,
+        "elbow_flex": 1.430786,
+        "wrist_flex": 1.298065,
+        "wrist_roll": 0.186424
+      },
+      "target_joint1": 0.127244,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.4,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.105871,
+      "leader_all": {
+        "shoulder_pan": -0.105871,
+        "shoulder_lift": -1.648665,
+        "elbow_flex": 1.168412,
+        "wrist_flex": 1.360973,
+        "wrist_roll": 0.186424
+      },
+      "target_joint1": 0.12264,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.723,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.104336,
+      "leader_all": {
+        "shoulder_pan": -0.104336,
+        "shoulder_lift": -1.311107,
+        "elbow_flex": 0.804769,
+        "wrist_flex": 1.241294,
+        "wrist_roll": 0.186424
+      },
+      "target_joint1": 0.124175,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 120,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.031,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.210207,
+      "leader_all": {
+        "shoulder_pan": -0.210207,
+        "shoulder_lift": -1.229786,
+        "elbow_flex": 0.769479,
+        "wrist_flex": 1.247431,
+        "wrist_roll": 0.19563
+      },
+      "target_joint1": 0.018304,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.349,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.622948,
+      "leader_all": {
+        "shoulder_pan": -0.622948,
+        "shoulder_lift": -1.223648,
+        "elbow_flex": 0.749533,
+        "wrist_flex": 1.213675,
+        "wrist_roll": 0.194096
+      },
+      "target_joint1": -0.394437,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 120,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.672,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.036825,
+      "leader_all": {
+        "shoulder_pan": -0.036825,
+        "shoulder_lift": -1.229786,
+        "elbow_flex": 0.752601,
+        "wrist_flex": 1.293462,
+        "wrist_roll": 0.189493
+      },
+      "target_joint1": 0.191686,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.975,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.021481,
+      "leader_all": {
+        "shoulder_pan": 0.021481,
+        "shoulder_lift": -1.222114,
+        "elbow_flex": 0.734189,
+        "wrist_flex": 1.322614,
+        "wrist_roll": 0.18489
+      },
+      "target_joint1": 0.249992,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 9.311,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.072115,
+      "leader_all": {
+        "shoulder_pan": -0.072115,
+        "shoulder_lift": -1.222114,
+        "elbow_flex": 0.646731,
+        "wrist_flex": 1.333355,
+        "wrist_roll": 0.273882
+      },
+      "target_joint1": 0.156396,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 120,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 9.584,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.065977,
+      "leader_all": {
+        "shoulder_pan": -0.065977,
+        "shoulder_lift": -1.222114,
+        "elbow_flex": 0.646731,
+        "wrist_flex": 1.344095,
+        "wrist_roll": 0.316844
+      },
+      "target_joint1": 0.162534,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 9.893,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.064443,
+      "leader_all": {
+        "shoulder_pan": -0.064443,
+        "shoulder_lift": -1.222114,
+        "elbow_flex": 0.645196,
+        "wrist_flex": 1.433088,
+        "wrist_roll": 0.151134
+      },
+      "target_joint1": 0.164068,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 10.198,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.107405,
+      "leader_all": {
+        "shoulder_pan": 0.107405,
+        "shoulder_lift": -1.202167,
+        "elbow_flex": 0.617578,
+        "wrist_flex": 1.483722,
+        "wrist_roll": -0.180287
+      },
+      "target_joint1": 0.335916,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 10.461,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.078252,
+      "leader_all": {
+        "shoulder_pan": 0.078252,
+        "shoulder_lift": -1.151534,
+        "elbow_flex": 0.563876,
+        "wrist_flex": 1.545096,
+        "wrist_roll": -0.226317
+      },
+      "target_joint1": 0.306763,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 120,
+        "joint5": 875,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 10.736,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.231688,
+      "leader_all": {
+        "shoulder_pan": -0.231688,
+        "shoulder_lift": -1.151534,
+        "elbow_flex": 0.563876,
+        "wrist_flex": 1.545096,
+        "wrist_roll": 0.082088
+      },
+      "target_joint1": -0.003177,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 875,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 11.041,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.256237,
+      "leader_all": {
+        "shoulder_pan": -0.256237,
+        "shoulder_lift": -1.151534,
+        "elbow_flex": 0.563876,
+        "wrist_flex": 1.472981,
+        "wrist_roll": 0.155737
+      },
+      "target_joint1": -0.027726,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 120,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 11.315,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.018412,
+      "leader_all": {
+        "shoulder_pan": 0.018412,
+        "shoulder_lift": -1.151534,
+        "elbow_flex": 0.502501,
+        "wrist_flex": 1.519012,
+        "wrist_roll": -0.121981
+      },
+      "target_joint1": 0.246923,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 11.627,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.027618,
+      "leader_all": {
+        "shoulder_pan": 0.027618,
+        "shoulder_lift": -1.12545,
+        "elbow_flex": 0.322982,
+        "wrist_flex": 1.637157,
+        "wrist_roll": -0.13579
+      },
+      "target_joint1": 0.256129,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 11.954,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.05984,
+      "leader_all": {
+        "shoulder_pan": -0.05984,
+        "shoulder_lift": -0.789426,
+        "elbow_flex": 0.161874,
+        "wrist_flex": 1.810539,
+        "wrist_roll": -0.13579
+      },
+      "target_joint1": 0.168671,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 12.229,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.012275,
+      "leader_all": {
+        "shoulder_pan": -0.012275,
+        "shoulder_lift": -0.700433,
+        "elbow_flex": 0.536257,
+        "wrist_flex": 1.735356,
+        "wrist_roll": -0.13579
+      },
+      "target_joint1": 0.216236,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 12.548,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.08439,
+      "leader_all": {
+        "shoulder_pan": 0.08439,
+        "shoulder_lift": -0.724983,
+        "elbow_flex": 0.24473,
+        "wrist_flex": 1.750699,
+        "wrist_roll": -0.13579
+      },
+      "target_joint1": 0.312901,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 12.868,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.219413,
+      "leader_all": {
+        "shoulder_pan": -0.219413,
+        "shoulder_lift": -0.792495,
+        "elbow_flex": -0.071348,
+        "wrist_flex": 1.825883,
+        "wrist_roll": -0.144997
+      },
+      "target_joint1": 0.009098,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 118,
+        "joint5": 877,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 13.175,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.816277,
+      "leader_all": {
+        "shoulder_pan": -0.816277,
+        "shoulder_lift": -0.740326,
+        "elbow_flex": -0.074416,
+        "wrist_flex": 1.824349,
+        "wrist_roll": -0.134256
+      },
+      "target_joint1": -0.587766,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 879,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 13.458,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.308405,
+      "leader_all": {
+        "shoulder_pan": -0.308405,
+        "shoulder_lift": -0.73112,
+        "elbow_flex": -0.068279,
+        "wrist_flex": 1.830486,
+        "wrist_roll": -0.144997
+      },
+      "target_joint1": -0.084755,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 13.73,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.303802,
+      "leader_all": {
+        "shoulder_pan": 0.303802,
+        "shoulder_lift": -0.732655,
+        "elbow_flex": -0.00537,
+        "wrist_flex": 1.853501,
+        "wrist_roll": -0.144997
+      },
+      "target_joint1": 0.532313,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 14.042,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.042962,
+      "leader_all": {
+        "shoulder_pan": -0.042962,
+        "shoulder_lift": -0.732655,
+        "elbow_flex": 0.009973,
+        "wrist_flex": 1.84583,
+        "wrist_roll": -0.144997
+      },
+      "target_joint1": 0.185549,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 878,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 14.353,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.237825,
+      "leader_all": {
+        "shoulder_pan": -0.237825,
+        "shoulder_lift": -0.740326,
+        "elbow_flex": 0.017645,
+        "wrist_flex": 1.744562,
+        "wrist_roll": -0.143462
+      },
+      "target_joint1": -0.009314,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 123,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 14.671,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.072115,
+      "leader_all": {
+        "shoulder_pan": -0.072115,
+        "shoulder_lift": -1.047198,
+        "elbow_flex": 0.502501,
+        "wrist_flex": 1.459172,
+        "wrist_roll": -0.121981
+      },
+      "target_joint1": 0.156396,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 877,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 14.969,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.03529,
+      "leader_all": {
+        "shoulder_pan": -0.03529,
+        "shoulder_lift": -1.380153,
+        "elbow_flex": 0.993495,
+        "wrist_flex": 1.344095,
+        "wrist_roll": 0.003836
+      },
+      "target_joint1": 0.193221,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 15.247,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.128886,
+      "leader_all": {
+        "shoulder_pan": -0.128886,
+        "shoulder_lift": -1.400099,
+        "elbow_flex": 1.123915,
+        "wrist_flex": 1.271981,
+        "wrist_roll": 0.00537
+      },
+      "target_joint1": 0.099625,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 877,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 15.507,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.257772,
+      "leader_all": {
+        "shoulder_pan": -0.257772,
+        "shoulder_lift": -1.400099,
+        "elbow_flex": 1.091694,
+        "wrist_flex": 1.313408,
+        "wrist_roll": 0.000767
+      },
+      "target_joint1": -0.029261,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 15.822,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.277718,
+      "leader_all": {
+        "shoulder_pan": -0.277718,
+        "shoulder_lift": -1.401634,
+        "elbow_flex": 1.093228,
+        "wrist_flex": 1.327217,
+        "wrist_roll": -0.017645
+      },
+      "target_joint1": -0.049207,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 16.092,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.073649,
+      "leader_all": {
+        "shoulder_pan": -0.073649,
+        "shoulder_lift": -1.400099,
+        "elbow_flex": 1.068679,
+        "wrist_flex": 1.396263,
+        "wrist_roll": -0.034523
+      },
+      "target_joint1": 0.154862,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 877,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 16.393,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.22058,
+        "elbow_flex": 0.852334,
+        "wrist_flex": 1.497531,
+        "wrist_roll": -0.161874
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 16.708,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.082488,
+        "elbow_flex": 0.925983,
+        "wrist_flex": 1.456103,
+        "wrist_roll": -0.155737
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 16.979,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.058306,
+      "leader_all": {
+        "shoulder_pan": -0.058306,
+        "shoulder_lift": -1.084022,
+        "elbow_flex": 1.008839,
+        "wrist_flex": 1.341027,
+        "wrist_roll": -0.154203
+      },
+      "target_joint1": 0.170205,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 17.277,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.055237,
+      "leader_all": {
+        "shoulder_pan": -0.055237,
+        "shoulder_lift": -1.317244,
+        "elbow_flex": 1.071747,
+        "wrist_flex": 1.255103,
+        "wrist_roll": 0.039126
+      },
+      "target_joint1": 0.173274,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 17.599,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.056771,
+      "leader_all": {
+        "shoulder_pan": -0.056771,
+        "shoulder_lift": -1.426183,
+        "elbow_flex": 1.068679,
+        "wrist_flex": 1.351767,
+        "wrist_roll": 0.066744
+      },
+      "target_joint1": 0.17174,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 872,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 17.911,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.050634,
+      "leader_all": {
+        "shoulder_pan": -0.050634,
+        "shoulder_lift": -1.426183,
+        "elbow_flex": 0.965877,
+        "wrist_flex": 1.399332,
+        "wrist_roll": 0.066744
+      },
+      "target_joint1": 0.177877,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 18.253,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.038359,
+      "leader_all": {
+        "shoulder_pan": -0.038359,
+        "shoulder_lift": -1.311107,
+        "elbow_flex": 0.863075,
+        "wrist_flex": 1.528218,
+        "wrist_roll": 0.042195
+      },
+      "target_joint1": 0.190152,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 877,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 18.561,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.038359,
+      "leader_all": {
+        "shoulder_pan": -0.038359,
+        "shoulder_lift": -1.079419,
+        "elbow_flex": 0.655937,
+        "wrist_flex": 1.554302,
+        "wrist_roll": -0.140394
+      },
+      "target_joint1": 0.190152,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 18.878,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.038359,
+      "leader_all": {
+        "shoulder_pan": -0.038359,
+        "shoulder_lift": -0.795563,
+        "elbow_flex": 0.543929,
+        "wrist_flex": 1.652501,
+        "wrist_roll": -0.151134
+      },
+      "target_joint1": 0.190152,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 120,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 19.18,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": -0.036825,
+      "leader_all": {
+        "shoulder_pan": -0.036825,
+        "shoulder_lift": -0.519379,
+        "elbow_flex": 0.539326,
+        "wrist_flex": 1.644829,
+        "wrist_roll": -0.152668
+      },
+      "target_joint1": 0.191686,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 19.499,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.141161,
+      "leader_all": {
+        "shoulder_pan": 0.141161,
+        "shoulder_lift": -0.313776,
+        "elbow_flex": 0.459539,
+        "wrist_flex": 1.652501,
+        "wrist_roll": -0.154203
+      },
+      "target_joint1": 0.369672,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 19.819,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+      "outputs_enabled": false,
+      "arm_state": "idle",
+      "commands_sent": 128,
+      "leader_shoulder_pan": 0.532421,
+      "leader_all": {
+        "shoulder_pan": 0.532421,
+        "shoulder_lift": -0.30457,
+        "elbow_flex": 0.430387,
+        "wrist_flex": 1.724615,
+        "wrist_roll": -0.235524
+      },
+      "target_joint1": 0.760932,
+      "follower_raw": {
+        "joint1": 538,
+        "joint2": 815,
+        "joint3": 13,
+        "joint4": 119,
+        "joint5": 876,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    }
+  ],
+  "final": {
+    "state": "fault",
+    "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}",
+    "outputs_enabled": false,
+    "follow_runtime": {
+      "active": false,
+      "commands_sent": 128,
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed:{\"command\": {\"calibration_bundle_hash\": \"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\", \"channel\": \"arm\", \"clutch\": true, \"clutch_label\": \"engaged\", \"deadline_mono_ns\": 256454758776539, \"protocol_version\": 1, \"received_mono_ns\": 256454608776539, \"sample_seq\": 129, \"seq\": 65, \"session_epoch\": 3945210530697839, \"session_id\": \"842460f212ea439bbb1f8a6db7db419b\", \"source\": \"so101_leader\", \"target\": {\"joint_names\": [\"joint1\", \"joint2\", \"joint3\", \"joint4\", \"joint5\"], \"positions_rad\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \"ttl_ms\": 150}, \"confirmation\": \"gateway_accepted\", \"driver_sent\": false, \"error\": \"HardwareCompositionError\", \"error_detail\": \"car_driver_send_not_confirmed:{\\\"channel\\\": \\\"arm\\\", \\\"controller_acknowledged\\\": \\\"unavailable\\\", \\\"dispatched\\\": true, \\\"driver_sent\\\": false, \\\"execution_observed\\\": \\\"unavailable\\\", \\\"gateway\\\": {\\\"command\\\": {\\\"calibration_bundle_hash\\\": \\\"bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf\\\", \\\"channel\\\": \\\"arm\\\", \\\"clutch\\\": true, \\\"clutch_label\\\": \\\"engaged\\\", \\\"deadline_mono_ns\\\": 2573591860217, \\\"protocol_version\\\": 1, \\\"received_mono_ns\\\": 2573442860217, \\\"sample_seq\\\": 129, \\\"seq\\\": 65, \\\"session_epoch\\\": 3945210530697839, \\\"session_id\\\": \\\"842460f212ea439bbb1f8a6db7db419b\\\", \\\"source\\\": \\\"so101_leader\\\", \\\"target\\\": {\\\"joint_names\\\": [\\\"joint1\\\", \\\"joint2\\\", \\\"joint3\\\", \\\"joint4\\\", \\\"joint5\\\"], \\\"positions_rad\\\": [0.128778, 1.319469, -2.094395, -1.606256, 1.490852]}, \\\"ttl_ms\\\": 149}, \\\"confirmation\\\": \\\"gateway_accepted\\\", \\\"driver_sent\\\": false, \\\"error\\\": \\\"RuntimeError\\\", \\\"error_detail\\\": \\\"joint3_outside_calibrated_limits\\\", \\\"outputs_enabled\\\": false}, \\\"hardware_effect\\\": \\\"unverified\\\", \\\"outputs_enabled\\\": false, \\\"simulated\\\": false}\", \"outputs_enabled\": false}"
+    },
+    "leader": {
+      "shoulder_pan": 0.273115,
+      "shoulder_lift": -0.68509,
+      "elbow_flex": 0.754136,
+      "wrist_flex": 1.290393,
+      "wrist_roll": -0.120447
+    },
+    "follower_raw": {
+      "joint1": 538,
+      "joint2": 815,
+      "joint3": 13,
+      "joint4": 119,
+      "joint5": 876,
+      "r_joint": 492
+    }
+  }
+}

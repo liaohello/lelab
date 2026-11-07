@@ -1,0 +1,138 @@
+{
+  "recorded_utc": "2026-11-02T16:20:00+00:00",
+  "title": "树莓派实机只读验收：真实相机预览 → 车端 episode 原始录制 → 上位机校验同步",
+  "target": {
+    "address": "pi@<private-ip>",
+    "hostname": "raspberrypi",
+    "platform": "Pi 5 (BCM2712) / Debian 12.5 / aarch64 / Python 3.11.2 / kernel 6.6.20+rpt-rpi-2712",
+    "container": "MentorPi (ros:humble, Ubuntu 22.04 用户态, host 网络, cmd 仅 tail -f /dev/null)",
+    "disk": "/dev/mmcblk0p2 57G 总, 9.3G 可用 (83% 已用)；验收后期页面显示 8.8 GiB",
+    "memory": "7.9 GiB 总, 7.4 GiB 可用",
+    "clock": "timedatectl: System clock synchronized=yes, NTP active, Asia/Hong_Kong；此前 2026-04 的漂移已消失，header 时间与墙上时间一致",
+    "uptime_at_check": "up 1 hour, 24 minutes（用户充电后重启）"
+  },
+  "access_method": {
+    "network": "<wired-interface> <private-ip> ↔ <private-ip> (ARP <hardware-mac>)，ping 4/4，0% 丢包",
+    "ssh": "先由用户提供口令完成一次性登录，随即把上位机既有公钥 lelab-jetson.pub 追加到车上 ~/.ssh/authorized_keys；此后全部操作使用密钥 (BatchMode)。口令未写入任何脚本、文件、文档或 Git，也未在后续命令中重复使用。",
+    "host_key": "与 known_hosts 既有记录一致 (ed25519 SHA256:vVDuRogpDFTo5WlsxLCf3i1sLFiKmdeZnSOxGDdXP9k)，确认是同一台设备"
+  },
+  "read_only_boundary": {
+    "not_started": "未运行 ~/robot_pi/start_node.sh 或 `ros2 launch bringup bringup.launch.py`：该 bringup 含 init_pose.launch.py(action_name=init，会驱动舵机摆臂)、controller/servo_controller 与行为 app，不满足本阶段“不做真实运动”。用户选择只起相机驱动。",
+    "started": "仅 `ros2 launch peripherals depth_camera.launch.py`，环境变量 DEPTH_CAMERA_TYPE=aurora、need_compile=True；实际节点为 deptrum-ros-driver-aurora930/aurora930_node（重映射到 /ascamera/camera_publisher/*）+ 两个 static_transform_publisher。",
+    "agent_node_surface": {
+      "subscribers": ["/ascamera/camera_publisher/depth0/image_raw", "/ascamera/camera_publisher/rgb0/camera_info", "/ascamera/camera_publisher/rgb0/image", "/imu", "/scan"],
+      "publishers": ["/lelab/events", "/parameter_events", "/rosout"],
+      "service_servers": "仅自身 parameter 服务",
+      "service_clients": "无",
+      "action_clients": "无",
+      "conclusion": "没有任何执行器 publisher/client，没有/cmd_vel、/ros_robot_controller/* 输出"
+    }
+  },
+  "measured_sensor_facts": {
+    "probe": "tools/ros2_collection/probe_real_sensors.py（只建订阅）在容器内运行 8 s",
+    "rgb": {
+      "topic": "/ascamera/camera_publisher/rgb0/image",
+      "count": 118,
+      "rate_hz_receiver_side": 14.742,
+      "width": 640, "height": 400, "encoding": "bgr8", "step": 1920,
+      "frame_id": "rgb_camera_link",
+      "publisher_qos": "RELIABLE/VOLATILE",
+      "header_stamp_span_s": 7.946,
+      "receive_span_s": 7.9364
+    },
+    "camera_info": {
+      "topic": "/ascamera/camera_publisher/rgb0/camera_info",
+      "count": 117,
+      "rate_hz_receiver_side": 14.713,
+      "distortion_model": "plumb_bob"
+    },
+    "profile_correction": "hardware-readonly-v1.json 的 features.fps 由 8.59 改为实测 14.74，并写入 publisher QoS、frame_id、step、驱动分支要求等实测字段",
+    "driver_note": "DEPTH_CAMERA_TYPE=ascamera 分支在这台车上打开设备后不发布任何图像话题（node info 显示零 publisher）；必须使用 aurora 分支（Aurora 930, USB 3251:1930）"
+  },
+  "real_camera_in_web": {
+    "agent_preview": "GET http://127.0.0.1:8110/preview.jpg → 640x400 RGB JPEG 13,641 字节，SHA-256 206346f9100bdfa2bf27156f1fa856ff89002bd4205afd051707e0258879909b，副本 docs/evidence/pi-agent-preview-20261102.jpg",
+    "backend_preview": "GET http://127.0.0.1:8000/ros-mobile/preview.jpg → 200, 640x400 RGB JPEG 13,394 字节（经 SSH 隧道由上位机代理）",
+    "page_state_snapshot": "浏览器 DOM：标题「实机只读 · 无执行器输出」；腕部 RGB 14.19 fps / age 0.038 s /「画面新鲜」；depth mono16 640×400；底盘显示「不可用 · 无实测底盘反馈」；joints/夹爪为「—」；控制/键盘/臂/夹爪/专家/复位入口全部不出现",
+    "tunnel": "ssh -N -L 8110:127.0.0.1:8110 pi@<private-ip>"
+  },
+  "car_side_sessions": {
+    "root": "/home/ubuntu/lelab_car/sessions (容器内)",
+    "happy_path": {
+      "session_id": "ros_20261102T161344Z_9f330387",
+      "episodes": 2,
+      "episode_end_reasons": ["operator_end", "operator_end"],
+      "status": "raw_ready",
+      "files": 7,
+      "manifest_sha256": "56f78f217058d2e9439c63a916a926d03970694d6cd558ea675b40ae75fb6e2f"
+    },
+    "upper_disconnect_survival": {
+      "session_id": "ros_20261102T161420Z_56161df8",
+      "inject": "录制中途 kill -TERM SSH 隧道进程；上位机 curl 返回 000（不可达）约 14 s",
+      "finished_on_car": "docker exec 内 curl 127.0.0.1:8110 的 end_episode + stop_session(reason=upper-disconnected-local-stop)",
+      "status": "raw_ready",
+      "ready_eligible": true,
+      "stop_reason": "upper-disconnected-local-stop",
+      "episode": {"status": "saved", "end_reason": "car_side_local_stop"},
+      "files": 6,
+      "manifest_sha256": "e79472bfca522f83917ed887c7b98b2bc90896b54b208ed419ce21002b6ea07a",
+      "bag_info": {
+        "duration_s": 20.771,
+        "messages": 614,
+        "/ascamera/camera_publisher/rgb0/image": {"count": 305, "observed_hz": 14.684},
+        "/ascamera/camera_publisher/rgb0/camera_info": {"count": 306, "observed_hz": 14.732},
+        "/lelab/events": {"count": 3, "observed_hz": 0.144}
+      },
+      "clock_domain": "hardware_system_time",
+      "metadata": {"source": "hardware_readonly", "training_export": false, "sensor_transport": "local_ros2_topic"}
+    },
+    "failed_starts_retained": [
+      "ros_20261102T160014Z_beed2518",
+      "ros_20261102T160043Z_db548fd2"
+    ],
+    "failed_start_cause": "recorder 用 Jazzy 语法 `ros2 bag record --topics ...`，Humble CLI 不识别 → 页面把它们显示为 invalid_session_json，不会误发 READY"
+  },
+  "upper_verification": {
+    "root": "work/ros2_collection_hw/upper/sessions",
+    "both_sessions": "sync_session 返回 status=already_synced 且校验通过：manifest SHA-256 与车端一致、逐文件 size/SHA-256 一致、rosbags 可读、required_topics 齐（rgb0/image + rgb0/camera_info）、verified_files=7 和 6",
+    "topics_after_sync": ["/ascamera/camera_publisher/rgb0/camera_info", "/ascamera/camera_publisher/rgb0/image", "/lelab/events"],
+    "training_export_refusal": "两个真机 session 的 _check_exportable 均 409：only simulation sessions with action/feedback can be exported for training（profile 同时声明 training_export=false）"
+  },
+  "defects_found_on_hardware_and_fixed": [
+    {
+      "defect": "recorder 生成的 `ros2 bag record --topics` 只在 Jazzy 有效，Humble 报 unrecognized arguments，导致 start_session → recorder_startup_failed",
+      "fix": "话题改为位置参数（Humble/Jazzy 都支持），ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/recorder.py:184",
+      "test": "tools/ros2_collection/tests/test_recorder_faults.py::test_bag_record_cli_is_humble_compatible"
+    },
+    {
+      "defect": "上位机 rosbags 读取车端 Humble sqlite3 bag 抛「Bag contains no type definitions」，同步校验整体失败",
+      "fix": "新增 _open_bag_reader，AnyReader 传入 default_typestore=Stores.LATEST（自带类型定义的 bag 仍用自己的类型），app_ros_mobile/lelab/ros_mobile.py:784",
+      "test": "本次以真机 bag 实测通过；仿真 MCAP/sqlite3 路径回归见 app_ros_mobile/tests -k ros"
+    },
+    {
+      "defect": "部署脚本在容器内非交互 bash 不加载 ROS；PYTHONPATH 覆盖式赋值抹掉 rclpy 路径；set -u 与 ROS setup 脚本冲突；后台命令的 & 使 cd 失效导致 pid 写入失败",
+      "fix": "dexec 前缀显式 source（source 期间 set +u）、PYTHONPATH 前置追加、pid 用绝对路径并放进同一命令组，tools/ros2_collection/deploy_readonly_agent.sh",
+      "residual": "readonly_agent.pid 记录的是包装 shell 的 pid，--stop 可能杀不到 agent 本体（本次手动确认为证）；后续应改为记录真实 python pid"
+    },
+    {
+      "defect": "profile 记录的相机为 640×400@8.59 Hz（来自上次短窗探测），实机稳定为 14.74 Hz",
+      "fix": "按实测更新 fps 与核验来源，并记下 RELIABLE/VOLATILE 发布 QoS、frame_id、step 和驱动分支要求"
+    }
+  ],
+  "acceptance_status": {
+    "real_camera_visible_in_web": "已实测（真机 RGB 经车端 agent→隧道→上位机→网页，14.19 fps，画面新鲜）",
+    "two_episodes_saved_on_car": "已实测（ros_20261102T161344Z_9f330387，2 段，READY）",
+    "one_episode_survives_upper_disconnect": "已实测（ros_20261102T161420Z_56161df8，断隧道 14 s，车端完成，READY）",
+    "synced_bag_readable_and_hash_consistent": "已实测（两个 session 全部 size/SHA-256/rosbags/required 校验通过）",
+    "abnormal_recording_has_no_ready": "已实测（两次 Humble CLI 失败启动保留 invalid session，无 READY；合成源的断源演练同样无 READY）",
+    "no_actuator_output_in_readonly": "已实测（车端 agent 节点 publishers 仅 /lelab/events、/parameter_events、/rosout；无 service/action client）",
+    "sim_data_readback": "此前已实测（LeRobot SDK 205 帧读回）",
+    "hardware_missing_action_refuses_export": "已实测（409）"
+  },
+  "remaining_gaps": [
+    "IMU/关节/odom 未在车上采集：其发布者是 vendor 的 controller/servo 节点，本阶段未启动；profile 已把这些列为次要流（非 required）",
+    "MCAP 插件仍未确认，车端仍用 sqlite3",
+    "readonly_agent.pid 记录包装 shell 的问题待修",
+    "两条 invalid session 留在车上（容量影响可忽略），是否清理由用户决定",
+    "上位机网页侧的同步/导出按钮交互只做了后端函数级验证与 DOM 状态确认，未点击 UI 按钮复跑"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "container": "lelab-humble-facade-integration",
+  "freshness_window_s": 0.5,
+  "frame_ttl_policy": "unchanged",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "cases": [
+    {
+      "name": "retired_generation_frame",
+      "injection": "send on a socket whose stream epoch was retired by a newer client",
+      "started_utc": "2026-11-06T11:51:15Z",
+      "after": {
+        "facade_state": "ready",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 152,
+          "received": 156,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 641
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "initial_session_follows",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 13,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    }
+  ],
+  "case_errors": {
+    "retired_generation_frame": {
+      "type": "FrameLinkError",
+      "detail": "no complete message before the deadline",
+      "traceback": "            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/teleop_stream.py\", line 232, in connect\n    welcome = self.recv(HELLO_TIMEOUT_S)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/teleop_stream.py\", line 334, in recv\n    return self._note(self._reader.read(self.timeout_s if timeout_s is None else timeout_s))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/teleop_stream.py\", line 146, in read\n    raise StreamError(\"read_timeout\", \"no complete message before the deadline\")\nlelab.teleop_stream.StreamError: no complete message before the deadline\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 683, in main\n    getattr(matrix, f\"case_{name}\")()\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 619, in case_retired_generation_frame\n    welcome = probe.engage()\n              ^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_frame_link.py\", line 149, in engage\n    raise FrameLinkError(error.reason, error.detail) from error\nlelab.hybrid_frame_link.FrameLinkError: no complete message before the deadline\n"
+    }
+  },
+  "car_after_matrix": {
+    "control_active": false,
+    "estop_latched": false,
+    "frame_outputs_enabled": false
+  },
+  "failed": [],
+  "status_note": "NOT COMPLETED: the second FrameLink hello timed out (no complete message before the deadline), so the online retire-and-resend check could not run against the offline stack. The unit-level cases (test_teleop_frame_v1.py:277/297 stream_epoch_retired, test_teleop_stream.py:185 second connection retires generation) remain the only evidence for generational rejection."
+}

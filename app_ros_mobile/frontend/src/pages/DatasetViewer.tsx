@@ -27,12 +27,16 @@ import {
   type EpisodeTimeseries,
 } from "@/lib/datasetViewerApi";
 
+type PhaseSlice = { phase: string; from_s: number; to_s: number; source?: string; video_ranges?: Record<string, { from_s: number; to_s: number }> };
+
 const COLORS = ["#34d399", "#60a5fa", "#f472b6", "#fbbf24", "#a78bfa", "#22d3ee", "#f87171"];
 
 const DatasetViewer: React.FC = () => {
   const { baseUrl, fetchWithHeaders } = useApi();
   const [repoId, setRepoId] = useState<string>("");
   const [episode, setEpisode] = useState<number | null>(null);
+  const [phaseIndex, setPhaseIndex] = useState<number | null>(null);
+  useEffect(() => { setPhaseIndex(null); }, [repoId, episode]);
 
   const datasetsQuery = useQuery({
     queryKey: ["viewer-datasets", baseUrl],
@@ -61,6 +65,11 @@ const DatasetViewer: React.FC = () => {
 
   const data = episodesQuery.data;
   const current = data?.episodes.find((e) => e.index === episode) ?? null;
+  const phases = ((current as typeof current & { phases?: PhaseSlice[] })?.phases ?? []).filter(
+    p => typeof p.phase === "string" && Number.isFinite(p.from_s) && Number.isFinite(p.to_s) && p.to_s > p.from_s,
+  );
+  const selectedPhase = phaseIndex == null ? null : phases[phaseIndex] ?? null;
+  const videoRange = (camera: string) => selectedPhase ? selectedPhase.video_ranges?.[camera] : current?.video_ranges?.[camera];
   const chartRows = useMemo(() => {
     const series: EpisodeTimeseries | undefined = timeseriesQuery.data;
     if (!series) return [];
@@ -74,8 +83,8 @@ const DatasetViewer: React.FC = () => {
         });
       });
       return row;
-    });
-  }, [timeseriesQuery.data]);
+    }).filter(row => !selectedPhase || (row.t >= selectedPhase.from_s && row.t < selectedPhase.to_s));
+  }, [timeseriesQuery.data, selectedPhase?.from_s, selectedPhase?.to_s]);
   const joints = useMemo(() => {
     const first = timeseriesQuery.data?.series.state?.[0] ?? timeseriesQuery.data?.series.action?.[0];
     return first ? first.length : 0;
@@ -155,34 +164,42 @@ const DatasetViewer: React.FC = () => {
                   任务描述：<span className="text-slate-200">{current.task}</span>
                 </p>
               ) : null}
+              <div className="rounded border border-slate-800 p-3 text-xs text-slate-300">
+                <div>阶段切片（半开区间；来源由导出报告提供）</div>
+                <div className="mt-2 flex flex-wrap gap-2"><button className="rounded border border-slate-600 px-2 py-1" onClick={() => setPhaseIndex(null)}>整集</button>{phases.map((phase, index) => <button key={`${phase.phase}-${index}`} className="rounded border border-slate-600 px-2 py-1" onClick={() => setPhaseIndex(index)}>{phase.phase} · {phase.from_s}–{phase.to_s}s</button>)}</div>
+                <p className="mt-1">{selectedPhase ? `当前 ${selectedPhase.phase} · ${selectedPhase.source ?? "来源未知"}` : phases.length ? "当前整集" : "该集没有可用的阶段切片"}</p>
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {(current?.cameras ?? []).map((camera) => (
                   <Card key={camera} className="border-slate-800 bg-slate-900/70">
                     <CardHeader className="p-3 pb-1">
                       <CardDescription className="flex items-center gap-2 text-slate-400">
                         <Film className="h-4 w-4" /> {camera}
-                        {current?.video_ranges?.[camera]?.from_s != null ? (
+                        {videoRange(camera)?.from_s != null ? (
                           <span className="text-[10px] text-slate-500">
-                            {current.video_ranges[camera].from_s}s – {current.video_ranges[camera].to_s ?? "?"}s
+                            {videoRange(camera)?.from_s}s – {videoRange(camera)?.to_s ?? "?"}s
                           </span>
                         ) : null}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="p-3 pt-0">
-                      {repoId && episode != null ? (
+                      {repoId && episode != null && (!selectedPhase || selectedPhase.video_ranges?.[camera]) ? (
                         <video
-                          key={`${repoId}-${episode}-${camera}`}
+                          key={`${repoId}-${episode}-${camera}-${phaseIndex ?? "all"}`}
                           controls
                           muted
-                          loop
+                          onLoadedMetadata={e => { const start = videoRange(camera)?.from_s; if (start != null) e.currentTarget.currentTime = start; }}
+                          onSeeking={e => { const range = videoRange(camera), video = e.currentTarget; if (range?.from_s != null && video.currentTime < range.from_s) video.currentTime = range.from_s; if (range?.to_s != null && video.currentTime >= range.to_s) { video.pause(); video.currentTime = Math.max(range.from_s ?? 0, range.to_s - 0.01); } }}
+                          onTimeUpdate={e => { const range = videoRange(camera), video = e.currentTarget; if (range?.to_s != null && video.currentTime >= range.to_s) video.pause(); }}
                           preload="metadata"
                           className="w-full rounded bg-black"
-                          /* #t=<start> 让播放器直接跳到本集在该 mp4 中的片段起点 */
+                          /* v3 分块存储里多集共用一个 mp4：#t=<起>,<止> 同时定位并截断本集片段，
+                             只给起点会让第 0 集播到第 1 集的画面，数据检查时分不清集边界。 */
                           src={`${baseUrl}/datasets/local/${repoId}/episodes/${episode}/video/${camera}#t=${
-                            current?.video_ranges?.[camera]?.from_s ?? 0
-                          }`}
+                            selectedPhase ? selectedPhase.video_ranges?.[camera]?.from_s ?? "" : current?.video_ranges?.[camera]?.from_s ?? 0
+                          },${selectedPhase ? selectedPhase.video_ranges?.[camera]?.to_s ?? "" : current?.video_ranges?.[camera]?.to_s ?? ""}`}
                         />
-                      ) : null}
+                      ) : <p className="text-xs text-amber-300">此阶段没有可用的视频区间。</p>}
                     </CardContent>
                   </Card>
                 ))}

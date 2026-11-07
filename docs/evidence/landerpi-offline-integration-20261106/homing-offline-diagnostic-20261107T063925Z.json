@@ -1,0 +1,83 @@
+{
+  "agent_url": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "failures": [
+    {
+      "error": "home_worker_failed:HardwareCompositionError:homing_frame_refused:emitter_stopped:driver_stopped:command_timeout",
+      "stage": "homing_complete"
+    }
+  ],
+  "frame_port": 18123,
+  "hardware_effect": "simulated_only",
+  "phases": {
+    "preflight": {
+      "control_active": false,
+      "data_source": "simulated",
+      "feedback_available": false,
+      "feedback_reason": "invalid_or_untrusted_feedback",
+      "ok": true,
+      "oldest_age_s": 0.1258221630123444,
+      "outputs_enabled": false,
+      "process_age_s": 0.5630087548051961,
+      "publisher_generation": 0,
+      "publisher_instance": 1256437601,
+      "samples": 6,
+      "simulated": true,
+      "torque_publish_count": 0,
+      "torque_state": "idle"
+    },
+    "session": {
+      "bundle_matches_rig": true,
+      "ok": true,
+      "session_epoch": 610858648177477,
+      "session_id": "809c927178484bd8b8dcc31b0b401b25"
+    }
+  },
+  "simulated": true,
+  "status": "failed",
+  "timeline": [
+    {
+      "current_joint": "joint1",
+      "feedback_age_s": 0.02366006199736148,
+      "feedback_sample_seq": 39,
+      "homing_state": "moving",
+      "last_error": null,
+      "observed_raw": {
+        "joint1": 527,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": true,
+      "publisher_instance": 1256437601,
+      "state": "ready",
+      "step_target_raw": 513,
+      "t": 410859.822,
+      "torque_state": "verifying"
+    },
+    {
+      "current_joint": null,
+      "feedback_age_s": 0.1905570209491998,
+      "feedback_sample_seq": 47,
+      "homing_state": "fault",
+      "last_error": "home_worker_failed:HardwareCompositionError:homing_frame_refused:emitter_stopped:driver_stopped:command_timeout",
+      "observed_raw": {
+        "joint1": 527,
+        "joint2": 632,
+        "joint3": 76,
+        "joint4": 118,
+        "joint5": 907,
+        "r_joint": 457
+      },
+      "outputs_enabled": false,
+      "publisher_instance": 1256437601,
+      "state": "fault",
+      "step_target_raw": 513,
+      "t": 410859.927,
+      "torque_state": "verified"
+    }
+  ],
+  "training_eligible": false
+}

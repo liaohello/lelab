@@ -1,0 +1,168 @@
+{
+  "steps": [
+    {
+      "step": "acquire",
+      "http": 200
+    },
+    {
+      "step": "preview",
+      "http": 200,
+      "result": null
+    },
+    {
+      "step": "align",
+      "http": 200,
+      "result": null
+    },
+    {
+      "step": "arm",
+      "http": 200,
+      "result": null
+    },
+    {
+      "step": "engage",
+      "http": 200,
+      "result": null
+    }
+  ],
+  "samples": [
+    {
+      "t": 431813175640882,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 492
+    },
+    {
+      "t": 431813685538013,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 492
+    },
+    {
+      "t": 431814199924471,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 467
+    },
+    {
+      "t": 431814709684922,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 421
+    },
+    {
+      "t": 431815221086593,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 389
+    },
+    {
+      "t": 431815735043168,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 336
+    },
+    {
+      "t": 431816247505754,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 329
+    },
+    {
+      "t": 431816766247969,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 328
+    },
+    {
+      "t": 431817276826233,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 328
+    },
+    {
+      "t": 431817787301303,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 328
+    },
+    {
+      "t": 431818302442594,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 328
+    },
+    {
+      "t": 431818816999761,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 328
+    },
+    {
+      "t": 431819329847915,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 328
+    },
+    {
+      "t": 431819843711637,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 328
+    },
+    {
+      "t": 431820356992952,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 328
+    },
+    {
+      "t": 431820869203730,
+      "state": "ready",
+      "error": null,
+      "leader": 57.38636363636363,
+      "target": 326.136,
+      "raw": 327
+    }
+  ],
+  "cleanup": [
+    {
+      "step": "release_clutch",
+      "http": 200
+    },
+    {
+      "step": "release_session",
+      "http": 200
+    }
+  ]
+}

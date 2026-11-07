@@ -1,0 +1,119 @@
+{
+  "checks": [
+    {
+      "detail": "epoch=8553111340201520",
+      "name": "lease_and_epoch_bound",
+      "passed": true
+    },
+    {
+      "detail": "{'generation': 161, 'outputs': False, 'token_digest': 'b457690dcf25'}",
+      "name": "mirror_carries_the_agents_token_digest",
+      "passed": true
+    },
+    {
+      "detail": "refused:not_authorised lease_token_does_not_match_the_agent_mirror",
+      "name": "hello_refused_for_a_foreign_token",
+      "passed": true
+    },
+    {
+      "detail": "refused:not_authorised epoch_or_bundle_not_licensed",
+      "name": "hello_refused_for_another_session",
+      "passed": true
+    },
+    {
+      "detail": "refused:not_authorised epoch_or_bundle_not_licensed",
+      "name": "hello_refused_for_another_epoch",
+      "passed": true
+    },
+    {
+      "detail": "/hybrid/enable_output -> HTTP 409: {\"error\": \"hybrid_identity_mismatch\", \"detail\": \"session_id does not match the active",
+      "name": "enable_refused_for_a_mismatched_identity",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "readback_complete_before_enable",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "enable_grants_output_permission",
+      "passed": true
+    },
+    {
+      "detail": "20 submitted, emitted 217 -> 219",
+      "name": "frames_emit_under_the_agents_licence",
+      "passed": true
+    },
+    {
+      "detail": "the mirrored output permission went false",
+      "name": "agent_estop_withdraws_the_permission",
+      "passed": true
+    },
+    {
+      "detail": "219 -> 219, driver outputs=False",
+      "name": "agent_estop_stops_emission",
+      "passed": true
+    },
+    {
+      "detail": "still 219",
+      "name": "renew_does_not_resume_motion",
+      "passed": true
+    },
+    {
+      "detail": "/hybrid/enable_output -> HTTP 409: {\"error\": \"estop_latched\", \"detail\": \"clear the emergency stop before enabling output",
+      "name": "enable_refused_while_the_stop_is_latched",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "cleared_stop_still_has_no_permission",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "readback_complete_after_clear",
+      "passed": true
+    },
+    {
+      "detail": "219 -> 221",
+      "name": "motion_resumes_only_after_clear_and_enable",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "short_lease_readback_ready",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "short_lease_grants_permission",
+      "passed": true
+    },
+    {
+      "detail": "{'revoked': 'car_lease_released', 'outputs_enabled': False}",
+      "name": "expired_lease_revokes_the_mirror",
+      "passed": true
+    },
+    {
+      "detail": "False",
+      "name": "expired_lease_stops_emission",
+      "passed": true
+    },
+    {
+      "detail": "/control/release -> HTTP 409: {\"error\": \"control_expired\", \"detail\": \"control session expired; re-acquire\"}",
+      "name": "expired_lease_release_refused_as_expected",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "matrix_completed",
+      "passed": true
+    }
+  ],
+  "data_identity": "simulated_offline",
+  "failed": [],
+  "hardware_effect": "not_tested_no_serial_port_reachable",
+  "started_utc": "2026-11-05T19:06:03Z",
+  "training_eligible": false
+}

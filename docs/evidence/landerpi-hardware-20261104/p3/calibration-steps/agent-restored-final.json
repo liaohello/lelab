@@ -1,0 +1,28 @@
+{
+  "reason": "invalid_or_untrusted_feedback",
+  "raw": {
+    "joint1": 501.0,
+    "joint2": 724.0,
+    "joint3": 111.0,
+    "joint4": 96.0,
+    "joint5": 500.0,
+    "r_joint": 150.0
+  },
+  "last_error": null,
+  "successful_scans": 42,
+  "failed_scans": 0
+}
+{
+  "reason": "invalid_or_untrusted_feedback",
+  "raw": {
+    "joint1": 501.0,
+    "joint2": 724.0,
+    "joint3": 111.0,
+    "joint4": 96.0,
+    "joint5": 500.0,
+    "r_joint": 150.0
+  },
+  "last_error": null,
+  "successful_scans": 42,
+  "failed_scans": 0
+}

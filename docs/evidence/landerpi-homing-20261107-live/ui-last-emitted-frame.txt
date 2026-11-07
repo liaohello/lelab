@@ -1,0 +1,2 @@
+data: '{"action_rad": {"joint1": 0.125664, "joint2": -0.03351, "joint3": 0.10472, "joint4": 0.008378, "joint5": 0.041888, "r_joint": 0....'
+---

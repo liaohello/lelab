@@ -162,3 +162,92 @@ def test_cleanup_device_force_releases_and_clears_when_disconnect_fails() -> Non
 
     assert device.bus.port_handler.closed is True  # force-released despite failure
     assert mgr.device is None  # handle cleared so a new calibration can start
+
+
+def test_completing_a_calibration_binds_the_file_lerobot_actually_wrote(
+    tmp_lerobot_home, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The binding table only helps if its hash matches the calibration file on disk.
+
+    This drives the real ``_complete_calibration`` against a real LeRobot leader device
+    and lets LeRobot's own writer produce the file — a dict hand-built in the test would
+    prove nothing about the JSON draccus emits. Only the board write is stubbed, since
+    that is the serial boundary. The measured port then has to pass the same
+    ``check_pair`` the teleoperation start path runs, with no "changed since measured"
+    warning.
+    """
+    import json
+    from pathlib import Path
+
+    from lerobot.teleoperators.so_leader import SO101Leader, SO101LeaderConfig
+
+    from lelab import arm_bindings
+    from lelab.calibrate import CalibrationManager, CalibrationRequest
+
+    port = "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00"
+    monkeypatch.setenv("LELAB_ARM_BINDINGS", str(tmp_lerobot_home / "lelab" / "arm_bindings.json"))
+
+    leader = SO101Leader(SO101LeaderConfig(port=port, id="left_rig"))
+    # Keep the guard reading the same tree LeRobot writes to: the app resolves the
+    # calibration dir through lelab.utils.config, which this fixture redirects.
+    monkeypatch.setattr("lelab.utils.config.LEADER_CONFIG_PATH", str(Path(leader.calibration_fpath).parent))
+
+    written_to_boards: list[dict] = []
+    leader.bus.write_calibration = lambda calibration, cache=True: written_to_boards.append(dict(calibration))
+
+    mgr = CalibrationManager()
+    mgr.device = leader
+    mgr._current_request = CalibrationRequest(device_type="teleop", port=port, config_file="left_rig")
+    for index, name in enumerate(leader.bus.motors):
+        mgr._homing_offsets[name] = -1000 + index
+        mgr._mins[name] = 800
+        mgr._maxes[name] = 3200
+
+    mgr._complete_calibration()
+
+    saved = json.loads(Path(leader.calibration_fpath).read_text(encoding="utf-8"))
+    assert len(written_to_boards) == 1 and len(written_to_boards[0]) == 6
+
+    binding = arm_bindings.describe(port)
+    assert binding["role"] == "leader"
+    assert binding["config"] == "left_rig.json"
+    assert binding["content_sha256"] == arm_bindings.canonical_sha256(saved)
+    assert binding["ids"] == {name: index + 1 for index, name in enumerate(leader.bus.motors)}
+
+    verdict = arm_bindings.check_pair(
+        arm_bindings.side(port, "leader", "left_rig"), arm_bindings.side("", "follower", "")
+    )
+    assert verdict["ready"] is True
+    assert not any(w.startswith("leader") for w in verdict["warnings"]), verdict["warnings"]
+
+
+def test_a_binding_written_by_the_wizard_makes_the_other_side_refuse(
+    tmp_lerobot_home, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The producer and the consumer have to agree on one thing: the port the wizard was
+    told about is the port the teleop request names. Nothing re-normalises it in between."""
+    from dataclasses import asdict
+
+    from lerobot.motors import MotorCalibration
+
+    from lelab import arm_bindings
+    from lelab.calibrate import CalibrationManager, CalibrationRequest
+
+    port = "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00"
+    bindings = tmp_lerobot_home / "lelab" / "arm_bindings.json"
+    monkeypatch.setenv("LELAB_ARM_BINDINGS", str(bindings))
+    # The same values _complete_calibration builds for every joint.
+    calibration = {
+        name: MotorCalibration(id=index + 1, drive_mode=0, homing_offset=-1000 + index,
+                               range_min=800, range_max=3200)
+        for index, name in enumerate(["shoulder_pan", "shoulder_lift", "elbow_flex",
+                                      "wrist_flex", "wrist_roll", "gripper"])
+    }
+
+    CalibrationManager()._record_arm_binding(
+        CalibrationRequest(device_type="robot", port=port, config_file="left_rig"), calibration
+    )
+
+    assert arm_bindings.describe(port)["role"] == "follower"
+    assert (arm_bindings.load(bindings)["ports"][port]["content_sha256"]
+            == arm_bindings.canonical_sha256({name: asdict(body) for name, body in calibration.items()}))

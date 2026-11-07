@@ -1,0 +1,88 @@
+{
+  "captured_utc": "2026-11-07T04:37:25.502588+00:00",
+  "scope": "local reference source only; no deployed version or hardware verification",
+  "files": [
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Hiwonder/System/packet_handle.c",
+      "sha256": "a3bdf756ebf42f11110dc51e7cec4a2875fde4986e0060d9ec1b7bc6b84164b9",
+      "bytes": 19110
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Hiwonder/Portings/serial_servo_porting.c",
+      "sha256": "f67e8298d89e79a6d3de65901cf7603858b26636be3f5eedbd87ee560f1e56ee",
+      "bytes": 2625
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Hiwonder/Peripherals/serial_servo.c",
+      "sha256": "3269bcdbbd9d82371b0f8fdd7a8758c63bb6034c4e6295499846315ae0be195f",
+      "bytes": 9625
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Hiwonder/Portings/serial_servo.h",
+      "sha256": "aa1a53dded3dc7f9c99d685d1021c80debb0b4debe653522f4d09c14d6652f00",
+      "bytes": 7189
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Hiwonder/Portings/packet_porting.c",
+      "sha256": "9e91ae52663e5c7a946fd8b26c9e64de9ebca3159315d3ea68d6d6f72aa9351c",
+      "bytes": 7242
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Hiwonder/Misc/packet.c",
+      "sha256": "751bda5d6b5624dd75e6729655a06e2fe2c4572a6c9ae802c9d649b65304dbab",
+      "bytes": 4878
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Core/Src/stm32f4xx_it.c",
+      "sha256": "03a1a5391a8cb00d4117295030a3bccbf0a25f9c1eade3dbdd903571cf700492",
+      "bytes": 14907
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Core/Src/usart.c",
+      "sha256": "6ed31ffee1cf78c8e2f4e8b78ffbe854900c1afaa88eccb10784c8ad2add83b6",
+      "bytes": 6887
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Core/Inc/FreeRTOSConfig.h",
+      "sha256": "774f1ed2e7558a1540a5a12cc9aee83893ee332fb85c23e6a916f87e0ea89cb5",
+      "bytes": 7603
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/lander_pi/src/driver/ros_robot_controller/ros_robot_controller/ros_robot_controller_sdk.py",
+      "sha256": "f7c1584b5b1f393041bd86c16c68310d38969c15bf8dfd1f92df10373a6cc504",
+      "bytes": 28782
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/lander_pi/src/driver/ros_robot_controller/ros_robot_controller/ros_robot_controller_node.py",
+      "sha256": "0c4b5df728f18c4a7d1850f0647e26a0d1c892ab2455f3fa0079319a9d2c619f",
+      "bytes": 16196
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Third_Party/Lw/lwmem_opts.h",
+      "sha256": "268fca24eb1f334aebe6af993d8aebf1245eee6df8bc00cd199a3f9e653b8d49",
+      "bytes": 1739
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Third_Party/Lw/lwmem_sys_cmsis_os.c",
+      "sha256": "5497f6d35e2aac938be66cd9d47ab8d8dc1bfd4f49c4db74ff2dd0cd41c4da42",
+      "bytes": 2028
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Third_Party/Lw/lwmem.c",
+      "sha256": "f3f6bd6cd99b4c0ed2b95cf196e44feabd03d30f55bc91305078abde972f19fa",
+      "bytes": 50596
+    },
+    {
+      "path": "/home/liaozhengyan/Desktop/resource/RosRobotControllerLite_ros_250811/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c",
+      "sha256": "0dd9ec29eb5862c4520eede87b05e063a4c80223555140c0187e80f97ae9e8aa",
+      "bytes": 60451
+    }
+  ],
+  "offline_validation": {
+    "compiler": "conda-forge gcc 16.2.0-7; x86_64 host",
+    "sdk_probe_exit_code": 0,
+    "parser_probe_exit_code": 0,
+    "meaning": "vendor defects reproduced; not fixes or hardware acceptance",
+    "hardware_access": false
+  }
+}

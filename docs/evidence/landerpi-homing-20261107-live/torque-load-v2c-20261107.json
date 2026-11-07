@@ -1,0 +1,57 @@
+{
+  "action": "load",
+  "expected_torque": 1,
+  "ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    10
+  ],
+  "ok": true,
+  "rows": {
+    "1": {
+      "enable_torque": 1,
+      "position": 527,
+      "requested_enable_torque": true,
+      "servo_id": 1,
+      "verified": true
+    },
+    "10": {
+      "enable_torque": 1,
+      "position": 457,
+      "requested_enable_torque": true,
+      "servo_id": 10,
+      "verified": true
+    },
+    "2": {
+      "enable_torque": 1,
+      "position": 632,
+      "requested_enable_torque": true,
+      "servo_id": 2,
+      "verified": true
+    },
+    "3": {
+      "enable_torque": 1,
+      "position": 76,
+      "requested_enable_torque": true,
+      "servo_id": 3,
+      "verified": true
+    },
+    "4": {
+      "enable_torque": 1,
+      "position": 118,
+      "requested_enable_torque": true,
+      "servo_id": 4,
+      "verified": true
+    },
+    "5": {
+      "enable_torque": 1,
+      "position": 907,
+      "requested_enable_torque": true,
+      "servo_id": 5,
+      "verified": true
+    }
+  }
+}

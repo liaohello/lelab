@@ -1,0 +1,508 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "meaning_of_stopped": "software admission and emission stopped; not a physical stop",
+  "cases": [
+    {
+      "name": "token_branches",
+      "intent": "an emergency stop must be liftable through the page's own clear action with a live token, with an expired lease, and after the session was released - each time granting recovery only, never motion - and never by an unrelated client",
+      "branches": {
+        "live_token": {
+          "token_state": "held",
+          "lease_live_before_clear": false,
+          "lease_expires_in_s_before_clear": 29.68,
+          "clear": {
+            "car_clear": "confirmed",
+            "authorised_by": "control_token",
+            "clear_estop_sent": true,
+            "announcements": "partial_no_actuator_topics",
+            "agent_estop_latched": false,
+            "agent_frame_outputs_enabled": false,
+            "process_outputs_enabled": false,
+            "process_latched_fault": null,
+            "process_reengage_required": true,
+            "process_witness": "fresh",
+            "clear_still_queued": false,
+            "process_age_s": 0.06403934420086443,
+            "queue_depth": 0
+          },
+          "agent_latched_after_clear": false,
+          "process_latched_after_clear": null,
+          "outputs_enabled_after_clear": false,
+          "session_state_after_clear": "fault",
+          "arm_state_after_clear": "idle",
+          "recovered_to_awaiting_engage": {
+            "error": null,
+            "frame_outputs_enabled": false,
+            "process_outputs_enabled": false,
+            "arm_state": "armed"
+          },
+          "engaged_after_recovery": {
+            "arm_state": "following",
+            "frame_outputs_enabled": true
+          }
+        },
+        "expired_lease": {
+          "token_state": "expired",
+          "lease_live_before_clear": false,
+          "lease_expires_in_s_before_clear": 0.0,
+          "clear": {
+            "car_clear": "confirmed",
+            "authorised_by": "prior_owner_recovery",
+            "clear_estop_sent": true,
+            "announcements": "partial_no_actuator_topics",
+            "agent_estop_latched": false,
+            "agent_frame_outputs_enabled": false,
+            "process_outputs_enabled": false,
+            "process_latched_fault": null,
+            "process_reengage_required": true,
+            "process_witness": "fresh",
+            "clear_still_queued": false,
+            "process_age_s": 0.09433652262669057,
+            "queue_depth": 0
+          },
+          "agent_latched_after_clear": false,
+          "process_latched_after_clear": null,
+          "outputs_enabled_after_clear": false,
+          "session_state_after_clear": "fault",
+          "arm_state_after_clear": "idle",
+          "recovered_to_awaiting_engage": {
+            "error": null,
+            "frame_outputs_enabled": false,
+            "process_outputs_enabled": false,
+            "arm_state": "armed"
+          },
+          "engaged_after_recovery": {
+            "arm_state": "following",
+            "frame_outputs_enabled": true
+          }
+        },
+        "released_session": {
+          "token_state": "released",
+          "lease_live_before_clear": false,
+          "lease_expires_in_s_before_clear": 0.0,
+          "clear": {
+            "car_clear": "confirmed",
+            "authorised_by": "prior_owner_recovery",
+            "clear_estop_sent": true,
+            "announcements": "partial_no_actuator_topics",
+            "agent_estop_latched": false,
+            "agent_frame_outputs_enabled": false,
+            "process_outputs_enabled": false,
+            "process_latched_fault": null,
+            "process_reengage_required": true,
+            "process_witness": "fresh",
+            "clear_still_queued": false,
+            "process_age_s": 0.04518705134978518,
+            "queue_depth": 0
+          },
+          "agent_latched_after_clear": false,
+          "process_latched_after_clear": null,
+          "outputs_enabled_after_clear": false,
+          "session_state_after_clear": "disconnected",
+          "arm_state_after_clear": "idle",
+          "recovered_to_awaiting_engage": {
+            "error": null,
+            "frame_outputs_enabled": false,
+            "process_outputs_enabled": false,
+            "arm_state": "armed"
+          },
+          "engaged_after_recovery": {
+            "arm_state": "following",
+            "frame_outputs_enabled": true
+          }
+        }
+      },
+      "stranger_attempt": {
+        "error": "HardwareCompositionError:car_http_403:control_token: missing or invalid control token"
+      },
+      "owner_clear_after_refusal": {
+        "clear": {
+          "car_clear": "confirmed",
+          "authorised_by": "control_token",
+          "clear_estop_sent": true,
+          "announcements": "partial_no_actuator_topics",
+          "agent_estop_latched": false,
+          "agent_frame_outputs_enabled": false,
+          "process_outputs_enabled": false,
+          "process_latched_fault": null,
+          "process_reengage_required": true,
+          "process_witness": "fresh",
+          "clear_still_queued": false,
+          "process_age_s": 0.06236940959934145,
+          "queue_depth": 0
+        },
+        "car": {
+          "agent_control_active": true,
+          "agent_client_id": "safety-repro",
+          "agent_estop_latched": false,
+          "agent_lease_expires_in_s": 28.98,
+          "agent_frame_outputs_enabled": false,
+          "agent_frame_stream_connected": false,
+          "bridge_frame_process_age_s": 0.07075827359221876,
+          "bridge_queue_depth": 0,
+          "bridge_process_outputs": false,
+          "process_latched_fault": null,
+          "process_reengage_required": true,
+          "process_outputs_enabled": false,
+          "process_emitted": 22,
+          "process_refused": 0,
+          "process_queue_depth": 0,
+          "process_stream_epoch": 1558825252795351
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "case": "token_branches",
+      "name": "live_token_latched_on_both_car_layers",
+      "ok": true,
+      "detail": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": true,
+        "agent_lease_expires_in_s": 29.68,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": true,
+        "bridge_frame_process_age_s": 0.0028012244729325175,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": "estop",
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 22,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 47335220632396
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "live_token_token_branch_clears_both_layers",
+      "ok": true,
+      "detail": {
+        "token_state": "held",
+        "lease_live_before_clear": false,
+        "lease_expires_in_s_before_clear": 29.68,
+        "clear": {
+          "car_clear": "confirmed",
+          "authorised_by": "control_token",
+          "clear_estop_sent": true,
+          "announcements": "partial_no_actuator_topics",
+          "agent_estop_latched": false,
+          "agent_frame_outputs_enabled": false,
+          "process_outputs_enabled": false,
+          "process_latched_fault": null,
+          "process_reengage_required": true,
+          "process_witness": "fresh",
+          "clear_still_queued": false,
+          "process_age_s": 0.06403934420086443,
+          "queue_depth": 0
+        },
+        "agent_latched_after_clear": false,
+        "process_latched_after_clear": null,
+        "outputs_enabled_after_clear": false,
+        "session_state_after_clear": "fault",
+        "arm_state_after_clear": "idle",
+        "recovered_to_awaiting_engage": {
+          "error": null,
+          "frame_outputs_enabled": false,
+          "process_outputs_enabled": false,
+          "arm_state": "armed"
+        },
+        "engaged_after_recovery": {
+          "arm_state": "following",
+          "frame_outputs_enabled": true
+        }
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "live_token_branch_granted_no_motion",
+      "ok": true,
+      "detail": {
+        "frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "arm_state": "idle"
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "live_token_branch_recovers_to_awaiting_engage_without_output",
+      "ok": true,
+      "detail": {
+        "error": null,
+        "frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "arm_state": "armed"
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "live_token_branch_then_engages_explicitly",
+      "ok": true,
+      "detail": {
+        "arm_state": "following",
+        "frame_outputs_enabled": true
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "expired_lease_latched_on_both_car_layers",
+      "ok": true,
+      "detail": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": true,
+        "agent_lease_expires_in_s": 29.53,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": true,
+        "bridge_frame_process_age_s": 0.002696088806260377,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": "estop",
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 22,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 3605232072653332
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "expired_lease_token_branch_clears_both_layers",
+      "ok": true,
+      "detail": {
+        "token_state": "expired",
+        "lease_live_before_clear": false,
+        "lease_expires_in_s_before_clear": 0.0,
+        "clear": {
+          "car_clear": "confirmed",
+          "authorised_by": "prior_owner_recovery",
+          "clear_estop_sent": true,
+          "announcements": "partial_no_actuator_topics",
+          "agent_estop_latched": false,
+          "agent_frame_outputs_enabled": false,
+          "process_outputs_enabled": false,
+          "process_latched_fault": null,
+          "process_reengage_required": true,
+          "process_witness": "fresh",
+          "clear_still_queued": false,
+          "process_age_s": 0.09433652262669057,
+          "queue_depth": 0
+        },
+        "agent_latched_after_clear": false,
+        "process_latched_after_clear": null,
+        "outputs_enabled_after_clear": false,
+        "session_state_after_clear": "fault",
+        "arm_state_after_clear": "idle",
+        "recovered_to_awaiting_engage": {
+          "error": null,
+          "frame_outputs_enabled": false,
+          "process_outputs_enabled": false,
+          "arm_state": "armed"
+        },
+        "engaged_after_recovery": {
+          "arm_state": "following",
+          "frame_outputs_enabled": true
+        }
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "expired_lease_branch_granted_no_motion",
+      "ok": true,
+      "detail": {
+        "frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "arm_state": "idle"
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "expired_lease_branch_recovers_to_awaiting_engage_without_output",
+      "ok": true,
+      "detail": {
+        "error": null,
+        "frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "arm_state": "armed"
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "expired_lease_branch_then_engages_explicitly",
+      "ok": true,
+      "detail": {
+        "arm_state": "following",
+        "frame_outputs_enabled": true
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "released_session_latched_on_both_car_layers",
+      "ok": true,
+      "detail": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": true,
+        "agent_lease_expires_in_s": 29.41,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": true,
+        "bridge_frame_process_age_s": 0.0027283403906039894,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": "estop",
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 22,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 2420365288405281
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "released_session_token_branch_clears_both_layers",
+      "ok": true,
+      "detail": {
+        "token_state": "released",
+        "lease_live_before_clear": false,
+        "lease_expires_in_s_before_clear": 0.0,
+        "clear": {
+          "car_clear": "confirmed",
+          "authorised_by": "prior_owner_recovery",
+          "clear_estop_sent": true,
+          "announcements": "partial_no_actuator_topics",
+          "agent_estop_latched": false,
+          "agent_frame_outputs_enabled": false,
+          "process_outputs_enabled": false,
+          "process_latched_fault": null,
+          "process_reengage_required": true,
+          "process_witness": "fresh",
+          "clear_still_queued": false,
+          "process_age_s": 0.04518705134978518,
+          "queue_depth": 0
+        },
+        "agent_latched_after_clear": false,
+        "process_latched_after_clear": null,
+        "outputs_enabled_after_clear": false,
+        "session_state_after_clear": "disconnected",
+        "arm_state_after_clear": "idle",
+        "recovered_to_awaiting_engage": {
+          "error": null,
+          "frame_outputs_enabled": false,
+          "process_outputs_enabled": false,
+          "arm_state": "armed"
+        },
+        "engaged_after_recovery": {
+          "arm_state": "following",
+          "frame_outputs_enabled": true
+        }
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "released_session_branch_granted_no_motion",
+      "ok": true,
+      "detail": {
+        "frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "arm_state": "idle"
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "released_session_branch_recovers_to_awaiting_engage_without_output",
+      "ok": true,
+      "detail": {
+        "error": null,
+        "frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "arm_state": "armed"
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "released_session_branch_then_engages_explicitly",
+      "ok": true,
+      "detail": {
+        "arm_state": "following",
+        "frame_outputs_enabled": true
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "a_stranger_cannot_lift_the_stop",
+      "ok": true,
+      "detail": {
+        "answer": "{'error': 'HardwareCompositionError:car_http_403:control_token: missing or invalid control token'}",
+        "still_latched": true,
+        "process_latched": "estop"
+      }
+    },
+    {
+      "case": "token_branches",
+      "name": "the_owner_can_still_lift_it_after_the_refusal",
+      "ok": true,
+      "detail": {
+        "clear": {
+          "car_clear": "confirmed",
+          "authorised_by": "control_token",
+          "clear_estop_sent": true,
+          "announcements": "partial_no_actuator_topics",
+          "agent_estop_latched": false,
+          "agent_frame_outputs_enabled": false,
+          "process_outputs_enabled": false,
+          "process_latched_fault": null,
+          "process_reengage_required": true,
+          "process_witness": "fresh",
+          "clear_still_queued": false,
+          "process_age_s": 0.06236940959934145,
+          "queue_depth": 0
+        },
+        "car": {
+          "agent_control_active": true,
+          "agent_client_id": "safety-repro",
+          "agent_estop_latched": false,
+          "agent_lease_expires_in_s": 28.98,
+          "agent_frame_outputs_enabled": false,
+          "agent_frame_stream_connected": false,
+          "bridge_frame_process_age_s": 0.07075827359221876,
+          "bridge_queue_depth": 0,
+          "bridge_process_outputs": false,
+          "process_latched_fault": null,
+          "process_reengage_required": true,
+          "process_outputs_enabled": false,
+          "process_emitted": 22,
+          "process_refused": 0,
+          "process_queue_depth": 0,
+          "process_stream_epoch": 1558825252795351
+        }
+      }
+    }
+  ],
+  "clear_estop_note": "HardwareCompositionError:car_http_403:control_token: missing or invalid control token",
+  "car_after_repro": {
+    "agent_control_active": true,
+    "agent_client_id": "safety-repro",
+    "agent_estop_latched": false,
+    "agent_lease_expires_in_s": 28.98,
+    "agent_frame_outputs_enabled": false,
+    "agent_frame_stream_connected": false,
+    "bridge_frame_process_age_s": 0.07321671862155199,
+    "bridge_queue_depth": 0,
+    "bridge_process_outputs": false,
+    "process_latched_fault": null,
+    "process_reengage_required": true,
+    "process_outputs_enabled": false,
+    "process_emitted": 22,
+    "process_refused": 0,
+    "process_queue_depth": 0,
+    "process_stream_epoch": 1558825252795351
+  },
+  "failed": []
+}

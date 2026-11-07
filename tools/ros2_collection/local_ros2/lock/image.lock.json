@@ -1,0 +1,56 @@
+{
+  "amd64": {
+    "compressed_bytes_approx": 264000000,
+    "env": [
+      "LANG=C.UTF-8",
+      "ROS_DISTRO=humble"
+    ],
+    "image_config_created": "2026-10-27T00:32:33",
+    "layers": 10,
+    "manifest_digest": "sha256:a3f4de78e42cca693a543ece5798aedcf1cae0171fe71c334a047332cc72ef93"
+  },
+  "arm64": {
+    "manifest_digest": "sha256:48435c01f2876ff519a0d07edf8dd3ab29a8106c907965c64385a14c76470d6b",
+    "note": "this is the architecture the Pi runs; recorded so the car-side build can be compared against the same tag"
+  },
+  "digests": {
+    "amd64_image_manifest_pinned": "sha256:a3f4de78e42cca693a543ece5798aedcf1cae0171fe71c334a047332cc72ef93",
+    "tag_humble_ros_base_jammy_index_as_pulled": "sha256:d9bcf2e6f72df127fdee07048c2e87b1b4b9a59a74af0592f4489fc2844aa855",
+    "which_one_docker_reports_when_pulling_by_tag": "the index digest; the pinned value above is the platform manifest, so `docker build` FROM the pinned digest and never trusts a tag alone"
+  },
+  "mirror_fallback_without_proxy": [
+    "https://dockerproxy.net",
+    "https://hub.rat.dev"
+  ],
+  "pi_side_reference": {
+    "container": "MentorPi",
+    "dev_mapped": true,
+    "image_tag": "ros:humble",
+    "local_image_id_prefix_recorded_before": "adb8457c2eec",
+    "network": "host",
+    "privileged": true,
+    "source": "docs/milestones/2026-10-31-raspberry-pi-environment-assessment.md:102 and docs/handoffs/2026-11-04-landerpi-hardware-plan-and-agent-goal.md:13",
+    "warning": "a local image ID is not a registry digest; the Pi container has not been re-inspected in this offline phase"
+  },
+  "pin_for_build": "ros:humble-ros-base-jammy@sha256:a3f4de78e42cca693a543ece5798aedcf1cae0171fe71c334a047332cc72ef93",
+  "registry": "registry-1.docker.io",
+  "registry_digest": {
+    "status": "VERIFIED via local proxy 127.0.0.1:7890 (direct Docker Hub is unreachable here)"
+  },
+  "repository": "library/ros",
+  "tags_observed": {
+    "note": "on 2026-11-05 the tags humble, humble-ros-base and humble-ros-base-jammy all resolved to the same amd64 image manifest digest"
+  },
+  "verification_route": "HTTPS through the local proxy at 127.0.0.1:7890; a direct connection to registry-1.docker.io times out on this host, so the docker daemon needs that proxy configured (see README)",
+  "verified_inside_container": {
+    "ament_package_resolution": "works",
+    "checked_utc": "2026-11-05",
+    "imports": "rclpy and rosbag2_py import",
+    "os": "Ubuntu 22.04.5 LTS",
+    "python": "3.10.12",
+    "ros2_bag_record_cli": "works",
+    "ros_distro": "humble",
+    "rosbag2_bundled_with_ros_base": true
+  },
+  "verified_utc": "2026-11-05"
+}

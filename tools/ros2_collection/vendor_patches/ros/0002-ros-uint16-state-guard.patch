@@ -1,0 +1,143 @@
+--- a/ros_robot_controller_node.py
++++ b/ros_robot_controller_node.py
+@@ -23,6 +23,26 @@
+     RGBStates, PWMServoState
+ )
+ 
++
++def _set_uint16_state(data, field, state):
++    """Assign a ROS uint16[] field only when the raw reply can be represented."""
++    if (not isinstance(state, (list, tuple)) or not state
++            or any(type(value) is not int or not 0 <= value <= 65535
++                   for value in state)):
++        return False
++    setattr(data, field, state)
++    return True
++
++
++def _set_position_state(data, state):
++    """Carry the protocol's signed int16 position through ROS uint16[] unchanged."""
++    if (not isinstance(state, (list, tuple)) or len(state) != 1
++            or type(state[0]) is not int or not -32768 <= state[0] <= 32767):
++        return False
++    data.position = [state[0] & 0xffff]
++    return True
++
++
+ class RosRobotController(Node):
+     gravity = 9.80665
+ 
+@@ -266,6 +286,37 @@
+         if servo_id != []:    
+             self.board.bus_servo_stop(servo_id)
+ 
++    def recover_bus_servo_reads(self, quiet_s=0.2):
++        """Clear the read latch only after the serialized bus is quiet."""
++        board = self.board
++        if not board.servo_read_lock.acquire(timeout=quiet_s):
++            return False
++        try:
++            with board.bus_reply_lock:
++                while True:
++                    try:
++                        board.bus_servo_queue.get_nowait()
++                    except Exception:
++                        break
++                board.bus_reply_active = False
++                board.bus_reply_fault = False
++            time.sleep(quiet_s)
++            with board.bus_reply_lock:
++                if board.bus_reply_fault or not board.bus_servo_queue.empty():
++                    while True:
++                        try:
++                            board.bus_servo_queue.get_nowait()
++                        except Exception:
++                            break
++                    board.bus_reply_active = False
++                    board.bus_reply_fault = True
++                    return False
++                board.bus_reply_active = False
++                board.bus_reply_fault = False
++                return True
++        finally:
++            board.servo_read_lock.release()
++
+     def get_bus_servo_state(self, request, response):
+         states = []
+         all_succeeded = True
+@@ -273,61 +324,48 @@
+             data = BusServoState()
+             if i.get_id:
+                 state = self.board.bus_servo_read_id(i.id)
+-                if state is None:
+-                    all_succeeded = False
+-                if state is not None:
++                if _set_uint16_state(data, 'present_id', state):
+                     i.id = state[0]
+-                    data.present_id = state
++                else:
++                    all_succeeded = False
+             if i.get_position:
+                 state = self.board.bus_servo_read_position(i.id)
+-                if state is None:
++                if not _set_position_state(data, state):
+                     all_succeeded = False
+-                if state is not None:
+-                    data.position = state
+             if i.get_offset:
+                 state = self.board.bus_servo_read_offset(i.id)
+-                if state is None:
++                if not _set_uint16_state(data, 'offset', state):
+                     all_succeeded = False
+-                if state is not None:
+-                    data.offset = state
+             if i.get_voltage:
+                 state = self.board.bus_servo_read_voltage(i.id)
+-                if state is None:
++                if not _set_uint16_state(data, 'voltage', state):
+                     all_succeeded = False
+-                if state is not None:
+-                    data.voltage = state
+             if i.get_temperature:
+                 state = self.board.bus_servo_read_temp(i.id)
+-                if state is None:
++                if not _set_uint16_state(data, 'temperature', state):
+                     all_succeeded = False
+-                if state is not None:
+-                    data.temperature = state
+             if i.get_position_limit:
+                 state = self.board.bus_servo_read_angle_limit(i.id)
+-                if state is None:
++                if not _set_uint16_state(data, 'position_limit', state):
+                     all_succeeded = False
+-                if state is not None:
+-                    data.position_limit = state
+             if i.get_voltage_limit:
+                 state = self.board.bus_servo_read_vin_limit(i.id)
+-                if state is None:
++                if not _set_uint16_state(data, 'voltage_limit', state):
+                     all_succeeded = False
+-                if state is not None:
+-                    data.voltage_limit = state
+             if i.get_max_temperature_limit:
+                 state = self.board.bus_servo_read_temp_limit(i.id)
+-                if state is None:
++                if not _set_uint16_state(data, 'max_temperature_limit', state):
+                     all_succeeded = False
+-                if state is not None:
+-                    data.max_temperature_limit = state
+             if i.get_torque_state:
+                 state = self.board.bus_servo_read_torque(i.id)
+-                if state is None:
++                if not _set_uint16_state(data, 'enable_torque', state):
+                     all_succeeded = False
+-                if state is not None:
+-                    data.enable_torque = state
+             states.append(data)
+         response.state = states
++        if not all_succeeded:
++            recovered = self.recover_bus_servo_reads()
++            self.get_logger().warning(
++                f"bus servo read failed; recovery_after_quiet={recovered}")
+         response.success = all_succeeded
+         return response

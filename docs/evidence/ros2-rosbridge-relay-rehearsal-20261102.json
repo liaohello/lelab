@@ -1,0 +1,112 @@
+{
+  "recorded_utc": "2026-11-02T15:05:00+00:00",
+  "title": "只读 rosbridge 传感中继：本地演练（合成数据源，非真机）",
+  "data_provenance": {
+    "source": "work/ros2_collection/rosbridge_feed.py 生成的合成 Image/CameraInfo/Imu/JointState/Odometry 流",
+    "is_real_hardware": false,
+    "note": "本文件只证明中继与录制/校验代码路径可用，不构成树莓派或实机相机验收证据。树莓派侧仍需 SSH 部署车端录制进程。"
+  },
+  "code_added": {
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/rosbridge_source.py": "仅标准库的 RFC6455 客户端（握手/掩码帧/分片续帧/ping-pong/64 位长度/32 MiB 上限）与自动重连订阅器 RosbridgeSensorSource",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py": "read_only 专用 remote_source 中继：解码 rosbridge JSON→本地同名话题重发布→复用既有预览/过期/录制路径；非只读模式或非法 backend 直接拒绝启动；队列溢出与解码失败计入 local_dropped",
+    "configs + package copy hardware-readonly-v1.json": "新增 remote_source 段（默认 enabled=false）、记录话题扩到 /imu /joint_states /odom、required 仍只有 rgb+camera_info、写入 16 条实机执行器话题的“永不发布”清单、相机二次核验时间",
+    "tools/ros2_collection/probe_pi_via_rosbridge.py": "上位机侧只读 rosbridge 探针（仅 subscribe + rosapi 查询）"
+  },
+  "defects_found_and_fixed": [
+    {
+      "defect": "WebSocket 握手把 4096 字节一次性读满后丢弃了同一包里的后续帧，导致首个数据帧解析错位（opcode 漂移）",
+      "fix": "保留 header 之后的剩余字节进入 _rx 缓冲区，_read_exact 先消费缓冲再 recv",
+      "test": "tools/ros2_collection/tests/test_rosbridge_source.py::test_large_fragmented_message_and_ping_pong"
+    },
+    {
+      "defect": "episode 被录制器强制结束时只写 status=discarded，与操作员主动丢弃无法区分，且不落原因",
+      "fix": "Episode 增加 end_reason 并写入 episode JSON、manifest 与 recorder 事件；agent.stop_session 在存在录制器错误时写 forced_by_<error>，正常收尾写 episode_open_at_stop",
+      "test": "tools/ros2_collection/tests/test_recorder_faults.py::test_episode_end_reason_is_persisted_and_honest"
+    }
+  ],
+  "rehearsal_sessions": {
+    "car_root": "work/ros2_collection/relay_test_car/sessions",
+    "ready_sessions": [
+      {
+        "session_id": "ros_20261102T145148Z_31dc3db4",
+        "status": "raw_ready",
+        "episodes": 2,
+        "files": 7,
+        "bag_exit_code": 0,
+        "bag_readable": true,
+        "manifest_sha256": "927647a9ef0b66193d4a3d339da919e7945f085fb1860bad53ff599a40a593c6",
+        "bag_info": {
+          "duration_s": 14.242,
+          "messages": 900,
+          "per_topic": {
+            "/ascamera/camera_publisher/rgb0/image": {"count": 70, "observed_hz": 4.915},
+            "/ascamera/camera_publisher/rgb0/camera_info": {"count": 131, "observed_hz": 9.198},
+            "/imu": {"count": 275, "observed_hz": 19.309},
+            "/joint_states": {"count": 275, "observed_hz": 19.309},
+            "/odom": {"count": 148, "observed_hz": 10.39},
+            "/lelab/events": {"count": 5, "observed_hz": 0.351}
+          }
+        },
+        "throughput_note": "数据源标称 8.6 Hz，落入 bag 的图像实测 4.915 Hz。base64+JSON 中继在 640x400 bgr8 上就是这种量级，因此中继模式定位为预览与连通性核验，实机原始采集仍以车端 ros2 bag 直录为主路径。"
+      },
+      {
+        "session_id": "ros_20261102T145242Z_23074434",
+        "status": "raw_ready",
+        "note": "本意做断源演练，但当时 kill 命中的是外层包装进程，数据源未断，故这是一段正常的两段式 session"
+      },
+      {
+        "session_id": "ros_20261102T145426Z_a0421960",
+        "status": "raw_ready",
+        "note": "同上，进程定位失误造成的额外 happy-path session（episode 当时被记为 discarded，属修复前代码）"
+      }
+    ],
+    "fault_sessions": [
+      {
+        "session_id": "ros_20261102T145502Z_9153f69a",
+        "status": "error",
+        "error": "required_stream_missing",
+        "error_detail": "/ascamera/camera_publisher/rgb0/image,/ascamera/camera_publisher/rgb0/camera_info",
+        "ready": false,
+        "ready_eligible": false,
+        "files_kept": 6,
+        "bag_exit_code": 0,
+        "bag_readable": true,
+        "inject": "录制中途 kill -9 数据源进程"
+      },
+      {
+        "session_id": "ros_20261102T145926Z_3d6bf470",
+        "status": "error",
+        "error": "required_stream_missing",
+        "ready": false,
+        "episode_end_reason": "forced_by_required_stream_missing",
+        "manifest_sha256": "cc784d46f61758bc001cdc2293535b118f408ca2ed2406c4652f8e7342096144",
+        "metadata_sensor_transport": "rosbridge_relay",
+        "metadata_relay_clock_note": "header.stamp comes from the car clock and may be unsynchronised; bag receive time is the recording host clock",
+        "inject": "录制中途 kill -9 真正的 python 进程（用 ss -ltnp 反查 PID）"
+      }
+    ],
+    "start_refusal": {
+      "condition": "数据源已死时 POST /recording/start_session",
+      "result": "409 {\"error\":\"topics_missing\",\"detail\":\"/ascamera/camera_publisher/rgb0/image, /ascamera/camera_publisher/rgb0/camera_info\"}"
+    }
+  },
+  "verified_behaviours": {
+    "relay_preview": "GET /preview.jpg 返回 640x400 RGB JPEG（6,615 字节），preview_backend=pillow，中继帧可直接进入网页取帧路径",
+    "stale_and_reconnect": "断源后 remote_source.connected=false、rgb.stale=true、last_error=ConnectionRefusedError；恢复监听后 connects 从 1 增至 2 并继续计数 frames，未重启 agent",
+    "read_only_refusals": "只读模式下控制/执行器/专家/复位入口保持拒绝；中继只创建观测话题 publisher",
+    "upper_sync_verification": "sync_session 对中继 session 完成暂存→解包→逐文件 size/SHA-256→READY manifest 哈希比对→rosbags 可读→required topics 检查→原子发布，verified_files=7，落点 work/ros2_collection_relay/upper/sessions/",
+    "training_export_refusal": "_check_exportable 对该 session 返回 409 “only simulation sessions with action/feedback can be exported for training”"
+  },
+  "test_runs": {
+    "tools/ros2_collection/tests": "26 passed（含新增 7 个 rosbridge 中继测试与 2 个 episode 结束原因测试）；需 PYTHONPATH=tools/ros2_collection，否则 test_preflight 导入失败",
+    "app_ros_mobile/tests -k ros": "14 passed, 475 deselected",
+    "ros2_ws colcon build lelab_mobile_agent": "success；安装包内含 rosbridge_source.py 与更新后的 hardware-readonly-v1.json"
+  },
+  "still_unverified_on_hardware": [
+    "树莓派上的车端 agent 部署与车端直录（SSH 认证仍未授权，deploy_readonly_agent.sh 无法执行）",
+    "真机 bag 的上位机同步（本次只同步了合成中继 session）",
+    "实机只读模式无执行器输出的现场证明",
+    "真相机在网页中的持续显示与过期态（本次是合成帧）",
+    "跨机 DDS 发现失败的原因隔离"
+  ]
+}

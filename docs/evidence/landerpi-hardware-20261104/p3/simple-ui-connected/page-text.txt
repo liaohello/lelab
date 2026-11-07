@@ -1,0 +1,54 @@
+LanderPi 设置
+
+按 LeRobot 的设备 → 标定 → 测试顺序完成真机配置
+
+执行输出关闭
+设备连接
+主臂、车端和相机
+2
+主臂标定
+复用 LeRobot 标定
+从臂检查
+六路位置与限位
+4
+配对预览
+无输出联动确认
+完整诊断与原始数据
+
+STEP 1 / 4
+
+设备连接
+
+SO-101 主臂
+
+leader:usb-1a86_USB_Single_Serial_5B90149652-if00
+
+数据正常
+
+LanderPi 从臂
+
+ros_robot_controller/bus_servo/get_state
+
+六路正常
+
+腕部相机
+
+/ascamera/camera_publisher/rgb0/image
+
+画面正常
+
+控制通道
+
+输出保持关闭；当前仅允许查看和标定
+
+安全检查通过
+
+serial 5B90149339 · 离线
+
+serial 5B90149652 · 离线
+
+serial 5B90149723 · 离线
+
+serial 5B91045575 · 离线
+
+继续到主臂标定

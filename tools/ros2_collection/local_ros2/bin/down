@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# bin/down - stop exactly the instances this tool started, in the safe order:
+# revoke the licence first, then the control process, then the simulated board.
+set -euo pipefail
+source "$(cd "$(dirname "$0")/../lib" && pwd)/common.sh"
+
+marker="$RUN_DIR/offline_stack.json"
+if [ -f "$marker" ] && [ -f "$STATE_DIR/licence_agent_status.json" ]; then
+  lros_log "asking the licence issuer to revoke before it exits"
+  humble_enter 'python3 - <<PY
+import json, pathlib
+document = json.loads(pathlib.Path("/out/state/licence_agent_status.json").read_text())
+print("licence state:", document["state"], "generation", document["control_generation"])
+PY' || true
+fi
+
+failed=0
+for name in licence_agent car_control sim_board_owner sim_camera; do
+  stop_instance "$name" TERM || failed=1
+done
+for name in licence_agent car_control sim_board_owner sim_camera; do
+  wait_instance_gone "$name" 20 || failed=1
+done
+rm -f "$STATE_DIR/licence.sock" "$RUN_DIR/offline_stack.json" 2>/dev/null || true
+humble_ros 'ros2 daemon stop >/dev/null 2>&1 || true' 2>/dev/null || true
+if [ "$failed" = "1" ]; then
+  lros_log "some instances did not exit; their pid files are kept in $RUN_DIR"
+  exit 1
+fi
+lros_log "offline stack stopped; no other process was touched"

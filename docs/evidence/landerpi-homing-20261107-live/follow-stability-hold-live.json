@@ -1,0 +1,5591 @@
+{
+  "started_wall": 1794049635.803573,
+  "steps": [
+    {
+      "step": "acquire",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+        "session_epoch": 267694787576205,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.154,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.415,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.022
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 0,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": null,
+          "last_heartbeat_duration_s": null,
+          "operator_presence_age_s": null,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 426928435387218,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 267694787576205,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": false,
+            "poll_period_s": 0.1,
+            "polls": 0,
+            "cache_age_s": null,
+            "last_poll_duration_s": null,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 324.0,
+              "position_rad": -0.7372270760424047,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 324.0,
+              "position_rad": -0.7372270760424047,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10473,
+              "received_mono_ns": 426928626601815,
+              "sample_time_ns": 1794049636635095539,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.021238614013327606,
+              "age_ns": 21238614
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.49427724416479407,
+            "joint3": -0.7372270760424047,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 382,
+            "joint3": 324,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.018375,
+          "scan_span_ns": 18375000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.01595,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 5342,
+          "source_stamp_ns": 1794049636464999936,
+          "age_s": 0.146,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "missing_for_following": [],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+          "session_epoch": 267694787576205,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 267694787576205,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 0,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.0276,
+          "reads": 25,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "alignment_reference_not_captured",
+          "motion_commands_sent": 0
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": null,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 495,
+          "publish_count": 0,
+          "effective_emit_hz": 0.0,
+          "emit_intervals": {
+            "count": 0,
+            "max_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "frames_received": 0,
+          "frames_emitted": 0,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": false,
+          "outputs_enabled": false,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.2156409846556926
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    },
+    {
+      "step": "preview",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "arm_state": "preview",
+        "alignment": null,
+        "gamepad": {
+          "armed": false,
+          "intent": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "outputs_enabled": false,
+        "motion_commands_sent": 0,
+        "command_submitted": false,
+        "reason": "preview_only_no_trusted_hardware_driver_bound",
+        "channels_meta": {
+          "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+          "session_epoch": 267694787576205,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 267694787576205,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "trusted_feedback": {
+          "valid": true,
+          "trusted": true,
+          "reasons": [],
+          "source_kind": "servo_position_readback",
+          "scan_span_ns": 0,
+          "joints": {
+            "joint1": {
+              "age_ns": 102083789,
+              "position_rad": -0.33091442617812483,
+              "raw_position": 421.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint2": {
+              "age_ns": 102083789,
+              "position_rad": -0.49427724416479407,
+              "raw_position": 382.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint3": {
+              "age_ns": 102083789,
+              "position_rad": -0.7330382858376183,
+              "raw_position": 325.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint4": {
+              "age_ns": 102083789,
+              "position_rad": -1.6671385015049833,
+              "raw_position": 102.0,
+              "source_kind": "servo_position_readback"
+            },
+            "joint5": {
+              "age_ns": 102083789,
+              "position_rad": 0.19268434942017396,
+              "raw_position": 546.0,
+              "source_kind": "servo_position_readback"
+            },
+            "r_joint": {
+              "age_ns": 102083789,
+              "position_rad": 0.749793446656764,
+              "raw_position": 321.0,
+              "source_kind": "servo_position_readback"
+            }
+          },
+          "note": "six sequential readbacks, not a simultaneous sample; oldest joint age gates the set"
+        },
+        "hardware_preview": {
+          "available": false,
+          "reason": "preview_not_advanced",
+          "motion_commands_sent": 0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.030469154000654815,
+          "reads": 34,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "follower_feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 325.0,
+              "position_rad": -0.7330382858376183,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 325.0,
+              "position_rad": -0.7330382858376183,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10474,
+              "received_mono_ns": 426928846503158,
+              "sample_time_ns": 1794049636854183725,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08672233596917067,
+              "age_ns": 86722335
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.49427724416479407,
+            "joint3": -0.7330382858376183,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 382,
+            "joint3": 325,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.019188,
+          "scan_span_ns": 19188000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.011687,
+          "reason": "ok",
+          "calibration_binding": "bound"
+        }
+      }
+    },
+    {
+      "step": "align",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+        "session_epoch": 267694787576205,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.344,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.344,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 1,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.137,
+          "operator_presence_age_s": 0.533,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 426928435387218,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 267694787576205,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 5,
+            "cache_age_s": 0.029,
+            "last_poll_duration_s": 0.013,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "aligned",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "aligned",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 325.0,
+              "position_rad": -0.7330382858376183,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 325.0,
+              "position_rad": -0.7330382858376183,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929066394580,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21885575603391771,
+              "age_ns": 218855756
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.49427724416479407,
+            "joint3": -0.7330382858376183,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 382,
+            "joint3": 325,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.018624,
+          "scan_span_ns": 18624000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.010269,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 5345,
+          "source_stamp_ns": 1794049637208999936,
+          "age_s": 0.046,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "missing_for_following": [],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+          "session_epoch": 267694787576205,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 267694787576205,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 0,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.04222122603468597,
+          "reads": 44,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.49427724416479407,
+            "joint3": -0.7330382858376183,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 426929273229955,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.49427724416479407,
+              "joint3": -0.7330382858376183,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.494277,
+              "target_rad": -0.494277,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.733038,
+              "target_rad": -0.733038,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false,
+          "preview_mapper": "independent_alignment_snapshot"
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": null,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 500,
+          "publish_count": 0,
+          "effective_emit_hz": 0.0,
+          "emit_intervals": {
+            "count": 0,
+            "max_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "frames_received": 0,
+          "frames_emitted": 0,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": false,
+          "outputs_enabled": false,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.35979473823590524
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    },
+    {
+      "step": "arm",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+        "session_epoch": 267694787576205,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.318,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.318,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 1,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.137,
+          "operator_presence_age_s": 0.559,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 426928435387218,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 267694787576205,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 6,
+            "cache_age_s": 0.041,
+            "last_poll_duration_s": 0.027,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "armed",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "armed",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 325.0,
+              "position_rad": -0.7330382858376183,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 325.0,
+              "position_rad": -0.7330382858376183,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10475,
+              "received_mono_ns": 426929060633947,
+              "sample_time_ns": 1794049637071915593,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.2457456089759944,
+              "age_ns": 245745608
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.49427724416479407,
+            "joint3": -0.7330382858376183,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 382,
+            "joint3": 325,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.018624,
+          "scan_span_ns": 18624000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.017542,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 5345,
+          "source_stamp_ns": 1794049637208999936,
+          "age_s": 0.065,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "missing_for_following": [],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+          "session_epoch": 267694787576205,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 267694787576205,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 0,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.07290639998018741,
+          "reads": 44,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.49427724416479407,
+            "joint3": -0.7330382858376183,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 426929273229955,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.49427724416479407,
+              "joint3": -0.7330382858376183,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.494277,
+              "target_rad": -0.494277,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.733038,
+              "target_rad": -0.733038,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false,
+          "preview_mapper": "independent_alignment_snapshot"
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": null,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 500,
+          "publish_count": 0,
+          "effective_emit_hz": 0.0,
+          "emit_intervals": {
+            "count": 0,
+            "max_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "frames_received": 0,
+          "frames_emitted": 0,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": false,
+          "outputs_enabled": false,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.3793546472361413
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    },
+    {
+      "step": "engage",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+        "session_epoch": 267694787576205,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.047,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.047,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 1,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.137,
+          "operator_presence_age_s": 0.83,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 426928435387218,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 267694787576205,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 10,
+            "cache_age_s": 0.049,
+            "last_poll_duration_s": 0.043,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "following",
+            "enabled": false,
+            "permitted": true,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "following",
+            "enabled": false,
+            "permitted": true,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 325.0,
+              "position_rad": -0.7330382858376183,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 382.0,
+              "position_rad": -0.49427724416479407,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 325.0,
+              "position_rad": -0.7330382858376183,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10477,
+              "received_mono_ns": 426929499272998,
+              "sample_time_ns": 1794049637522303318,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.08506032200921254,
+              "age_ns": 85060322
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.49427724416479407,
+            "joint3": -0.7330382858376183,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 382,
+            "joint3": 325,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.019133,
+          "scan_span_ns": 19133000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.032454,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 5345,
+          "source_stamp_ns": 1794049637208999936,
+          "age_s": 0.34,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "missing_for_following": [],
+        "outputs_enabled": true,
+        "control_semantics": "hardware_follow_with_verified_stop_pending",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+          "session_epoch": 267694787576205,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 267694787576205,
+            "granted": {
+              "base": false,
+              "arm": true,
+              "gripper": true
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": true,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 0,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.08023220095457509,
+          "reads": 52,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.49427724416479407,
+            "joint3": -0.7330382858376183,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 426929355278760,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.49427724416479407,
+              "joint3": -0.7330382858376183,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.494277,
+              "target_rad": -0.494277,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.733038,
+              "target_rad": -0.733038,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false,
+          "preview_mapper": "independent_alignment_snapshot"
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 505,
+          "publish_count": 0,
+          "effective_emit_hz": 0.0,
+          "emit_intervals": {
+            "count": 0,
+            "max_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "frames_received": 0,
+          "frames_emitted": 0,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": false,
+          "outputs_enabled": true,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.14220613210454758
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": true
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": {
+          "engaged": true,
+          "stream_epoch": 2,
+          "frame_seq": 0,
+          "channel_seq": {
+            "arm": 0,
+            "gripper": 0
+          },
+          "counts": {
+            "submitted": 0,
+            "skipped_no_window": 0,
+            "admitted": 0,
+            "refused": 0,
+            "receipts": 0,
+            "superseded": 0,
+            "errors": 0
+          },
+          "refusals": {},
+          "last_error": null,
+          "sender": {
+            "connected": true,
+            "stream_epoch": 2,
+            "counters": {
+              "frames_sent": 0,
+              "frames_dropped": 0,
+              "reconnects": 1,
+              "receipts": 0,
+              "windows": 0
+            },
+            "waiting": 0
+          },
+          "status": null,
+          "frame_protocol_version": 1,
+          "transport": "frame_stream"
+        },
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    }
+  ],
+  "samples": [
+    {
+      "mono_ns": 426929618760376,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.019133,
+        "feedback_age_s": 0.08506032200921254,
+        "cache_age_s": 0.061,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.043,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 1,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.035,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.035,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426930129521020,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.017678,
+        "feedback_age_s": 0.14088157099740783,
+        "cache_age_s": 0.046,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.016,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 3,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.523,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.523,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426930639466858,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.022651,
+        "feedback_age_s": 0.17522945501286813,
+        "cache_age_s": 0.076,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.017,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 6,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.012,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.012,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426931150570968,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.024709,
+        "feedback_age_s": 0.2059040539884336,
+        "cache_age_s": 0.108,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.015,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 8,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 57.501,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 27.501,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426931680993805,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.017483,
+        "feedback_age_s": 0.16144511403854267,
+        "cache_age_s": 0.144,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.022,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 11,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.981,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.981,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426932195479123,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.023634,
+        "feedback_age_s": 0.20592466499829243,
+        "cache_age_s": 0.056,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.019,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 13,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.463,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.463,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426932704974652,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.018689,
+        "feedback_age_s": 0.014776664005239581,
+        "cache_age_s": 0.094,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.016,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 16,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.951,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.951,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426933216147940,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.020733,
+        "feedback_age_s": 0.06296640799246234,
+        "cache_age_s": 0.129,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.026,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 19,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.441,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.441,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426933727997582,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.018684,
+        "feedback_age_s": 0.11941886800468637,
+        "cache_age_s": 0.157,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.032,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 21,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 57.93,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 27.929,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426934238299790,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.018633,
+        "feedback_age_s": 0.05492257396963396,
+        "cache_age_s": 0.05,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.023,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 24,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 57.419,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 27.418,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426934750641738,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.020489,
+        "feedback_age_s": 0.08345209595881897,
+        "cache_age_s": 0.081,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.017,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 26,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.897,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.897,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426935260935358,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.017357,
+        "feedback_age_s": 0.14603605299680567,
+        "cache_age_s": 0.092,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.017,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 29,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.386,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.386,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426935771191087,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.021757,
+        "feedback_age_s": 0.20643939198953376,
+        "cache_age_s": 0.103,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.025,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 31,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.875,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.875,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426936284789752,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.017723,
+        "feedback_age_s": 0.02592319801578924,
+        "cache_age_s": 0.13,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.016,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 34,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.364,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.364,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426936795128306,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.019419,
+        "feedback_age_s": 0.1862279480073994,
+        "cache_age_s": 0.037,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.022,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 36,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 57.851,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 27.851,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426937306787386,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.01788,
+        "feedback_age_s": 0.22363327899529395,
+        "cache_age_s": 0.07,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.014,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 39,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 57.34,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 27.34,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426937818768764,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.018545,
+        "feedback_age_s": 0.04595988102391857,
+        "cache_age_s": 0.104,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.024,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 42,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.826,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.826,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426938328898433,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.024118,
+        "feedback_age_s": 0.18158354399747623,
+        "cache_age_s": 0.022,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.015,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 44,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.315,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.315,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426938846546924,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.017425,
+        "feedback_age_s": 0.2115305829938734,
+        "cache_age_s": 0.076,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.019,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 47,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.799,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.799,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426939356026889,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.023833,
+        "feedback_age_s": 0.018057290950764582,
+        "cache_age_s": 0.106,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.014,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 49,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.287,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.287,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426939867280334,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.022507,
+        "feedback_age_s": 0.1568338900078743,
+        "cache_age_s": 0.027,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.011,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 52,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 57.777,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 27.777,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426940377091081,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.019291,
+        "feedback_age_s": 0.19889543503359164,
+        "cache_age_s": 0.071,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.02,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 54,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 57.266,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 27.266,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426940887127093,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.018684,
+        "feedback_age_s": 0.23168671796020135,
+        "cache_age_s": 0.111,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.024,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 57,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.756,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.756,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    },
+    {
+      "mono_ns": 426941396814717,
+      "http": 200,
+      "status": {
+        "state": "ready",
+        "last_error": null,
+        "outputs_enabled": true,
+        "feedback_valid": true,
+        "feedback_trusted": true,
+        "feedback_scan_span_s": 0.02377,
+        "feedback_age_s": 0.15060180797127032,
+        "cache_age_s": 0.023,
+        "cache_poll_s": 0.1,
+        "cache_last_poll_s": 0.017,
+        "frame_paused": false,
+        "frame_fault": null,
+        "frame_refusal": null,
+        "commands_sent": 59,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 59.246,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 29.246,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "step": "release_clutch",
+      "http": 200,
+      "result": {
+        "state": "ready",
+        "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+        "session_epoch": 267694787576205,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": true,
+            "expires_in_s": 58.67,
+            "reason": "upper_lease_held",
+            "state": "held",
+            "task": "hybrid_teleoperation"
+          },
+          "car": {
+            "held": true,
+            "expires_in_s": 28.67,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.001
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 5,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.009,
+          "operator_presence_age_s": 1.326,
+          "state": "ready",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 426928435387218,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 267694787576205,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 112,
+            "cache_age_s": 0.119,
+            "last_poll_duration_s": 0.02,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 371.0,
+              "position_rad": -0.5403539364174443,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 318.0,
+              "position_rad": -0.7623598172711231,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 371.0,
+              "position_rad": -0.5403539364174443,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 318.0,
+              "position_rad": -0.7623598172711231,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10532,
+              "received_mono_ns": 426941683343106,
+              "sample_time_ns": 1794049649693867395,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.1827890360236779,
+              "age_ns": 182789036
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5403539364174443,
+            "joint3": -0.7623598172711231,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 371,
+            "joint3": 318,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.02609,
+          "scan_span_ns": 26090000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.016421,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 5402,
+          "source_stamp_ns": 1794049649784999936,
+          "age_s": 0.052,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "missing_for_following": [],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+        "channels_meta": {
+          "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+          "session_epoch": 267694787576205,
+          "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "permits": {
+            "epoch": 267694787576205,
+            "granted": {
+              "base": false,
+              "arm": false,
+              "gripper": false
+            }
+          },
+          "sequences": {
+            "slots": 0,
+            "last_seq": {}
+          },
+          "pending": {},
+          "outputs_enabled": false,
+          "last_error": null,
+          "trusted_feedback_source": "servo_position_readback",
+          "confirmation_levels": [
+            "requested",
+            "gateway_accepted",
+            "driver_sent",
+            "controller_acknowledged",
+            "execution_observed"
+          ]
+        },
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 62,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.15037666502986102,
+          "reads": 406,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5403539364174443,
+            "joint3": -0.7623598172711231,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 426929355278760,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.49427724416479407,
+              "joint3": -0.7330382858376183,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.494277,
+              "target_rad": -0.494277,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.733038,
+              "target_rad": -0.733038,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 625,
+          "publish_count": 60,
+          "effective_emit_hz": 0.96,
+          "emit_intervals": {
+            "count": 59,
+            "max_ms": 205.69,
+            "p50_ms": 199.96,
+            "p95_ms": 204.74,
+            "p99_ms": 205.69
+          },
+          "frames_received": 60,
+          "frames_emitted": 60,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": false,
+          "outputs_enabled": true,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.4395299954207985
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    },
+    {
+      "step": "release_session",
+      "http": 200,
+      "result": {
+        "state": "disconnected",
+        "session_id": null,
+        "session_epoch": null,
+        "profile": "hardware_hybrid_manual_v1",
+        "simulated": false,
+        "leases": {
+          "upper": {
+            "held": false,
+            "expires_in_s": null,
+            "reason": "upper_lease_held",
+            "state": "idle",
+            "task": null
+          },
+          "car": {
+            "held": false,
+            "expires_in_s": null,
+            "reason": "car_lease_held",
+            "last_confirmed_age_s": 0.221
+          }
+        },
+        "diagnostics": {
+          "heartbeats": 5,
+          "heartbeat_failures": 0,
+          "last_heartbeat_outcome": "ok",
+          "last_heartbeat_duration_s": 0.009,
+          "operator_presence_age_s": 1.579,
+          "state": "disconnected",
+          "state_changes": [
+            {
+              "kind": "state_change",
+              "mono_ns": 426928435387218,
+              "state": "ready",
+              "arm_state": "idle",
+              "session_epoch": 267694787576205,
+              "previous": "disconnected",
+              "reason": "session_acquired",
+              "last_error": null
+            },
+            {
+              "kind": "state_change",
+              "mono_ns": 426942217189447,
+              "state": "disconnected",
+              "arm_state": "idle",
+              "session_epoch": null,
+              "previous": "ready",
+              "reason": "stability-hold-test-complete",
+              "last_error": null
+            }
+          ],
+          "observation_cache": {
+            "running": true,
+            "poll_period_s": 0.1,
+            "polls": 114,
+            "cache_age_s": 0.122,
+            "last_poll_duration_s": 0.017,
+            "last_error": null
+          }
+        },
+        "channels": {
+          "base": {
+            "enabled": false,
+            "permitted": false,
+            "locked": true,
+            "gamepad": {
+              "armed": false,
+              "neutral_seen": false,
+              "intent": null,
+              "last_seq": -1,
+              "last_received_mono_ns": null,
+              "reason": "gamepad_unconfigured"
+            },
+            "seq": 0,
+            "pending": null,
+            "source": "gamepad"
+          },
+          "arm": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          },
+          "gripper": {
+            "state": "idle",
+            "enabled": false,
+            "permitted": false,
+            "seq": 0,
+            "pending": null,
+            "source": "so101_leader"
+          }
+        },
+        "devices": {
+          "leader": {
+            "connected": true,
+            "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "simulated": false
+          },
+          "follower": {
+            "driver_bound": true,
+            "source": "ros_robot_controller/servo_readback",
+            "simulated": false
+          },
+          "camera": {
+            "source": "/ascamera/camera_publisher/rgb0/image",
+            "stale": false,
+            "simulated": false
+          }
+        },
+        "calibrations": {
+          "ready": true,
+          "bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "reasons": [],
+          "layout": "so101_three_layer",
+          "layers": {
+            "leader": {
+              "identity": "so101-leader-5B90149723",
+              "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+              "version": "cbf6d23f79d3"
+            },
+            "follower": {
+              "identity": "landerpi-follower-v1",
+              "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+              "version": "46da965c331d"
+            },
+            "mapping": {
+              "identity": "landerpi-so101-mapping-v1",
+              "sha256": "fd83af65d126c3cc9cf41a16996721ccfebeb138905ff60615af14b1d886c166",
+              "version": "0b54256f6ca7"
+            }
+          },
+          "simulated": false,
+          "camera_capability": "observed_real",
+          "firmware_capability": "unknown"
+        },
+        "feedback": {
+          "valid": true,
+          "source_kind": "servo_position_readback",
+          "clock_domain": "upper_receipt_monotonic",
+          "samples": [
+            {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 371.0,
+              "position_rad": -0.5403539364174443,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 319.0,
+              "position_rad": -0.7581710270663367,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            }
+          ],
+          "joint_samples": {
+            "joint1": {
+              "name": "joint1",
+              "servo_id": 1,
+              "raw_position": 421.0,
+              "position_rad": -0.33091442617812483,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            "joint2": {
+              "name": "joint2",
+              "servo_id": 2,
+              "raw_position": 371.0,
+              "position_rad": -0.5403539364174443,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            "joint3": {
+              "name": "joint3",
+              "servo_id": 3,
+              "raw_position": 319.0,
+              "position_rad": -0.7581710270663367,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            "joint4": {
+              "name": "joint4",
+              "servo_id": 4,
+              "raw_position": 102.0,
+              "position_rad": -1.6671385015049833,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            "joint5": {
+              "name": "joint5",
+              "servo_id": 5,
+              "raw_position": 546.0,
+              "position_rad": 0.19268434942017396,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            },
+            "r_joint": {
+              "name": "r_joint",
+              "servo_id": 10,
+              "raw_position": 321.0,
+              "position_rad": 0.749793446656764,
+              "source_kind": "servo_position_readback",
+              "valid": true,
+              "error": null,
+              "calibration_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+              "sample_seq": 10533,
+              "received_mono_ns": 426941901208572,
+              "sample_time_ns": 1794049649912463700,
+              "clock_domain": "upper_receipt_monotonic",
+              "age_s": 0.21100430600472464,
+              "age_ns": 211004306
+            }
+          },
+          "positions_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5403539364174443,
+            "joint3": -0.7581710270663367,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "servo_pulses": {
+            "joint1": 421,
+            "joint2": 371,
+            "joint3": 319,
+            "joint4": 102,
+            "joint5": 546,
+            "r_joint": 321
+          },
+          "scan_span_s": 0.018239,
+          "scan_span_ns": 18239000,
+          "stale_after_s": 0.5,
+          "input_available": true,
+          "input_reason": "ok",
+          "publisher_instance": 1065580317,
+          "publisher_generation": 0,
+          "publisher_identity_kind": "software_owner_instance",
+          "network_elapsed_s": 0.013218,
+          "reason": "ok",
+          "calibration_binding": "bound",
+          "trusted": true,
+          "trusted_reasons": [],
+          "note": "six measured servo positions relayed with age; no command cache"
+        },
+        "video": {
+          "available": true,
+          "valid": true,
+          "stale": false,
+          "reason": "fresh_camera_frame",
+          "preview_seq": 5404,
+          "source_stamp_ns": 1794049649983000064,
+          "age_s": 0.028,
+          "topic": "/ascamera/camera_publisher/rgb0/image",
+          "source": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "last_error": null,
+        "missing_for_following": [
+          "session_not_ready"
+        ],
+        "outputs_enabled": false,
+        "control_semantics": "preview_readback_only",
+        "phase": "grasp",
+        "recording": {
+          "source": "hybrid_recording_controller",
+          "status": "not_started",
+          "session_id": null,
+          "session_epoch": null,
+          "clock_domain": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "car_session_path": null,
+          "car_recording_id": null,
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [],
+          "episodes": [],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": null,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 0,
+          "estop_save_pending": false
+        },
+        "calibration_bundle_hash": null,
+        "channels_meta": null,
+        "follow_runtime": {
+          "active": false,
+          "commands_sent": 62,
+          "last_error": null,
+          "rate_hz": 5.0
+        },
+        "leader": {
+          "connected": true,
+          "port_claim": "flock+tioxcl",
+          "healthy": true,
+          "reason": "ok",
+          "positions_deg": {
+            "shoulder_pan": -5.538461538461538,
+            "shoulder_lift": -105.45054945054945,
+            "elbow_flex": 96.74725274725274,
+            "wrist_flex": 59.51648351648352,
+            "wrist_roll": -6.813186813186813
+          },
+          "positions_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "gripper_percent": 16.63961038961039,
+          "age_s": 0.1508147619866766,
+          "reads": 413,
+          "failures": 0,
+          "consecutive_failures": 0,
+          "last_error": null,
+          "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+          "units": {
+            "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+            "gripper": "0-100 opening percent, not an angle"
+          },
+          "expected_joints": [
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper"
+          ],
+          "missing_joints": [],
+          "config": {
+            "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+            "ids": {
+              "shoulder_pan": 1,
+              "shoulder_lift": 2,
+              "elbow_flex": 3,
+              "wrist_flex": 4,
+              "wrist_roll": 5,
+              "gripper": 6
+            },
+            "read_hz": 30.0,
+            "read_timeout_s": 0.35,
+            "num_read_retries": 2,
+            "stale_after_s": 0.5,
+            "unhealthy_after_failures": 3
+          }
+        },
+        "hardware_preview": {
+          "available": true,
+          "reason": "preview_only_no_execution_output",
+          "leader_rad": {
+            "shoulder_pan": -0.096664,
+            "shoulder_lift": -1.840459,
+            "elbow_flex": 1.688558,
+            "wrist_flex": 1.038759,
+            "wrist_roll": -0.118913
+          },
+          "follower_rad": {
+            "joint1": -0.33091442617812483,
+            "joint2": -0.5403539364174443,
+            "joint3": -0.7623598172711231,
+            "joint4": -1.6671385015049833,
+            "joint5": 0.19268434942017396,
+            "r_joint": 0.749793446656764
+          },
+          "reference": {
+            "captured_mono_ns": 426929355278760,
+            "leader_rad": {
+              "joint1": -0.096664,
+              "joint2": -1.840459,
+              "joint3": 1.688558,
+              "joint4": 1.038759,
+              "joint5": -0.118913
+            },
+            "follower_rad": {
+              "joint1": -0.33091442617812483,
+              "joint2": -0.49427724416479407,
+              "joint3": -0.7330382858376183,
+              "joint4": -1.6671385015049833,
+              "joint5": 0.19268434942017396,
+              "r_joint": 0.749793446656764
+            },
+            "leader_gripper_percent": 16.63961038961039,
+            "follower_gripper_raw": 321,
+            "leader_identity": "so101-leader-5B90149723",
+            "follower_identity": "landerpi-follower-v1",
+            "mapping_identity": "landerpi-so101-mapping-v1"
+          },
+          "targets": [
+            {
+              "joint": "joint1",
+              "pre_clip_rad": -0.330914,
+              "target_rad": -0.330914,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                2.086018
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint2",
+              "pre_clip_rad": -0.494277,
+              "target_rad": -0.494277,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "hardware_limits_rad": [
+                -2.052507,
+                1.931032
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint3",
+              "pre_clip_rad": -0.733038,
+              "target_rad": -0.733038,
+              "clipped": false,
+              "soft_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "hardware_limits_rad": [
+                -2.094395,
+                2.052507
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint4",
+              "pre_clip_rad": -1.667139,
+              "target_rad": -1.667139,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "hardware_limits_rad": [
+                -1.675516,
+                2.010619
+              ],
+              "direction": -1.0,
+              "scale": 1.0,
+              "wrapped": false,
+              "leader_delta_rad": 0.0
+            },
+            {
+              "joint": "joint5",
+              "pre_clip_rad": 0.192684,
+              "target_rad": 0.192684,
+              "clipped": false,
+              "soft_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "hardware_limits_rad": [
+                -1.759292,
+                1.717404
+              ],
+              "direction": 1.0,
+              "scale": 1.0,
+              "wrapped": true,
+              "leader_delta_rad": 0.0
+            }
+          ],
+          "gripper": {
+            "joint": "r_joint",
+            "leader_percent": 16.64,
+            "leader_percent_ref": 16.64,
+            "pre_clip_pulse": 321.0,
+            "target_pulse": 321.0,
+            "clipped": false,
+            "target_rad": 0.749793,
+            "pulse_unit": "pulse",
+            "radians_per_pulse": 0.0041887902047863905,
+            "flipped": true,
+            "jaw_width_mm_estimate": null,
+            "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+          },
+          "motion_commands_sent": 0,
+          "outputs_enabled": false
+        },
+        "frame_process": {
+          "data_identity": "hardware",
+          "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+          "trial_motion": null,
+          "trial_first_frame_pending": false,
+          "homing_motion": null,
+          "homing_first_frame_pending": false,
+          "homing_active_joint": null,
+          "homing_last_target_raw": null,
+          "publisher_subscriptions": 1,
+          "homing_torque_enabled": false,
+          "homing_torque_state": "idle",
+          "homing_torque_results": {},
+          "homing_torque_error": null,
+          "torque_publish_count": 0,
+          "torque_servo_ids": [],
+          "ticks": 630,
+          "publish_count": 62,
+          "effective_emit_hz": 0.98,
+          "emit_intervals": {
+            "count": 61,
+            "max_ms": 205.69,
+            "p50_ms": 199.96,
+            "p95_ms": 202.79,
+            "p99_ms": 205.69
+          },
+          "frames_received": 62,
+          "frames_emitted": 62,
+          "frames_refused": 0,
+          "last_refusal": null,
+          "paused": true,
+          "outputs_enabled": false,
+          "latched_fault": null,
+          "reengage_required": false,
+          "last_clear": null,
+          "queue_depth": 0,
+          "context": {
+            "session_id": null,
+            "session_epoch": null,
+            "episode_id": null,
+            "phase": null,
+            "clock_epoch": null,
+            "calibration_bundle_hash": null,
+            "context_seq": null,
+            "agent_boot": null
+          },
+          "age_s": 0.18947473172647733
+        },
+        "trial_motion": null,
+        "hardware_probe": {
+          "available": true,
+          "leader_connected": true,
+          "leader_healthy": true,
+          "feedback_valid": true,
+          "exclusive_control": true,
+          "outputs_enabled": false
+        },
+        "transport": "frame_stream_v1",
+        "frame_link": null,
+        "stop_stage": null,
+        "car_clear": null,
+        "homing": {
+          "state": "idle",
+          "generation": 0,
+          "scope": "full_pose",
+          "session_id": null,
+          "session_epoch": null,
+          "calibration_bundle_hash": null,
+          "targets_raw": {
+            "joint1": 531,
+            "joint2": 492,
+            "joint3": 525,
+            "joint4": 502,
+            "joint5": 510,
+            "r_joint": 457
+          },
+          "tolerance_raw": 5,
+          "max_step_raw": 15,
+          "current_joint": null,
+          "observed_raw": {},
+          "step_target_raw": null,
+          "remaining_raw": null,
+          "progress_pct": 0.0,
+          "feedback_age_s": null,
+          "feedback_sample_seq": null,
+          "feedback_publisher_instance": null,
+          "feedback_publisher_generation": null,
+          "outputs_enabled": false,
+          "started_mono_ns": null,
+          "updated_mono_ns": null,
+          "last_error": null,
+          "torque": {
+            "state": "idle",
+            "enabled": false,
+            "results": {},
+            "error": null
+          }
+        }
+      }
+    }
+  ],
+  "final_status": {
+    "state": "disconnected",
+    "last_error": null,
+    "outputs_enabled": false,
+    "feedback_valid": true,
+    "feedback_trusted": true,
+    "feedback_scan_span_s": 0.019602,
+    "feedback_age_s": 0.13069562095279252,
+    "cache_age_s": null,
+    "cache_poll_s": 0.1,
+    "cache_last_poll_s": 0.026,
+    "frame_paused": true,
+    "frame_fault": null,
+    "frame_refusal": null,
+    "commands_sent": 62,
+    "leases": {
+      "upper": {
+        "held": false,
+        "expires_in_s": null,
+        "reason": "upper_lease_held",
+        "state": "idle",
+        "task": null
+      },
+      "car": {
+        "held": false,
+        "expires_in_s": null,
+        "reason": "car_lease_held",
+        "last_confirmed_age_s": 0.244
+      }
+    }
+  },
+  "finished_wall": 1794049650.2987049
+}

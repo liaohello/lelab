@@ -1,0 +1,967 @@
+{
+  "captured_at_utc": "2026-11-05T08:34:27Z",
+  "source": "http://127.0.0.1:18286/ros-mobile/hybrid/status",
+  "leader_source": null,
+  "samples": [
+    {
+      "t_rel_s": 0.035,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0038,
+      "reads": 1733,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": -0.067512,
+        "shoulder_lift": -0.709639,
+        "elbow_flex": 0.068279,
+        "wrist_flex": 1.551233,
+        "wrist_roll": -0.069813
+      },
+      "gripper_percent": 5.844155844155844
+    },
+    {
+      "t_rel_s": 0.349,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0056,
+      "reads": 1742,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.093596,
+        "shoulder_lift": -0.678952,
+        "elbow_flex": 0.327585,
+        "wrist_flex": 1.554302,
+        "wrist_roll": 0.097432
+      },
+      "gripper_percent": 5.681818181818182
+    },
+    {
+      "t_rel_s": 0.616,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0295,
+      "reads": 1749,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.487925,
+        "shoulder_lift": -0.682021,
+        "elbow_flex": 0.474883,
+        "wrist_flex": 1.552768,
+        "wrist_roll": 0.114309
+      },
+      "gripper_percent": 5.681818181818182
+    },
+    {
+      "t_rel_s": 0.884,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.022,
+      "reads": 1757,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.836224,
+        "shoulder_lift": -0.686624,
+        "elbow_flex": 0.476417,
+        "wrist_flex": 1.549699,
+        "wrist_roll": 0.108172
+      },
+      "gripper_percent": 5.681818181818182
+    },
+    {
+      "t_rel_s": 1.16,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0224,
+      "reads": 1765,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.742628,
+        "shoulder_lift": -0.686624,
+        "elbow_flex": 0.250867,
+        "wrist_flex": 1.551233,
+        "wrist_roll": 0.02992
+      },
+      "gripper_percent": 5.681818181818182
+    },
+    {
+      "t_rel_s": 1.429,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0149,
+      "reads": 1773,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.303802,
+        "shoulder_lift": -0.68509,
+        "elbow_flex": 0.105103,
+        "wrist_flex": 1.549699,
+        "wrist_roll": -0.042195
+      },
+      "gripper_percent": 5.681818181818182
+    },
+    {
+      "t_rel_s": 1.698,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.008,
+      "reads": 1781,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": -0.131955,
+        "shoulder_lift": -0.678952,
+        "elbow_flex": 0.168012,
+        "wrist_flex": 1.549699,
+        "wrist_roll": -0.031454
+      },
+      "gripper_percent": 5.681818181818182
+    },
+    {
+      "t_rel_s": 1.97,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0015,
+      "reads": 1789,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": -0.236291,
+        "shoulder_lift": -0.678952,
+        "elbow_flex": 0.401234,
+        "wrist_flex": 1.502134,
+        "wrist_roll": -0.028386
+      },
+      "gripper_percent": 5.844155844155844
+    },
+    {
+      "t_rel_s": 2.244,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0346,
+      "reads": 1796,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.102802,
+        "shoulder_lift": -0.680487,
+        "elbow_flex": 0.497898,
+        "wrist_flex": 1.479119,
+        "wrist_roll": -0.028386
+      },
+      "gripper_percent": 5.762987012987013
+    },
+    {
+      "t_rel_s": 2.513,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0278,
+      "reads": 1804,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.521681,
+        "shoulder_lift": -0.68509,
+        "elbow_flex": 0.56541,
+        "wrist_flex": 1.489859,
+        "wrist_roll": -0.028386
+      },
+      "gripper_percent": 5.762987012987013
+    },
+    {
+      "t_rel_s": 2.779,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0181,
+      "reads": 1812,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.894529,
+        "shoulder_lift": -0.688158,
+        "elbow_flex": 0.513242,
+        "wrist_flex": 1.480653,
+        "wrist_roll": -0.028386
+      },
+      "gripper_percent": 5.844155844155844
+    },
+    {
+      "t_rel_s": 3.049,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0111,
+      "reads": 1820,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.85617,
+        "shoulder_lift": -0.688158,
+        "elbow_flex": 0.249333,
+        "wrist_flex": 1.479119,
+        "wrist_roll": -0.04066
+      },
+      "gripper_percent": 5.844155844155844
+    },
+    {
+      "t_rel_s": 3.325,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0093,
+      "reads": 1828,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.480253,
+        "shoulder_lift": -0.688158,
+        "elbow_flex": 0.098966,
+        "wrist_flex": 1.480653,
+        "wrist_roll": -0.042195
+      },
+      "gripper_percent": 5.844155844155844
+    },
+    {
+      "t_rel_s": 3.591,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0297,
+      "reads": 1835,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.062909,
+        "shoulder_lift": -0.677418,
+        "elbow_flex": 0.109706,
+        "wrist_flex": 1.479119,
+        "wrist_roll": -0.042195
+      },
+      "gripper_percent": 5.762987012987013
+    },
+    {
+      "t_rel_s": 3.858,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0197,
+      "reads": 1843,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": -0.153436,
+        "shoulder_lift": -0.680487,
+        "elbow_flex": 0.345997,
+        "wrist_flex": 1.482187,
+        "wrist_roll": -0.031454
+      },
+      "gripper_percent": 5.762987012987013
+    },
+    {
+      "t_rel_s": 4.128,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0123,
+      "reads": 1851,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.171848,
+        "shoulder_lift": -0.705036,
+        "elbow_flex": 0.522448,
+        "wrist_flex": 1.534355,
+        "wrist_roll": -0.031454
+      },
+      "gripper_percent": 5.762987012987013
+    },
+    {
+      "t_rel_s": 4.397,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0049,
+      "reads": 1859,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.644429,
+        "shoulder_lift": -0.743395,
+        "elbow_flex": 0.634456,
+        "wrist_flex": 1.532821,
+        "wrist_roll": -0.02992
+      },
+      "gripper_percent": 5.844155844155844
+    },
+    {
+      "t_rel_s": 4.672,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0043,
+      "reads": 1867,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.952835,
+        "shoulder_lift": -0.92138,
+        "elbow_flex": 0.57615,
+        "wrist_flex": 1.491393,
+        "wrist_roll": -0.02992
+      },
+      "gripper_percent": 5.925324675324675
+    },
+    {
+      "t_rel_s": 4.941,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.031,
+      "reads": 1874,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.836224,
+        "shoulder_lift": -1.130053,
+        "elbow_flex": 0.513242,
+        "wrist_flex": 1.327217,
+        "wrist_roll": -0.037592
+      },
+      "gripper_percent": 5.762987012987013
+    },
+    {
+      "t_rel_s": 5.207,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0194,
+      "reads": 1882,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.40507,
+        "shoulder_lift": -1.197564,
+        "elbow_flex": 0.519379,
+        "wrist_flex": 1.273515,
+        "wrist_roll": -0.04066
+      },
+      "gripper_percent": 5.681818181818182
+    },
+    {
+      "t_rel_s": 5.479,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.015,
+      "reads": 1890,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": -0.029153,
+        "shoulder_lift": -1.194496,
+        "elbow_flex": 0.67128,
+        "wrist_flex": 1.26124,
+        "wrist_roll": -0.04066
+      },
+      "gripper_percent": 5.681818181818182
+    },
+    {
+      "t_rel_s": 5.753,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0122,
+      "reads": 1898,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": -0.023015,
+        "shoulder_lift": -1.194496,
+        "elbow_flex": 0.797098,
+        "wrist_flex": 1.330286,
+        "wrist_roll": -0.04066
+      },
+      "gripper_percent": 5.60064935064935
+    },
+    {
+      "t_rel_s": 6.022,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0062,
+      "reads": 1906,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.159573,
+        "shoulder_lift": -1.194496,
+        "elbow_flex": 0.794029,
+        "wrist_flex": 1.508271,
+        "wrist_roll": -0.04066
+      },
+      "gripper_percent": 6.087662337662338
+    },
+    {
+      "t_rel_s": 6.297,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0031,
+      "reads": 1914,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.394329,
+        "shoulder_lift": -1.019579,
+        "elbow_flex": 0.760273,
+        "wrist_flex": 1.558905,
+        "wrist_roll": -0.042195
+      },
+      "gripper_percent": 15.909090909090908
+    },
+    {
+      "t_rel_s": 6.577,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0379,
+      "reads": 1921,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.423482,
+        "shoulder_lift": -0.717311,
+        "elbow_flex": 0.614509,
+        "wrist_flex": 1.560439,
+        "wrist_roll": -0.042195
+      },
+      "gripper_percent": 17.694805194805195
+    },
+    {
+      "t_rel_s": 6.857,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.006,
+      "reads": 1930,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.316077,
+        "shoulder_lift": -0.418112,
+        "elbow_flex": 0.342928,
+        "wrist_flex": 1.727684,
+        "wrist_roll": -0.042195
+      },
+      "gripper_percent": 17.28896103896104
+    },
+    {
+      "t_rel_s": 7.126,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.032,
+      "reads": 1937,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.161107,
+        "shoulder_lift": -0.436524,
+        "elbow_flex": 0.226317,
+        "wrist_flex": 1.750699,
+        "wrist_roll": -0.043729
+      },
+      "gripper_percent": 17.28896103896104
+    },
+    {
+      "t_rel_s": 7.396,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0257,
+      "reads": 1945,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.05984,
+        "shoulder_lift": -0.447265,
+        "elbow_flex": 0.243195,
+        "wrist_flex": 1.750699,
+        "wrist_roll": -0.206371
+      },
+      "gripper_percent": 17.28896103896104
+    },
+    {
+      "t_rel_s": 7.661,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0156,
+      "reads": 1953,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.135023,
+        "shoulder_lift": -0.447265,
+        "elbow_flex": 0.296898,
+        "wrist_flex": 1.743028,
+        "wrist_roll": -0.200233
+      },
+      "gripper_percent": 0.08116883116883117
+    },
+    {
+      "t_rel_s": 7.933,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0106,
+      "reads": 1961,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.187191,
+        "shoulder_lift": -0.447265,
+        "elbow_flex": 0.292295,
+        "wrist_flex": 1.729219,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 11.282467532467532
+    },
+    {
+      "t_rel_s": 8.204,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0065,
+      "reads": 1969,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.19026,
+        "shoulder_lift": -0.450333,
+        "elbow_flex": 0.296898,
+        "wrist_flex": 1.73689,
+        "wrist_roll": -0.200233
+      },
+      "gripper_percent": 35.30844155844156
+    },
+    {
+      "t_rel_s": 8.474,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0342,
+      "reads": 1976,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.181054,
+        "shoulder_lift": -0.458005,
+        "elbow_flex": 0.292295,
+        "wrist_flex": 1.73689,
+        "wrist_roll": -0.201768
+      },
+      "gripper_percent": 22.4025974025974
+    },
+    {
+      "t_rel_s": 8.737,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0212,
+      "reads": 1984,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.19026,
+        "shoulder_lift": -0.458005,
+        "elbow_flex": 0.237058,
+        "wrist_flex": 1.732287,
+        "wrist_roll": -0.200233
+      },
+      "gripper_percent": 1.37987012987013
+    },
+    {
+      "t_rel_s": 9.009,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0168,
+      "reads": 1992,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.19026,
+        "shoulder_lift": -0.456471,
+        "elbow_flex": 0.16034,
+        "wrist_flex": 1.73689,
+        "wrist_roll": -0.200233
+      },
+      "gripper_percent": 14.44805194805195
+    },
+    {
+      "t_rel_s": 9.282,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0136,
+      "reads": 2000,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.147298,
+        "shoulder_lift": -0.458005,
+        "elbow_flex": 0.039126,
+        "wrist_flex": 1.732287,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 26.136363636363637
+    },
+    {
+      "t_rel_s": 9.553,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0065,
+      "reads": 2008,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.087458,
+        "shoulder_lift": -0.500967,
+        "elbow_flex": 0.023783,
+        "wrist_flex": 1.73689,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 13.879870129870131
+    },
+    {
+      "t_rel_s": 9.826,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0026,
+      "reads": 2016,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.096664,
+        "shoulder_lift": -0.599166,
+        "elbow_flex": 0.016111,
+        "wrist_flex": 1.669379,
+        "wrist_roll": -0.20944
+      },
+      "gripper_percent": 2.1915584415584415
+    },
+    {
+      "t_rel_s": 10.094,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.03,
+      "reads": 2023,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.092061,
+        "shoulder_lift": -0.6498,
+        "elbow_flex": 0.019179,
+        "wrist_flex": 1.649432,
+        "wrist_roll": -0.20944
+      },
+      "gripper_percent": 24.350649350649352
+    },
+    {
+      "t_rel_s": 10.368,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.027,
+      "reads": 2031,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.098199,
+        "shoulder_lift": -0.643662,
+        "elbow_flex": 0.152668,
+        "wrist_flex": 1.738425,
+        "wrist_roll": -0.200233
+      },
+      "gripper_percent": 42.6948051948052
+    },
+    {
+      "t_rel_s": 10.641,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0251,
+      "reads": 2039,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.096664,
+        "shoulder_lift": -0.643662,
+        "elbow_flex": 0.22018,
+        "wrist_flex": 1.733822,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 18.019480519480517
+    },
+    {
+      "t_rel_s": 10.915,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.022,
+      "reads": 2047,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.098199,
+        "shoulder_lift": -0.642128,
+        "elbow_flex": 0.221714,
+        "wrist_flex": 1.692394,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 6.412337662337662
+    },
+    {
+      "t_rel_s": 11.178,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0072,
+      "reads": 2055,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.101267,
+        "shoulder_lift": -0.643662,
+        "elbow_flex": 0.223249,
+        "wrist_flex": 1.703134,
+        "wrist_roll": -0.203302
+      },
+      "gripper_percent": 33.76623376623377
+    },
+    {
+      "t_rel_s": 11.451,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0031,
+      "reads": 2063,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.168779,
+        "shoulder_lift": -0.643662,
+        "elbow_flex": 0.318379,
+        "wrist_flex": 1.703134,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 40.82792207792208
+    },
+    {
+      "t_rel_s": 11.724,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0333,
+      "reads": 2070,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.271581,
+        "shoulder_lift": -0.642128,
+        "elbow_flex": 0.326051,
+        "wrist_flex": 1.700066,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 19.642857142857142
+    },
+    {
+      "t_rel_s": 12.003,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0009,
+      "reads": 2079,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.406604,
+        "shoulder_lift": -0.640593,
+        "elbow_flex": 0.326051,
+        "wrist_flex": 1.626417,
+        "wrist_roll": -0.207905
+      },
+      "gripper_percent": 14.61038961038961
+    },
+    {
+      "t_rel_s": 12.272,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0263,
+      "reads": 2086,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.437291,
+        "shoulder_lift": -0.583822,
+        "elbow_flex": 0.324516,
+        "wrist_flex": 1.578852,
+        "wrist_roll": -0.203302
+      },
+      "gripper_percent": 30.681818181818183
+    },
+    {
+      "t_rel_s": 12.546,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.025,
+      "reads": 2094,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.432688,
+        "shoulder_lift": -0.542395,
+        "elbow_flex": 0.321447,
+        "wrist_flex": 1.586523,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 25.162337662337663
+    },
+    {
+      "t_rel_s": 12.817,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0193,
+      "reads": 2102,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.42962,
+        "shoulder_lift": -0.542395,
+        "elbow_flex": 0.316844,
+        "wrist_flex": 1.578852,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 0.5681818181818182
+    },
+    {
+      "t_rel_s": 13.087,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0113,
+      "reads": 2110,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.428085,
+        "shoulder_lift": -0.543929,
+        "elbow_flex": 0.257005,
+        "wrist_flex": 1.586523,
+        "wrist_roll": -0.198699
+      },
+      "gripper_percent": 16.071428571428573
+    },
+    {
+      "t_rel_s": 13.363,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0113,
+      "reads": 2118,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.428085,
+        "shoulder_lift": -0.553135,
+        "elbow_flex": 0.252401,
+        "wrist_flex": 1.589592,
+        "wrist_roll": -0.197165
+      },
+      "gripper_percent": 32.38636363636363
+    },
+    {
+      "t_rel_s": 13.631,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0035,
+      "reads": 2126,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.26084,
+        "shoulder_lift": -0.717311,
+        "elbow_flex": 0.252401,
+        "wrist_flex": 1.695463,
+        "wrist_roll": -0.114309
+      },
+      "gripper_percent": 18.75
+    },
+    {
+      "t_rel_s": 13.902,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0325,
+      "reads": 2133,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.027618,
+        "shoulder_lift": -0.806304,
+        "elbow_flex": 0.157271,
+        "wrist_flex": 1.709272,
+        "wrist_roll": -0.123516
+      },
+      "gripper_percent": 10.470779220779221
+    },
+    {
+      "t_rel_s": 14.173,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0268,
+      "reads": 2141,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": -0.240894,
+        "shoulder_lift": -0.81551,
+        "elbow_flex": 0.026851,
+        "wrist_flex": 1.710806,
+        "wrist_roll": -0.115844
+      },
+      "gripper_percent": 11.03896103896104
+    },
+    {
+      "t_rel_s": 14.445,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0222,
+      "reads": 2149,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": -0.38052,
+        "shoulder_lift": -0.810907,
+        "elbow_flex": 0.180287,
+        "wrist_flex": 1.723081,
+        "wrist_roll": -0.12505
+      },
+      "gripper_percent": 19.318181818181817
+    },
+    {
+      "t_rel_s": 14.723,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0233,
+      "reads": 2157,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.078252,
+        "shoulder_lift": -0.809372,
+        "elbow_flex": 0.299966,
+        "wrist_flex": 1.69086,
+        "wrist_roll": -0.12505
+      },
+      "gripper_percent": 20.0487012987013
+    },
+    {
+      "t_rel_s": 14.998,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0211,
+      "reads": 2165,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.437291,
+        "shoulder_lift": -0.810907,
+        "elbow_flex": 0.31531,
+        "wrist_flex": 1.660173,
+        "wrist_roll": -0.112775
+      },
+      "gripper_percent": 19.967532467532468
+    },
+    {
+      "t_rel_s": 15.268,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0141,
+      "reads": 2173,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.402001,
+        "shoulder_lift": -0.817044,
+        "elbow_flex": 0.329119,
+        "wrist_flex": 1.640226,
+        "wrist_roll": 0.301501
+      },
+      "gripper_percent": 19.886363636363637
+    },
+    {
+      "t_rel_s": 15.538,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0066,
+      "reads": 2181,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.28539,
+        "shoulder_lift": -0.812441,
+        "elbow_flex": 0.332188,
+        "wrist_flex": 1.696997,
+        "wrist_roll": 0.795563
+      },
+      "gripper_percent": 19.886363636363637
+    },
+    {
+      "t_rel_s": 15.81,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.002,
+      "reads": 2189,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.268512,
+        "shoulder_lift": -0.81551,
+        "elbow_flex": 0.329119,
+        "wrist_flex": 1.669379,
+        "wrist_roll": 0.620647
+      },
+      "gripper_percent": 19.886363636363637
+    },
+    {
+      "t_rel_s": 16.085,
+      "connected": true,
+      "healthy": true,
+      "age_s": 0.0006,
+      "reads": 2197,
+      "failures": 0,
+      "positions_rad": {
+        "shoulder_pan": 0.343696,
+        "shoulder_lift": -0.817044,
+        "elbow_flex": 0.327585,
+        "wrist_flex": 1.561974,
+        "wrist_roll": 0.066744
+      },
+      "gripper_percent": 19.886363636363637
+    }
+  ]
+}

@@ -19,6 +19,9 @@ import Models from "@/pages/Models";
 import DatasetViewer from "@/pages/DatasetViewer";
 import RosMobile from "@/pages/RosMobile";
 import RosHardware from "@/pages/RosHardware";
+import So101Workbench from "@/pages/So101Workbench";
+import LanderpiSetup from "@/pages/LanderpiSetup";
+import LanderpiTeleop from "@/pages/LanderpiTeleop";
 
 import NotFound from "@/pages/NotFound";
 import SingleTabGuard from "@/components/SingleTabGuard";
@@ -62,6 +65,9 @@ function App() {
                         <Route path="/dataset-viewer" element={<DatasetViewer />} />
                         <Route path="/ros-mobile" element={<RosMobile />} />
                         <Route path="/ros-hardware" element={<RosHardware />} />
+                        <Route path="/so101" element={<So101Workbench />} />
+                        <Route path="/landerpi" element={<LanderpiSetup />} />
+                        <Route path="/landerpi/teleop" element={<LanderpiTeleop />} />
 
                         <Route path="*" element={<NotFound />} />
                       </Routes>

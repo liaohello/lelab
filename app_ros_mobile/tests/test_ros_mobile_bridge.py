@@ -32,3 +32,24 @@ def test_controllable_agent_still_requires_a_token(monkeypatch):
         bridge.agent_token_required()
     assert exc.value.status == 409
     assert bridge.read_only is False
+
+
+@pytest.mark.parametrize("failure", [TimeoutError("timed out"), OSError(104, "Connection reset")])
+def test_tunnel_stall_is_a_defined_agent_failure_not_an_unhandled_crash(monkeypatch, failure):
+    """A stalled SSH tunnel surfaces as a socket error, not a URLError."""
+    def explode(*args, **kwargs):
+        raise failure
+
+    monkeypatch.setattr(ros_mobile.urllib.request, "urlopen", explode)
+    with pytest.raises(ros_mobile.BridgeError) as exc:
+        ros_mobile._http("GET", "/status", timeout=5.0)
+    assert exc.value.status == 503
+    assert "car agent" in exc.value.detail
+
+
+def test_command_timeout_detail_does_not_claim_the_car_stopped(monkeypatch):
+    monkeypatch.setattr(ros_mobile.urllib.request, "urlopen",
+                        lambda *a, **k: (_ for _ in ()).throw(TimeoutError("timed out")))
+    with pytest.raises(ros_mobile.BridgeError) as exc:
+        ros_mobile._http("POST", "/command", {"v": 1}, timeout=0.5)
+    assert "timeout after 0.5s" in exc.value.detail

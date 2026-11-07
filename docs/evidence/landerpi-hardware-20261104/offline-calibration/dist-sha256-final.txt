@@ -1,0 +1,3 @@
+2b1206cf0f487a13db0b587de568905912a8e4a3c50fc3986480d8057a2513de  app_ros_mobile/frontend/dist/index.html
+89b05a893e7c3e0d0f40c8ea9ac47c6c17acf5255e88998e105ac6b05b855f38  app_ros_mobile/frontend/dist/assets/index-BJjSA7vl.css
+8ed0160688dc559638bdbcc0753f317eb57983cc008a39d59e79320bc23ac72a  app_ros_mobile/frontend/dist/assets/index-DpD4HtY6.js

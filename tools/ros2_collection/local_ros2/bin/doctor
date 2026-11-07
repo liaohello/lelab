@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+# bin/doctor - report whether the local Humble runtime can be prepared and
+# run on this host, and which gate is blocking. Read-only: installs nothing.
+set -euo pipefail
+source "$(cd "$(dirname "$0")/../lib" && pwd)/common.sh"
+
+CHECKS=()
+status=0
+
+note() { CHECKS+=("$1|$2|$3"); if [ "$2" = "FAIL" ]; then status=1; fi; }
+
+ARCH="$(uname -m)"
+[ "$ARCH" = "x86_64" ] && note arch PASS "$ARCH (amd64 packages usable)" \
+  || note arch FAIL "$ARCH: pinned deb set is amd64"
+
+if command -v docker >/dev/null 2>&1 || command -v podman >/dev/null 2>&1; then
+  note container_runtime PASS "$(command -v docker 2>/dev/null || command -v podman) available; Dockerfile recipe also usable"
+else
+  note container_runtime WARN "none of docker/podman present; using unshare+chroot rootfs runtime instead"
+fi
+
+if [ "$(id -u)" = "0" ]; then
+  note uid WARN "running as root; the runtime expects an ordinary user with userns"
+else
+  note uid PASS "uid=$(id -u) ($(whoami))"
+fi
+
+if unshare --map-root-user --mount /bin/true 2>/dev/null; then
+  inner="$(unshare --map-root-user --mount /bin/sh -c 'id -u' 2>/dev/null || echo unknown)"
+  [ "$inner" = "0" ] && note userns PASS "unprivileged userns works, mapped uid inside = 0" \
+    || note userns FAIL "userns works but --map-root-user did not yield uid 0"
+else
+  note userns FAIL "unshare --map-root-user --mount failed; no isolated runtime possible without sudo"
+fi
+
+for t in curl tar sha256sum ss bwrap; do
+  command -v "$t" >/dev/null 2>&1 && note "tool:$t" PASS "$(command -v $t)" || note "tool:$t" FAIL "missing"
+done
+
+# Device-node handling plus the nested uid-0 namespace decide whether apt and
+# dpkg postinsts can run at all. Probed through the real entry path.
+if [ -x "$ROOTFS/bin/bash" ]; then
+  if humble_enter 'test "$(id -u)" = 0 && echo probe > /dev/null && echo DEV_UID_OK' 2>/dev/null | grep -q DEV_UID_OK; then
+    note dev_and_uid0 PASS "uid 0 inside the runtime with a writable /dev/null"
+  else
+    note dev_and_uid0 FAIL "cannot get uid 0 with a writable /dev/null; apt/dpkg postinsts would fail"
+  fi
+else
+  note dev_and_uid0 SKIP "rootfs not extracted yet (bin/prepare)"
+fi
+
+avail_kb="$(df -Pk "$REPO_ROOT" | awk 'NR==2{print $4}')"
+avail_gb=$(( avail_kb / 1024 / 1024 ))
+[ "$avail_gb" -ge 8 ] && note disk PASS "${avail_gb} GiB free at $REPO_ROOT" \
+  || note disk FAIL "${avail_gb} GiB free; >=8 GiB needed for rootfs + Humble + workspace"
+
+if [ -d "$ROOTFS" ]; then
+  note rootfs PASS "extracted at $ROOTFS"
+  if [ -x "$ROOTFS/bin/bash" ]; then note rootfs_bash PASS "ok"; else note rootfs_bash FAIL "no /bin/bash"; fi
+else
+  note rootfs FAIL "not prepared yet (run bin/prepare; needs network)"
+fi
+
+if [ -d "$ROOTFS/opt/ros/humble" ]; then
+  note humble PASS "/opt/ros/humble present in rootfs"
+else
+  note humble FAIL "Humble not installed yet (bin/prepare)"
+fi
+
+if [ -e "$ROOTFS/usr/lib/python3/dist-packages/serial" ]; then
+  note no_serial_module FAIL "pyserial is installed inside the runtime; real serial access is possible"
+else
+  note no_serial_module PASS "no serial module inside the runtime"
+fi
+
+if [ "${LROS_OFFLINE_PROFILE}" = "simulated" ]; then
+  note profile PASS "offline profile pinned to simulated"
+else
+  note profile FAIL "offline profile is not simulated"
+fi
+
+if [ -d "$ROOTFS/opt/ros/humble" ]; then
+  if humble_enter '/bin/true' >/dev/null 2>&1; then
+    note chroot_exec PASS "can enter the rootfs"
+  else
+    note chroot_exec FAIL "chroot entry failed; see bin/prepare output"
+  fi
+else
+  note chroot_exec SKIP "rootfs not installed yet"
+fi
+
+printf '%-22s %-6s %s\n' CHECK STATUS DETAIL
+for row in "${CHECKS[@]}"; do
+  IFS='|' read -r c s d <<< "$row"
+  printf '%-22s %-6s %s\n' "$c" "$s" "$d"
+done
+printf '\nrepo HEAD: %s\n' "$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+printf 'dirty tracked files: %s\n' "$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | wc -l)"
+printf 'domain id: %s  localhost-only: 1  rmw: rmw_cyclonedds_cpp\n' "$LROS_ROS_DOMAIN_ID"
+exit "$status"

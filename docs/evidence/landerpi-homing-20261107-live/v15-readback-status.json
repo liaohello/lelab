@@ -1,0 +1,38 @@
+{
+  "publisher_instance": 877237543,
+  "publisher_generation": 0,
+  "available": false,
+  "reason": "invalid_or_untrusted_feedback",
+  "samples": {
+    "joint1": [
+      null,
+      false,
+      "calibration_not_configured"
+    ],
+    "joint2": [
+      null,
+      false,
+      "calibration_not_configured"
+    ],
+    "joint3": [
+      null,
+      false,
+      "calibration_not_configured"
+    ],
+    "joint4": [
+      null,
+      false,
+      "calibration_not_configured"
+    ],
+    "joint5": [
+      null,
+      false,
+      "calibration_not_configured"
+    ],
+    "r_joint": [
+      null,
+      false,
+      "calibration_not_configured"
+    ]
+  }
+}

@@ -238,6 +238,17 @@ __marimo__/
 **/*.env
 !**/*.env.example
 !**/.env.example
+
+# Local hardware run artifacts. Keep source and lightweight reports; do not
+# commit raw bags, datasets, media, or shell exit-code sidecars.
+*.exit
+*.exitcode
+*.mcap
+*.db3
+*.bag
+docs/evidence/**/*.parquet
+docs/evidence/**/*.safetensors
+docs/evidence/**/*.mp4
 **/*.pem
 **/*.key
 **/id_ed25519*
@@ -252,6 +263,8 @@ __marimo__/
 !/releases/*/app/frontend/dist/
 !/releases/*/app/frontend/dist/**
 !/releases/*/app/deploy/env/
+!/app_ros_mobile/frontend/src/lib/
+!/app_ros_mobile/frontend/src/lib/**
 
 # Historical transfer checksums describe the original bytes, before Git's
 # line-ending normalization. Generate a fresh manifest for deployment exports.
@@ -262,3 +275,7 @@ __marimo__/
 # Machine inventories and local operating records are not application source.
 /releases/*/app/proj_state.md
 /releases/*/app/run_note.md
+
+# colcon/ROS 2 build output from local `ros2_ws` builds; regenerable, large.
+/install/
+/log/

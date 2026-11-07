@@ -1,0 +1,37 @@
+{
+  "captured_at_utc": "2026-11-05T11:31:52Z",
+  "identity": {
+    "session_id": "e87db3c2773f421893b68f66d20c3162",
+    "session_epoch": 795895931194715,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "http": {
+    "preview": 200,
+    "align": 200,
+    "arm": 200
+  },
+  "errors": {
+    "preview": null,
+    "align": null,
+    "arm": null
+  },
+  "state": "ready",
+  "last_error": null,
+  "arm_state": "armed",
+  "outputs_enabled": false,
+  "leader": {
+    "shoulder_pan": 0.013809,
+    "shoulder_lift": -1.838925,
+    "elbow_flex": 1.61184,
+    "wrist_flex": 1.290393,
+    "wrist_roll": 0.046798
+  },
+  "follower": {
+    "joint1": 533,
+    "joint2": 815,
+    "joint3": 16,
+    "joint4": 118,
+    "joint5": 880,
+    "r_joint": 492
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "release_id": "landerpi-frame-20261106T122111Z",
+  "archive_sha256": "db4f5a9c2793d239af55f005b8ae07795cbaa57e514417b30d26ed6034d76956",
+  "manifest_archive_sha256": null,
+  "file_count": 36,
+  "closure_check": {
+    "car_package_imports_shipped": true,
+    "car_package_modules": 17,
+    "upper_shipment": "frame-contract subset for version comparison, not the whole app import closure"
+  },
+  "source_head": "e4312f05eea4f319d7402d570f5b3fd073b04af5",
+  "working_tree_is_clean": false,
+  "runtime_requirements": [
+    "amd64"
+  ],
+  "arm64_note": "this release was built and run only on amd64; the arm64 build on the Pi is a separate gate and has not been executed",
+  "hash_mismatches_after_extract": [],
+  "absent_from_archive": [],
+  "imports_missing_from_archive": [],
+  "shipped_python_parses": true
+}

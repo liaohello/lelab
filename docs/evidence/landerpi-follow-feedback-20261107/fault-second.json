@@ -1,0 +1,188 @@
+{
+  "last_error": "frame_follow_failed:HardwareCompositionError:follow_feedback_untrusted:joint1:sample_invalid,joint1:stale_or_invalid_timestamp,joint2:sample_invalid,joint2:stale_or_invalid_timestamp,joint3:sample_invalid,joint3:stale_or_invalid_timestamp,joint4:sample_invalid,joint4:stale_or_invalid_timestamp,joint5:sample_invalid,joint5:stale_or_invalid_timestamp,r_joint:sample_invalid,r_joint:stale_or_invalid_timestamp",
+  "primary_error": "frame_follow_failed:HardwareCompositionError:follow_feedback_untrusted:joint1:sample_invalid,joint1:stale_or_invalid_timestamp,joint2:sample_invalid,joint2:stale_or_invalid_timestamp,joint3:sample_invalid,joint3:stale_or_invalid_timestamp,joint4:sample_invalid,joint4:stale_or_invalid_timestamp,joint5:sample_invalid,joint5:stale_or_invalid_timestamp,r_joint:sample_invalid,r_joint:stale_or_invalid_timestamp",
+  "fault_detail": {
+    "reason": "frame_follow_failed:HardwareCompositionError:follow_feedback_untrusted:joint1:sample_invalid,joint1:stale_or_invalid_timestamp,joint2:sample_invalid,joint2:stale_or_invalid_timestamp,joint3:sample_invalid,joint3:stale_or_invalid_timestamp,joint4:sample_invalid,joint4:stale_or_invalid_timestamp,joint5:sample_invalid,joint5:stale_or_invalid_timestamp,r_joint:sample_invalid,r_joint:stale_or_invalid_timestamp",
+    "exception_type": "HardwareCompositionError",
+    "clock_ns": 427545138689045,
+    "session_id": "3bbe5ce91eff42e5904420d6f00dfe47",
+    "session_epoch": 2466786628201222,
+    "calibration_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+    "feedback": {
+      "valid": false,
+      "trusted": null,
+      "scan_span_s": 0.024943,
+      "publisher_instance": 1065580317,
+      "publisher_generation": 0,
+      "samples": [
+        {
+          "name": "joint1",
+          "servo_id": 1,
+          "sample_seq": 13263,
+          "age_s": 0.5617815680047897,
+          "age_ns": 561781568,
+          "received_mono_ns": 427544528297481,
+          "sample_time_ns": 1794050252580489472,
+          "clock_domain": "upper_receipt_monotonic",
+          "valid": false,
+          "error": "sample_invalid,sample_stale,feedback_stale:0.5046411580001404",
+          "source_kind": "servo_position_readback",
+          "raw_position": 446.0
+        },
+        {
+          "name": "joint2",
+          "servo_id": 2,
+          "sample_seq": 13263,
+          "age_s": 0.5617815680047897,
+          "age_ns": 561781568,
+          "received_mono_ns": 427544528297481,
+          "sample_time_ns": 1794050252580489472,
+          "clock_domain": "upper_receipt_monotonic",
+          "valid": false,
+          "error": "sample_invalid,sample_stale,feedback_stale:0.5046411580001404",
+          "source_kind": "servo_position_readback",
+          "raw_position": 173.0
+        },
+        {
+          "name": "joint3",
+          "servo_id": 3,
+          "sample_seq": 13263,
+          "age_s": 0.5617815680047897,
+          "age_ns": 561781568,
+          "received_mono_ns": 427544528297481,
+          "sample_time_ns": 1794050252580489472,
+          "clock_domain": "upper_receipt_monotonic",
+          "valid": false,
+          "error": "sample_invalid,sample_stale,feedback_stale:0.5046411580001404",
+          "source_kind": "servo_position_readback",
+          "raw_position": 515.0
+        },
+        {
+          "name": "joint4",
+          "servo_id": 4,
+          "sample_seq": 13263,
+          "age_s": 0.5617815680047897,
+          "age_ns": 561781568,
+          "received_mono_ns": 427544528297481,
+          "sample_time_ns": 1794050252580489472,
+          "clock_domain": "upper_receipt_monotonic",
+          "valid": false,
+          "error": "sample_invalid,sample_stale,feedback_stale:0.5046411580001404",
+          "source_kind": "servo_position_readback",
+          "raw_position": 103.0
+        },
+        {
+          "name": "joint5",
+          "servo_id": 5,
+          "sample_seq": 13263,
+          "age_s": 0.5617815680047897,
+          "age_ns": 561781568,
+          "received_mono_ns": 427544528297481,
+          "sample_time_ns": 1794050252580489472,
+          "clock_domain": "upper_receipt_monotonic",
+          "valid": false,
+          "error": "sample_invalid,sample_stale,feedback_stale:0.5046411580001404",
+          "source_kind": "servo_position_readback",
+          "raw_position": 542.0
+        },
+        {
+          "name": "r_joint",
+          "servo_id": 10,
+          "sample_seq": 13263,
+          "age_s": 0.5617815680047897,
+          "age_ns": 561781568,
+          "received_mono_ns": 427544528297481,
+          "sample_time_ns": 1794050252580489472,
+          "clock_domain": "upper_receipt_monotonic",
+          "valid": false,
+          "error": "sample_invalid,sample_stale,feedback_stale:0.5046411580001404",
+          "source_kind": "servo_position_readback",
+          "raw_position": 321.0
+        }
+      ]
+    },
+    "gate": {
+      "valid": false,
+      "trusted": false,
+      "reasons": [
+        "joint1:sample_invalid",
+        "joint1:stale_or_invalid_timestamp",
+        "joint2:sample_invalid",
+        "joint2:stale_or_invalid_timestamp",
+        "joint3:sample_invalid",
+        "joint3:stale_or_invalid_timestamp",
+        "joint4:sample_invalid",
+        "joint4:stale_or_invalid_timestamp",
+        "joint5:sample_invalid",
+        "joint5:stale_or_invalid_timestamp",
+        "r_joint:sample_invalid",
+        "r_joint:stale_or_invalid_timestamp"
+      ],
+      "source_kind": null,
+      "scan_span_ns": null,
+      "joints": {},
+      "note": "six sequential readbacks, not a simultaneous sample; oldest joint age gates the set"
+    },
+    "observation_cache": {
+      "running": true,
+      "poll_period_s": 0.1,
+      "polls": 464,
+      "cache_age_s": 0.107,
+      "last_poll_duration_s": 0.06,
+      "last_error": null
+    },
+    "frame_process": {
+      "ticks": 6660,
+      "outputs_enabled": true,
+      "latched_fault": null,
+      "paused": false,
+      "last_refusal": null,
+      "queue_depth": 0,
+      "age_s": 0.15826303606081638,
+      "effective_emit_hz": 0.28
+    },
+    "frame_link": {
+      "engaged": true,
+      "stream_epoch": 5,
+      "frame_seq": 3,
+      "channel_seq": {
+        "arm": 3,
+        "gripper": 3
+      },
+      "counts": {
+        "submitted": 3,
+        "skipped_no_window": 0,
+        "admitted": 2,
+        "refused": 0,
+        "receipts": 2,
+        "superseded": 0,
+        "errors": 0
+      },
+      "refusals": {},
+      "last_error": null,
+      "sender": {
+        "connected": true,
+        "stream_epoch": 5,
+        "counters": {
+          "frames_sent": 3,
+          "frames_dropped": 0,
+          "reconnects": 1,
+          "receipts": 2,
+          "windows": 10
+        },
+        "waiting": 0
+      },
+      "status": null,
+      "frame_protocol_version": 1,
+      "transport": "frame_stream"
+    }
+  },
+  "last_stop": {
+    "state": "confirmed",
+    "reason": "frame_follow_failed:HardwareCompositionError:follow_feedback_untrusted:joint1:sample_invalid,joint1:stale_or_invalid_timestamp,joint2:sample_invalid,joint2:stale_or_invalid_timestamp,joint3:sample_invalid,joint3:stale_or_invalid_timestamp,joint4:sample_invalid,joint4:stale_or_invalid_timestamp,joint5:sample_invalid,joint5:stale_or_invalid_timestamp,r_joint:sample_invalid,r_joint:stale_or_invalid_timestamp",
+    "result": null,
+    "started_mono_ns": 427545145887240,
+    "finished_mono_ns": 427545194030207
+  },
+  "stop_stage": null
+}

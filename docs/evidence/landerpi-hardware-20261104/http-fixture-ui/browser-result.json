@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<stdin>", line 9, in <module>
+  File "/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/webdriver_firefox.py", line 218, in wait_text
+    raise BrowserError(f"page never displayed {text!r}")
+webdriver_firefox.BrowserError: page never displayed '开始从臂标定'

@@ -1,0 +1,241 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "container": "lelab-humble-facade-integration",
+  "freshness_window_s": 0.5,
+  "frame_ttl_policy": "unchanged",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "cases": [
+    {
+      "name": "estop_during_bag_close",
+      "injection": "emergency stop while a real bag close holds the recorder lock",
+      "started_utc": "2026-11-06T11:50:12Z",
+      "after": {
+        "facade_state": "estop",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 63,
+          "received": 67,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 550
+        }
+      }
+    },
+    {
+      "name": "retired_generation_frame",
+      "injection": "send on a socket whose stream epoch was retired by a newer client",
+      "started_utc": "2026-11-06T11:50:16Z",
+      "after": {
+        "facade_state": "estop",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 63,
+          "received": 67,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 550
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "initial_session_follows",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 11,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    },
+    {
+      "name": "estop_during_close_returns",
+      "ok": true,
+      "detail": {
+        "result": {
+          "source": "hybrid_recording_controller",
+          "status": "stopped",
+          "session_id": "5972c6dfcec2432399f226520e111a5f",
+          "session_epoch": 2681150716870200,
+          "clock_domain": "car_system_time",
+          "clock_epoch": "4c8a5041055b438fba39146ebe84651b",
+          "calibration_bundle_hash": "ae3bf41b21185b69c68c5322e69c81065257db87fe51ee66a05799c07dcc62ca",
+          "car_session_path": "/work/out/local_humble/docker/sessions/ros_20261106T115012Z_fb903d5b",
+          "car_recording_id": "ros_20261106T115012Z_fb903d5b",
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [
+            {
+              "phase": "observe",
+              "started_time_ns": 1793965814411468497,
+              "ended_time_ns": 1793965816449471902,
+              "car_recorded": true
+            }
+          ],
+          "episodes": [
+            {
+              "episode_id": "fault_ep_1",
+              "started_time_ns": 1793965813865609886,
+              "ended_time_ns": 1793965816449471902,
+              "phases": [
+                {
+                  "phase": "observe",
+                  "started_time_ns": 1793965814411468497,
+                  "ended_time_ns": 1793965816449471902,
+                  "car_recorded": true
+                }
+              ],
+              "result": "unknown",
+              "evaluation": {
+                "success": "unknown",
+                "labels": "manual_or_unknown",
+                "task": "place_in_tray",
+                "failure_reasons": [],
+                "reason": "no_simulator_ground_truth_declared_by_profile",
+                "manual_label": null,
+                "note": null,
+                "camera_profile": "wrist_original",
+                "privileged_truth_used_for_scripted_expert_only": false,
+                "evaluation_policy": {
+                  "source": "manual_or_unknown",
+                  "simulator_truth_available": false
+                },
+                "timestamp_wall": 1793965816.4494407
+              },
+              "paused_before_wrapup": true,
+              "pause_error": null
+            }
+          ],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": true,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 5,
+          "estop_save_pending": true,
+          "recording": {
+            "source": "hybrid_recording_controller",
+            "status": "stopped",
+            "session_id": "5972c6dfcec2432399f226520e111a5f",
+            "session_epoch": 2681150716870200,
+            "clock_domain": "car_system_time",
+            "clock_epoch": "4c8a5041055b438fba39146ebe84651b",
+            "calibration_bundle_hash": "ae3bf41b21185b69c68c5322e69c81065257db87fe51ee66a05799c07dcc62ca",
+            "car_session_path": "/work/out/local_humble/docker/sessions/ros_20261106T115012Z_fb903d5b",
+            "car_recording_id": "ros_20261106T115012Z_fb903d5b",
+            "episode_id": null,
+            "episode_started_time_ns": null,
+            "phase": null,
+            "phases": [
+              {
+                "phase": "observe",
+                "started_time_ns": 1793965814411468497,
+                "ended_time_ns": 1793965816449471902,
+                "car_recorded": true
+              }
+            ],
+            "episodes": [
+              {
+                "episode_id": "fault_ep_1",
+                "started_time_ns": 1793965813865609886,
+                "ended_time_ns": 1793965816449471902,
+                "phases": [
+                  {
+                    "phase": "observe",
+                    "started_time_ns": 1793965814411468497,
+                    "ended_time_ns": 1793965816449471902,
+                    "car_recorded": true
+                  }
+                ],
+                "result": "unknown",
+                "evaluation": {
+                  "success": "unknown",
+                  "labels": "manual_or_unknown",
+                  "task": "place_in_tray",
+                  "failure_reasons": [],
+                  "reason": "no_simulator_ground_truth_declared_by_profile",
+                  "manual_label": null,
+                  "note": null,
+                  "camera_profile": "wrist_original",
+                  "privileged_truth_used_for_scripted_expert_only": false,
+                  "evaluation_policy": {
+                    "source": "manual_or_unknown",
+                    "simulator_truth_available": false
+                  },
+                  "timestamp_wall": 1793965816.4494407
+                },
+                "paused_before_wrapup": true,
+                "pause_error": null
+              }
+            ],
+            "phase_timeline_complete": true,
+            "paused_before_wrapup": true,
+            "motion_commands_sent": 0,
+            "lease_acquired": false,
+            "outputs_enabled": false,
+            "last_error": null,
+            "error_detail": null,
+            "event_count": 5,
+            "estop_save_pending": true
+          },
+          "stopped_first": true
+        }
+      }
+    },
+    {
+      "name": "estop_during_close_applied",
+      "ok": true,
+      "detail": {
+        "state": "estop",
+        "latency_s": 0.131,
+        "close_error": null
+      }
+    },
+    {
+      "name": "estop_during_close_is_not_a_lease_loss",
+      "ok": true,
+      "detail": {
+        "last_error": null,
+        "latency_s": 0.131,
+        "close_duration_s": null
+      }
+    },
+    {
+      "name": "estop_during_close_stops_the_car",
+      "ok": true,
+      "detail": {
+        "frame_stream_connected": false,
+        "session_latched": true,
+        "control_process": {
+          "control_process_latched_fault": null,
+          "control_process_reengage_required": false,
+          "agent_estop_latched": false
+        }
+      }
+    }
+  ],
+  "case_errors": {
+    "retired_generation_frame": {
+      "type": "RuntimeError",
+      "detail": "no_live_link_to_compare",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 681, in main\n    getattr(matrix, f\"case_{name}\")()\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 601, in case_retired_generation_frame\n    raise RuntimeError(\"no_live_link_to_compare\")\nRuntimeError: no_live_link_to_compare\n"
+    }
+  },
+  "recording_cleanup_error": "RecordingError:session_not_ready: hybrid session state='estop'; acquire the lease before recording",
+  "car_after_matrix": {
+    "control_active": false,
+    "estop_latched": false,
+    "frame_outputs_enabled": false
+  },
+  "failed": []
+}

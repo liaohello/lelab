@@ -3,15 +3,11 @@ import { Link } from "react-router-dom";
 import { AlertTriangle, Camera, Gamepad2, Loader2, Play, StopCircle, Upload } from "lucide-react";
 import { useApi } from "@/contexts/ApiContext";
 import { apiRequest } from "@/lib/apiClient";
+import MobileTeleopPanel from "@/components/control/MobileTeleopPanel";
+import HybridTeleopPanel from "@/components/control/HybridTeleopPanel";
 
-const BASE_KEYS: Record<string, [number, number, number]> = {
-  w: [0.08, 0, 0],
-  s: [-0.08, 0, 0],
-  a: [0, 0.08, 0],
-  d: [0, -0.08, 0],
-  q: [0, 0, 0.35],
-  e: [0, 0, -0.35],
-};
+// The browser deliberately owns no keyboard/velocity loop: the car gateway owns input sampling,
+// TTL and the safety loop. This page only renders state and sends discrete operator events.
 
 function Pill({ tone, children }: { tone: "ok" | "warn" | "bad" | "idle"; children: React.ReactNode }) {
   const cls = {
@@ -40,6 +36,10 @@ export default function RosMobile() {
   const [status, setStatus] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  // only this page's own acquire may heartbeat the legacy lease: the teleop session holds the
+  // same car control lease and would otherwise make this page spam "control is not acquired"
+  const [localControl, setLocalControl] = useState(false);
+  const [statusStale, setStatusStale] = useState(false);
   const [sessions, setSessions] = useState<any[]>([]);
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [exportReport, setExportReport] = useState<any>(null);
@@ -47,8 +47,6 @@ export default function RosMobile() {
   const [jointTargets, setJointTargets] = useState<number[]>([0, 0.84, -2.03, -1.19, 0]);
   const [gripperTarget, setGripperTarget] = useState(0);
   const [previewTick, setPreviewTick] = useState(0);
-  const keys = useRef<Set<string>>(new Set());
-  const zeroSent = useRef(true);
   const refreshing = useRef(false);
   const heartbeating = useRef(false);
 
@@ -70,7 +68,9 @@ export default function RosMobile() {
     try {
       const data = await apiRequest<any>(baseUrl, fetchWithHeaders, "/ros-mobile/status", { action: "刷新 ROS 状态", signal: controller.signal });
       setStatus(data);
+      setStatusStale(false);
     } catch (exc: any) {
+      setStatusStale(true);
       if (exc?.name !== "AbortError") setError(exc?.detail || exc?.message || String(exc));
     } finally {
       window.clearTimeout(timer);
@@ -84,83 +84,44 @@ export default function RosMobile() {
     return () => window.clearInterval(id);
   }, [refresh]);
 
-  const readOnly = Boolean(status?.agent?.read_only || status?.bridge?.read_only);
+  // Fail closed: a lost tunnel means we cannot confirm which profile the car runs, so the page
+  // must not keep offering actuator controls based on the last good reply.
+  // Legacy controls have no hybrid capability contract; keep this entry read-only.
+  const readOnly = true;
   const controlActive = !readOnly && Boolean(status?.agent?.control?.active);
   const mode = status?.agent?.control?.mode ?? "idle";
   const estop = !readOnly && Boolean(status?.agent?.control?.estop_latched);
 
   useEffect(() => {
-    if (!controlActive) return;
+    if (!controlActive || !localControl) return;
     const id = window.setInterval(async () => {
       if (heartbeating.current) return;
       heartbeating.current = true;
       try { await call("/ros-mobile/control/heartbeat"); } finally { heartbeating.current = false; }
     }, 3000);
     return () => window.clearInterval(id);
-  }, [controlActive, call]);
+  }, [controlActive, localControl, call]);
 
   useEffect(() => {
     const id = window.setInterval(() => setPreviewTick((tick) => tick + 1), 300);
     return () => window.clearInterval(id);
   }, []);
 
-  const sendBase = useCallback(async (vx: number, vy: number, wz: number) => {
-    if (!controlActive) return;
-    await call("/ros-mobile/control/base", { vx, vy, wz }, "底盘控制");
-    zeroSent.current = vx === 0 && vy === 0 && wz === 0;
-  }, [call, controlActive]);
-
-  useEffect(() => {
-    const down = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
-      if (!(key in BASE_KEYS)) return;
-      if ((event.target as HTMLElement)?.tagName === "INPUT") return;
-      event.preventDefault();
-      keys.current.add(key);
-    };
-    const up = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
-      if (!(key in BASE_KEYS)) return;
-      keys.current.delete(key);
-    };
-    window.addEventListener("keydown", down);
-    window.addEventListener("keyup", up);
-    return () => {
-      window.removeEventListener("keydown", down);
-      window.removeEventListener("keyup", up);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!controlActive || mode !== "keyboard") return;
-    const id = window.setInterval(() => {
-      let vx = 0, vy = 0, wz = 0;
-      keys.current.forEach((key) => {
-        const v = BASE_KEYS[key];
-        if (v) { vx += v[0]; vy += v[1]; wz += v[2]; }
-      });
-      if (vx === 0 && vy === 0 && wz === 0) {
-        if (!zeroSent.current) sendBase(0, 0, 0);
-      } else {
-        sendBase(vx, vy, wz);
-      }
-    }, 120);
-    return () => {
-      window.clearInterval(id);
-      sendBase(0, 0, 0);
-    };
-  }, [controlActive, mode, sendBase]);
+  // No sendBase / keyboard listeners here: a browser loop that streams velocities is exactly the
+  // "real-time control loop in the window" this migration must remove. Hybrid control goes through
+  // discrete /ros-mobile/hybrid/* events only.
 
   const acquire = async () => {
     setBusy("acquire");
     const out = await call("/ros-mobile/control/acquire", {}, "获取控制权");
     setBusy(null);
     if (out) {
+      setLocalControl(true);
       await call("/ros-mobile/control/mode", { mode: "keyboard" }, "切换键盘模式");
       await refresh();
     }
   };
-  const release = async () => { setBusy("release"); await call("/ros-mobile/control/release"); setBusy(null); await refresh(); };
+  const release = async () => { setBusy("release"); await call("/ros-mobile/control/release"); setLocalControl(false); setBusy(null); await refresh(); };
   const setMode = async (next: string) => { setBusy(`mode-${next}`); await call("/ros-mobile/control/mode", { mode: next }, "切换模式"); setBusy(null); await refresh(); };
   const emergency = async () => { await call("/ros-mobile/control/estop", { reason: "web-estop" }, "急停"); await refresh(); };
   const clearEstop = async () => { await call("/ros-mobile/control/clear-estop", {}, "清除急停"); await refresh(); };
@@ -264,7 +225,7 @@ export default function RosMobile() {
   const expertRunning = Boolean(expert?.running);
   const previewSrc = `${baseUrl}/ros-mobile/preview.jpg?t=${previewTick}`;
   const rgbTopic = sensor?.rgb?.topic ?? null;
-  const rgbStale = rgbTopic == null || sensor?.rgb?.stale === true;
+  const rgbStale = statusStale || rgbTopic == null || sensor?.rgb?.stale !== false || sensor?.rgb?.age_s == null || sensor.rgb.age_s >= 1 || sensor?.rgb?.frame_seq == null;
   const rgbAge = sensor?.rgb?.age_s;
   const baseSource = agent?.base?.source ?? null;
   const baseKnown = Boolean(baseSource && baseSource !== "unavailable_readonly" && agent?.base?.age_s != null);
@@ -276,13 +237,16 @@ export default function RosMobile() {
           <div className="flex items-center gap-2">
             <Gamepad2 className="h-5 w-5 text-emerald-400" />
             <h1 className="text-lg font-semibold">ROS 移动操作小车</h1>
-            {readOnly ? <Pill tone="warn">实机只读 · 无执行器输出</Pill> : (
-              <Pill tone={controlActive ? "ok" : "idle"}>{controlActive ? `已取得控制权 · ${mode}` : "未取得控制权"}</Pill>
+            {statusStale ? <Pill tone="bad">车端状态未知 · 控制入口已禁用</Pill> : (
+              readOnly ? <Pill tone="warn">实机只读 · 无执行器输出</Pill> : (
+                <Pill tone={controlActive ? "ok" : "idle"}>{controlActive ? `已取得控制权 · ${mode}` : "未取得控制权"}</Pill>
+              )
             )}
             {estop && <Pill tone="bad">急停锁定</Pill>}
             {!readOnly && agent?.safety?.heartbeat_age_s != null && <Pill tone={agent.safety.heartbeat_age_s < 0.6 ? "ok" : "bad"}>watchdog {agent.safety.heartbeat_age_s}s</Pill>}
           </div>
           <div className="flex gap-2">
+            <Link to="/landerpi" className="rounded border border-sky-800 bg-sky-950/40 px-3 py-1.5 text-sm text-sky-200 hover:bg-sky-900/50">简易配置</Link>
             <Link to="/dataset-viewer" className="rounded border border-gray-700 px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-800">数据集</Link>
             <Link to="/" className="rounded border border-gray-700 px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-800">返回</Link>
           </div>
@@ -291,6 +255,7 @@ export default function RosMobile() {
         {error && (
           <div className="mb-3 flex items-start gap-2 rounded border border-red-800 bg-red-950/50 p-2 text-sm text-red-200">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /> <span className="break-all">{error}</span>
+            <button onClick={() => setError(null)} className="ml-auto shrink-0 underline">关闭错误</button>
           </div>
         )}
 
@@ -299,7 +264,7 @@ export default function RosMobile() {
             <Card title="控制权与安全" right={<span className="text-xs text-gray-500">{agent?.profile}</span>}>
               {readOnly ? (
                 <div className="rounded border border-amber-800/60 bg-amber-950/30 p-2 text-xs text-amber-200">
-                  只读模式：不提供控制权、键盘驾驶、机械臂/夹爪、专家、复位或回放入口；启停与退出均不发送速度、零速或力矩指令。采集与预览可用。
+                  只读模式：不提供控制权、键盘驾驶、机械臂/夹爪、专家、复位或回放入口；启停与退出均不发送速度、零速或力矩指令。采集与预览可用。浏览器不承担串口、手柄采样或实时安全循环；联合控制只通过下方 hybrid 面板的离散事件发起。
                 </div>
               ) : (
                 <>
@@ -320,6 +285,9 @@ export default function RosMobile() {
                 </>
               )}
             </Card>
+
+            <HybridTeleopPanel />
+            <MobileTeleopPanel readOnly={readOnly} />
 
             <Card title="腕部 RGB（link4）" right={
               <span className="flex items-center gap-2 text-xs text-gray-500">
@@ -435,6 +403,7 @@ export default function RosMobile() {
               )}
             </Card>
 
+            <div id="ros-mobile-sync-export">
             <Card title="同步与 LeRobot 导出" right={<span className="text-xs text-gray-500">{exportReport ? "已导出" : "暂存 → 校验 → 原子发布"}</span>}>
               <select value={selectedSession} onChange={(e) => setSelectedSession(e.target.value)} className="mb-2 w-full rounded border border-gray-700 bg-gray-900 px-2 py-1.5 text-sm">
                 <option value="">选择 session</option>
@@ -442,7 +411,6 @@ export default function RosMobile() {
               </select>
               <div className="flex flex-wrap gap-2">
                 <button disabled={!selectedSession || !!busy || recording?.active || exportJob?.status === "running"} onClick={syncAndExport} className="rounded bg-sky-700 px-3 py-1.5 text-sm disabled:opacity-40"><Upload className="mr-1 inline h-4 w-4" />{readOnly ? "同步原始数据" : "同步并导出"}</button>
-                {readOnly && <button disabled={!selectedSession || !!busy || recording?.active || exportJob?.status === "running"} onClick={exportSession} className="rounded border border-amber-700 px-3 py-1.5 text-sm text-amber-200 disabled:opacity-40">尝试训练导出（应被拒绝）</button>}
                 {exportJob?.status === "running" && <button disabled={!!busy} onClick={cancelExport} className="rounded border border-red-700 px-3 py-1.5 text-sm text-red-200 disabled:opacity-40">取消导出</button>}
                 <button disabled={!!busy} onClick={loadSessions} className="rounded border border-gray-700 px-3 py-1.5 text-sm">刷新列表</button>
                 <Link to="/dataset-viewer" className="rounded border border-gray-700 px-3 py-1.5 text-sm">打开数据查看器</Link>
@@ -457,6 +425,7 @@ export default function RosMobile() {
                 </div>
               )}
             </Card>
+            </div>
           </div>
         </div>
       </div>

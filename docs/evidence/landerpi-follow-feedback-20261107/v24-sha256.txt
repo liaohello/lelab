@@ -1,0 +1,2 @@
+c19543ed6c4a64e3fa24fbc66d00b0367265319bc996823d0009ec11ecf32d97  /home/ubuntu/shared/lelab_car/candidates/landerpi-arm-follow-v24-20261107/landerpi-arm-follow-v24-20261107/code/ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py
+fbfc59ea872c56505a6ab00d32df36502c3f06f3c385596c5c259179ff7238a4  /home/ubuntu/shared/lelab_car/candidates/landerpi-arm-follow-v24-20261107/landerpi-arm-follow-v24-20261107/code/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-follow-v1.json

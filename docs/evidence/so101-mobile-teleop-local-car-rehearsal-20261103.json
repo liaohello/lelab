@@ -1,0 +1,250 @@
+{
+  "date": "2026-11-03",
+  "title": "SO-101 移动遥操作：车端代码在本机的合成链路排练（不是实机验收）",
+  "grade": "software_rehearsal_synthetic_leader_and_synthetic_car_topics",
+  "not": [
+    "实机验收",
+    "真实 follower 反馈",
+    "真实主臂读数",
+    "控制器回执",
+    "网页按钮点击"
+  ],
+  "why": "单元/契约测试用假 transport，看不见车端 recorder/gateway 的真实行为。把部署的 agent 代码在本机 跑起来、用合成 DDS 话题喂它，才能走完 受控遥操作 → episode 录制 → 数据检查 这一段。",
+  "reproduce": {
+    "host": "work/ros2_collection/envs/ros_jazzy/bin/python tools/ros2_collection/local_car_rehearsal.py --root /tmp/lelab_car_rehearsal",
+    "driver": "HF_LEROBOT_HOME=~/.cache/lelab-ros-mobile-tests/hf app_ros_mobile/.venv/bin/python tools/ros2_collection/local_teleop_session_drive.py --root /tmp/lelab_car_rehearsal --follow-seconds 3 --out /tmp/rehearsal_report.json",
+    "artifacts_kept": "/tmp/lelab_car_rehearsal/sessions/ros_20261103T125738Z_ad536825"
+  },
+  "source_identity": {
+    "agent_module_loaded": "/home/liaozhengyan/Desktop/lelab/ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py",
+    "agent_module_sha256_16": "c56a11645aab0b2d",
+    "worktree_agent_sha256_16": "c56a11645aab0b2d",
+    "profile": "hardware_teleop_v1",
+    "profile_sha256": "6473205bda38b4b61241b7feea916d3cab7568b283f824ac98e0a32045399171",
+    "stale_install_copy_seen": {
+      "path": "ros2_ws/install/lelab_mobile_agent/lib/python3.12/site-packages/lelab_mobile_agent/agent.py",
+      "bytes": 89565,
+      "mtime": "2026-11-02T20:40:56",
+      "note": "先跑过的一次排练加载的是这个 colcon 旧拷贝（sourcing install/setup.bash 会把它前置到 PYTHONPATH），因此修好的 agent 并未生效；launcher 现在在 source 之后重新固定 src 路径，并在启动前解析 lelab_mobile_agent.agent.__file__，不是源文件就拒绝启动。"
+    }
+  },
+  "ros": {
+    "distro_in_manifest": "jazzy",
+    "runtime_mode": "hardware_teleop",
+    "clock_domain": "hardware_system_time",
+    "actuator_outputs": true,
+    "chassis_locked": true
+  },
+  "synthetic_inputs": {
+    "leader": "SyntheticLeader（本机无 USB 主臂）",
+    "feedback_hz": 50.0,
+    "camera_hz": 14.74,
+    "camera": [
+      64,
+      48
+    ],
+    "camera_encoding": "未压缩 bgr8，非真实 Aurora 流"
+  },
+  "result": {
+    "session_id": "ros_20261103T125738Z_ad536825",
+    "manifest_status": "raw_ready",
+    "ready_written": true,
+    "episodes": [
+      {
+        "episode_id": "ep_1793710659_30dda9",
+        "source": "leader_arm",
+        "status": "saved",
+        "success": "unknown"
+      },
+      {
+        "episode_id": "ep_1793710662_33e61e",
+        "source": "leader_arm",
+        "status": "saved",
+        "success": "unknown"
+      }
+    ],
+    "export_schema": "arm_gripper_6dof_phase1",
+    "bag_format": "sqlite3",
+    "bag_messages_by_topic": {
+      "/ascamera/camera_publisher/rgb0/camera_info": 89,
+      "/ascamera/camera_publisher/rgb0/image": 89,
+      "/controller_manager/joint_states": 302,
+      "/joint_states": 302,
+      "/lelab/arm/trajectory_request": 61,
+      "/lelab/events": 129,
+      "/lelab/gripper/trajectory_request": 61,
+      "/lelab/recording/teleop": 61
+    },
+    "bag_clock_and_counts": {
+      "duration_s": 6.029016672,
+      "messages": 1094,
+      "topics": {
+        "/ascamera/camera_publisher/rgb0/camera_info": {
+          "type": "sensor_msgs/msg/CameraInfo",
+          "count": 89,
+          "observed_hz": 14.762
+        },
+        "/ascamera/camera_publisher/rgb0/image": {
+          "type": "sensor_msgs/msg/Image",
+          "count": 89,
+          "observed_hz": 14.762
+        },
+        "/controller_manager/joint_states": {
+          "type": "sensor_msgs/msg/JointState",
+          "count": 302,
+          "observed_hz": 50.091
+        },
+        "/joint_states": {
+          "type": "sensor_msgs/msg/JointState",
+          "count": 302,
+          "observed_hz": 50.091
+        },
+        "/lelab/arm/trajectory_request": {
+          "type": "trajectory_msgs/msg/JointTrajectory",
+          "count": 61,
+          "observed_hz": 10.118
+        },
+        "/lelab/events": {
+          "type": "std_msgs/msg/String",
+          "count": 129,
+          "observed_hz": 21.397
+        },
+        "/lelab/gripper/trajectory_request": {
+          "type": "trajectory_msgs/msg/JointTrajectory",
+          "count": 61,
+          "observed_hz": 10.118
+        },
+        "/lelab/recording/teleop": {
+          "type": "std_msgs/msg/String",
+          "count": 61,
+          "observed_hz": 10.118
+        }
+      }
+    },
+    "recording_field_classes": {
+      "command_events": 61,
+      "gripper_events": 61,
+      "event_kinds": {
+        "command": 124,
+        "episode_ended": 2,
+        "episode_started": 2,
+        "recording_session_started": 1
+      },
+      "every_arm_command_carries": {
+        "leader_rad": 61,
+        "pre_clip": 61,
+        "target": 61,
+        "action": 61,
+        "calibration_version": 61,
+        "clutch": 61,
+        "ttl_s": 61,
+        "seq": 61,
+        "clipped": 61
+      },
+      "teleop_state_count": 61,
+      "teleop_state_fields": [
+        "ack",
+        "calibration_version",
+        "clock_domain",
+        "clutch",
+        "control_mode",
+        "feedback",
+        "kind",
+        "last_reject",
+        "last_seq",
+        "leader_arm_enabled",
+        "leader_gripper_percent",
+        "leader_positions_rad",
+        "pre_clip_target_rad",
+        "semantics",
+        "sent_gripper_rad",
+        "sent_target_rad",
+        "sim_time_ns",
+        "time_ns"
+      ],
+      "trajectory_requests": {
+        "/lelab/arm/trajectory_request": 61,
+        "/lelab/gripper/trajectory_request": 61
+      }
+    },
+    "expectations": {
+      "two_episodes": [
+        "ep_1793710659_30dda9",
+        "ep_1793710662_33e61e"
+      ],
+      "end_episode_parks_following": true,
+      "preview_sent_nothing": true,
+      "car_saw_commands": true,
+      "arm_trajectory_published": true,
+      "gripper_trajectory_published": true,
+      "command_events_recorded": true,
+      "session_finalised_cleanly": {
+        "status": "raw_ready",
+        "ready": true
+      },
+      "failed": []
+    },
+    "lease_and_exclusivity": {
+      "state": "calibrated",
+      "upper_lease": true,
+      "car_token": true,
+      "car_exclusivity": {
+        "clean": true,
+        "foreign": {},
+        "unknown": [],
+        "reason": null
+      },
+      "car_hold_policy": "vendor servos hold the last commanded position in position mode; torque is never disabled as a substitute for stopping"
+    }
+  },
+  "blockers_found_and_fixed": [
+    {
+      "id": "topics_missing_blocks_session_start",
+      "symptom": "POST /recording/start_session → 409 topics_missing: /controller_manager/joint_states, /lelab/recording/teleop，而 /status 的 follower_feedback.available 同时为 true",
+      "cause": "反馈订阅只写 FeedbackStore，不写话题健康表；teleop 状态由本节点自己发布，而健康表只统计收到的消息",
+      "fix": "agent.py: _on_follower_feedback 记录 last_rx；新增 last_tx 并在 _publish_teleop_state 记录；三处话题年龄计算统一为 _topic_ages()（收/发取更新的一次）",
+      "tests": [
+        "tools/ros2_collection/tests/test_agent_teleop_recording.py::TopicHealthTests"
+      ]
+    },
+    {
+      "id": "leader_arm_cannot_open_an_episode",
+      "symptom": "start_session 通过后 POST /recording/start_episode → 409 mode: leader_arm",
+      "cause": "start_episode 的模式白名单写于 leader_arm 模式存在之前",
+      "fix": "agent.py: 允许 leader_arm 开集（set_mode 仍按 profile 决定是否接受该模式，只读 profile 不受影响）",
+      "tests": [
+        "...::EpisodeModeTests"
+      ]
+    },
+    {
+      "id": "locked_chassis_never_publishes_trajectories",
+      "symptom": "bag 里 /lelab/arm/trajectory_request 与 /lelab/gripper/trajectory_request 计数为 0，而事件流记录了 61 条被接受的 arm 命令",
+      "cause": "_control_tick 开头 `if self.base_pub is None: return`；底盘锁定时 base_pub 正是 None",
+      "fix": "agent.py: 按各自的 publisher 分支处理，arm/gripper 队列照常排空；同时在控制权失效或急停锁存时丢弃排队目标，避免恢复瞬间重放过期动作（需求六）",
+      "tests": [
+        "...::ControlTickTests"
+      ]
+    },
+    {
+      "id": "paused_cannot_re_engage",
+      "symptom": "第二集开始前 coord.set_state('enter_preview') → 409 bad_transition:paused->preview",
+      "cause": "结束一集默认暂停（需求七），但 preview 只允许 calibrated/preview/aligned/armed，align 只允许 preview/aligned，engage 从 paused 明确拒绝 → paused 没有任何合法出路",
+      "fix": "mobile_teleop_session.py: enter_preview 接受 paused（暂停时对齐已被清除，接合仍要求新的对齐）",
+      "tests": [
+        "tools/ros2_collection/tests/test_mobile_teleop_session.py::TeleopStateMachineTests",
+        "排练脚本的第二集路径"
+      ]
+    }
+  ],
+  "mutation_check": "把 _topic_ages 改回只看 last_rx 后，test_a_self_published_required_topic_counts_as_fresh 与 test_the_newest_of_receive_and_publish_wins 变红，随后恢复原文件。",
+  "counts_measured_this_turn": {
+    "tools_suite": "PYTHONPATH=tools/ros2_collection work/ros2_collection/envs/ros_jazzy/bin/python -m pytest tools/ros2_collection/tests -q → 225 passed, 5 subtests passed (212 → 225, 新增 13 项)",
+    "note": "排练 agent 仍在运行时，test_rosbridge_source 的分片消息用例出现过一次 ConnectionResetError；停掉本任务启动的排练后同一用例 7 passed。两项都属本机端口/时序相互干扰，不是代码结论。"
+  },
+  "still_unverified_on_hardware": [
+    "真实 servo/controller 回执（排练里 acks 为空、controller accepted 无从谈起）",
+    "真实 Aurora 640×400 流与实测总线负载下的 command_hz/超时取值",
+    "主臂真实读数、逐关节小幅运动、急停与故障注入、断连不重放",
+    "网页按钮实机点击"
+  ]
+}

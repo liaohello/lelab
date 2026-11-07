@@ -1,0 +1,88 @@
+--- a/ros_robot_controller_node.py
++++ b/ros_robot_controller_node.py
+@@ -14,7 +14,7 @@
+ from rclpy.node import Node
+ from std_srvs.srv import Trigger
+ from sensor_msgs.msg import Imu, Joy
+-from std_msgs.msg import UInt16, Bool
++from std_msgs.msg import UInt16, Bool, Int32MultiArray
+ from ros_robot_controller.ros_robot_controller_sdk import Board, PacketReportKeyEvents
+ from ros_robot_controller_msgs.srv import GetBusServoState, GetPWMServoState
+ from ros_robot_controller_msgs.msg import (
+@@ -92,6 +92,15 @@
+         threading.Thread(target=self.pub_callback, daemon=True).start()
+         self.create_service(Trigger, '~/init_finish', self.get_node_state)
+ 
++        self.servo_readback_pub = self.create_publisher(
++            Int32MultiArray, '/lelab/ros_robot_controller/servo_readback', 10)
++        self.servo_readback_seq = 0
++        self.servo_readback_failures = 0
++        self.servo_readback_stop = threading.Event()
++        self.servo_readback_thread = threading.Thread(
++            target=self.servo_readback_loop, daemon=True)
++        self.servo_readback_thread.start()
++
+         self.get_logger().info('\033[1;32m%s\033[0m' % 'start')
+ 
+     def networdamode_set_led(self):
+@@ -246,7 +255,8 @@
+         for i in msg.position:
+             data.extend([[i.id, i.position]])
+         if data:
+-            self.board.bus_servo_set_position(msg.duration, data)
++            with self.board.servo_read_lock:
++                self.board.bus_servo_set_position(msg.duration, data)
+ 
+     def set_bus_servo_state(self, msg):
+         data = []
+@@ -282,9 +292,39 @@
+                         if i.stop[0]:
+                             servo_id.append(i.present_id[1])
+         if data != []:
+-            self.board.bus_servo_set_position(msg.duration, data)
+-        if servo_id != []:    
+-            self.board.bus_servo_stop(servo_id)
++            with self.board.servo_read_lock:
++                self.board.bus_servo_set_position(msg.duration, data)
++        if servo_id != []:
++            with self.board.servo_read_lock:
++                self.board.bus_servo_stop(servo_id)
++
++    def servo_readback_loop(self):
++        """Publish one complete measured frame without opening a second UART."""
++        while not self.servo_readback_stop.wait(0.2):
++            started = time.monotonic()
++            values = []
++            failed_id = None
++            for servo_id in (1, 2, 3, 4, 5, 10):
++                state = self.board.bus_servo_read_position(servo_id)
++                if (not isinstance(state, (list, tuple)) or len(state) != 1
++                        or type(state[0]) is not int
++                        or not -32768 <= state[0] <= 32767):
++                    failed_id = servo_id
++                    break
++                values.extend([servo_id, state[0]])
++            if failed_id is not None:
++                self.servo_readback_failures += 1
++                if self.servo_readback_failures == 1 or self.servo_readback_failures % 25 == 0:
++                    self.get_logger().warning(
++                        f'measured readback failed at servo {failed_id}; '
++                        f'failures={self.servo_readback_failures}')
++                self.recover_bus_servo_reads()
++                continue
++            scan_us = max(0, min(2147483647, int((time.monotonic() - started) * 1e6)))
++            message = Int32MultiArray()
++            message.data = [self.servo_readback_seq, scan_us, *values]
++            self.servo_readback_pub.publish(message)
++            self.servo_readback_seq += 1
+ 
+     def recover_bus_servo_reads(self, quiet_s=0.2):
+         """Clear the read latch only after the serialized bus is quiet."""
+@@ -460,6 +500,7 @@
+         rclpy.shutdown()
+         print('shutdown')
+     finally:
++        node.servo_readback_stop.set()
+         print('shutdown finish')
+ 
+ if __name__ == '__main__':

@@ -195,5 +195,76 @@ def test_emergency_stop_preempts_and_stops_every_task(lease_client: TestClient) 
     body = response.json()
     assert body["success"] is True
     assert body["preempted"]["task"] == "recording"
-    assert set(body["stopped"]) == {"calibration", "teleoperation", "recording", "inference"}
+    assert set(body["stopped"]) == {
+        "calibration", "teleoperation", "hybrid_teleoperation", "recording", "inference"}
     assert lease_client.get("/hardware/lease").json()["state"] == "idle"
+
+
+def test_a_live_mobile_teleop_session_is_an_active_teleoperation_task(monkeypatch) -> None:
+    """需求六: the watchdog must not revoke a mobile teleop lease because the desktop flag is off."""
+    from types import SimpleNamespace
+
+    from lelab import mobile_teleop_coordinator as mtc
+    from lelab import server
+
+    monkeypatch.setattr(mtc, "peek_mobile_teleop_coordinator",
+                        lambda: SimpleNamespace(is_live=lambda: True))
+    assert server._hardware_task_active("teleoperation") is True
+
+    monkeypatch.setattr(mtc, "peek_mobile_teleop_coordinator", lambda: None)
+    assert server._hardware_task_active("teleoperation") is False
+
+
+def test_the_lease_stop_hook_releases_the_mobile_session_with_the_reason(monkeypatch) -> None:
+    """Lease expiry and /emergency-stop must tear the car side down, not only the desktop arm."""
+    from types import SimpleNamespace
+
+    from lelab import mobile_teleop_coordinator as mtc
+    from lelab import server
+
+    calls: list[tuple[str, str]] = []
+    live = SimpleNamespace(
+        is_live=lambda: True,
+        emergency_stop=lambda reason=None: calls.append(("estop", reason)),
+        release=lambda reason=None: calls.append(("release", reason)))
+    monkeypatch.setattr(mtc, "peek_mobile_teleop_coordinator", lambda: live)
+    server._hardware_stop_task("teleoperation", reason="expired")
+    assert calls == [("estop", "hardware-stop:expired"), ("release", "hardware-stop:expired")], \
+        "the car must be stopped before the lease is let go"
+
+    calls.clear()
+    server._hardware_stop_hook("teleoperation", "emergency-stop")
+    assert [c[0] for c in calls] == ["estop", "release"]
+    assert calls[0][1] == "hardware-stop:emergency-stop"
+
+    calls.clear()
+    dead = SimpleNamespace(is_live=lambda: False, emergency_stop=lambda **k: calls.append("estop"),
+                           release=lambda **k: calls.append("release"))
+    monkeypatch.setattr(mtc, "peek_mobile_teleop_coordinator", lambda: dead)
+    server._hardware_stop_task("teleoperation", reason="expired")
+    assert calls == [], "no session means no gateway traffic"
+
+
+def test_hybrid_teleoperation_is_an_active_leasable_task(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from lelab import ros_mobile
+    from lelab import server
+
+    calls: list[str] = []
+    facade = SimpleNamespace(
+        session_id="session-1",
+        release_session=lambda reason: calls.append(reason) or {"state": "disconnected"})
+    monkeypatch.setattr(ros_mobile, "get_hybrid_facade", lambda: facade)
+
+    assert server._hardware_task_active("hybrid_teleoperation") is True
+    out = server._hardware_stop_task("hybrid_teleoperation", reason="expired")
+    assert out == {"state": "disconnected"}
+    assert calls == ["hardware-stop:expired"]
+
+
+def test_shutdown_does_not_construct_a_coordinator_that_was_never_used(monkeypatch) -> None:
+    from lelab import mobile_teleop_coordinator as mtc
+
+    monkeypatch.setattr(mtc, "_default", None)
+    assert mtc.peek_mobile_teleop_coordinator() is None

@@ -1,0 +1,447 @@
+{
+  "captured_at_utc": "2026-11-05T11:26:44Z",
+  "identity": {
+    "session_id": "8a3e720e79d84a81bbff83859dd3bd3d",
+    "session_epoch": 4356218940225441,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "initial_raw": {
+    "joint1": 532,
+    "joint2": 815,
+    "joint3": 16,
+    "joint4": 117,
+    "joint5": 880,
+    "r_joint": 492
+  },
+  "arm_http": 200,
+  "engage_http": 200,
+  "arm_error": null,
+  "engage_error": null,
+  "samples": [
+    {
+      "t": 0.37,
+      "state": "ready",
+      "outputs_enabled": true,
+      "motion_commands_sent": 0,
+      "worker_active": true,
+      "last_error": null,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 0.753,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.126,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.509,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 1.887,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 2.261,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 2.639,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.01,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.401,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 3.78,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.162,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.541,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 4.914,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 5.293,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 5.669,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.041,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.422,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 6.806,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.183,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.56,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 7.936,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.312,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 8.683,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 9.069,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    },
+    {
+      "t": 9.452,
+      "state": "fault",
+      "outputs_enabled": false,
+      "motion_commands_sent": 0,
+      "worker_active": false,
+      "last_error": "state_check_failed:HardwareCompositionError;stop_failed:HardwareCompositionError",
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "feedback_valid": true
+    }
+  ]
+}

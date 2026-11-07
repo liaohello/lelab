@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-03",
+  "title": "SO-101 移动遥操作：车端会话经生产代码同步并导出为 LeRobot 数据集（本机合成链路，非实机）",
+  "grade": "production_code_path_on_local_rehearsal_session",
+  "not": [
+    "实机验收",
+    "真实主臂读数",
+    "真实相机流",
+    "控制器回执",
+    "网页按钮点击"
+  ],
+  "how": {
+    "rehearsal": "tools/ros2_collection/local_car_rehearsal.py + local_teleop_session_drive.py",
+    "sync_export": "tools/ros2_collection/local_full_chain_sync_export.py（真调 ros_mobile.sync_session / export_session，未打桩）",
+    "reproduce": "LELAB_ROS_AGENT_URL=http://127.0.0.1:18115 LELAB_ROS_COLLECTION_ROOT=/tmp/lelab_car_rehearsal/upper app_ros_mobile/.venv/bin/python tools/ros2_collection/local_full_chain_sync_export.py --root /tmp/lelab_car_rehearsal",
+    "artifacts": {
+      "session_dir": "/tmp/lelab_car_rehearsal/upper/upper/sessions/ros_20261103T130950Z_4f5e8f8e",
+      "dataset_root": "/home/liaozhengyan/.cache/lelab-ros-mobile-tests/hf/lelab/ros-mobile-20261103t130950z-4f5e8f8e",
+      "repo_id": "lelab/ros-mobile-20261103t130950z-4f5e8f8e"
+    }
+  },
+  "what_is_real": "同步走车端 /sessions/<id>/archive HTTP 接口、逐文件按 manifest 校验 sha256/大小、原子发布；导出走生产 ros_mobile.export_session：真读 sqlite3 包、真写 LeRobotDataset（create/add_frame/save_episode/finalize）、SDK 读回；只有话题内容是合成的。",
+  "sync": {
+    "status": "already_synced",
+    "manifest_sha256": "a37b95d7c6043dd90129c80025236ab82d8880219af36fd0513ef48ac2596a24",
+    "verified_files": 7
+  },
+  "export_report_summary": {
+    "status": "validated",
+    "fps": 15,
+    "declared_camera_fps": 14.74,
+    "export_schema": {
+      "kind": "arm_gripper_6dof_phase1",
+      "dims": 6,
+      "chassis_included": false
+    },
+    "action_source": "gateway_sent_target_after_clamp",
+    "base_velocity_source": "not_included_locked_chassis",
+    "success_labeling": "manual_or_unknown_no_simulator_ground_truth",
+    "camera_profile": "wrist_original",
+    "sample_image_shape": [
+      3,
+      48,
+      64
+    ],
+    "episodes": [
+      {
+        "episode_id": "ep_1793711391_bf5296",
+        "frames": 44,
+        "success": "unknown"
+      },
+      {
+        "episode_id": "ep_1793711394_2b5cd4",
+        "frames": 46,
+        "success": "unknown"
+      }
+    ],
+    "warnings": [
+      "phase 1 export is arm+gripper only: the locked chassis is excluded rather than zero-filled",
+      "action is the post-clamp target the gateway sent; the leader reading is recorded separately and is not the action",
+      "state is the measured follower joint feedback; mechanical execution is inferred from later feedback, not observed",
+      "dataset sampled at 15 Hz because the video encoder requires a whole-number rate; the profile declared 14.74 Hz"
+    ]
+  },
+  "sdk_readback": {
+    "repo_id": "lelab/ros-mobile-20261103t130950z-4f5e8f8e",
+    "episodes": 2,
+    "frames": 90,
+    "fps": 15,
+    "features": [
+      "observation.images.wrist_real",
+      "observation.state",
+      "action",
+      "timestamp",
+      "frame_index",
+      "episode_index",
+      "index",
+      "task_index"
+    ],
+    "state_dims": 6,
+    "action_dims": 6,
+    "camera_keys": [
+      "observation.images.wrist_real"
+    ],
+    "first_action": [
+      0.094604,
+      0.009415,
+      -0.036301,
+      -0.047861,
+      -0.017176,
+      0.0
+    ],
+    "first_state": [
+      0.038784,
+      -0.005598,
+      -0.044834,
+      -0.042849,
+      -0.001469,
+      0.041262
+    ]
+  },
+  "expectations": {
+    "schema_is_arm_gripper_6d": true,
+    "chassis_not_zero_filled": true,
+    "both_episodes_exported": true,
+    "report_records_action_semantics": true,
+    "success_labeling_is_manual_or_unknown": true,
+    "failed": []
+  },
+  "blocker_found": {
+    "id": "gripper_target_shape_mismatch_blocks_every_teleop_export",
+    "symptom": "ros_mobile.export_session → ExportRejected: episode ep_... has no arm or gripper command events; refusing to invent an action（两集全被拒）",
+    "cause": "导出器把夹爪命令事件的 target 限定成 1 个值，而车端 gripper_command 记录的是它实际发出的整套 mimic 关节（gripper_base_joint + 4 个派生 jaw，master 在首位，共 5 个）；因此真车上录的任何遥操作会话都永远无法导出。既有导出测试喂的是合成 1 值夹爪事件，与被测方实际记录不一致，所以一直是绿的。",
+    "fix": "ros_mobile.py: _read_bag 接受车端的 mimic 形状，_resolve_action 用 target[0]（网关夹取后真正下发的master 角）作为第 6 个动作列；1 值的老/仿真形状继续可用，动作仍是 6 维而不是 10 维",
+    "tests": [
+      "app_ros_mobile/tests/test_ros_mobile_teleop_export.py::test_the_mimic_set_the_car_records_collapses_to_one_gripper_action_column",
+      "变异检查：把过滤器改回 len(target)==1，该用例即以车端同样的 ExportRejected 文本变红"
+    ]
+  },
+  "counts_measured_this_round": {
+    "export_files": "tests/test_ros_mobile_teleop_export.py + test_ros_mobile_export_schema.py = 15 passed（5.46 s，本支 +1）",
+    "note": "同步与导出这两步不需要 Pi：sync 的上位机根目录与 agent URL 都由 env 决定，排练 agent 就是那个 HTTP 服务。"
+  },
+  "remaining_gaps": [
+    "包里的相机/反馈/命令全部是合成的：真车的 Aurora 640×400、真实总线负载与实测频率仍要上车",
+    "控制器回执（acknowledged）在本机为空，动作语义仍只能标 sent + inferred executed",
+    "八.5 运动、八.6 故障注入、八.8 网页实点击未做"
+  ]
+}

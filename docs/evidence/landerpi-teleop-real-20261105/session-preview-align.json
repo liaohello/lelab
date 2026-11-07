@@ -1,0 +1,250 @@
+{
+  "captured_at_utc": "2026-11-05T11:26:27Z",
+  "identity": {
+    "session_id": "8a3e720e79d84a81bbff83859dd3bd3d",
+    "session_epoch": 4356218940225441,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "acquire_http": 200,
+  "preview_http": 200,
+  "align_http": 200,
+  "state": "ready",
+  "last_error": null,
+  "leader": {
+    "connected": true,
+    "healthy": true,
+    "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+    "age_s": 0.0147,
+    "reads": 207,
+    "failures": 0,
+    "positions_rad": {
+      "shoulder_pan": 0.013809,
+      "shoulder_lift": -1.838925,
+      "elbow_flex": 1.61184,
+      "wrist_flex": 1.290393,
+      "wrist_roll": 0.046798
+    },
+    "gripper_percent": 73.62012987012987
+  },
+  "feedback": {
+    "valid": true,
+    "trusted": true,
+    "reason": "ok",
+    "scan_span_s": 0.019013
+  },
+  "devices": {
+    "leader": {
+      "connected": true,
+      "source": "leader:usb-1a86_USB_Single_Serial_5B90149723-if00",
+      "simulated": false
+    },
+    "follower": {
+      "driver_bound": true,
+      "source": "ros_robot_controller/servo_readback",
+      "simulated": false
+    },
+    "camera": {
+      "source": "/ascamera/camera_publisher/rgb0/image",
+      "stale": false,
+      "simulated": false
+    }
+  },
+  "hardware_preview": {
+    "available": true,
+    "reason": "preview_only_no_execution_output",
+    "leader_rad": {
+      "shoulder_pan": 0.013809,
+      "shoulder_lift": -1.838925,
+      "elbow_flex": 1.61184,
+      "wrist_flex": 1.290393,
+      "wrist_roll": 0.046798
+    },
+    "follower_rad": {
+      "joint1": 0.13823007675795088,
+      "joint2": 1.319468914507713,
+      "joint3": -2.027374459116613,
+      "joint4": -1.6001178582284012,
+      "joint5": 1.5917402778188283,
+      "r_joint": 0.033510321638291124
+    },
+    "reference": {
+      "captured_mono_ns": 255278943298616,
+      "leader_rad": {
+        "joint1": 0.013809,
+        "joint2": -1.838925,
+        "joint3": 1.61184,
+        "joint4": 1.290393,
+        "joint5": 0.046798
+      },
+      "follower_rad": {
+        "joint1": 0.13823007675795088,
+        "joint2": 1.319468914507713,
+        "joint3": -2.027374459116613,
+        "joint4": -1.6001178582284012,
+        "joint5": 1.5917402778188283,
+        "r_joint": 0.033510321638291124
+      },
+      "leader_gripper_percent": 73.62012987012987,
+      "follower_gripper_raw": 492,
+      "leader_identity": "so101-leader-5B90149723",
+      "follower_identity": "landerpi-follower-v1",
+      "mapping_identity": "landerpi-so101-mapping-v1"
+    },
+    "targets": [
+      {
+        "joint": "joint1",
+        "pre_clip_rad": 0.13823,
+        "target_rad": 0.13823,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          2.086018
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      {
+        "joint": "joint2",
+        "pre_clip_rad": 1.319469,
+        "target_rad": 1.319469,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.052507,
+          1.931032
+        ],
+        "hardware_limits_rad": [
+          -2.052507,
+          1.931032
+        ],
+        "direction": -1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      {
+        "joint": "joint3",
+        "pre_clip_rad": -2.027374,
+        "target_rad": -2.027374,
+        "clipped": false,
+        "soft_limits_rad": [
+          -2.094395,
+          2.052507
+        ],
+        "hardware_limits_rad": [
+          -2.094395,
+          2.052507
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      {
+        "joint": "joint4",
+        "pre_clip_rad": -1.600118,
+        "target_rad": -1.600118,
+        "clipped": false,
+        "soft_limits_rad": [
+          -1.675516,
+          2.010619
+        ],
+        "hardware_limits_rad": [
+          -1.675516,
+          2.010619
+        ],
+        "direction": -1.0,
+        "scale": 1.0,
+        "wrapped": false,
+        "leader_delta_rad": 0.0
+      },
+      {
+        "joint": "joint5",
+        "pre_clip_rad": 1.59174,
+        "target_rad": 1.59174,
+        "clipped": false,
+        "soft_limits_rad": [
+          -1.759292,
+          1.717404
+        ],
+        "hardware_limits_rad": [
+          -1.759292,
+          1.717404
+        ],
+        "direction": 1.0,
+        "scale": 1.0,
+        "wrapped": true,
+        "leader_delta_rad": 0.0
+      }
+    ],
+    "gripper": {
+      "joint": "r_joint",
+      "leader_percent": 73.62,
+      "leader_percent_ref": 73.62,
+      "pre_clip_pulse": 492.0,
+      "target_pulse": 492.0,
+      "clipped": false,
+      "target_rad": 0.03351,
+      "pulse_unit": "pulse",
+      "radians_per_pulse": 0.0041887902047863905,
+      "flipped": true,
+      "jaw_width_mm_estimate": null,
+      "note": "0-100 percent is converted through pulses and the linkage geometry, never reinterpreted as radians"
+    },
+    "motion_commands_sent": 0,
+    "outputs_enabled": false
+  },
+  "hardware_probe": {
+    "available": true,
+    "leader_connected": true,
+    "leader_healthy": true,
+    "feedback_valid": true,
+    "exclusive_control": true,
+    "outputs_enabled": false
+  },
+  "outputs_enabled": false,
+  "channels": {
+    "base": {
+      "enabled": false,
+      "permitted": false,
+      "locked": true,
+      "gamepad": {
+        "armed": false,
+        "neutral_seen": false,
+        "intent": null,
+        "last_seq": -1,
+        "last_received_mono_ns": null,
+        "reason": "gamepad_unconfigured"
+      },
+      "seq": 0,
+      "pending": null,
+      "source": "gamepad"
+    },
+    "arm": {
+      "state": "aligned",
+      "enabled": false,
+      "permitted": false,
+      "seq": 0,
+      "pending": null,
+      "source": "so101_leader"
+    },
+    "gripper": {
+      "state": "aligned",
+      "enabled": false,
+      "permitted": false,
+      "seq": 0,
+      "pending": null,
+      "source": "so101_leader"
+    }
+  },
+  "follow_runtime": {
+    "active": false,
+    "commands_sent": 0,
+    "last_error": null
+  }
+}

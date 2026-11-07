@@ -1,0 +1,243 @@
+{
+  "title": "§5.2 step -1 chain re-run, plus the two defects it exposed",
+  "captured_utc": "2026-11-03T17:00:00Z",
+  "workspace": "/home/liaozhengyan/Desktop/lelab",
+  "branch": "codex/ros2-mobile-collection",
+  "revision_before_this_round": "65b721c31bf9f6275d9fb7259e7142ac3d93d2d8",
+  "evidence_level": "measured locally with the deployed car-side code; no real machine, no leader arm, no car",
+  "hardware_state": {
+    "leader_arm_on_upper_computer": false,
+    "serial_devices": "no /dev/serial/by-id, no ttyACM, no ttyUSB on this host at capture time",
+    "car": "powered off by the user; MentorPi container not running",
+    "note": "this round is deliberately hardware-free; it does not advance any 实机 item"
+  },
+  "source_identities": {
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py_sha256_16": "ca77f3596f63ae85",
+    "agent_hash_recorded_in_the_rehearsal_marker": "8d217fc8d2451234",
+    "agent_hash_note": "the marker was written before the exit-status fix below; the launcher re-asserts the resolved module path (/home/liaozhengyan/Desktop/lelab/ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py), which is what the fix changed",
+    "tools/ros2_collection/local_full_chain_sync_export.py_sha256_16": "2fad7698e232785f",
+    "tools/ros2_collection/local_teleop_session_drive.py_sha256_16": "1c83d99fd72e4c82"
+  },
+  "regression_1_rehearsal_seed_refused_by_the_example_guard": {
+    "found_by": "re-running §5.2 step -1 against current code, not by any test",
+    "symptom": "lelab.mobile_teleop_coordinator.BridgeError: calibration not ready: leader layer still holds shipped example values at <root>; follower ... at limits_rad_provenance, reference_pose_rad._provenance, soft_limits_rad_provenance; mapping ... at gripper._provenance, gripper.span_note, joints[0]._provenance",
+    "cause": "commit 4679595 added 未实测占位值 refusal to CalibrationStore.readiness(); the rehearsal driver seeds straight from configs/mobile_teleop/*.example.json, so the whole hardware-free chain stopped working while all 253 tools tests stayed green",
+    "fix": "local_teleop_session_drive.as_rehearsal_provenance() drops _example_not_measured and rewrites example_not_measured/derived_not_measured strings to 'rehearsal_synthetic' before saving; numeric template values are passed through untouched",
+    "boundary": "the wizard's guard itself is unchanged - the shipped templates are still refused for a real session, and that is now asserted in a test",
+    "pinned_by": [
+      "tools/ros2_collection/tests/test_rehearsal_chain_tools.py::RehearsalSeedTests::test_the_unedited_shipped_templates_are_still_refused",
+      "tools/ros2_collection/tests/test_rehearsal_chain_tools.py::RehearsalSeedTests::test_the_driver_seed_passes_the_shipped_example_gate",
+      "tools/ros2_collection/tests/test_rehearsal_chain_tools.py::RehearsalSeedTests::test_provenance_labels_the_placeholder_without_touching_a_number"
+    ],
+    "mutation_check": "removing the placeholder rewrite and re-running seed() makes readiness() False with 'leader layer still holds shipped example values at <root>', so the new test really can go red"
+  },
+  "regression_2_chain_closer_trusted_a_stale_report": {
+    "symptom": "HTTPException 404 session_not_found for ros_20261103T150256Z_... (an older run's id) while the live agent served a different session",
+    "cause": "local_full_chain_sync_export.py read the session id from <root>/../rehearsal_report.json and, when that file was missing, fell back to the hard-coded /tmp/rehearsal_report.json left by an unrelated earlier rehearsal",
+    "fix": "ready_session() resolves the id from the agent that is answering (GET /sessions, exactly one raw_ready entry whose path is inside --root), and refuses when the READY_FOR_DRIVER.json marker's port does not match the agent URL, when its car_root differs from --root, when the url has no port, or when the listing is empty/ambiguous; the report-file fallback is gone",
+    "pinned_by": [
+      "tools/ros2_collection/tests/test_rehearsal_chain_tools.py::ChainSessionResolutionTests (7 cases: single ready session, marker port mismatch, url without port, foreign car_root, two ready sessions, none ready, session outside the root)"
+    ],
+    "live_demonstration": "with two finalised sessions under the rehearsal root the closer printed: expected exactly one raw_ready session under this root, found ['ros_20261103T164600Z_795c1e86', 'ros_20261103T165436Z_fab042eb']; pass --session to pick one"
+  },
+  "chain_re_run_after_the_fixes": {
+    "agent": {
+      "command": "bash /tmp/lelab_rehearsal_1644/car/run_local_agent.sh (jazzy env, profile hardware-teleop-v1.local.json, car_root=/tmp/lelab_rehearsal_1644/car, port 18115, ROS_DOMAIN_ID 57)",
+      "pid_verified_via": "/proc/<pid>/cmdline and ss -ltnp owner of 127.0.0.1:18115",
+      "health": {
+        "ok": true,
+        "agent": "0.1.0"
+      }
+    },
+    "driver_runs": [
+      {
+        "session_id": "ros_20261103T164600Z_795c1e86",
+        "report": "/tmp/lelab_rehearsal_1644/driver.json",
+        "expectations_failed": [],
+        "preview_sent_nothing": true,
+        "end_episode_parks_following": true,
+        "episodes": [
+          "ep_1793724361_5ae416",
+          "ep_1793724364_d78b4f"
+        ],
+        "manifest_status": "raw_ready",
+        "success_labels": [
+          "unknown",
+          "unknown"
+        ]
+      },
+      {
+        "session_id": "ros_20261103T165436Z_fab042eb",
+        "report": "/tmp/lelab_rehearsal_1644/driver2.json",
+        "expectations_failed": [],
+        "preview_sent_nothing": true,
+        "end_episode_parks_following": true,
+        "manifest_status": "raw_ready"
+      }
+    ],
+    "closer_run": {
+      "command": "LELAB_ROS_AGENT_URL=http://127.0.0.1:18115 LELAB_ROS_COLLECTION_ROOT=/tmp/lelab_rehearsal_1644/upper app_ros_mobile/.venv/bin/python tools/ros2_collection/local_full_chain_sync_export.py --root /tmp/lelab_rehearsal_1644/car --session ros_20261103T165436Z_fab042eb --out /tmp/lelab_rehearsal_1644/chain2.json",
+      "exit_code": 0,
+      "report": "/tmp/lelab_rehearsal_1644/chain2.json",
+      "sync_status": "raw_ready",
+      "readback": {
+        "repo_id": "lelab/ros-mobile-20261103t165436z-fab042eb",
+        "episodes": 2,
+        "frames": 60,
+        "fps": 15,
+        "state_dims": 6,
+        "action_dims": 6,
+        "camera_keys": [
+          "observation.images.wrist_real"
+        ],
+        "features": [
+          "observation.images.wrist_real",
+          "observation.state",
+          "action",
+          "timestamp",
+          "frame_index",
+          "episode_index",
+          "index",
+          "task_index"
+        ]
+      },
+      "export_report": {
+        "action_source": "gateway_sent_target_after_clamp",
+        "success_labeling": "manual_or_unknown_no_simulator_ground_truth",
+        "export_schema": {
+          "kind": "arm_gripper_6dof_phase1",
+          "dims": 6,
+          "chassis_included": false
+        }
+      },
+      "page_readback": {
+        "cameras": [
+          "wrist_real"
+        ],
+        "episode_ranges": {
+          "0": {
+            "wrist_real": {
+              "from_s": 0.0,
+              "to_s": 1.933
+            }
+          },
+          "1": {
+            "wrist_real": {
+              "from_s": 1.933,
+              "to_s": 4.0
+            }
+          }
+        },
+        "state_action_columns_per_series": [
+          6,
+          6
+        ]
+      },
+      "expectations_failed": [],
+      "earlier_equivalent_run": "the same closer produced /tmp/lelab_rehearsal_1644/chain.json (session 795c1e86, 91 frames, exit 0, failed []) before the import refactor; after moving the ros_mobile import into main(), the re-run above reproduced it on a fresh session"
+    },
+    "write_protection_observed": "re-exporting session 795c1e86 returned 409 dataset already exists: ~/.cache/huggingface/lerobot/lelab/ros-mobile-20261103t164600z-795c1e86, and re-syncing returns status already_synced after re-verifying hashes - neither was bypassed",
+    "limits": "leader is synthetic, camera frames are 64x48 uncompressed, acks are empty (no real controller receipt); this proves code paths, not machine behaviour"
+  },
+  "agent_exit_status_fix": {
+    "found_by": "the rehearsal agent's own log after a planned SIGTERM stop",
+    "before": {
+      "exit_code": 1,
+      "traceback": "rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context - raised from the shutdown() call inside main()'s finally, after rclpy's signal handler had already closed the context",
+      "consequence": "every planned 停止/回退 left a stack trace as the last thing in the car log, and any statement added after that call would have been unreachable; the safety work before it (stop_session, chassis zero, HTTP shutdown) did run, which is why both sessions still finalised raw_ready"
+    },
+    "after": {
+      "exit_code": 0,
+      "traceback_lines_in_log": 0,
+      "log_tail": "[INFO] [lelab_mobile_agent]: agent stopping: ExternalShutdownException followed by rclpy's own 'Failed to publish log message to rosout: publisher's context is invalid' line, which stays because the context is already gone",
+      "changes": [
+        "main() now catches PLANNED_STOP_ERRORS = (KeyboardInterrupt, ExternalShutdownException) and logs the reason instead of escaping",
+        "teardown moved into _teardown(agent, server) and calls rclpy.shutdown() only when rclpy.ok() is still true",
+        "PLANNED_STOP_ERRORS falls back to (KeyboardInterrupt,) if a build has no ExternalShutdownException, so the deployed agent still imports"
+      ]
+    },
+    "verified_live": [
+      "SIGTERM to the exec'd agent pid (recorded in car/agent.pid, cross-checked against ss -ltnp) -> exit 1 with RCLError traceback before the change",
+      "same stop after the change -> exit 0, no traceback, port released, no leftover rehearsal process (only the verified pid was signalled; no blanket kill)"
+    ],
+    "pinned_by": [
+      "tools/ros2_collection/tests/test_agent_exit_teardown.py::TeardownTests::test_the_context_is_still_live_so_it_is_shut_down_last",
+      "tools/ros2_collection/tests/test_agent_exit_teardown.py::TeardownTests::test_a_signal_handler_that_already_closed_the_context_raises_nothing",
+      "tools/ros2_collection/tests/test_agent_exit_teardown.py::TeardownTests::test_a_session_that_will_not_close_still_gets_a_zeroed_chassis",
+      "tools/ros2_collection/tests/test_agent_exit_teardown.py::TeardownTests::test_no_control_lease_means_no_chassis_frame_is_published",
+      "tools/ros2_collection/tests/test_agent_exit_teardown.py::TeardownTests::test_a_signal_stop_is_a_planned_exit_and_a_fault_is_not"
+    ],
+    "mutation_check": "restoring the unconditional rclpy.shutdown() makes _teardown raise 'rcl_shutdown already called on the given context', i.e. the second test goes red",
+    "second_exception_class_found": {
+      "observation": "the restarted agent's planned SIGTERM stop did not surface as ExternalShutdownException at all: rclpy raised RCLError 'failed to initialize wait set: the given context is not valid' from _wait_for_ready_callbacks, which the class tuple did not cover, so that run again printed a traceback",
+      "fix": "main() now catches BaseException and asks _is_planned_stop(): the class tuple OR `not rclpy.ok()`; anything else re-raises with its traceback intact",
+      "why_the_context_is_the_witness": "nothing in this process tears the context down before main() returns from the spin loop, so a dead context means somebody asked the process to stop regardless of where the signal landed",
+      "live_after_fix": [
+        {
+          "signal": "SIGTERM",
+          "exit_code": 0,
+          "tracebacks_in_log": 0,
+          "reason_line": "agent stopping: ExternalShutdownException",
+          "port": "released"
+        },
+        {
+          "signal": "SIGINT",
+          "exit_code": 0,
+          "tracebacks_in_log": 0,
+          "reason_line": "agent stopping: ExternalShutdownException",
+          "port": "released"
+        }
+      ],
+      "pinned_by": "tools/ros2_collection/tests/test_agent_exit_teardown.py::TeardownTests::test_the_context_decides_which_rclpy_error_counts_as_a_planned_stop (a RuntimeError with a live context must still count as a fault)"
+    }
+  },
+  "test_runs": {
+    "tools_suite": "PYTHONPATH=tools/ros2_collection work/ros2_collection/envs/ros_jazzy/bin/python -m pytest tools/ros2_collection/tests -q -> 269 passed, 5 subtests (253 before this round)",
+    "app_subset": "HF_LEROBOT_HOME=/home/liaozhengyan/.cache/lelab-ros-mobile-tests/hf app_ros_mobile/.venv/bin/python -m pytest app_ros_mobile/tests/test_mobile_teleop_coordinator.py app_ros_mobile/tests/test_ros_mobile_export_schema.py app_ros_mobile/tests/test_teleoperate.py app_ros_mobile/tests/test_desktop_follow.py -q -> 46 passed",
+    "not_run_this_round": "the full app suite (~13 min) and the frontend build: this round touched only tools/ and the car-side agent, whose paths are covered by the runs above plus the live chain"
+  },
+  "still_open": [
+    "八.3-八.8 remain unverified on real hardware: the leader arm is not plugged into this upper computer and the car is off",
+    "exclusive_exempt_nodes is still empty because vendor node names have never been read off the live graph",
+    "servo 6 not answering on the car is still unexplained",
+    "the desktop recorder (record.py) still writes absolute leader readings as action; adopting the clutch/relative law there would change the semantics of future datasets and needs a decision",
+    "frontend/src/lib stays untracked behind .gitignore's blanket lib/ rule"
+  ],
+  "fault_injection_step_two_rehearsal": {
+    "why": "§5.2 item 7 told the operator that local_car_fault_injection.py kills the agent *and* restarts it; the script has never restarted anything, so following that text left an orphan recorder running",
+    "observed_after_the_script": {
+      "report": "/tmp/lelab_fault_1703.injection.json",
+      "exit_code": 0,
+      "session_id": "ros_20261103T170333Z_e118caa7",
+      "seq_before_kill": 45,
+      "state_after_kill": "paused",
+      "last_error_after_kill": "gate_lost:car_lease_invalid,follower_feedback_missing_or_stale,control_not_exclusive",
+      "seq_after_wait": 45,
+      "stopped_sending": true,
+      "state_stays_downgraded": true,
+      "car_token_active_after_kill": true,
+      "orphan_recorder_still_writing": "ros2 bag record pid 1265954, bag 528K and growing"
+    },
+    "recovery_after_restarting_through_the_same_wrapper": {
+      "command": "bash /tmp/lelab_fault_1703/run_local_agent.sh (the deployed path, same car_root)",
+      "agent_log": "recovered interrupted session ros_20261103T170333Z_e118caa7: stopped orphan recorder pids [1265954]",
+      "orphan_process_after": "pid 1265954 gone",
+      "bag": "540K, no longer growing; raw/bag/metadata.yaml written (6628 bytes)",
+      "session_json": {
+        "status": "error",
+        "error": "agent_restarted_mid_session",
+        "ready_eligible": false,
+        "stop_reason": "agent_restarted_mid_session"
+      },
+      "no_manifest_or_ready": "the broken session keeps its directory and is never sync-eligible; nothing was deleted"
+    },
+    "doc_fix": "runbook §5.2 item 7 now states the two steps and gives the judgement as 'orphan recorder count 0 and bag size no longer growing'",
+    "process_hygiene": "only the pids this round started were signalled, each verified through /proc/PID/cmdline and ss -ltnp; no blanket kill"
+  },
+  "commits_this_round": [
+    "abd5017 fix(ros2-collection): make the hardware-free chain rehearsal runnable again",
+    "8fa7072 fix(ros-mobile): a planned stop of the car agent leaves a clean exit status",
+    "26ca4a1 docs(ros2-collection): record the chain re-run and the two defects it found",
+    "(pending) the context-based planned-stop discriminator, its test and the §5.2 item 7 correction"
+  ]
+}

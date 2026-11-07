@@ -1,0 +1,538 @@
+{
+  "start": {
+    "token": "<redacted-control-token>",
+    "job_id": "6d59a350ae3d8030",
+    "generation": 1,
+    "phase": "manual_range",
+    "expires_in_s": 1800.0,
+    "idle_timeout_s": 15.0,
+    "safe_window_raw": [
+      0,
+      1000
+    ],
+    "baseline_raw": {
+      "joint1": 531,
+      "joint2": 505,
+      "joint3": 522,
+      "joint4": 151,
+      "joint5": 877,
+      "r_joint": 492
+    },
+    "device_identity": {
+      "kind": "landerpi_bus_servo_follower",
+      "control_board": "landerpi_mentorpi",
+      "controller_owner": "ros_robot_controller",
+      "joint_order": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "r_joint"
+      ],
+      "servo_ids": {
+        "joint1": 1,
+        "joint2": 2,
+        "joint3": 3,
+        "joint4": 4,
+        "joint5": 5,
+        "r_joint": 10
+      },
+      "board_serial": null,
+      "board_serial_source": "unavailable",
+      "host_serial": "e3a668c4e643d5eb",
+      "agent_version": "0.1.0",
+      "profile": "hardware_hybrid_manual_v1",
+      "feedback_service": "/ros_robot_controller/bus_servo/get_state",
+      "command_topic": "/servo_controller"
+    },
+    "outputs_enabled": false,
+    "motion": "idle",
+    "joints": {
+      "joint1": {
+        "name": "joint1",
+        "servo_id": 1,
+        "reference_raw": 531,
+        "observed_min_raw": 531,
+        "observed_max_raw": 531,
+        "span_raw": 0,
+        "samples": 1,
+        "noise_raw": null,
+        "anomalies": 0,
+        "duplicates": 0,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 531,
+        "last_seq": null,
+        "age_s": null,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low",
+          "noise_unknown"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "joint2": {
+        "name": "joint2",
+        "servo_id": 2,
+        "reference_raw": 505,
+        "observed_min_raw": 505,
+        "observed_max_raw": 505,
+        "span_raw": 0,
+        "samples": 1,
+        "noise_raw": null,
+        "anomalies": 0,
+        "duplicates": 0,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 505,
+        "last_seq": null,
+        "age_s": null,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low",
+          "noise_unknown"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "joint3": {
+        "name": "joint3",
+        "servo_id": 3,
+        "reference_raw": 522,
+        "observed_min_raw": 522,
+        "observed_max_raw": 522,
+        "span_raw": 0,
+        "samples": 1,
+        "noise_raw": null,
+        "anomalies": 0,
+        "duplicates": 0,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 522,
+        "last_seq": null,
+        "age_s": null,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low",
+          "noise_unknown"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "joint4": {
+        "name": "joint4",
+        "servo_id": 4,
+        "reference_raw": 151,
+        "observed_min_raw": 151,
+        "observed_max_raw": 151,
+        "span_raw": 0,
+        "samples": 1,
+        "noise_raw": null,
+        "anomalies": 0,
+        "duplicates": 0,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 151,
+        "last_seq": null,
+        "age_s": null,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low",
+          "noise_unknown"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "joint5": {
+        "name": "joint5",
+        "servo_id": 5,
+        "reference_raw": 877,
+        "observed_min_raw": 877,
+        "observed_max_raw": 877,
+        "span_raw": 0,
+        "samples": 1,
+        "noise_raw": null,
+        "anomalies": 0,
+        "duplicates": 0,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 877,
+        "last_seq": null,
+        "age_s": null,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low",
+          "noise_unknown"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "r_joint": {
+        "name": "r_joint",
+        "servo_id": 10,
+        "reference_raw": 492,
+        "observed_min_raw": 492,
+        "observed_max_raw": 492,
+        "span_raw": 0,
+        "samples": 1,
+        "noise_raw": null,
+        "anomalies": 0,
+        "duplicates": 0,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 492,
+        "last_seq": null,
+        "age_s": null,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low",
+          "noise_unknown"
+        ],
+        "min_span_raw": 40,
+        "min_samples": 20,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      }
+    }
+  },
+  "applied": {
+    "job_id": "6d59a350ae3d8030",
+    "generation": 1,
+    "phase": "review",
+    "stop_reason": "manual_entry_complete",
+    "expires_in_s": 1799.946,
+    "idle_expires_in_s": 15.0,
+    "safe_window_raw": [
+      0,
+      1000
+    ],
+    "device_identity": {
+      "kind": "landerpi_bus_servo_follower",
+      "control_board": "landerpi_mentorpi",
+      "controller_owner": "ros_robot_controller",
+      "joint_order": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "r_joint"
+      ],
+      "servo_ids": {
+        "joint1": 1,
+        "joint2": 2,
+        "joint3": 3,
+        "joint4": 4,
+        "joint5": 5,
+        "r_joint": 10
+      },
+      "board_serial": null,
+      "board_serial_source": "unavailable",
+      "host_serial": "e3a668c4e643d5eb",
+      "agent_version": "0.1.0",
+      "profile": "hardware_hybrid_manual_v1",
+      "feedback_service": "/ros_robot_controller/bus_servo/get_state",
+      "command_topic": "/servo_controller"
+    },
+    "torque": {
+      "released_joints": [],
+      "all_enabled": true,
+      "gripper_releasable": false
+    },
+    "joints": {
+      "joint1": {
+        "name": "joint1",
+        "servo_id": 1,
+        "reference_raw": 531,
+        "observed_min_raw": 531,
+        "observed_max_raw": 531,
+        "span_raw": 0,
+        "samples": 2,
+        "noise_raw": 0.0,
+        "anomalies": 0,
+        "duplicates": 1,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 531,
+        "last_seq": 56,
+        "age_s": 0.047,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "joint2": {
+        "name": "joint2",
+        "servo_id": 2,
+        "reference_raw": 505,
+        "observed_min_raw": 505,
+        "observed_max_raw": 505,
+        "span_raw": 0,
+        "samples": 2,
+        "noise_raw": 0.0,
+        "anomalies": 0,
+        "duplicates": 1,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 505,
+        "last_seq": 56,
+        "age_s": 0.047,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "joint3": {
+        "name": "joint3",
+        "servo_id": 3,
+        "reference_raw": 522,
+        "observed_min_raw": 522,
+        "observed_max_raw": 522,
+        "span_raw": 0,
+        "samples": 2,
+        "noise_raw": 0.0,
+        "anomalies": 0,
+        "duplicates": 1,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 522,
+        "last_seq": 56,
+        "age_s": 0.047,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "joint4": {
+        "name": "joint4",
+        "servo_id": 4,
+        "reference_raw": 151,
+        "observed_min_raw": 151,
+        "observed_max_raw": 151,
+        "span_raw": 0,
+        "samples": 2,
+        "noise_raw": 0.0,
+        "anomalies": 0,
+        "duplicates": 1,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 151,
+        "last_seq": 56,
+        "age_s": 0.047,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "joint5": {
+        "name": "joint5",
+        "servo_id": 5,
+        "reference_raw": 877,
+        "observed_min_raw": 877,
+        "observed_max_raw": 878,
+        "span_raw": 1,
+        "samples": 2,
+        "noise_raw": 0.0,
+        "anomalies": 0,
+        "duplicates": 1,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 878,
+        "last_seq": 56,
+        "age_s": 0.047,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low"
+        ],
+        "min_span_raw": 80,
+        "min_samples": 30,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      },
+      "r_joint": {
+        "name": "r_joint",
+        "servo_id": 10,
+        "reference_raw": 492,
+        "observed_min_raw": 492,
+        "observed_max_raw": 492,
+        "span_raw": 0,
+        "samples": 2,
+        "noise_raw": 0.0,
+        "anomalies": 0,
+        "duplicates": 1,
+        "stale": 0,
+        "missing": 0,
+        "last_raw": 492,
+        "last_seq": 56,
+        "age_s": 0.047,
+        "valid": false,
+        "reasons": [
+          "samples_low",
+          "span_low"
+        ],
+        "min_span_raw": 40,
+        "min_samples": 20,
+        "max_noise_raw": 6.0,
+        "anomaly_allowance": 2
+      }
+    },
+    "arm_valid": true,
+    "arm_invalid_joints": [],
+    "gripper": {
+      "method": "operator_manual_entry",
+      "safe_window_raw": [
+        0,
+        1000
+      ],
+      "observed_closed_raw": 504,
+      "observed_open_raw": 192,
+      "usable_closed_raw": 496,
+      "usable_open_raw": 200,
+      "repeatability_raw": null,
+      "direction": -1,
+      "rounds_completed": 0,
+      "min_rounds": 0,
+      "marks": [],
+      "commands_sent": 0,
+      "commands_dropped": 0,
+      "rate_limited": 0,
+      "max_error_raw": 18.0,
+      "mark_tolerance_raw": 12.0,
+      "repeatability_tolerance_raw": 15,
+      "pointer_generation": 0,
+      "last_target_raw": null,
+      "feedback_raw": null,
+      "error_raw": null,
+      "feedback_age_s": null,
+      "settle_remaining_ms": 0,
+      "fault": null,
+      "valid": true,
+      "reasons": []
+    },
+    "diagnostics": {
+      "temperature": "unavailable",
+      "voltage": "unavailable",
+      "load": "unavailable",
+      "torque_readback": "unavailable"
+    },
+    "faults": [],
+    "motion": "idle",
+    "outputs_enabled": false,
+    "teleop_enabled": false,
+    "readback": {
+      "source_kind": "servo_position_readback",
+      "paused_for_drag": false,
+      "rounds": 2,
+      "last_reason": "invalid_or_untrusted_feedback"
+    },
+    "worker": {
+      "ticks": 2,
+      "last_error": null
+    },
+    "manual_arm_ranges": {
+      "joint1": {
+        "min_raw": 10,
+        "max_raw": 998
+      },
+      "joint2": {
+        "min_raw": 10,
+        "max_raw": 961
+      },
+      "joint3": {
+        "min_raw": 0,
+        "max_raw": 990
+      },
+      "joint4": {
+        "min_raw": 100,
+        "max_raw": 980
+      },
+      "joint5": {
+        "min_raw": 80,
+        "max_raw": 910
+      }
+    },
+    "manual_arm_ranges_at_utc": "2026-11-05T07:59:37Z",
+    "manual_gripper_range": {
+      "closed_raw": 504,
+      "open_raw": 192
+    }
+  },
+  "commit": {
+    "status": 200,
+    "body": {
+      "saved": true,
+      "kind": "follower",
+      "identity": "landerpi-follower-v1",
+      "measured": true,
+      "schema_version": 2,
+      "record": {
+        "kind": "follower",
+        "identity": "landerpi-follower-v1",
+        "version": "054e46596cb5",
+        "sha256": "054e46596cb5a4287ef00434e3af0b4c202422e74fde6c6ceec3d475d8c3bb83",
+        "path": "/home/liaozhengyan/Desktop/lelab/work/ros2_collection/hardware-20261104/calibration/follower/landerpi-follower-v1.json",
+        "device_identity": {
+          "kind": "landerpi_bus_servo_follower",
+          "control_board": "landerpi_mentorpi",
+          "controller_owner": "ros_robot_controller",
+          "servo_ids": {
+            "joint1": 1,
+            "joint2": 2,
+            "joint3": 3,
+            "joint4": 4,
+            "joint5": 5,
+            "r_joint": 10
+          },
+          "board_serial": null,
+          "board_serial_source": "unavailable",
+          "host_serial": "e3a668c4e643d5eb",
+          "agent_version": "0.1.0",
+          "profile": "hardware_hybrid_manual_v1"
+        },
+        "created_utc": "2026-11-05T07:59:37Z"
+      },
+      "mapping_invalidated": [],
+      "requires_repair": false,
+      "next": "preview"
+    }
+  }
+}

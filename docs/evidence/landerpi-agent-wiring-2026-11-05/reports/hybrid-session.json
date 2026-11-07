@@ -1,0 +1,618 @@
+{
+  "archive_bytes": 828141,
+  "checks": [
+    {
+      "detail": "offline-hybrid-frames",
+      "name": "epoch_bound",
+      "passed": true
+    },
+    {
+      "detail": "{'was': 'estop', 'clear_sent': True}",
+      "name": "latched_stop_cleared_first",
+      "passed": true
+    },
+    {
+      "detail": "{'available': True, 'samples': 6}",
+      "name": "readback_complete",
+      "passed": true
+    },
+    {
+      "detail": "emitter=car_control_process",
+      "name": "outputs_enabled_by_agent",
+      "passed": true
+    },
+    {
+      "detail": "car_control_process",
+      "name": "frame_emitter_is_the_control_process",
+      "passed": true
+    },
+    {
+      "detail": "ros_20261105T190502Z_349c6350",
+      "name": "session_started",
+      "passed": true
+    },
+    {
+      "detail": "car_system_time",
+      "name": "session_clock_declared",
+      "passed": true
+    },
+    {
+      "detail": "hello accepted",
+      "name": "episode1_link_engaged",
+      "passed": true
+    },
+    {
+      "detail": "phase_started",
+      "name": "episode1_phase_observe",
+      "passed": true
+    },
+    {
+      "detail": "phase_started",
+      "name": "episode1_phase_grasp",
+      "passed": true
+    },
+    {
+      "detail": "{'paused': True, 'outputs_enabled': False}",
+      "name": "episode1_following_paused",
+      "passed": true
+    },
+    {
+      "detail": "163 -> 163",
+      "name": "episode1_no_new_targets_after_pause",
+      "passed": true
+    },
+    {
+      "detail": "ep_1793905503_a3db24",
+      "name": "episode1_ended",
+      "passed": true
+    },
+    {
+      "detail": "hello accepted",
+      "name": "episode2_link_engaged",
+      "passed": true
+    },
+    {
+      "detail": "phase_started",
+      "name": "episode2_phase_observe",
+      "passed": true
+    },
+    {
+      "detail": "phase_started",
+      "name": "episode2_phase_grasp",
+      "passed": true
+    },
+    {
+      "detail": "{'paused': True, 'outputs_enabled': False}",
+      "name": "episode2_following_paused",
+      "passed": true
+    },
+    {
+      "detail": "217 -> 217",
+      "name": "episode2_no_new_targets_after_pause",
+      "passed": true
+    },
+    {
+      "detail": "ep_1793905510_c37a08",
+      "name": "episode2_ended",
+      "passed": true
+    },
+    {
+      "detail": "{\"session_id\": \"ros_20261105T190502Z_349c6350\", \"manifest_sha256\": \"3eb5d558a8cc63dc2f6d39ac60c94697b00c43ac7183984726c3f60e62b526bb\", \"files\": 7, \"status\": \"ra",
+      "name": "session_stopped",
+      "passed": true
+    },
+    {
+      "detail": "released",
+      "name": "lease_released",
+      "passed": true
+    },
+    {
+      "detail": "{'authorised': False, 'outputs_enabled': None}",
+      "name": "output_permission_revoked",
+      "passed": true
+    },
+    {
+      "detail": "[{'episode_id': 'ep_1793905503_a3db24', 'source': 'manual_hybrid', 'status': 'saved', 'started_time_ns': 1793905503223121707, 'ended_time_ns': 1793905510031019870, 'started_wall': 1793905503.2231328, 'end_wall': 1793905510.0311744, 'end_reason': 'episode_complete', 'evaluation': {'success': 'unknown', 'labels': 'manual_or_unknown', 'task': 'place_in_tray', 'failure_reasons': [], 'reason': 'no_simu",
+      "name": "manifest_lists_two_episodes",
+      "passed": true
+    },
+    {
+      "detail": "828141 bytes from the production archive route",
+      "name": "archive_downloaded",
+      "passed": true
+    },
+    {
+      "detail": "no exception on the production path",
+      "name": "session_completed",
+      "passed": true
+    }
+  ],
+  "clock_epoch": "814d02d677514575967dde76b8615c3e",
+  "control_session_epoch": 5329506985390061,
+  "control_session_id": "offline-hybrid-frames",
+  "data_identity": "simulated_offline",
+  "episodes": [
+    {
+      "ended": {
+        "duration_s": 6.81,
+        "episode_id": "ep_1793905503_a3db24",
+        "success": {
+          "camera_profile": "wrist_original",
+          "evaluation_policy": {
+            "simulator_truth_available": false,
+            "source": "manual_or_unknown"
+          },
+          "failure_reasons": [],
+          "labels": "manual_or_unknown",
+          "manual_label": null,
+          "note": "offline simulated session: success not assessed",
+          "privileged_truth_used_for_scripted_expert_only": false,
+          "reason": "no_simulator_ground_truth_declared_by_profile",
+          "success": "unknown",
+          "task": "place_in_tray",
+          "timestamp_wall": 1793905510.0309744
+        }
+      },
+      "episode_id": "ep_1793905503_a3db24",
+      "frames": {
+        "grasp": {
+          "admitted": 60,
+          "refusals": {},
+          "refused": 0,
+          "sent": 31,
+          "skipped": 0
+        },
+        "observe": {
+          "admitted": 29,
+          "refusals": {},
+          "refused": 0,
+          "sent": 30,
+          "skipped": 1
+        }
+      }
+    },
+    {
+      "ended": {
+        "duration_s": 7.01,
+        "episode_id": "ep_1793905510_c37a08",
+        "success": {
+          "camera_profile": "wrist_original",
+          "evaluation_policy": {
+            "simulator_truth_available": false,
+            "source": "manual_or_unknown"
+          },
+          "failure_reasons": [],
+          "labels": "manual_or_unknown",
+          "manual_label": null,
+          "note": "offline simulated session: success not assessed",
+          "privileged_truth_used_for_scripted_expert_only": false,
+          "reason": "no_simulator_ground_truth_declared_by_profile",
+          "success": "unknown",
+          "task": "place_in_tray",
+          "timestamp_wall": 1793905517.0414093
+        }
+      },
+      "episode_id": "ep_1793905510_c37a08",
+      "frames": {
+        "grasp": {
+          "admitted": 60,
+          "refusals": {},
+          "refused": 0,
+          "sent": 31,
+          "skipped": 0
+        },
+        "observe": {
+          "admitted": 29,
+          "refusals": {},
+          "refused": 0,
+          "sent": 30,
+          "skipped": 1
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "at_mono": 282795.183,
+      "clock_domain": "car_system_time",
+      "kind": "start_session",
+      "session_id": "ros_20261105T190502Z_349c6350"
+    },
+    {
+      "at_mono": 282795.188,
+      "episode_id": "ep_1793905503_a3db24",
+      "kind": "start_episode"
+    },
+    {
+      "at_mono": 282801.995,
+      "duration_s": 6.81,
+      "episode_id": "ep_1793905503_a3db24",
+      "kind": "end_episode",
+      "success": {
+        "camera_profile": "wrist_original",
+        "evaluation_policy": {
+          "simulator_truth_available": false,
+          "source": "manual_or_unknown"
+        },
+        "failure_reasons": [],
+        "labels": "manual_or_unknown",
+        "manual_label": null,
+        "note": "offline simulated session: success not assessed",
+        "privileged_truth_used_for_scripted_expert_only": false,
+        "reason": "no_simulator_ground_truth_declared_by_profile",
+        "success": "unknown",
+        "task": "place_in_tray",
+        "timestamp_wall": 1793905510.0309744
+      }
+    },
+    {
+      "at_mono": 282801.997,
+      "episode_id": "ep_1793905510_c37a08",
+      "kind": "start_episode"
+    },
+    {
+      "at_mono": 282809.006,
+      "duration_s": 7.01,
+      "episode_id": "ep_1793905510_c37a08",
+      "kind": "end_episode",
+      "success": {
+        "camera_profile": "wrist_original",
+        "evaluation_policy": {
+          "simulator_truth_available": false,
+          "source": "manual_or_unknown"
+        },
+        "failure_reasons": [],
+        "labels": "manual_or_unknown",
+        "manual_label": null,
+        "note": "offline simulated session: success not assessed",
+        "privileged_truth_used_for_scripted_expert_only": false,
+        "reason": "no_simulator_ground_truth_declared_by_profile",
+        "success": "unknown",
+        "task": "place_in_tray",
+        "timestamp_wall": 1793905517.0414093
+      }
+    }
+  ],
+  "failed": [],
+  "hardware_effect": "not_tested_no_serial_port_reachable",
+  "manifest": {
+    "bag_exit_code": 0,
+    "bag_info": {
+      "duration_s": 13.993781893,
+      "messages": 850,
+      "topics": {
+        "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info": {
+          "count": 211,
+          "observed_hz": 15.078,
+          "type": "sensor_msgs/msg/CameraInfo"
+        },
+        "/lelab_offline/ascamera/camera_publisher/rgb0/image": {
+          "count": 211,
+          "observed_hz": 15.078,
+          "type": "sensor_msgs/msg/Image"
+        },
+        "/lelab_offline/lelab/ros_robot_controller/servo_readback": {
+          "count": 70,
+          "observed_hz": 5.002,
+          "type": "std_msgs/msg/Int32MultiArray"
+        },
+        "/lelab_offline/recording/teleop": {
+          "count": 248,
+          "observed_hz": 17.722,
+          "type": "std_msgs/msg/String"
+        },
+        "/lelab_offline/ros_robot_controller/bus_servo/set_position": {
+          "count": 110,
+          "observed_hz": 7.861,
+          "type": "ros_robot_controller_msgs/msg/ServosPosition"
+        }
+      }
+    },
+    "bag_readable": true,
+    "clock_domain": "car_system_time",
+    "clock_epoch": "814d02d677514575967dde76b8615c3e",
+    "episodes": [
+      {
+        "end_reason": "episode_complete",
+        "end_wall": 1793905510.0311744,
+        "ended_time_ns": 1793905510031019870,
+        "episode_id": "ep_1793905503_a3db24",
+        "evaluation": {
+          "camera_profile": "wrist_original",
+          "evaluation_policy": {
+            "simulator_truth_available": false,
+            "source": "manual_or_unknown"
+          },
+          "failure_reasons": [],
+          "labels": "manual_or_unknown",
+          "manual_label": null,
+          "note": "offline simulated session: success not assessed",
+          "privileged_truth_used_for_scripted_expert_only": false,
+          "reason": "no_simulator_ground_truth_declared_by_profile",
+          "success": "unknown",
+          "task": "place_in_tray",
+          "timestamp_wall": 1793905510.0309744
+        },
+        "phases": [
+          {
+            "ended_time_ns": 1793905506227208106,
+            "phase": "observe",
+            "started_time_ns": 1793905503225264848
+          },
+          {
+            "ended_time_ns": 1793905510031019870,
+            "phase": "grasp",
+            "started_time_ns": 1793905506227208106
+          }
+        ],
+        "source": "manual_hybrid",
+        "started_time_ns": 1793905503223121707,
+        "started_wall": 1793905503.2231328,
+        "status": "saved"
+      },
+      {
+        "end_reason": "episode_complete",
+        "end_wall": 1793905517.0418222,
+        "ended_time_ns": 1793905517041435991,
+        "episode_id": "ep_1793905510_c37a08",
+        "evaluation": {
+          "camera_profile": "wrist_original",
+          "evaluation_policy": {
+            "simulator_truth_available": false,
+            "source": "manual_or_unknown"
+          },
+          "failure_reasons": [],
+          "labels": "manual_or_unknown",
+          "manual_label": null,
+          "note": "offline simulated session: success not assessed",
+          "privileged_truth_used_for_scripted_expert_only": false,
+          "reason": "no_simulator_ground_truth_declared_by_profile",
+          "success": "unknown",
+          "task": "place_in_tray",
+          "timestamp_wall": 1793905517.0414093
+        },
+        "phases": [
+          {
+            "ended_time_ns": 1793905513035859478,
+            "phase": "observe",
+            "started_time_ns": 1793905510034167174
+          },
+          {
+            "ended_time_ns": 1793905517041435991,
+            "phase": "grasp",
+            "started_time_ns": 1793905513035859478
+          }
+        ],
+        "source": "manual_hybrid",
+        "started_time_ns": 1793905510033521731,
+        "started_wall": 1793905510.0335329,
+        "status": "saved"
+      }
+    ],
+    "error": null,
+    "error_detail": null,
+    "files": [
+      {
+        "path": "episodes/ep_1793905503_a3db24.json",
+        "sha256": "f89738f2db6ab4c520c8acce13f9b246a89b4e1fc0f8ca83e721a63abc39a5f6",
+        "size": 1388
+      },
+      {
+        "path": "episodes/ep_1793905510_c37a08.json",
+        "sha256": "60c123eca1152080d7630bc95dbea92221d5ab0aed1cd33682122b393d637f6a",
+        "size": 1388
+      },
+      {
+        "path": "events.jsonl",
+        "sha256": "6c58355143bc6400bf20a2cd7e971d09711bb99c3becf4dcfd76f9bbebead8b7",
+        "size": 7556
+      },
+      {
+        "path": "raw/bag/bag_0.db3",
+        "sha256": "c39ce61df1d3a18bc9066a0b3a7501ad6b78c54bef36fba4ed034a01b04b3f94",
+        "size": 163303424
+      },
+      {
+        "path": "raw/bag/metadata.yaml",
+        "sha256": "e74c0f87d3ba4917da2c98b5f2bd49eb83ef4a7f07f49b17ad9a34193b371184",
+        "size": 4013
+      },
+      {
+        "path": "recording.log",
+        "sha256": "3cbb0803509645018426356d7bdb8f013ad8637179a367104da6b4c23b4037a0",
+        "size": 2183
+      },
+      {
+        "path": "session.json",
+        "sha256": "ae7d0398779922e7de506fd7263b06c170586a727ad123872846a5d6f2e686aa",
+        "size": 8072
+      }
+    ],
+    "metadata": {
+      "actuator_outputs": false,
+      "adapter": "ros2_sensor_gateway_arm_only",
+      "agent_runtime_mode": "offline_humble_simulated_board",
+      "agent_version": "0.1.0",
+      "base_velocity_topic": null,
+      "camera_extrinsics": {},
+      "camera_info_topic": "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info",
+      "camera_profile": "wrist_original",
+      "camera_topic": "/lelab_offline/ascamera/camera_publisher/rgb0/image",
+      "clock_domain": "car_system_time",
+      "clock_epoch": "814d02d677514575967dde76b8615c3e",
+      "clock_jump_policy": "hardware_readonly stops the bag on >1s backward or >5s+2*elapsed forward jump; no READY",
+      "command_semantics": {
+        "acknowledged": "gateway_action_accepted_or_rejected_on_/lelab/applied_command",
+        "executed": "not_directly_observable_inferred_from_later_feedback",
+        "measured_state": "follower_joint_states",
+        "requested": "operator_or_expert_request",
+        "sent": "gateway_forwarded_target",
+        "teleop_recorded_fields": {
+          "calibration_version": "leader|follower|mapping content hashes at the time of the command",
+          "leader_rad": "measured leader reading forwarded by the upper computer",
+          "pre_clip_rad": "mapped target before gateway clamping",
+          "state_topic": "/lelab_offline/recording/teleop",
+          "target": "post-clamp target sent through the gateway"
+        }
+      },
+      "controller_session": {
+        "export_schema": "arm_gripper_6dof_phase1",
+        "profile": "hardware_hybrid_manual_v1_offline6d",
+        "runtime_mode": "simulated_hybrid_manual",
+        "simulation": true
+      },
+      "data_identity": "simulated_offline",
+      "data_source": "simulated",
+      "export_schema": "arm_gripper_6dof_phase1",
+      "features": {
+        "action": {
+          "leader_reading_is_not_action": true,
+          "names": [
+            "joint1",
+            "joint2",
+            "joint3",
+            "joint4",
+            "joint5",
+            "r_joint"
+          ],
+          "source": "simulated_gateway_sent_target_after_clamp",
+          "units": [
+            "rad",
+            "rad",
+            "rad",
+            "rad",
+            "rad",
+            "rad"
+          ]
+        },
+        "fps": 14.0,
+        "image": {
+          "frame": "rgb_camera_link",
+          "name": "observation.images.wrist_simulated",
+          "topic": "/ascamera/camera_publisher/rgb0/image"
+        },
+        "state": {
+          "base_topic": null,
+          "joint_topic": "/ros_robot_controller/bus_servo/get_state",
+          "names": [
+            "joint1",
+            "joint2",
+            "joint3",
+            "joint4",
+            "joint5",
+            "r_joint"
+          ],
+          "source": "simulated_servo_position_readback",
+          "units": [
+            "rad",
+            "rad",
+            "rad",
+            "rad",
+            "rad",
+            "rad"
+          ]
+        }
+      },
+      "feedback_provenance": {
+        "available": true,
+        "base_estimate_has_covariance": false,
+        "base_source_kind": "locked_no_base_motion",
+        "base_topic": null,
+        "calibration_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "execution_observed": "unavailable",
+        "fact_source": "runtime.feedback_provenance",
+        "hardware_measurement": false,
+        "joint_source_kind": "synthetic",
+        "joint_topic": "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+        "max_state_age_s": 0.5,
+        "reason": "explicit_synthetic_simulation_feedback",
+        "scan_span_ms": 200.0,
+        "simulated": true,
+        "trusted": false
+      },
+      "gazebo_version": null,
+      "hardware_available": "unknown",
+      "model_sdf": "/work/out/local_humble/docker/runtime/lelab_mobile.sdf",
+      "model_sdf_sha256": null,
+      "preview_backend": "pillow",
+      "profile": "hardware_hybrid_manual_v1_offline6d",
+      "profile_sha256": "4fb9c7e9883c2fdfa3884392b8599d54bc2109d122f441a08cabdc98e2eb0f55",
+      "record_joint_state_topic": "/controller_manager/joint_states",
+      "record_task_truth_topics": {
+        "box": "/lelab/recording/box_pose",
+        "container": "/lelab/recording/container_pose",
+        "cube": "/lelab/recording/cube_pose"
+      },
+      "recording_event_topic": "/lelab/events",
+      "recording_extra_topics": [],
+      "recording_topics": [
+        "/lelab_offline/ascamera/camera_publisher/rgb0/image",
+        "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info",
+        "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+        "/lelab_offline/recording/teleop",
+        "/lelab_offline/ros_robot_controller/bus_servo/set_position",
+        "/controller_manager/joint_states"
+      ],
+      "relay_clock_note": null,
+      "requested_calibration_bundle_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "requested_profile": "hardware_hybrid_manual_v1_offline6d",
+      "requested_session_id": null,
+      "required_topics": [
+        "/lelab_offline/ascamera/camera_publisher/rgb0/image",
+        "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info",
+        "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+        "/lelab_offline/recording/teleop"
+      ],
+      "ros_distro": "humble",
+      "runtime_mode": "simulated_hybrid_manual",
+      "sensor_source": null,
+      "sensor_transport": "local_ros2_topic",
+      "session_epoch": 5329506985390061,
+      "session_id": "ros_20261105T190502Z_349c6350",
+      "session_identity_status": "bound",
+      "simulated": true,
+      "simulation": {
+        "hardware_available": "unknown",
+        "simulated": false
+      },
+      "source": "simulated",
+      "task_config": {},
+      "task_name": "place_in_tray",
+      "task_truth_topics": {
+        "box": "/lelab/task/box_pose",
+        "container": "/lelab/task/container_pose",
+        "cube": "/lelab/task/cube_pose"
+      },
+      "teleop_state_topic": "/lelab_offline/recording/teleop",
+      "timestamp_sources": {
+        "event": "car_system_time",
+        "ttl": "monotonic_wall_clock"
+      },
+      "training_export": false,
+      "wheel_odometry_topic": null
+    },
+    "profile": "hardware_hybrid_manual_v1_offline6d",
+    "profile_sha256": "4fb9c7e9883c2fdfa3884392b8599d54bc2109d122f441a08cabdc98e2eb0f55",
+    "ready_eligible": true,
+    "required_topics": [
+      "/lelab_offline/ascamera/camera_publisher/rgb0/image",
+      "/lelab_offline/ascamera/camera_publisher/rgb0/camera_info",
+      "/lelab_offline/lelab/ros_robot_controller/servo_readback",
+      "/lelab_offline/recording/teleop"
+    ],
+    "schema_version": 2,
+    "session_epoch": 5329506985390061,
+    "session_id": "ros_20261105T190502Z_349c6350",
+    "started_time_ns": 1793905502817703091,
+    "started_wall": 1793905502.8177147,
+    "status": "raw_ready",
+    "stop_reason": "offline_session_complete",
+    "stopped_wall": 1793905517.5189853,
+    "stream_gap_count": 0,
+    "stream_gap_topics": [],
+    "task": "offline simulated observe and grasp"
+  },
+  "recording_session_id": "ros_20261105T190502Z_349c6350",
+  "started_utc": "2026-11-05T19:05:19Z",
+  "training_eligible": false
+}

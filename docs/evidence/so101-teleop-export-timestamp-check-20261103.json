@@ -1,0 +1,47 @@
+{
+  "title": "遥操作导出：取整帧率下的逐帧时间戳核验（上位机，无车无硬件）",
+  "date_utc": "2026-11-03T11:55Z",
+  "asked_by_user": "当前相机频率 14.74 Hz，现有方案取整并产生 warning。可以先保留该行为做基础验证，但必须检查实际帧时间戳是否正确。",
+  "scope": "只在上位机跑：真实 LeRobotDataset 写入+读回，只假掉录包读取器与首帧几何探测；影像按真车实测周期喂数据。",
+  "fixture": {
+    "declared_camera_fps": 14.74,
+    "sampling_fps_after_rounding": 15,
+    "camera_period_ns": 67842605,
+    "grid_step_ns": 66666666,
+    "episode_window_s": 3.0,
+    "camera_images_in_window": 45,
+    "dataset_frames": 46
+  },
+  "verified": [
+    "采样网格逐帧等于 start + i*int(1e9/15)（报告 frames_detail 的 time_ns 序列），与编码器使用的步长同源。",
+    "LeRobot 写入的 timestamp 列等于 frame_index/15（float32 容差 1e-6）、严格递增、frame_index 连续。",
+    "mp4 用 pyav 读回：解码帧数 == 数据集帧数；stream.average_rate == 15/1；相邻 pts 差恒定 == 1/15 / time_base；(首末 pts + 一步长) * time_base == frames/15（1e-6 内）。",
+    "没有未来观测：所有 image_age_s >= 0；image_age 上界 0.066667 s < 相机周期 0.067843 s，远小于生产新鲜度门禁 0.20 s。",
+    "取整的代价被量化而不是掩盖：46 帧里有 1 帧复用同一张相机图（约 2.2%），即按 15 Hz 采样 14.74 Hz 的相机必然有少量重复帧。"
+  ],
+  "mutation_checks": [
+    {
+      "change": "把导出网格从 int(1e9/fps) 改成按声明频率 int(1e9/declared_fps)（时间轴与编码器步长解耦）",
+      "result": "新用例在网格等值断言处失败（1000000000, 1066666666… 不再对齐）"
+    },
+    {
+      "change": "把取图改成向前看 100 ms 的 _latest(images, t+1e8)（允许未来影像）",
+      "result": "新用例以 'an image newer than its frame time' 失败"
+    },
+    {
+      "restore": "两次都从 /tmp/ros_mobile.tsbackup.py 还原，sha256 688519e793323ad56a377fba42af5bc13cfe7b829a1da8e37716dd6afab37b9a 与 git diff 为空双重确认"
+    }
+  ],
+  "counts": {
+    "test_ros_mobile_teleop_export": "8 passed",
+    "app_teleop_five_files": "32 passed",
+    "app_wide_subset": "115 passed / 416 deselected",
+    "tools_ros2_collection": "203 passed"
+  },
+  "conclusion": "取整（14.74 → 15）不会把逐帧时间戳、视频时长或跨模态对齐说假；它的真实代价是约 2% 的帧复用同一张相机影像，且这一项现在写在导出报告的 frames_detail 里可查。",
+  "not_verified": [
+    "真车腕相机在录制中的实际抖动/丢帧（需要车端在跑并录一段）。",
+    "按真实非整数频率编码的路径：本机 torchcodec 仍加载不到 libavutil（.56~.60 全缺），走的是 pyav；用户要求在隔离环境装依赖后再验真实编码路径，装系统库需 sudo，本轮没做。",
+    "时钟域（车端 header.stamp 与 bag 接收时间）在真机上是否仍一致——profile 明确记录 clock_domain，实机遥操作段未录。"
+  ]
+}

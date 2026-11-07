@@ -1,0 +1,79 @@
+PASSED [ 48%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_conflicting_acquire_reports_the_holder PASSED [ 49%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_observer_cannot_acquire_over_http PASSED [ 50%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_start_endpoint_refuses_when_another_task_holds_the_lease PASSED [ 51%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_failed_start_releases_the_lease PASSED [ 52%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_stop_endpoint_releases_the_lease PASSED [ 53%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_start_uses_client_headers_as_the_owner PASSED [ 55%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_observer_header_blocks_start PASSED [ 56%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_emergency_stop_preempts_and_stops_every_task PASSED [ 57%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_a_live_mobile_teleop_session_is_an_active_teleoperation_task PASSED [ 58%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_the_lease_stop_hook_releases_the_mobile_session_with_the_reason PASSED [ 59%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_hybrid_teleoperation_is_an_active_leasable_task PASSED [ 60%]
+app_ros_mobile/tests/test_hardware_lease_api.py::test_shutdown_does_not_construct_a_coordinator_that_was_never_used PASSED [ 61%]
+app_ros_mobile::test_default_closed_and_status_json PASSED               [ 62%]
+app_ros_mobile::test_acquire_failure_rolls_back_and_cancel PASSED        [ 64%]
+app_ros_mobile::test_stop_precedes_release_and_no_resume_on_new_session PASSED [ 65%]
+app_ros_mobile::test_dual_intent_grasp_lock_and_fault PASSED             [ 66%]
+app_ros_mobile::test_gamepad_requires_neutral_new_press_and_timeout PASSED [ 67%]
+app_ros_mobile::test_protocol_independent_sequence_deadline_and_no_mutation PASSED [ 68%]
+app_ros_mobile::test_bad_envelope_rejected_without_consuming_seq[session_epoch-6] PASSED [ 69%]
+app_ros_mobile::test_bad_envelope_rejected_without_consuming_seq[source-maintenance] PASSED [ 70%]
+app_ros_mobile::test_bad_envelope_rejected_without_consuming_seq[calibration_bundle_hash-old] PASSED [ 71%]
+app_ros_mobile::test_bad_envelope_rejected_without_consuming_seq[ttl_ms-0] PASSED [ 73%]
+app_ros_mobile::test_bad_envelope_rejected_without_consuming_seq[seq-True] PASSED [ 74%]
+app_ros_mobile::test_bad_envelope_rejected_without_consuming_seq[deadline_mono_ns-900] PASSED [ 75%]
+app_ros_mobile::test_feedback_rejects_cache_stale_missing_and_mismatch PASSED [ 76%]
+app_ros_mobile::test_example_and_bundle_mismatch_rejected PASSED         [ 77%]
+app_ros_mobile::test_valid_calibration_bundle_and_rejections PASSED      [ 78%]
+app_ros_mobile::test_estop_latches_across_release_and_requires_explicit_clear PASSED [ 79%]
+app_ros_mobile::test_observer_failure_rolls_back_in_order_and_retains_no_session PASSED [ 80%]
+app_ros_mobile::test_expired_lease_fault_and_status_reports_not_held PASSED [ 82%]
+app_ros_mobile::test_one_transient_feedback_miss_is_retried_without_fault PASSED [ 83%]
+app_ros_mobile::test_persistent_feedback_loss_faults_and_preserves_primary_reason PASSED [ 84%]
+app_ros_mobile::test_gamepad_timeout_preserves_sequence_and_requires_fresh_press PASSED [ 85%]
+app_ros_mobile::test_cancel_during_acquisition_rolls_back_both PASSED    [ 86%]
+app_ros_mobile::test_heartbeat_failure_stops_and_latches_fault PASSED    [ 87%]
+app_ros_mobile::test_calibration_store_roundtrip_and_write_during_session_denied PASSED [ 88%]
+app_ros_mobile::test_feedback_raw_out_of_bounds_is_rejected_without_modification PASSED [ 89%]
+app_ros_mobile::test_gap_is_latest_wins_but_a_replay_retires_and_clears_all_channels PASSED [ 91%]
+app_ros_mobile::test_t1_supervisor_rejects_output_with_shared_envelope PASSED [ 92%]
+app_ros_mobile::test_pending_overrun_replaces_the_older_target_without_retiring PASSED [ 93%]
+app_ros_mobile::test_invalid_protocol_types_are_rejected[protocol_version-True] PASSED [ 94%]
+app_ros_mobile::test_invalid_protocol_types_are_rejected[session_epoch-True] PASSED [ 95%]
+app_ros_mobile::test_invalid_protocol_types_are_rejected[channel-value2] PASSED [ 96%]
+app_ros_mobile::test_t1_feedback_snapshot_passes_only_fresh_trusted_gate PASSED [ 97%]
+app_ros_mobile::test_gamepad_has_no_implicit_calibration_or_timeout PASSED [ 98%]
+app_ros_mobile::test_acquisition_binds_server_generated_same_identity_to_both_leases PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http
+  /home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/server.py:3199: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http
+  /home/liaozhengyan/Desktop/lelab/app_ros_mobile/.venv/lib/python3.12/site-packages/fastapi/applications.py:4723: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)  # ty: ignore[deprecated]
+
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http
+  /home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/server.py:3211: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 89 passed, 4 warnings in 4.66s ========================

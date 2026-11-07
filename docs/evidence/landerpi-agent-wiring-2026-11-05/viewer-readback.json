@@ -1,0 +1,275 @@
+{
+  "action_names": [
+    "joint1.target",
+    "joint2.target",
+    "joint3.target",
+    "joint4.target",
+    "joint5.target",
+    "r_joint.target"
+  ],
+  "action_source": "car_side_sent_target_recorded_by_the_control_process",
+  "action_units": [
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad"
+  ],
+  "episodes": [
+    {
+      "axis_mismatches": [],
+      "episode_index": 0,
+      "export_phases": [
+        [
+          "observe",
+          0,
+          27
+        ],
+        [
+          "grasp",
+          27,
+          54
+        ]
+      ],
+      "first_row": {
+        "action": [
+          0.10000000149011612,
+          0.11999999731779099,
+          0.14000000059604645,
+          0.1599999964237213,
+          1.1799999475479126,
+          0.03999999910593033
+        ],
+        "state": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frames": 54,
+      "last_row": {
+        "action": [
+          0.5,
+          0.5199999809265137,
+          0.5400000214576721,
+          0.5600000023841858,
+          1.5800000429153442,
+          0.019999999552965164
+        ],
+        "state": [
+          0.3769911229610443,
+          0.39793506264686584,
+          0.41887903213500977,
+          0.4398229718208313,
+          1.4283775091171265,
+          -0.05026548355817795
+        ]
+      },
+      "page_phases": [
+        [
+          "observe",
+          0,
+          27
+        ],
+        [
+          "grasp",
+          27,
+          54
+        ]
+      ],
+      "page_points": 54,
+      "video_ranges": {}
+    },
+    {
+      "axis_mismatches": [],
+      "episode_index": 1,
+      "export_phases": [
+        [
+          "observe",
+          0,
+          27
+        ],
+        [
+          "grasp",
+          27,
+          54
+        ]
+      ],
+      "first_row": {
+        "action": [
+          0.10000000149011612,
+          0.11999999731779099,
+          0.14000000059604645,
+          0.1599999964237213,
+          1.1799999475479126,
+          0.03999999910593033
+        ],
+        "state": [
+          0.42725661396980286,
+          0.4482005536556244,
+          0.4691444933414459,
+          0.49008846282958984,
+          1.4912092685699463,
+          -0.03769911080598831
+        ]
+      },
+      "frames": 54,
+      "last_row": {
+        "action": [
+          0.5,
+          0.5199999809265137,
+          0.5400000214576721,
+          0.5600000023841858,
+          1.5800000429153442,
+          0.019999999552965164
+        ],
+        "state": [
+          0.3769911229610443,
+          0.39793506264686584,
+          0.41887903213500977,
+          0.4398229718208313,
+          1.4283775091171265,
+          -0.05026548355817795
+        ]
+      },
+      "page_phases": [
+        [
+          "observe",
+          0,
+          27
+        ],
+        [
+          "grasp",
+          27,
+          54
+        ]
+      ],
+      "page_points": 54,
+      "video_ranges": {}
+    }
+  ],
+  "fps": 10,
+  "identity": {
+    "action_source": "car_side_sent_target_recorded_by_the_control_process",
+    "clock_domain": "car_system_time",
+    "clock_epoch": "d2723d4f3db44203930604205913d344",
+    "contract": "simulated_offline_6d_v1",
+    "data_identity": "simulated_offline",
+    "evidence_kind": "offline_integration_only",
+    "max_state_age_s": 0.5,
+    "profile": "hardware_hybrid_manual_v1_offline6d",
+    "repo_id": "lelab/ros-mobile-20261105t181902z-9900edef",
+    "row_topic_suffix": "/recording/teleop",
+    "sampling": "event_paced_teleop_rows",
+    "session_id": "ros_20261105T181902Z_9900edef",
+    "state_source": "simulated_servo_readback_recorded_by_the_control_process",
+    "training_eligible": false,
+    "written_utc": "2026-11-05T18:29:39Z"
+  },
+  "image_key": "observation.images.wrist_simulated",
+  "image_shape": [
+    400,
+    640,
+    3
+  ],
+  "passed": true,
+  "phase_index": {
+    "clock_domain": "car_system_time",
+    "episodes": [
+      {
+        "episode_id": "ep_1793902743_a03408",
+        "episode_index": 0,
+        "phases": [
+          {
+            "ended_time_ns": 1793902746034944821,
+            "frame_count": 27,
+            "frame_from": 0,
+            "frame_to_exclusive": 27,
+            "frames": 27,
+            "from_s": 0.0,
+            "phase": "observe",
+            "row_from_ns": 1793902743191633839,
+            "row_to_ns": 1793902745991675527,
+            "source": "teleop_frame_row.phase; event paced; one frame per row",
+            "started_time_ns": 1793902743033176136,
+            "to_s": 2.7
+          },
+          {
+            "ended_time_ns": 1793902750039666787,
+            "frame_count": 27,
+            "frame_from": 27,
+            "frame_to_exclusive": 54,
+            "frames": 27,
+            "from_s": 2.7,
+            "phase": "grasp",
+            "row_from_ns": 1793902746191674799,
+            "row_to_ns": 1793902748991610792,
+            "source": "teleop_frame_row.phase; event paced; one frame per row",
+            "started_time_ns": 1793902746034944821,
+            "to_s": 5.4
+          }
+        ]
+      },
+      {
+        "episode_id": "ep_1793902750_2dda0f",
+        "episode_index": 1,
+        "phases": [
+          {
+            "ended_time_ns": 1793902753045331355,
+            "frame_count": 27,
+            "frame_from": 0,
+            "frame_to_exclusive": 27,
+            "frames": 27,
+            "from_s": 0.0,
+            "phase": "observe",
+            "row_from_ns": 1793902750191651098,
+            "row_to_ns": 1793902752991588190,
+            "source": "teleop_frame_row.phase; event paced; one frame per row",
+            "started_time_ns": 1793902750043519632,
+            "to_s": 2.7
+          },
+          {
+            "ended_time_ns": 1793902757049580557,
+            "frame_count": 27,
+            "frame_from": 27,
+            "frame_to_exclusive": 54,
+            "frames": 27,
+            "from_s": 2.7,
+            "phase": "grasp",
+            "row_from_ns": 1793902753191495918,
+            "row_to_ns": 1793902755991598190,
+            "source": "teleop_frame_row.phase; event paced; one frame per row",
+            "started_time_ns": 1793902753045331355,
+            "to_s": 5.4
+          }
+        ]
+      }
+    ],
+    "session_id": "ros_20261105T181902Z_9900edef",
+    "version": 1
+  },
+  "repo_id": "lelab/ros-mobile-20261105t181902z-9900edef",
+  "state_names": [
+    "joint1.position",
+    "joint2.position",
+    "joint3.position",
+    "joint4.position",
+    "joint5.position",
+    "r_joint.position"
+  ],
+  "state_source": "simulated_servo_readback_recorded_by_the_control_process",
+  "state_units": [
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad"
+  ],
+  "total_episodes": 2,
+  "total_frames": 108
+}

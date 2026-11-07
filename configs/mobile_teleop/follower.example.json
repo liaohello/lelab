@@ -1,0 +1,96 @@
+{
+  "_note": "EXAMPLE ONLY - layer B (car follower). IDs, raw limits and unit conversion are transcribed from the vendor sources listed under provenance; every value marked example_not_measured or derived_not_measured must be confirmed against /controller_manager/joint_states on the real car before saving.",
+  "identity_hint": "mentorpi-arm-jetrover-acker-less",
+  "device_identity": {
+    "kind": "mobile_follower",
+    "car": "raspberrypi (MentorPi container, ROS 2 Humble)",
+    "board_device": "/dev/rrc",
+    "board_baudrate": 1000000,
+    "board_owner_node": "ros_robot_controller (single owner of the control-board UART)",
+    "protocol": "vendor UART packet protocol (0xAA 0x55 len function id data checksum) - NO transaction id, so requests are serialized and late replies are dropped by generation",
+    "servo_model": {
+      "documented_in_vendor": false,
+      "confirm_from": "GetBusServoState reply / vendor machine config; do not guess a Feetech part number",
+      "known_geometry": "1000 pulses over a 240 degree sweep, mid position 500"
+    },
+    "params_file": "servo_controller/config/servo_controller.yaml"
+  },
+  "joint_order": ["joint1", "joint2", "joint3", "joint4", "joint5", "r_joint"],
+  "independent_control_joints": ["joint1", "joint2", "joint3", "joint4", "joint5", "r_joint"],
+  "not_independently_controllable": {
+    "gripper_base_joint_and_mimic_joints": "the 5-joint mimic gripper exists only in the simulation URDF; this unit drives the gripper with the single servo r_joint (id 10), so mimic joints must never be sent as separate control quantities",
+    "w_joint": "servo id 9, only registered when MACHINE_TYPE=JetRover_Acker; excluded here"
+  },
+  "controller_groups": {
+    "arm_controller": ["joint1", "joint2", "joint3", "joint4", "joint5"],
+    "gripper_controller": ["r_joint"],
+    "action_api": "control_msgs/FollowJointTrajectory on /arm_controller/follow_joint_trajectory and /gripper_controller/follow_joint_trajectory"
+  },
+  "servos": {
+    "joint1": {"id": 1, "initial_position_raw": 500, "min_angle_raw": 0, "max_angle_raw": 1000, "flipped": false},
+    "joint2": {"id": 2, "initial_position_raw": 500, "min_angle_raw": 0, "max_angle_raw": 1000, "flipped": false},
+    "joint3": {"id": 3, "initial_position_raw": 500, "min_angle_raw": 0, "max_angle_raw": 1000, "flipped": false},
+    "joint4": {"id": 4, "initial_position_raw": 500, "min_angle_raw": 0, "max_angle_raw": 1000, "flipped": false},
+    "joint5": {"id": 5, "initial_position_raw": 500, "min_angle_raw": 0, "max_angle_raw": 1000, "flipped": false},
+    "r_joint": {"id": 10, "initial_position_raw": 500, "min_angle_raw": 1000, "max_angle_raw": 0, "flipped": true}
+  },
+  "units": {
+    "feedback_topic": "radians (sensor_msgs/JointState on /controller_manager/joint_states)",
+    "raw_bus": "pulse 0-1000 (servo_controller_msgs/ServoStateList on /controller_manager/servo_states)",
+    "radians_per_pulse": 0.0041887902,
+    "conversion": "angle_rad = (pulse - initial_position_raw) * radians_per_pulse, sign inverted when flipped"
+  },
+  "limits_rad_provenance": "derived_not_measured: (500 - raw_limit) * radians_per_pulse from the vendor yaml",
+  "limits_rad": {
+    "joint1": [-2.0943951, 2.0943951],
+    "joint2": [-2.0943951, 2.0943951],
+    "joint3": [-2.0943951, 2.0943951],
+    "joint4": [-2.0943951, 2.0943951],
+    "joint5": [-2.0943951, 2.0943951],
+    "r_joint": [-2.0943951, 2.0943951]
+  },
+  "soft_limits_rad_provenance": "example_not_measured - placeholder travel that keeps cable and wrist clearance; the coordinator copies these into the mapping joints unless the mapping already narrows them. Confirm joint by joint at low speed during the authorized motion stage.",
+  "soft_limits_rad": {
+    "joint1": [-2.0, 2.0],
+    "joint2": [-1.6, 1.6],
+    "joint3": [-1.7, 1.7],
+    "joint4": [-1.6, 1.6],
+    "joint5": [-2.0, 2.0],
+    "r_joint": [-1.5, 1.5]
+  },
+  "reference_pose_rad": {
+    "_provenance": "example_not_measured - capture from live feedback, never from the last commanded target",
+    "joint1": 0.0, "joint2": 0.0, "joint3": 0.0, "joint4": 0.0, "joint5": 0.0, "r_joint": 0.0
+  },
+  "feedback": {
+    "topic": "/controller_manager/joint_states",
+    "publisher": "controller_manager.publish_joint_states thread, source code period 0.02 s (nominal_from_source_code, must be re-measured with start_car_arm_stack.sh --status)",
+    "raw_pulse_service": "/ros_robot_controller/bus_servo/get_state (ros_robot_controller_msgs/GetBusServoState)",
+    "stale_after_s": 0.5,
+    "query_timeout_s": 5.0,
+    "rule": "missing or stale feedback forbids entering following; the last target or zero is never substituted for the current position"
+  },
+  "hold_policy": {
+    "capability": "bus servos hold their commanded position when powered; position hold was verified only in simulation this round (not_measured_on_car)",
+    "on_pause": "keep torque and stop sending new targets; the vendor hold is not re-asserted automatically",
+    "on_estop": "gateway stops publishing and the car watchdog cancels the active trajectory goal; torque is NOT globally disabled, because dropping torque would let a loaded arm fall",
+    "blanket_torque_off": "forbidden"
+  },
+  "calibration_procedure": {
+    "no_dragging_required": true,
+    "why": "this follower has no back-drive readout while unpowered; the wizard reads Present_Position style servo state through the owning driver instead of asking the operator to move a loaded arm",
+    "steps": [
+      "confirm the board UART has exactly one owner",
+      "read /controller_manager/joint_states and record the current pose as the zero reference",
+      "read GetBusServoState pulses and cross-check that pulse -> rad reproduces the topic values within tolerance",
+      "verify direction sign per joint with an authorized single-joint, low-speed, small-amplitude move"
+    ]
+  },
+  "provenance": [
+    "driver/servo_controller/servo_controller/controller_manager.py:23-27,50-51,63-65,98-115 (joint list, topics, publisher period)",
+    "driver/servo_controller/config/servo_controller.yaml (ids, init 500, raw min/max, controller groups)",
+    "driver/servo_controller/servo_controller/joint_position_controller.py:13-47 (unit conversion, flip, clipping)",
+    "driver/ros_robot_controller/ros_robot_controller/ros_robot_controller_sdk.py:99 (device /dev/rrc, 1000000 baud)",
+    "lander_pi/src/example/example/rgbd_function/utils/utils.py:11-64 (gripper linkage geometry)"
+  ]
+}

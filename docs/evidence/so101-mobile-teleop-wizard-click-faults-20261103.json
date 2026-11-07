@@ -1,0 +1,78 @@
+{
+  "recorded_at": "2026-11-03T13:51:00Z",
+  "scope": "Failure-path click-through of the teleop wizard against the locally running car-code agent, with no leader arm and no actuators. This advances 八.8's 错误/取消/状态恢复 half; it is not the real-hardware click acceptance.",
+  "how_the_clicks_were_made": {
+    "method": "the in-app browser viewport was not attached (`NATIVE_BROWSER_VIEWPORT_UNAVAILABLE`, visible=false), so pointer clicks could not land. Each action was dispatched through the page's own React onClick handlers (element.click()) and the resulting DOM text was diffed; every action also hit the real HTTP routes, so backend -> store -> re-render is real.",
+    "what_this_proves": "handler wiring, request payloads, backend verdicts and the text the operator ends up seeing.",
+    "what_this_does_not_prove": "hit-testing, disabled-look styling, keyboard/mouse focus behaviour, and playback of the episode clip in a real player - a human pointer pass is still required (八.8 stays 未验证 on hardware)."
+  },
+  "environment": {
+    "car_agent": "deployed source ros2_ws/src/lelab_mobile_agent (profile hardware_teleop_v1, port 18115, synthetic DDS feedback 50 Hz, camera 64x48 @14.74 Hz, no servos attached)",
+    "upper_computer": "uvicorn lelab.server:app on 127.0.0.1:18117, LELAB_ROS_AGENT_URL=http://127.0.0.1:18115, frontend served from frontend/dist",
+    "leader_serial": "absent on this host - /dev/serial/by-id does not exist"
+  },
+  "observed_on_first_load": {
+    "car_profile_pill": "hardware_teleop_v1",
+    "leader_port_dropdown_options": ["未选择"],
+    "open_leader_serial_button": "disabled",
+    "feedback_pill": "缺失（未订阅）",
+    "car_arm_stream_pill": "未知（车端未上报）",
+    "chassis_pill": "未知（尚未取得车端状态）",
+    "car_exclusivity_pill": "未检测（车端尚未尝试使能）",
+    "wrist_camera": "14.74 fps, age 0.004 s, 画面新鲜",
+    "follow_buttons": "无输出预览 / 记录主从参考 / 待命 / 接合跟随 / 开始会话 all disabled"
+  },
+  "failure_paths_clicked": [
+    {
+      "action": "取得双层租约 with empty identities and no serial",
+      "http": "POST /ros-mobile/teleop/acquire -> 409",
+      "page_shows": "calibration not ready: leader calibration missing for identity ''",
+      "note": "the missing identity is named as '' rather than defaulted, so the operator sees which field is empty"
+    },
+    {
+      "action": "原子保存该层 with an empty identity field",
+      "http": "no request sent",
+      "page_shows": "请先填写该层的设备身份 (identity)",
+      "note": "the client refuses before the network, matching the server's own 400 calibration identity is required"
+    },
+    {
+      "action": "载入模板 on layer A",
+      "page_shows": "模板来自 configs/mobile_teleop/leader.example.json：标记 example_not_measured / derived_not_measured 的值必须逐项实测替换后再保存"
+    },
+    {
+      "action": "打开主臂串口 with no leader present",
+      "state": "button rendered disabled; port list only offers 未选择",
+      "note": "网络可达 was never treated as 串口可用"
+    }
+  ],
+  "defect_found_by_the_click_through": {
+    "what": "Loading a shipped template and saving it unchanged passed the calibration gate. CalibrationStore.readiness() only checked existence, hash, cross-layer bound identities and joint order, and nothing in app_ros_mobile/lelab referenced the example_not_measured / derived_not_measured markers the templates themselves are written with. Three template layers saved from the page produced ready with a calibration_version, leaving only the missing serial between the operator and 接合跟随.",
+    "why_it_matters": "需求四 forbids silently using default values when enabling, and the placeholder entries are exactly the values that decide direction, zero offsets and soft limits. On the real car this is the difference between 'the operator measured the arm' and 'the arm ran on the shipped guesses'.",
+    "fix": "CalibrationStore.unmeasured_paths() walks the stored document and returns the JSON path of every dict flagged _example_not_measured and every string value that starts with example_not_measured / derived_not_measured. readiness() turns each hit layer into a named blocker listing the first four paths plus a remainder count, so 就绪 stays 否 until the operator replaces them. Prose that merely mentions the convention is not a marker: only a leading marker or the explicit flag counts.",
+    "regression": "app_ros_mobile/tests/test_mobile_teleop_example_guard.py (4 tests) - the shipped leader/follower/mapping examples each get blocked; the identical documents pass once the flags are dropped and the notes rewritten, so the guard is about the marker and not the template shape; the path scan names joints[1] and gripper.span_note exactly."
+  },
+  "verification_after_the_fix": {
+    "rest_readiness": {
+      "ready": false,
+      "reasons": [
+        "mapping binds leader='so101-leader-5B90149652' but loaded 'leader_page_test'",
+        "mapping binds follower='mentorpi-arm-jetrover-acker-less' but loaded 'follower_page_test'",
+        "leader layer still holds shipped example values at <root>, lerobot_calibration.elbow_flex, lerobot_calibration.gripper, lerobot_calibration.shoulder_lift (+3 more)",
+        "follower layer still holds shipped example values at limits_rad_provenance, reference_pose_rad._provenance, soft_limits_rad_provenance",
+        "mapping layer still holds shipped example values at gripper._provenance, gripper.span_note, joints[0]._provenance"
+      ]
+    },
+    "page_after_click": "就绪：否 · 标定版本 99e4a51ebf6c|4999a4d3c417|7f0011fe5e50 followed by the three per-layer reasons; 取得双层租约 inline error carries the same text; 无输出预览 / 记录主从参考 / 接合跟随 / 开始会话 remain disabled",
+    "mutation_check": "replacing `if paths:` with `if False and paths:` turns test_the_shipped_templates_refuse_to_pass_readiness red while the other three stay green, so the new assertions are the ones carrying the guard",
+    "test_counts": "app teleop subset with the guard in place: 50 passed (leader-bus 4, coordinator 7, export-schema 6, teleop-export 9, routes 8, example guard 4, hardware lease 12); tools/ros2_collection/tests unchanged at 228 passed"
+  },
+  "cleanup": {
+    "page_test_calibrations": "removed from ~/.cache/lelab/mobile_teleop/{leader,follower,mapping}/ - the directories are left empty",
+    "processes": "uvicorn 1065416 and the rehearsal agent terminated by their recorded pids; 18115/18117 no longer listening; 0 ros2 bag record processes",
+    "untouched": "the user's 18186 LeLab instance and the 8110 tunnel; the three earlier rehearsal sessions stay raw_ready"
+  },
+  "still_open": [
+    "a human pointer pass over the wizard (hit testing, disabled appearance, the actual player boundary) once the leader arm is on this host",
+    "everything in 八.3-八.7 that needs the real arm, the real car servos and motion authorisation"
+  ]
+}

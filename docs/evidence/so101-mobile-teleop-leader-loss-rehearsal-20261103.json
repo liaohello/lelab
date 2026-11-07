@@ -1,0 +1,106 @@
+{
+  "title": "六 的主臂失联这一路，用部署车端 agent 在本机演练",
+  "captured_utc": "2026-11-03T17:18:30Z",
+  "branch": "codex/ros2-mobile-collection",
+  "revision_before": "a30e775",
+  "evidence_level": "本机实测（部署用的 ros2_ws/src/lelab_mobile_agent + 上位机协调器真类）；主臂与从臂反馈都是合成的，无执行器",
+  "tool": "tools/ros2_collection/local_car_leader_loss_rehearsal.py",
+  "how_the_fault_is_injected": {
+    "method": "会话正在 following 且正在录 episode 时调用 SyntheticLeader.close()：快照立刻 connected=false / healthy=false / reason=leader_closed",
+    "what_is_untouched": "车端 agent 不冻、车端控制租约仍 active、录包进程继续；上位机其余门禁（标定、反馈新鲜、独占）都仍为 true",
+    "difference_from_other_rehearsals": "local_car_fault_injection.py=车端进程消失；local_car_upper_stream_stall.py=上位机停止发包；本工具=主臂这一侧变暗"
+  },
+  "measured": {
+    "before_loss": {
+      "state": "following",
+      "seq": 43,
+      "car_stream_live": true,
+      "leader_connected": true
+    },
+    "downgrade": {
+      "found": true,
+      "seq": 43,
+      "state": "paused",
+      "cycles_after_injection": 0
+    },
+    "after_observation": {
+      "seq": 43,
+      "state": "paused",
+      "car_stream": {
+        "expected": true,
+        "live": false,
+        "ttl_s": 0.6,
+        "age_s": 2.146,
+        "remaining_s": -1.946,
+        "clock_domain": "monotonic"
+      },
+      "car_last_unchanged_since_downgrade": true
+    },
+    "reengage_attempt": {
+      "raised": "BridgeError: engage refused: leader_not_connected,leader_unhealthy",
+      "state": "paused",
+      "seq": 43
+    },
+    "upper_last_error": "gate_lost:leader_not_connected,leader_unhealthy",
+    "upper_missing_for_following": [
+      "leader_not_connected",
+      "leader_unhealthy"
+    ],
+    "gate_snapshot": {
+      "leader_connected": false,
+      "leader_healthy": false,
+      "calibration_ready": true,
+      "calibration_version": "33a8379199f0|c22279db0a07|a2cc5a99d372",
+      "upper_lease_valid": true,
+      "car_lease_valid": true,
+      "follower_feedback_valid": true,
+      "exclusive_control": true,
+      "chassis_locked": true
+    },
+    "manifest": {
+      "session_id": "ros_20261103T171823Z_85dc5f29",
+      "status": "raw_ready",
+      "episodes": [
+        {
+          "id": "ep_1793726303_959f25",
+          "id_matches": true,
+          "success": "unknown"
+        }
+      ],
+      "runtime_mode": "hardware_teleop"
+    }
+  },
+  "expectations": {
+    "was_following_before_the_loss": true,
+    "leader_loss_left_following": true,
+    "the_reason_names_the_leader": true,
+    "one_cycle_races_through_then_silence": true,
+    "the_loop_stays_downgraded": true,
+    "the_car_expired_the_stream_on_its_own": true,
+    "nothing_new_was_applied_after_the_downgrade": true,
+    "car_kept_its_lease_without_the_leader": true,
+    "reengage_without_realign_is_refused": true,
+    "the_session_still_finalised": true
+  },
+  "expectations_failed": [],
+  "read_this_way": [
+    "降级零延迟：注入后到下一次读就是 paused，seq 43 → 43（cycles_after_injection=0）。上一轮同样代码出现过 seq +2，那是一个在飞的周期（机械臂与夹爪各占一个 seq），所以判据写成 0..2 而不是 0：环每周期查一次门禁，10 Hz 下最多漏一个周期，随后必静默。",
+    "车端不是靠上位机关的：ttl_s=0.6 的单调时钟上自己把流判过期（age_s=2.146、remaining_s=-1.946、live=false），而这段时间里 control.teleop.last 一字节没变（降级瞬间与 2 s 后同值），也没有任何新的 applied。",
+    "恢复必须显式重来：paused 状态下直接 engage 被拒，原文 engage refused: leader_not_connected,leader_unhealthy；seq 仍 43，说明没有偷偷续跑。",
+    "上位机把原因说清楚了：last_error=gate_lost:leader_not_connected,leader_unhealthy，missing_for_following 就是这两项——不是笼统的 follow_error。",
+    "数据照常收口：这一路录到的 episode 结束后会话仍 raw_ready，success=unknown（人工/未知，不套仿真真值）。"
+  ],
+  "witness_bugs_found_by_writing_this_tool": {
+    "first_run_failed": "[\"sends_stopped_at_the_loss\", \"the_car_never_replayed_the_last_target\"]",
+    "why": "两条判据写错了而不是行为错了：① 要求注入后 seq 立刻不动（撞上在飞周期）；② 拿降级瞬间的车端流状态当车端自己判过期的证据，那一刻按 TTL 本来还在有效期内",
+    "fix": "① 降级按每周期检查一次门禁建模：0..2 内可接受，之后必须静默；② 过期证据取观察窗口末端那一次采样；另加一条降级瞬间到窗口末端 last 不变专门盯重放"
+  },
+  "limits": [
+    "合成 close() 不等于真拔 USB：真主臂消失通常先给读超时/串口错误，再由 SO101LeaderReader 报 not connected；两者都落到同一组门禁名，但真机的检测延迟未测",
+    "真插回后重新接合这一路没演练：排练里重新 open_leader 会去碰真实串口；仍要上车",
+    "舵机是否真停在最后指令位置在这台机器不可观测（无执行器、acks 为空）",
+    "真 SSH 隧道半开、真租约过期仍只有单测"
+  ],
+  "cleanup": "排练 agent 按 marker 里的 pid SIGTERM 停掉，端口释放、无残留录包进程；三次排练 session 全部保留（raw_ready），未删除任何数据",
+  "test_runs": "tools 全量 273 passed, 5 subtests（含上一批补的 UpperStreamStallWitnessTests 4 条）"
+}

@@ -148,7 +148,9 @@ def test_instance_id_defaults_to_role() -> None:
 def test_status_endpoint_is_registered() -> None:
     from lelab.server import app
 
-    assert "/system/train-server/status" in {route.path for route in app.routes}
+    # app.routes also carries FastAPI's _IncludedRouter wrapper for included routers,
+    # which has no .path (same guard as tests/test_server.py).
+    assert "/system/train-server/status" in {route.path for route in app.routes if hasattr(route, "path")}
 
 
 def test_marker_json_is_serialisable_in_payload() -> None:

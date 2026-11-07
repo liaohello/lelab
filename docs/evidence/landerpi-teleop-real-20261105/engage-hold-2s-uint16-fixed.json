@@ -1,0 +1,626 @@
+{
+  "captured_at_utc": "2026-11-05T11:29:03Z",
+  "identity": {
+    "session_id": "3604d987f6f34972b0ffd9d304d85997",
+    "session_epoch": 1440160085128582,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "preview_http": 200,
+  "align_http": 200,
+  "arm_http": 200,
+  "engage_http": 200,
+  "arm_error": null,
+  "engage_error": null,
+  "pre_state": "ready",
+  "pre_error": null,
+  "initial_raw": {
+    "joint1": 533,
+    "joint2": 815,
+    "joint3": 16,
+    "joint4": 118,
+    "joint5": 880,
+    "r_joint": 492
+  },
+  "samples": [
+    {
+      "t": 0.119,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 0,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.26,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.463,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.672,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 0.869,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 532,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.069,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.213,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.415,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.615,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 532,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 1.812,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 532,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.01,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.168,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.364,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.512,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.707,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 2.907,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.102,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.245,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.442,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.637,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.78,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 3.978,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.186,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.382,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.585,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.735,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 4.93,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 5.137,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 5.333,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    },
+    {
+      "t": 5.479,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      }
+    }
+  ]
+}

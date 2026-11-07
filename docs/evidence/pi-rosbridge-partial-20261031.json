@@ -1,5 +1,5 @@
 {
-  "url": "ws://192.168.19.138:9090",
+  "url": "ws://<private-ip>:9090",
   "started_utc": "2026-11-01T03:14:33.207969+00:00",
   "websocket": "connected",
   "topics": [

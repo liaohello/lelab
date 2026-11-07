@@ -1,0 +1,159 @@
+{
+  "title": "六 的第五种死法：上位机在会话活跃时退出（并修掉主臂串口不被释放）",
+  "captured_utc": "2026-11-03T17:35:30Z",
+  "branch": "codex/ros2-mobile-collection",
+  "revision_before": "7de8219",
+  "evidence_level": "本机实测（部署用车端 agent + 生产 shutdown 入口 + 真录包）；主臂与从臂反馈合成，无执行器",
+  "tool": "tools/ros2_collection/local_car_upper_exit_rehearsal.py",
+  "entry_under_test": "MobileTeleopCoordinator.shutdown(reason=…) —— 与 LeLab 服务关闭钩子（server.py 的 shutdown_event → peek_mobile_teleop_coordinator）调用的是同一个函数；差别是没有走 uvicorn 生命周期，属上位机进程内的直接调用",
+  "measured": {
+    "before_exit": {
+      "state": "following",
+      "seq": 43,
+      "upper_lease": true,
+      "car_token": true,
+      "car": {
+        "active": true,
+        "owner": "exit-rehearsal",
+        "mode": null,
+        "stream": {
+          "expected": true,
+          "live": true,
+          "ttl_s": 0.6,
+          "age_s": 0.104,
+          "remaining_s": 0.096,
+          "clock_domain": "monotonic"
+        },
+        "last": {
+          "leader_rad": null,
+          "gripper_percent": 56.501,
+          "pre_clip_rad": [
+            0.132269
+          ],
+          "calibration_version": "80342b3cd02b|baf816dd8d9b|0cd66483f710",
+          "clutch": "engaged",
+          "wall": 104241.919189749
+        }
+      }
+    },
+    "shutdown_return": {
+      "released": true,
+      "leader": {
+        "connected": false
+      }
+    },
+    "after_exit": {
+      "state": "disconnected",
+      "seq": 45,
+      "upper_lease": false,
+      "car_token": false,
+      "follow_thread_alive": false,
+      "leader_connected": false,
+      "car": {
+        "active": false,
+        "owner": null,
+        "mode": null,
+        "stream": {
+          "expected": false,
+          "live": false,
+          "ttl_s": null,
+          "age_s": null,
+          "remaining_s": null,
+          "clock_domain": "monotonic"
+        },
+        "last": {
+          "leader_rad": null,
+          "gripper_percent": 55.644,
+          "pre_clip_rad": [
+            0.114307
+          ],
+          "calibration_version": "80342b3cd02b|baf816dd8d9b|0cd66483f710",
+          "clutch": "engaged",
+          "wall": 104242.029106721
+        }
+      }
+    },
+    "late_send_after_exit": {
+      "result": null
+    },
+    "session_json": {
+      "status": "raw_ready",
+      "error": null,
+      "recording": null
+    },
+    "manifest": {
+      "status": "raw_ready",
+      "episodes": 1,
+      "has_ready": true
+    },
+    "upper_lease_state_now": {
+      "state": "idle",
+      "task": null,
+      "owner": null,
+      "acquired_at": null,
+      "expires_at": null,
+      "expires_in": null,
+      "ttl_seconds": 60.0,
+      "note": null,
+      "stop_on_expiry": true,
+      "last_release": {
+        "task": "teleoperation",
+        "owner": "exit-rehearsal",
+        "reason": "rehearsal-server-exit",
+        "released_at": "2026-11-03T17:29:10.537453+00:00",
+        "held_seconds": 3.015
+      },
+      "auto_stopped": []
+    }
+  },
+  "expectations": {
+    "was_following_before_the_exit": true,
+    "the_follow_loop_is_not_alive_after_exit": true,
+    "the_upper_lease_was_handed_back": true,
+    "the_car_control_lease_was_handed_back": true,
+    "the_car_no_longer_reports_an_active_controller": true,
+    "the_leader_serial_is_released": true,
+    "no_target_was_applied_after_the_exit": true,
+    "a_send_attempted_after_exit_does_not_reach_the_car": true,
+    "the_car_session_was_not_left_recording": true,
+    "the_exit_returned_a_report": true
+  },
+  "expectations_failed": [],
+  "defect_found_and_fixed": {
+    "symptom": "第一次跑：status 里 leader.connected 仍为 True —— 上位机退出把租约还了、录包收了，但主臂串口没有被释放（flock + TIOCEXCL 仍在这份 fd 上）",
+    "why_it_matters": "LeLab 若在退出钩子里释放租约而继续运行（或操作员把主臂换到别的工具/另一台机器），端口拿不回来只能重启整个应用；这也与六 的『任一失效即退出并交还控制权』不一致",
+    "fix": "shutdown() 里 release() 用 try/finally 包住，无论如何都调 close_leader()：先停跟随流→关包→还双层租约→放串口，且车端不可达时这一步照样执行",
+    "reverified": "改后同一排练 10 项期望全绿（leader_connected False、follow_thread 不在、upper_lease_active False、car_token_active False、车端 control.active False 且 owner 为空、退出后 send_once 返回 None、control.teleop.last 未再变化、会话 raw_ready+READY 保留）"
+  },
+  "also_observed": {
+    "seq_after_exit": "seq 从 43 走到 45：关闭动作发生在跟随循环的下一个周期边界（与主臂失联排练同一性质，一个在飞周期）；关键是此后没有任何新目标施加（对比退出后两次采样 control.teleop.last 相同）",
+    "car_side_after_release": "车端 teleop.stream 变成 expected=false / live=false / ttl=null，即网关已把这份会话当已结束，不会再有『旧目标重放』",
+    "lease_note": "上位机租约记录留下 last_release reason=rehearsal-server-exit、held_seconds≈2.9，state 回 idle"
+  },
+  "test_runs": "app 侧 test_mobile_teleop_coordinator.py 7 passed；tools 全量 273 passed, 5 subtests；更宽的上位机 mobile/ros_mobile 子集在后台跑，截至本报告未结束，不记为通过",
+  "limits": [
+    "没有经过 uvicorn 生命周期：验证的是生产 shutdown() 入口本身，服务钩子的接线仍靠既有单测与真机启动核验",
+    "真进程被 SIGKILL（连 shutdown 都来不及跑）这一路只能靠车端 TTL/租约过期兜底，本机不可演练",
+    "无执行器：臂的物理停止仍未观测"
+  ],
+  "cleanup": "排练 agent 按 marker pid SIGTERM 停掉、端口释放；排练 session 保留 raw_ready，未删数据",
+  "loss_sources_now_covered": {
+    "rehearsed_locally": [
+      "主臂读数失败/失联（7c）",
+      "上位机退出（7e）",
+      "隧道卡住/上位机停止发包（7b）",
+      "车端 agent 被杀（7 的第一步 + 重启恢复）",
+      "录制中急停（7d）"
+    ],
+    "unit_tests_only": [
+      "租约到期抢占",
+      "estop_latched 专用 409"
+    ],
+    "needs_the_car": [
+      "真拔 USB 后的插回与重新接合",
+      "真 SSH 隧道半开",
+      "真租约过期现场",
+      "硬件急停回路与按钮有效性"
+    ]
+  }
+}

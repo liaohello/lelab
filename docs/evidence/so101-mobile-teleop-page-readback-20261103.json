@@ -1,0 +1,103 @@
+{
+  "recorded_at": "2026-11-03T13:36:00Z",
+  "scope": "Local rehearsal: read the chain-produced teleop dataset back through the page viewer code path, and fix what that read-back exposed.",
+  "not_real_hardware": "The leader arm was synthetic and the car was this machine running the deployed car code. Nothing here is 实机验收 (八.3-八.8 on hardware stay open).",
+  "code_under_test": {
+    "car_agent_module": "/home/liaozhengyan/Desktop/lelab/ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py",
+    "agent_module_sha256_prefix": "8d217fc8d2451234",
+    "agent_profile": "hardware_teleop_v1",
+    "upper_computer_paths": [
+      "app_ros_mobile/lelab/ros_mobile.py::sync_session (HTTP archive + per-file sha256)",
+      "app_ros_mobile/lelab/ros_mobile.py::export_session (sqlite3 bag -> LeRobotDataset)",
+      "app_ros_mobile/lelab/dataset_viewer.py::list_episodes / video_path / episode_timeseries (the functions the /datasets/local routes call)"
+    ]
+  },
+  "run": {
+    "rehearsal_agent": "work/ros2_collection/envs/ros_jazzy/bin/python tools/ros2_collection/local_car_rehearsal.py --root /tmp/lelab_car_rehearsal (port 18115, ROS_DOMAIN_ID 57, feedback 50 Hz, camera 14.74 Hz, 64x48 frames)",
+    "session_drive": "app_ros_mobile/.venv/bin/python tools/ros2_collection/local_teleop_session_drive.py --root /tmp/lelab_car_rehearsal --follow-seconds 3",
+    "chain": "LELAB_ROS_AGENT_URL=http://127.0.0.1:18115 LELAB_ROS_COLLECTION_ROOT=/tmp/lelab_car_rehearsal/upper app_ros_mobile/.venv/bin/python tools/ros2_collection/local_full_chain_sync_export.py --root /tmp/lelab_car_rehearsal",
+    "chain_exit_code": 0,
+    "session_id": "ros_20261103T133403Z_985a8657",
+    "repo_id": "lelab/ros-mobile-20261103t133403z-985a8657"
+  },
+  "car_side_session": {
+    "sync_status": "raw_ready",
+    "episodes": 2,
+    "trajectory_requests": {
+      "/lelab/arm/trajectory_request": 61,
+      "/lelab/gripper/trajectory_request": 61
+    },
+    "driver_expectations_failed": []
+  },
+  "export_report": {
+    "action_source": "gateway_sent_target_after_clamp",
+    "success_labeling": "manual_or_unknown_no_simulator_ground_truth",
+    "export_schema": {"kind": "arm_gripper_6dof_phase1", "dims": 6, "chassis_included": false},
+    "fps": 15,
+    "declared_camera_fps": 14.74,
+    "total_frames": 91,
+    "warnings": [
+      "phase 1 export is arm+gripper only: the locked chassis is excluded rather than zero-filled",
+      "action is the post-clamp target the gateway sent; the leader reading is recorded separately and is not the action",
+      "state is the measured follower joint feedback; mechanical execution is inferred from later feedback, not observed",
+      "dataset sampled at 15 Hz because the video encoder requires a whole-number rate; the profile declared 14.74 Hz"
+    ]
+  },
+  "page_readback": {
+    "api": "dataset_viewer.list_episodes / video_path / episode_timeseries on the exported dataset dir",
+    "cameras": ["wrist_real"],
+    "fps": 15.0,
+    "robot_type": "lelab_mobile_arm_gripper_phase1",
+    "episodes": [
+      {"index": 0, "length": 45, "duration_s": 3.0, "task": "local rehearsal teleop", "cameras": ["wrist_real"]},
+      {"index": 1, "length": 46, "duration_s": 3.1, "task": "local rehearsal teleop", "cameras": ["wrist_real"]}
+    ],
+    "episode_ranges": {
+      "0": {"wrist_real": {"from_s": 0.0, "to_s": 3.0}},
+      "1": {"wrist_real": {"from_s": 3.0, "to_s": 6.067}}
+    },
+    "shared_video_file": "videos/observation.images.wrist_real/chunk-000/file-000.mp4 (both episodes live in this one file)",
+    "series": {
+      "0": {"points": 45, "state_dims": [6], "action_dims": [6]},
+      "1": {"points": 46, "state_dims": [6], "action_dims": [6]}
+    },
+    "first_state_frame": [-0.037498, -0.048091, -0.01447, 0.032455, 0.049541, 0.021079]
+  },
+  "expectations": {
+    "schema_is_arm_gripper_6d": true,
+    "chassis_not_zero_filled": true,
+    "both_episodes_exported": true,
+    "report_records_action_semantics": true,
+    "success_labeling_is_manual_or_unknown": true,
+    "page_lists_both_episodes": true,
+    "page_lengths_match_the_dataset": true,
+    "page_shows_the_wrist_camera": true,
+    "page_resolves_a_video_for_every_episode_camera": true,
+    "page_series_carries_six_columns_both_sides": true,
+    "page_can_locate_each_episode_inside_the_shared_file": true,
+    "page_fps_is_the_rounded_export_rate": true,
+    "failed": []
+  },
+  "defect_found_by_the_read_back": {
+    "what": "LeRobot v3 put both episodes in the same mp4 and dataset_viewer correctly reported from_s/to_s, but DatasetViewer.tsx built the player URL as `.../video/<camera>#t=<from_s>` with no end. Episode 0 therefore played on past its own frames into episode 1's footage, and with `loop` it looped over the whole file. Nothing in the previous assertions could see this: the old check only asked whether a video path resolved, which is true for both episodes of one shared file.",
+    "why_it_matters": "八.7 asks the page to read the data back for 数据检查. A reviewer who cannot tell where an episode ends cannot check the clip against the series, and would judge a teleop episode on frames belonging to the next one.",
+    "fix": "app_ros_mobile/frontend/src/pages/DatasetViewer.tsx now emits `#t=<from_s>,<to_s>` (Media Fragment start,end) so the player both seeks to and stops at the episode boundary; the range is still shown in the card header.",
+    "regression_pin": "tools/ros2_collection/local_full_chain_sync_export.py gained page_can_locate_each_episode_inside_the_shared_file: ranges must exist for every episode, be contiguous inside the shared file, and each span must equal length/fps within 0.05 s."
+  },
+  "mutation_check": {
+    "how": "dataset_viewer.py's `to_timestamp` branch was renamed so no episode records a to_s, then the two page assertions were recomputed against the same exported dataset.",
+    "result": "contiguous -> False, range_length_match -> False, while video_path still resolved True for both episodes. The pre-existing assertion is blind to this failure mode; only the new one reacts.",
+    "restored": "dataset_viewer.py returned to its committed content (grep for the marker: 0 hits, git diff empty)."
+  },
+  "frontend_build": {
+    "toolchain": "PATH+=work/tools/node/bin (node + npm), npx tsc --noEmit clean, npm run build exit 0",
+    "dist_verified": "app_ros_mobile/frontend/dist/assets/*.js contains `episodes/${i}/video/${t}#t=${u?.video_ranges?.[t]?.from_s??0},${u?.video_ranges?.[t]?.to_s??``}`",
+    "not_verified": "the browser's actual playback boundary - no click-through of the teleop wizard is possible without the leader arm on this host, so 八.8 stays open."
+  },
+  "cleanup": {
+    "agent": "pid 1041498 terminated; 127.0.0.1:18115 no longer listening",
+    "orphan_recorders": "0 processes matching `ros2 bag record` after shutdown",
+    "sessions_left_on_disk": ["ros_20261103T133041Z_13c7b808", "ros_20261103T133229Z_5cabda97", "ros_20261103T133403Z_985a8657"],
+    "session_statuses": "all three raw_ready / stop_reason=normal; the user's 18186 instance and 8110 tunnel were not touched"
+  }
+}

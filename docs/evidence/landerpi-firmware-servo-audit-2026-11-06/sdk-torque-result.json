@@ -1,0 +1,17 @@
+{
+  "scope": "offline AST extraction; no serial constructed",
+  "rows": [
+    {
+      "enable_argument": true,
+      "function": 5,
+      "payload_hex": "0b 01",
+      "reference_firmware_action": "unload"
+    },
+    {
+      "enable_argument": false,
+      "function": 5,
+      "payload_hex": "0c 01",
+      "reference_firmware_action": "load"
+    }
+  ]
+}

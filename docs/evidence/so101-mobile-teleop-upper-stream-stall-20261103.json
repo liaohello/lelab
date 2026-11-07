@@ -1,0 +1,134 @@
+{
+  "title": "六 的第六条链路在本机演练：上位机停止发包，而车端仍在运行",
+  "captured_utc": "2026-11-03T17:13:30Z",
+  "workspace": "/home/liaozhengyan/Desktop/lelab",
+  "branch": "codex/ros2-mobile-collection",
+  "revision_before": "f415fb1",
+  "evidence_level": "本机用部署用车端代码实测；无真车、无主臂、无执行器",
+  "tool": "tools/ros2_collection/local_car_upper_stream_stall.py (sha256_16 2b398b8f00f97836)",
+  "how_it_works": {
+    "child": "local_teleop_session_drive.py 在同一个排练根里建立双层租约、预览、接合并连录两段 episode",
+    "freeze": "等车端 /status.control.teleop.stream.live 为真后，对**发包那一侧**（驱动进程）发 SIGSTOP；agent 不冻结，仍持有车端控制租约、仍在录包",
+    "resume": "SIGCONT 之后继续采样，并读驱动自己的报告确认会话照常收尾",
+    "note": "这条与 local_car_fault_injection.py 不同：那一支测的是车端进程消失，这一支测的是上位机不再发包"
+  },
+  "measured": {
+    "profile_ttl_s": 0.6,
+    "clock_domain": "monotonic",
+    "samples_taken": 21,
+    "child_state_while_frozen": {
+      "child_pid": 1275070,
+      "signal": "SIGSTOP",
+      "state": "T"
+    },
+    "expired_sample_while_frozen": {
+      "stream": {
+        "expected": true,
+        "live": false,
+        "ttl_s": 0.6,
+        "age_s": 0.264,
+        "remaining_s": -0.064,
+        "clock_domain": "monotonic"
+      },
+      "last": {
+        "leader_rad": null,
+        "gripper_percent": 50.377,
+        "pre_clip_rad": [
+          0.002388
+        ],
+        "calibration_version": "3d072197007c|0e3e78539381|d704cb614c98",
+        "clutch": "engaged",
+        "wall": 103249.072664261
+      },
+      "active": true,
+      "mode": null,
+      "hold_policy": "vendor servos hold the last commanded position in position mode; torque is never disabled as a substitute for stopping",
+      "torque_control_offered": false,
+      "phase": "frozen",
+      "t": 103249.572
+    },
+    "live_before_stall": {
+      "stream": {
+        "expected": true,
+        "live": true,
+        "ttl_s": 0.6,
+        "age_s": 0.059,
+        "remaining_s": 0.141,
+        "clock_domain": "monotonic"
+      },
+      "last": {
+        "leader_rad": null,
+        "gripper_percent": 50.377,
+        "pre_clip_rad": [
+          0.002388
+        ],
+        "calibration_version": "3d072197007c|0e3e78539381|d704cb614c98",
+        "clutch": "engaged",
+        "wall": 103249.072664261
+      },
+      "active": true,
+      "mode": null,
+      "hold_policy": "vendor servos hold the last commanded position in position mode; torque is never disabled as a substitute for stopping",
+      "torque_control_offered": false,
+      "t": 103249.133
+    },
+    "first_live_after_resume": {
+      "stream": {
+        "expected": true,
+        "live": true,
+        "ttl_s": 0.6,
+        "age_s": 0.096,
+        "remaining_s": 0.104,
+        "clock_domain": "monotonic"
+      },
+      "last": {
+        "leader_rad": null,
+        "gripper_percent": 52.721,
+        "pre_clip_rad": [
+          0.051485
+        ],
+        "calibration_version": "3d072197007c|0e3e78539381|d704cb614c98",
+        "clutch": "engaged",
+        "wall": 103251.900760184
+      },
+      "active": true,
+      "mode": null,
+      "hold_policy": "vendor servos hold the last commanded position in position mode; torque is never disabled as a substitute for stopping",
+      "torque_control_offered": false,
+      "phase": "resumed",
+      "t": 103251.998
+    },
+    "driver_report_expectations_failed": [],
+    "driver_state_after_end_episode": "paused",
+    "session_manifest": {
+      "session_id": "ros_20261103T171237Z_1b0637da",
+      "status": "raw_ready",
+      "episodes": 2
+    }
+  },
+  "expectations": {
+    "car_marked_the_stream_expired_without_being_told": true,
+    "car_kept_its_own_control_lease_while_the_upper_was_frozen": true,
+    "no_new_target_while_frozen": true,
+    "stream_came_back_live_after_resume": true,
+    "resume_carries_a_newer_target_not_a_replayed_one": true,
+    "the_car_never_offered_torque_off_as_a_stop": true,
+    "the_upper_side_session_still_finalised_cleanly": true,
+    "driver_expectations_still_hold": true
+  },
+  "expectations_failed": [],
+  "first_run_defect_found_by_this_tool_itself": {
+    "symptom": "第一次跑 exit=1，failed=[resume_carries_a_newer_target_not_a_replayed_one]",
+    "cause": "我的判据取的是 control.teleop.last.seq，而这个块里没有 seq 字段（它带 pre_clip_rad/gripper_percent/clutch/calibration_version/wall），所以永远拿到 None",
+    "fix": "判据换成 target_is_newer()：wall 必须前进且载荷必须变化；同一 wall 换载荷不算前进",
+    "pinned_by": "tools/ros2_collection/tests/test_rehearsal_chain_tools.py::UpperStreamStallWitnessTests (4 cases)",
+    "honest_note": "这是判据写错，不是行为错：现场数据本身已经显示恢复后是更新的目标（夹爪 50.349→52.859、pre_clip_rad 变化）"
+  },
+  "limits": [
+    "冻结上位机是 SIGSTOP 模拟的“隧道卡住/发包停”，不是真的拔 SSH 隧道；真隧道还可能出现半开 TCP 与页面轮询超时叠加，仍需上车验证",
+    "舵机是否真的停在最后指令位置（hold_policy 那句话）在这台机器上不可观测：没有执行器，也没有 controller 回执（acks 为空）",
+    "车端控制租约在 2.5 s 冻结内保持 active 是本机 profile 的 TTL 设定；真车上租约 TTL 与 command_ttl 的关系要按现场配置再确认",
+    "拔主臂 USB、真租约过期这两路仍只有上位机单测覆盖，未在本机用部署代码演练"
+  ],
+  "cleanup": "排练 agent 按 marker 里的 pid 用 SIGTERM 停掉（端口已释放、无残留 ros2 bag record），两个排练 session 都留在根里且状态 raw_ready，未删除任何数据"
+}

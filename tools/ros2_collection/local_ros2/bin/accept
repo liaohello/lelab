@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# bin/accept - run the offline acceptance sequence end to end and write evidence.
+# Everything here is simulated: no serial port exists in the runtime, no device node
+# is mapped, and every topic is remapped under /lelab_offline.
+set -uo pipefail
+source "$(cd "$(dirname "$0")/../lib" && pwd)/common.sh"
+
+RUN_DIR_EVIDENCE="$EVIDENCE_DIR/acceptance"
+mkdir -p "$RUN_DIR_EVIDENCE"
+SERIES="${LROS_ACCEPT_SERIES:-$(date -u +%Y%m%dT%H%M%SZ)}"
+PY="${REPO_ROOT}/app_ros_mobile/.venv/bin/python"
+DRIVER="$LROS_TOOL_DIR/offline/frame_drive.py"
+FAILURES=0
+note() { printf '\n=== %s ===\n' "$*"; }
+step() { # step <name> <command...>
+  local name="$1"; shift
+  if "$@"; then echo "[step] $name ok"; else
+    echo "[step] $name FAILED (exit $?)"; FAILURES=$((FAILURES + 1)); fi
+}
+
+restart_licence() { # restart_licence <outputs true|false>
+  stop_instance licence_agent TERM >/dev/null 2>&1
+  wait_instance_gone licence_agent 15 >/dev/null 2>&1
+  local bundle
+  bundle="$(sed -n 's/.*"calibration_bundle_hash": "\([^"]*\)".*/\1/p' "$RUN_DIR/offline_stack.json")"
+  humble_enter_detached licence_agent licence_agent.log \
+    "python3 \$OFFLINE_DIR/licence_agent.py --session-id offline-session --session-epoch 1 \
+     --bundle $bundle --token offline-lease-token --permits arm,gripper \
+     --outputs $1 --status-path /out/state/licence_agent_status.json" >/dev/null
+  sleep 2
+}
+
+note "1. shared contract and stream tests on the runtime they will ship in (Python 3.10)"
+step test_python310_version humble_ros 'python3 -V'
+step protocol_tests humble_ros 'cd /repo && PYTHONPATH=app_ros_mobile:ros2_ws/src/lelab_mobile_agent \
+  python3 -m pytest -p no:cacheprovider -q tools/ros2_collection/tests/test_teleop_frame_v1.py' \
+  | tee "$RUN_DIR_EVIDENCE/protocol-tests-py310.txt"
+
+note "2. car-side contract tests on Humble (gateway, feedback, recorder logic)"
+step car_tests humble_ros 'cd /repo && PYTHONPATH=app_ros_mobile:ros2_ws/src/lelab_mobile_agent \
+  python3 -m pytest -p no:cacheprovider -q \
+  tools/ros2_collection/tests/test_command_contract.py \
+  tools/ros2_collection/tests/test_ros_servo_output.py' \
+  | tee "$RUN_DIR_EVIDENCE/car-contract-tests-py310.txt"
+
+note "3. stack"
+if [ ! -f "$RUN_DIR/offline_stack.json" ]; then
+  step stack_up "$LROS_TOOL_DIR/bin/up"
+else
+  echo "[step] stack already running (bin/up was used)"
+fi
+step restart_outputs_off restart_licence false
+
+note "4. preview: frames must arrive at 10Hz and nothing may reach the board"
+step preview "$PY" "$DRIVER" --phase preview --hz 10 --duration-s "${LROS_PREVIEW_SECONDS:-6}" \
+  --report "$RUN_DIR_EVIDENCE/preview-$SERIES.json"
+
+note "5. follow: one admitted frame becomes exactly one six-axis message"
+step restart_outputs_on restart_licence true
+step follow "$PY" "$DRIVER" --phase follow --hz "${LROS_HZ:-10}" --duration-s "${LROS_FOLLOW_SECONDS:-12}" \
+  --report "$RUN_DIR_EVIDENCE/follow-$SERIES.json"
+
+note "6. faults: bad frame, stale window, TTL ceiling, emergency stop"
+step faults "$PY" "$DRIVER" --phase faults --report "$RUN_DIR_EVIDENCE/faults-$SERIES.json"
+
+note "7. licence loss fails closed within the bridge timeout, not the session TTL"
+restart_licence true >/dev/null
+sleep 1
+licence_pid="$(read_instance_field licence_agent pid)"
+before="$(read_instance_field car_control pid)"
+"$PY" "$DRIVER" --phase follow --hz 10 --duration-s 3 \
+  --report "$RUN_DIR_EVIDENCE/pre-kill-$SERIES.json" >/dev/null 2>&1
+kill -KILL "$licence_pid"
+sleep 1.5
+step no_emit_after_licence_kill "$PY" - <<PY
+import json, sys, time
+sys.path.insert(0, "$REPO_ROOT/app_ros_mobile")
+from pathlib import Path
+from lelab.hybrid_channel import command_v1
+from lelab.teleop_frame_v1 import frame_v1
+from lelab.teleop_stream import StreamClient
+
+marker = json.loads(Path("$RUN_DIR/offline_stack.json").read_text())
+state = json.loads(Path("$STATE_DIR/car_control_status.json").read_text())
+board_before = json.loads(Path("$STATE_DIR/sim_board_owner.json").read_text())["outputs_received"]
+client = StreamClient(port=marker["stream_port"])
+try:
+    client.connect(lease_token=marker["lease_token"], session_id=marker["session_id"],
+                   session_epoch=str(marker["session_epoch"]))
+    print("FAIL: the stream still accepts a hello after the licence issuer died", file=sys.stderr)
+    sys.exit(1)
+except Exception as error:
+    print(f"hello refused after licence loss: {error}")
+board_after = json.loads(Path("$STATE_DIR/sim_board_owner.json").read_text())["outputs_received"]
+if board_after != board_before:
+    print(f"FAIL: board outputs grew {board_before} -> {board_after}", file=sys.stderr)
+    sys.exit(1)
+print(f"board outputs stayed at {board_after} after the licence issuer was killed")
+PY
+step control_still_healthy "$PY" -c "
+import json, pathlib
+state = json.loads(pathlib.Path('$STATE_DIR/car_control_status.json').read_text())
+assert state['licence']['authorised'] is False, state['licence']
+assert state['outputs_enabled'] is False, state
+print('control process reports licence_lost and outputs off:', state['licence']['revoked_reason'])"
+
+note "8. report"
+"$PY" - "$RUN_DIR_EVIDENCE" "$SERIES" "$FAILURES" <<'PY'
+import json, sys, time
+from pathlib import Path
+evidence, series, failures = sys.argv[1], sys.argv[2], int(sys.argv[3])
+documents = {}
+for path in sorted(Path(evidence).glob(f"*-{series}.json")):
+    documents[path.stem.split("-")[0]] = json.loads(path.read_text())
+checks = [check for document in documents.values() for check in document.get("checks", [])]
+summary = {
+    "series": series,
+    "data_identity": "simulated_offline",
+    "training_eligible": False,
+    "hardware_effect": "not_tested_serial_port_unreachable_from_runtime",
+    "runtime": "Ubuntu 22.04 / ROS 2 Humble / Python 3.10 in an unprivileged sandbox",
+    "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    "phases": sorted(documents),
+    "checks_total": len(checks),
+    "checks_failed": [check["name"] for check in checks if not check["passed"]],
+    "shell_step_failures": failures,
+    "effective_hz": {name: (doc.get("car_control") or {}).get("effective_emit_hz")
+                     for name, doc in documents.items()},
+    "board_outputs": {(doc.get("sim_board") or {}).get("outputs_received")
+                      for name, doc in documents.items()},
+}
+Path(evidence, f"summary-{series}.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+print(json.dumps(summary, indent=2, sort_keys=True))
+PY
+[ "$FAILURES" = "0" ] || { echo "[accept] $FAILURES shell step(s) failed"; exit 1; }
+exit 0

@@ -1,0 +1,28 @@
+{
+  "state": "ready",
+  "outputs_enabled": true,
+  "last_error": null,
+  "follow_runtime": {
+    "active": true,
+    "commands_sent": 54,
+    "last_error": null
+  },
+  "frame": {
+    "outputs_enabled": true,
+    "publish_count": 49,
+    "frames_received": 49,
+    "frames_emitted": 49,
+    "frames_refused": 0,
+    "last_refusal": null,
+    "queue_depth": 0,
+    "effective_emit_hz": 1.31
+  },
+  "raw": {
+    "joint1": 531,
+    "joint2": 492,
+    "joint3": 525,
+    "joint4": 502,
+    "joint5": 510,
+    "r_joint": 457
+  }
+}

@@ -1,0 +1,1376 @@
+{
+  "captured_at_utc": "2026-11-05T11:27:29Z",
+  "identity": {
+    "session_id": "7fdc002e74034e9db61cf9c0d375d739",
+    "session_epoch": 473793207729341,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "preview_http": 200,
+  "align_http": 200,
+  "arm_http": 200,
+  "engage_http": 200,
+  "arm_error": null,
+  "engage_error": null,
+  "pre_state": "ready",
+  "pre_error": null,
+  "initial_raw": {
+    "joint1": 533,
+    "joint2": 815,
+    "joint3": 16,
+    "joint4": 118,
+    "joint5": 880,
+    "r_joint": 492
+  },
+  "samples": [
+    {
+      "t": 0.103,
+      "state": "ready",
+      "last_error": null,
+      "outputs_enabled": true,
+      "follow_runtime": {
+        "active": true,
+        "commands_sent": 0,
+        "last_error": null
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "following",
+          "enabled": false,
+          "permitted": true,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "following",
+          "enabled": false,
+          "permitted": true,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 0.31,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 0.45,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 0.597,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 0.787,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 0.987,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 1.189,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 1.381,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 1.542,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 1.738,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 1.883,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 2.084,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 2.331,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 2.534,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 2.686,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 2.889,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 3.092,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 3.24,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 3.434,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 3.63,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 3.843,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 3.99,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 4.142,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 4.303,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 118,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    },
+    {
+      "t": 4.512,
+      "state": "fault",
+      "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed",
+      "outputs_enabled": false,
+      "follow_runtime": {
+        "active": false,
+        "commands_sent": 0,
+        "last_error": "follow_worker_failed:HardwareCompositionError:follow_arm_driver_send_failed"
+      },
+      "feedback_valid": true,
+      "raw": {
+        "joint1": 533,
+        "joint2": 815,
+        "joint3": 16,
+        "joint4": 117,
+        "joint5": 880,
+        "r_joint": 492
+      },
+      "channels": {
+        "base": {
+          "enabled": false,
+          "permitted": false,
+          "locked": true,
+          "gamepad": {
+            "armed": false,
+            "neutral_seen": false,
+            "intent": null,
+            "last_seq": -1,
+            "last_received_mono_ns": null,
+            "reason": "gamepad_unconfigured"
+          },
+          "seq": 0,
+          "pending": null,
+          "source": "gamepad"
+        },
+        "arm": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 1,
+          "pending": null,
+          "source": "so101_leader"
+        },
+        "gripper": {
+          "state": "idle",
+          "enabled": false,
+          "permitted": false,
+          "seq": 0,
+          "pending": null,
+          "source": "so101_leader"
+        }
+      }
+    }
+  ]
+}

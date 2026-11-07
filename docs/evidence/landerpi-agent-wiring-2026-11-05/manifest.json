@@ -1,0 +1,79 @@
+{
+  "browser_screenshots": {
+    "ep0-observe-slice.png": "e9308dd4572d273b9dac8cc1c03650c79ab19f7dcbe1ce0741547cbd9d06ee93",
+    "ep0-whole.png": "19034eec817e82c496c86cc0f74f4397265b6f63dd04052e7ebfcd4896b7e4b5",
+    "ep1-grasp-slice.png": "522a998a4209ed1dc9da611c1881aa69f6488356eef8f4a0347471ebfeaf7ada",
+    "ep1-whole.png": "c2ae3995dab39a4482eb8e051dc8e02ee4eee1fea08e47defa64be7215c9df4e"
+  },
+  "data_locations": {
+    "archive": "work/ros2_collection/local_humble/docker/evidence/agent-session-archive.tar.gz",
+    "car_side_session": "work/ros2_collection/local_humble/docker/sessions",
+    "exported_dataset": "work/ros2_collection/local_humble/lerobot_offline/lelab",
+    "upper_synced_session": "work/ros2_collection/local_humble/upper6d/upper/sessions"
+  },
+  "date_utc": "2026-11-05T18:56:06Z",
+  "environment": {
+    "agent_port": 18130,
+    "car_side_python": "3.10.12",
+    "container_image": "lelab/humble-dev:local",
+    "domain_id": "93",
+    "instance_label": "landerpi-local-humble-offline",
+    "isolation": "docker: no --device, no /dev mapping, repo mounted read-only, no pyserial in the image, frame port loopback-only",
+    "owner_label": "tools/ros2_collection/local_ros2/bin/docker",
+    "pinned_base": "ros:humble-ros-base-jammy@sha256:a3f4de78e42cca693a543ece5798aedcf1cae0171fe71c334a047332cc72ef93",
+    "ros_distro": "humble",
+    "stream_port": 18122,
+    "upper_host_python": "Python 3.12.3"
+  },
+  "final_gate_numbers": {
+    "app_side_export_recording_composite_tests": "73 passed",
+    "car_side_suite_in_container": "320 passed, 1 failed (pre-existing torque-guard conflict)",
+    "docker_accept": "rc=0, 114 container unit tests passed, 23 live checks passed",
+    "docker_faults": "rc=0, 22 live checks passed",
+    "docker_record": "rc=0, 46 live checks passed (session 12, bag readback 21, sync/export 13)"
+  },
+  "finalised_utc": "2026-11-05T19:06:44Z",
+  "reports": [
+    "agent-status-after-accept.json",
+    "agent_status_disarmed.json",
+    "bag-verify.json",
+    "car_control_status_final.json",
+    "disarm-pause.json",
+    "fault-matrix.json",
+    "faults.json",
+    "follow.json",
+    "hybrid-session.json",
+    "preview.json",
+    "sync-export.json"
+  ],
+  "source_sha256": {
+    "app_ros_mobile/lelab/hybrid_export_schema.py": "b33ea82096bce3e7d9b716ba881458d36793a4d796b0b670d29896c4bce50dc5",
+    "app_ros_mobile/lelab/hybrid_frame_link.py": "6941408f5b973b51186a0f26d2dfd400c2dbed69d7e6886e48291a5c1fc5dd1e",
+    "app_ros_mobile/lelab/ros_export_worker.py": "e63356767e4ea019402dad12ef1220d530da4240e974ed404cf93b8a88d6cea4",
+    "app_ros_mobile/lelab/ros_mobile.py": "a03c622c04b7e4480b0455d3c1d92f57c75b09187a2b7c242230fd38d1283c5b",
+    "app_ros_mobile/lelab/teleop_frame_v1.py": "a1264f07b46f9cb2cbddf6534b50561f69db54918a84111f220dd9f8c7e17401",
+    "app_ros_mobile/lelab/teleop_stream.py": "93ac81f453ff76f51f91aec2a3c510f0aec31269cf7c36609a60e51c47f9ae87",
+    "app_ros_mobile/tests/test_ros_mobile_teleop_export.py": "f8512b3c3d5c478f95b56d389c05cf97c7ffca516f5376b2076fb6eef846686f",
+    "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d.json": "4fb9c7e9883c2fdfa3884392b8599d54bc2109d122f441a08cabdc98e2eb0f55",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py": "fa626172220773737b977098377037997dfe66430759e4f639a02a8ab701e244",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent_licence_bridge.py": "0bb0ea375c8e3a2d89d6d3d8e08184fe6607b579d67101e0a77d7c11d31deee0",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/car_control_process.py": "fb6df4248497a7667ed62ee8ef3eba0771eb72bb72e3480c5bd82c94ab8e02a4",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/licence_ipc.py": "b2df5df531a85089042a0b0866663b7bf40168afedc6b34761d778cba6ba45c6",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/ros_servo_readback.py": "76222846624ebabab576dd4cae1991d35adc46a4929b676fb74b2da584bbd820",
+    "tools/ros2_collection/local_ros2/bin/docker": "3e0a5481b58c8b69fd9e15dc55e2fd6a31ff1675cd818f05e600cf48ef75b52d",
+    "tools/ros2_collection/local_ros2/offline/agent_session.py": "39b6e8a9e05df6d7efe04e6296b47aed3bdce7df953596047254ca31d9c3dff6",
+    "tools/ros2_collection/local_ros2/offline/container_ops.py": "a34f9a5aaa2f0daf9210dd55c199362c505e17e0dae8ac22fa983378031c8650",
+    "tools/ros2_collection/local_ros2/offline/fault_matrix.py": "3ca265506ff7c2548abc9b66d645e365d93d67de11b33e67f5679e9d2ee1ff8a",
+    "tools/ros2_collection/local_ros2/offline/frame_drive.py": "2f4df7cbccf1466b83e4be8c05f17f1b896c2d730e707e766995f57927250122",
+    "tools/ros2_collection/local_ros2/offline/hybrid_session.py": "874cffb8ca6a305f354f60d7cb3c098fd127067ad2f50636951d30c8427997c3",
+    "tools/ros2_collection/local_ros2/offline/sync_and_export.py": "d922b6074870e756b5502e6baf79a2a4f6e285eac7c0db7c9ea0c0a80b4b49f2",
+    "tools/ros2_collection/local_ros2/offline/verify_bag.py": "39a09a4bcb78daa5dab5869b3d6e22c884526977c318aaf18e0685825788109b",
+    "tools/ros2_collection/local_ros2/offline/verify_viewer.py": "a324eb00b7f31b2097cc5dbdcb2f8056c4c1fd5f3a9e93a53f38b1ccbeced1c4",
+    "tools/ros2_collection/tests/test_agent_frame_arbitration.py": "215bfa72026eb061c06823ea225d13cb82ba435e594543d5a5855fb22ef0947a",
+    "tools/ros2_collection/tests/test_agent_licence_bridge.py": "2eed787436653a22590dc41ff28b19e047ad563ba4dd84ab2994d9be8ba84763",
+    "tools/ros2_collection/tests/test_car_control_process.py": "885dc9c47f5e197c71c4b8cc2e8fc1b11ea1488705a26c566a86748afd127400",
+    "tools/ros2_collection/tests/test_integration_car_phase.py": "a03b2f8a625b33de0db9c19979892481aaf491486080fbb958b191788b3ae149",
+    "tools/ros2_collection/tests/test_licence_ipc.py": "c3975aa891064628a36b0203c9b3dc9415b3112cb5e04c5ea2022788e4583718"
+  },
+  "task": "landerpi agent wiring #9: production agent as the sole car-side authority"
+}

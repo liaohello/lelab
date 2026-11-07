@@ -1,0 +1,163 @@
+{
+  "steps": [
+    {
+      "step": "acquire",
+      "http": 200
+    },
+    {
+      "step": "preview",
+      "http": 200,
+      "targets": null
+    },
+    {
+      "step": "align",
+      "http": 200,
+      "targets": [
+        {
+          "joint": "joint1",
+          "pre_clip_rad": -0.238761,
+          "target_rad": -0.238761,
+          "clipped": false,
+          "soft_limits_rad": [
+            -2.052507,
+            2.086018
+          ],
+          "hardware_limits_rad": [
+            -2.052507,
+            2.086018
+          ],
+          "direction": 1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.0,
+          "normalization": "leader_range_to_follower_range",
+          "leader_normalized_delta": 0.0,
+          "leader_travel_rad": [
+            -1.8703792159833736,
+            1.8703792159833736
+          ],
+          "follower_travel_rad": [
+            -2.052507,
+            2.086018
+          ]
+        },
+        {
+          "joint": "joint2",
+          "pre_clip_rad": -1.193805,
+          "target_rad": -1.193805,
+          "clipped": false,
+          "soft_limits_rad": [
+            -2.052507,
+            1.931032
+          ],
+          "hardware_limits_rad": [
+            -2.052507,
+            1.931032
+          ],
+          "direction": -1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.0,
+          "normalization": "leader_range_to_follower_range",
+          "leader_normalized_delta": 0.0,
+          "leader_travel_rad": [
+            -1.8435279967219225,
+            1.8435279967219225
+          ],
+          "follower_travel_rad": [
+            -2.052507,
+            1.931032
+          ]
+        },
+        {
+          "joint": "joint3",
+          "pre_clip_rad": -0.326726,
+          "target_rad": -0.326726,
+          "clipped": false,
+          "soft_limits_rad": [
+            -2.094395,
+            2.052507
+          ],
+          "hardware_limits_rad": [
+            -2.094395,
+            2.052507
+          ],
+          "direction": -1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.0,
+          "normalization": "leader_range_to_follower_range",
+          "leader_normalized_delta": 0.0,
+          "leader_travel_rad": [
+            -1.6977642350169015,
+            1.6977642350169015
+          ],
+          "follower_travel_rad": [
+            -2.094395,
+            2.052507
+          ]
+        },
+        {
+          "joint": "joint4",
+          "pre_clip_rad": -1.156106,
+          "target_rad": -1.156106,
+          "clipped": false,
+          "soft_limits_rad": [
+            -1.675516,
+            2.010619
+          ],
+          "hardware_limits_rad": [
+            -1.675516,
+            2.010619
+          ],
+          "direction": -1.0,
+          "scale": 1.0,
+          "wrapped": false,
+          "leader_delta_rad": 0.0,
+          "normalization": "leader_range_to_follower_range",
+          "leader_normalized_delta": 0.0,
+          "leader_travel_rad": [
+            -1.7445620743011452,
+            1.7445620743011452
+          ],
+          "follower_travel_rad": [
+            -1.675516,
+            2.010619
+          ]
+        },
+        {
+          "joint": "joint5",
+          "pre_clip_rad": 0.17174,
+          "target_rad": 0.17174,
+          "clipped": false,
+          "soft_limits_rad": [
+            -1.759292,
+            1.717404
+          ],
+          "hardware_limits_rad": [
+            -1.759292,
+            1.717404
+          ],
+          "direction": 1.0,
+          "scale": 1.0,
+          "wrapped": true,
+          "leader_delta_rad": 0.0,
+          "normalization": "leader_range_to_follower_range",
+          "leader_normalized_delta": 0.0,
+          "leader_travel_rad": [
+            -2.8792178825207553,
+            2.8792178825207553
+          ],
+          "follower_travel_rad": [
+            -1.759292,
+            1.717404
+          ]
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "http": 200,
+    "state": "disconnected"
+  }
+}

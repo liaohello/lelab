@@ -1,0 +1,219 @@
+{
+  "captured_at_utc": "2026-11-05T11:44:05Z",
+  "bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+  "initial_raw": {
+    "joint1": 532,
+    "joint2": 815,
+    "joint3": 13,
+    "joint4": 118,
+    "joint5": 880,
+    "r_joint": 492
+  },
+  "requested_out_raw": {
+    "joint1": 544,
+    "joint2": 815,
+    "joint3": 13,
+    "joint4": 118,
+    "joint5": 880,
+    "r_joint": 492
+  },
+  "up": {
+    "http": 200,
+    "response": {
+      "accepted": {
+        "accepted": true,
+        "session_id": "codex-direct-step-20261105b",
+        "session_epoch": 700000000000011,
+        "channel": "arm",
+        "seq": 1,
+        "ttl_ms": 200,
+        "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+        "outputs_enabled": true,
+        "driver_sent": "pending_dispatch",
+        "controller_acknowledged": "unavailable",
+        "execution_observed": "unavailable",
+        "simulated": false,
+        "event": {
+          "kind": "command",
+          "session_id": "codex-direct-step-20261105b",
+          "episode_id": null,
+          "time_ns": 1793879043464587486,
+          "sim_time_ns": 1793879043464615486,
+          "clock_domain": "hardware_system_time",
+          "wall_time": 1793879043.4646218,
+          "protocol_version": 1,
+          "component": "arm",
+          "session_epoch": 700000000000011,
+          "source": "so101_leader",
+          "seq": 1,
+          "sample_seq": 1,
+          "ttl_ms": 200.0,
+          "ttl_source": "command.ttl_ms",
+          "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "calibration_source": "command.calibration_bundle_hash",
+          "confirmation": {
+            "channel": "arm",
+            "source": "so101_leader",
+            "requested": true,
+            "gateway_accepted": true,
+            "driver_sent": "unavailable",
+            "controller_acknowledged": "unavailable",
+            "execution_observed": "unavailable",
+            "highest_confirmed": "gateway_accepted"
+          },
+          "target": [
+            0.18430676901060117,
+            1.319468914507713,
+            -2.039940829730972,
+            -1.6001178582284012,
+            1.5917402778188283
+          ],
+          "gateway_target": {
+            "joint_names": [
+              "joint1",
+              "joint2",
+              "joint3",
+              "joint4",
+              "joint5"
+            ],
+            "positions_rad": [
+              0.18430676901060117,
+              1.319468914507713,
+              -2.039940829730972,
+              -1.6001178582284012,
+              1.5917402778188283
+            ]
+          },
+          "clutch": true,
+          "gateway_envelope": {
+            "protocol_version": 1,
+            "session_id": "codex-direct-step-20261105b",
+            "session_epoch": 700000000000011,
+            "channel": "arm",
+            "source": "so101_leader",
+            "seq": 1,
+            "sample_seq": 1,
+            "ttl_ms": 200,
+            "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+            "target": {
+              "joint_names": [
+                "joint1",
+                "joint2",
+                "joint3",
+                "joint4",
+                "joint5"
+              ],
+              "positions_rad": [
+                0.18430676901060117,
+                1.319468914507713,
+                -2.039940829730972,
+                -1.6001178582284012,
+                1.5917402778188283
+              ]
+            },
+            "clutch": true,
+            "clutch_label": "engaged"
+          },
+          "gateway_confirmation": {
+            "accepted": true,
+            "confirmation": "gateway_accepted",
+            "channel": "arm",
+            "seq": 1,
+            "deadline_mono_ns": 2454460089491,
+            "outputs_enabled": true,
+            "controller_acknowledged": "unavailable",
+            "execution_observed": false
+          }
+        }
+      },
+      "dispatch": {
+        "channel": "arm",
+        "dispatched": true,
+        "driver_sent": true,
+        "outputs_enabled": true,
+        "controller_acknowledged": "unavailable",
+        "execution_observed": "unavailable",
+        "hardware_effect": "unverified",
+        "simulated": false,
+        "gateway": {
+          "command": {
+            "protocol_version": 1,
+            "session_id": "codex-direct-step-20261105b",
+            "session_epoch": 700000000000011,
+            "channel": "arm",
+            "source": "so101_leader",
+            "seq": 1,
+            "sample_seq": 1,
+            "ttl_ms": 200,
+            "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+            "target": {
+              "joint_names": [
+                "joint1",
+                "joint2",
+                "joint3",
+                "joint4",
+                "joint5"
+              ],
+              "positions_rad": [
+                0.18430676901060117,
+                1.319468914507713,
+                -2.039940829730972,
+                -1.6001178582284012,
+                1.5917402778188283
+              ]
+            },
+            "clutch": true,
+            "clutch_label": "engaged",
+            "received_mono_ns": 2454260089491,
+            "deadline_mono_ns": 2454460089491
+          },
+          "confirmation": "driver_sent",
+          "driver_sent": true,
+          "controller_acknowledged": "unavailable",
+          "execution_observed": false,
+          "outputs_enabled": true
+        }
+      }
+    }
+  },
+  "after_out": {
+    "joint1": 541,
+    "joint2": 815,
+    "joint3": 13,
+    "joint4": 118,
+    "joint5": 880,
+    "r_joint": 492
+  },
+  "back": {
+    "http": 400,
+    "response": {
+      "error": "channel_not_permitted",
+      "detail": ""
+    }
+  },
+  "after_back": {
+    "joint1": 541,
+    "joint2": 815,
+    "joint3": 13,
+    "joint4": 118,
+    "joint5": 880,
+    "r_joint": 492
+  },
+  "stop": {
+    "http": 200,
+    "response": {
+      "stopped": true,
+      "reason": "direct-step-complete",
+      "queue_dropped": 0,
+      "outputs_enabled": false,
+      "driver_stopped": true,
+      "driver_stop_error": null,
+      "hardware_effect": "unverified",
+      "last_error": "rejected:channel_not_permitted",
+      "session_id": "codex-direct-step-20261105b",
+      "session_epoch": 700000000000011,
+      "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+      "simulated": false
+    }
+  }
+}

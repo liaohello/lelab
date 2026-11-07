@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+date: Sat, 07 Nov 2026 10:58:55 GMT
+server: uvicorn
+cache-control: no-store
+x-lelab-fetched-at: 1794049135.466
+x-lelab-frame-seq: 2601
+x-lelab-source-stamp-ns: 1794049135220000000
+access-control-expose-headers: X-LeLab-Frame-Seq, X-LeLab-Source-Stamp-Ns, X-LeLab-Fetched-At
+content-length: 15602
+content-type: image/jpeg
+vary: Origin
+

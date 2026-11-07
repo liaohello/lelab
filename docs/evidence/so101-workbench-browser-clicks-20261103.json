@@ -1,0 +1,35 @@
+{
+  "generated_utc": "2026-11-03T16:41Z",
+  "level": "浏览器真实点击（无主臂参与）：只覆盖不依赖硬件的界面路径，不等于八.3/八.5 实机验收",
+  "server": "自起的只读验证实例 127.0.0.1:18198（uvicorn + 已构建 dist）；用完按 cmdline 核对后 kill，用户的 18186 未动、仍在监听",
+  "observed": {
+    "step1_empty_inventory": "这台主机没有列出任何外部串口。主臂必须接在上位机的 USB 上——网络可达不等于串口可访问。",
+    "bindings_path_shown": "/home/liaozhengyan/.cache/huggingface/lerobot/lelab/arm_bindings.json",
+    "step3_buttons": [
+      {
+        "label": "仅预览（不下发目标）",
+        "disabled": true
+      },
+      {
+        "label": "开始跟随",
+        "disabled": true
+      }
+    ],
+    "step3_gate_reason": "先选定两台臂与各自的标定文件。",
+    "step4_lists_local_datasets": "列出真采集过的 session（例：lelab/ros-mobile-20261031t164152z-4a59021d，1 集 / 200 帧 · 10 fps）",
+    "back_to_step1": "点回第 1 步后端口选择器仍在（步骤切换不丢状态）",
+    "lease_chip": "第 3 步显示「控制权租约：idle」；curl 认领 teleoperation 租约后未跑任务，被看门狗按 task-finished 回收，页面回到 idle"
+  },
+  "api_checks": {
+    "GET /so101/devices": "ports=[] calibrations 空 + note；lease 字段完整",
+    "GET /teleoperation-status": "含 clutch={\"engage_requested\":false,\"engaged\":false,\"aligned\":false,\"refusal\":null}",
+    "POST /move-arm（租约被占时）": "HTTP 409，detail={message, holder, task}（curl 侧确认结构；页面上的可读渲染仍待有臂时点一次）"
+  },
+  "not_covered_needs_arms_or_car": [
+    "按下「仅预览」后两臂确实不动、曲线出双线",
+    "按下「开始跟随/接合离合」的瞬间不跳变",
+    "断开后重摆主臂再重新接合（要求重新对齐）",
+    "读不到实测时接合被拒在页面上的显示",
+    "车端 preview/跟随/录制整链"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "url": "http://127.0.0.1:18286/landerpi",
+  "checks": [
+    {
+      "name": "title",
+      "ok": true
+    },
+    {
+      "name": "so101_live",
+      "ok": true
+    },
+    {
+      "name": "six_feedback",
+      "ok": true
+    },
+    {
+      "name": "camera",
+      "ok": true
+    },
+    {
+      "name": "output_off",
+      "ok": true
+    },
+    {
+      "name": "step2",
+      "ok": true
+    }
+  ],
+  "browser_errors": [],
+  "passed": true,
+  "body_excerpt": "LanderPi 设置\n\n按 LeRobot 的设备 → 标定 → 测试顺序完成真机配置\n\n执行输出关闭\n设备连接\n主臂、车端和相机\n2\n主臂标定\n复用 LeRobot 标定\n树莓派从臂\n五轴手动 + 夹爪拖动\n4\n配对预览\n无输出联动确认\n完整诊断与原始数据\n\nSTEP 1 / 4\n\n设备连接\n\nSO-101 主臂\n\nleader:usb-1a86_USB_Single_Serial_5B90149652-if00\n\n数据正常\n\nLanderPi 从臂\n\nros_robot_controller/bus_servo/get_state\n\n六路正常\n\n腕部相机\n\n/ascamera/camera_publisher/rgb0/image\n\n画面正常\n\n控制通道\n\n输出保持关闭；当前仅允许查看和标定\n\n安全检查通过\n继续到主臂标定"
+}

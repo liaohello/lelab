@@ -1,0 +1,85 @@
+{
+  "recorded_utc": "2026-11-03T04:30:00+00:00",
+  "title": "SO101 主臂遥操作前置审计：车端从臂反馈来源、单位/ID/限位与最小启动入口副作用",
+  "scope_note": "本轮只做只读源码核查与设备归属核验，未启动任何执行器节点，未产生真实运动。vendor 代码路径来自车端容器 /home/ubuntu/ros2_ws/src/driver；参考实现来自用户指定库 /home/liaozhengyan/Desktop/resource/lander_pi/src。",
+  "device_ownership": {
+    "upper_host_serials": [
+      "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B91045575-if00 -> ttyACM0",
+      "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149339-if00 -> ttyACM1",
+      "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00 -> ttyACM2",
+      "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00 -> ttyACM3"
+    ],
+    "count": 4,
+    "meaning": "四路 CH340 型 USB 串口全部接在本上位机（左右主臂/左右从臂历史归属），因此 SO101LeaderReader 应在上位机运行，不是 Pi",
+    "leader_calibrations_on_disk": ["left_rig.json", "right_rig.json"],
+    "leader_calibration_format": "draccus JSON，字段只有电机 id/drive_mode/homing_offset/range_min/range_max，**无 schema/版本/设备身份字段**（lelab 侧需自行加版本与哈希）"
+  },
+  "car_servo_topology": {
+    "board_owner_node": "ros_robot_controller (driver/ros_robot_controller/ros_robot_controller/ros_robot_controller_node.py) 独占控制板 UART",
+    "feedback_service": "ros_robot_controller_msgs/srv/GetBusServoState on /ros_robot_controller/bus_servo/get_state；参考实现直接取 response.pulse 列表（lander_pi/src/example/example/hand_trajectory/finger_control.py:87-89,145-147）",
+    "state_topics": {
+      "joint_states": "/controller_manager/joint_states (sensor_msgs/JointState，弧度，由 servo_controller 线程发布，driver/servo_controller/servo_controller/controller_manager.py:50,63,98-115)",
+      "servo_states": "/controller_manager/servo_states (servo_controller_msgs/ServoStateList，同文件 :51,115)"
+    },
+    "command_paths": {
+      "raw_pulse_topic": "/servo_controller (servo_controller_msgs/ServosPosition, position_unit=\"pulse\", driver/servo_controller/servo_controller/bus_servo_control.py:6-18)",
+      "joint_radians_topic": "joint_controller (sensor_msgs/JointState，controller_manager.py:65)",
+      "actions": "/arm_controller/follow_joint_trajectory 与 /gripper_controller/follow_joint_trajectory（control_msgs/FollowJointTrajectory，joint_trajectory_action_controller.py:46）——与我们车端网关 watchdog.py:70-71 已使用的动作名一致"
+    },
+    "servo_ids": {"joint1": 1, "joint2": 2, "joint3": 3, "joint4": 4, "joint5": 5, "r_joint": 10, "w_joint": 9},
+    "controller_groups": {"arm_controller": ["joint1..joint5"], "gripper_controller": ["r_joint"]},
+    "important": "本机 gripper 只有一个执行舵机（id 10，关节名 r_joint）；仿真模型的 5 关节 mimic 夹爪不是硬件独立控制量。遥操作只应对 r_joint 下命令，mimic 关节不得作为独立控制量",
+    "machine_type_gate": "joints 列表依赖环境变量 MACHINE_TYPE；只有 JetRover_Acker 才加入 w_joint（controller_manager.py:23-27）"
+  },
+  "units_and_limits": {
+    "encoder_resolution": 1000,
+    "radians_per_encoder_tick": "240/360 * 2*pi/1000 ≈ 0.00418879（240° 行程映射到 1000 脉冲）",
+    "initial_position_raw": 500,
+    "raw_limits": {"joint1..joint5": {"min": 0, "max": 1000}, "r_joint": {"min": 1000, "max": 0}, "w_joint": {"min": 0, "max": 1000}},
+    "flip_semantics": "min>max 即 flipped=True，pulse_to_rad/rad_to_pulse 方向随之反转（joint_position_controller.py:24-36,39-47）；r_joint 是反方向关节",
+    "clipping": "vendor 在 pos_rad_to_pulse 内先把弧度夹到 [min_angle,max_angle]，再转脉冲（joint_position_controller.py:49-56）；ServoManager 发送前把脉冲夹到 0..1000（servo_controller.py:60-64）",
+    "gripper_linkage": "lander_pi/src/example/example/rgbd_function/utils/utils.py:24-64：get_gripper_size(angle, angle_zero=200) 用四连杆把 0-1000 舵机角换算成夹爪宽度/深度，set_gripper_size(width) 是反函数；夹爪开合量与舵机角度之间是几何关系，不是线性比例，禁止把 SO101 的 0-100 百分比直接当弧度"
+  },
+  "startup_side_effects": {
+    "ros_robot_controller___init__": [
+      "board.enable_reception()（向控制板写使能接收）",
+      "load_servo_offsets()：从 YAML 加载并设置舵机偏移量（可能写 EEPROM/运行期偏移）——ros_robot_controller_node.py:49",
+      "send_machine_type()（写机型）",
+      "networdamode_set_led()（按 /home/ubuntu/shared/.networkmode.txt 写 LED）",
+      "board.set_motor_speed([[1,0],[2,0],[3,0],[4,0]])：开机向四个底盘电机下发零速",
+      "create_subscription：set_motor/set_bus_servo_state/bus_servo/set_position/set_led/set_buzzer/set_oled/set_rgb/pwm_servo/set_state 等写入口全部注册"
+    ],
+    "servo_controller_ControllerManager___init__": [
+      "servo_manager.connect()：查询已连接舵机（读）",
+      "client.wait_for_service()：无超时无限阻塞等待 ros_robot_controller/init_finish",
+      "只创建 action server 与发布/订阅，不在构造时下命令"
+    ],
+    "vendor_bringup_rejected": "controller.launch.py 还包含 odom_publisher、robot_localization/ekf_node 等；bringup.launch.py 额外包含 init_pose.launch.py（action_name=init，直接摆臂）与 start_app 行为节点。只读/底盘锁定阶段禁止使用",
+    "authorization_needed": "启动 ros_robot_controller 会产生上述写操作（含底盘零速与 LED/偏移量）。这不是“只连接设备”，而是执行器侧写入。因此在用户明确授权前，最小启动入口只作为脚本交付与静态说明，不实跑"
+  },
+  "reference_library_findings": {
+    "path": "/home/liaozhengyan/Desktop/resource/lander_pi/src",
+    "useful": [
+      "example/example/mediapipe_example/include/arm_init.py：vendor 的舵机初始化序列（等待 /controller_manager/init_finish 后按 pulse 下发一组姿态，duration=2）",
+      "example/example/hand_trajectory/finger_control.py：真实回读用法 GetBusServoState→res.pulse 再映射到 id 1..4",
+      "example/example/rgbd_function/utils/utils.py：夹爪角度↔宽度几何换算",
+      "driver/servo_controller/servo_controller/bus_servo_control.py：pulse 域下发封装"
+    ],
+    "not_used": "arm_init.launch.py 走的是完整 controller 包含链，不满足最小启动入口要求"
+  },
+  "code_constraints_for_new_modules": {
+    "lease_tasks": "app_ros_mobile/lelab/hardware_lease.py:51-54 硬编码 (calibration, teleoperation, recording, inference)；车端桥目前固定申请 recording（ros_mobile.py:44）。小车遥操作必须以 teleoperation 申请，录制作为同一会话子任务不得二次申请互斥租约",
+    "mode_gate": "车端 agent 的 arm_command/gripper_command 只接受 control_mode==scripted_expert（agent.py:758,782），leader_arm 被硬拒（agent.py:710-711），status.leader_arm_available 恒为 False（agent.py:1457）",
+    "ack_not_recorded": "watchdog.py:158-179 已有真实 action 接受/完成判定，但 metadata 把 acknowledged 一律写成 not_available（agent.py:983），且 /lelab/arm|gripper/trajectory_request 与 /lelab/applied_command 不在 recording.topics（runtime-profile-v1.json:202-224）",
+    "arm_ttl_unused": "profile 的 limits.arm_command_ttl_s=2.5 从未被代码使用；臂/夹爪没有陈旧目标丢弃逻辑",
+    "export_dims": "上位机导出把 state/action 硬编码为 9 维（ros_mobile.py:1023-1031,1113-1116），事件过滤也按 9 维（921-931）；六维（arm5+gripper1）schema 必须参数化",
+    "leader_writes": "lerobot SOLeader.connect()/configure() 与 web 标定流程会写 EEPROM（Homing_Offset 等）并在启动时无条件 write_calibration（app_ros_mobile/lelab/teleoperate.py:220-230）；主臂只读预览需要一条不写入的打开路径"
+  },
+  "next_actions": [
+    "实现从臂反馈模块：订阅 /controller_manager/joint_states + GetBusServoState 代理（有限超时、世代号丢弃迟到回包、串行化请求），状态标注 source/time/age",
+    "车端网关新增 leader_arm 模式与臂/夹爪 TTL、缺反馈拒绝跟随",
+    "交付最小启动入口脚本（只起 ros_robot_controller + servo_controller，不含 init_pose/odom/ekf/app），并标注其写副作用等待授权",
+    "上位机 SO101LeaderReader：只读串口打开路径 + 频率/超时可配置 + 健康判定",
+    "三层标定 schema（主臂/从臂/映射）带版本、哈希与设备身份绑定"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "captured_utc": "2026-11-07T03:56:26.867561+00:00",
+  "profile": "hardware_hybrid_arm2_trial_v1",
+  "control_active": false,
+  "car_output_permission": false,
+  "process_outputs_enabled": false,
+  "published_frames": 156,
+  "refused_frames": 1,
+  "last_refusal": {
+    "frame_seq": "157",
+    "reason": "trial_displacement_exceeded:joint2"
+  },
+  "reengage_required": true,
+  "camera_age_s": 0.20221337000020867,
+  "plan": {
+    "complete": false,
+    "joint": "joint1",
+    "servo_id": 1,
+    "observed_raw": {
+      "joint1": 541,
+      "joint2": 630,
+      "joint3": 76,
+      "joint4": 118,
+      "joint5": 907,
+      "r_joint": 457
+    },
+    "step_target_raw": 531,
+    "final_target_raw": {
+      "joint1": 500,
+      "joint2": 500,
+      "joint3": 500,
+      "joint4": 500,
+      "joint5": 500,
+      "r_joint": 350
+    },
+    "remaining_raw": -41,
+    "max_step_raw": 10,
+    "motion_authorized": false,
+    "requires_new_feedback": true
+  }
+}

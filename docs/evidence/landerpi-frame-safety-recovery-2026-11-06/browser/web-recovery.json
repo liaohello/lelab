@@ -1,0 +1,461 @@
+{
+  "base_url": "http://127.0.0.1:18288",
+  "agent_url": "http://127.0.0.1:18131",
+  "data_identity_expected": "simulated_offline",
+  "steps": [],
+  "checks": [
+    {
+      "name": "round1_arming_alone_produces_nothing",
+      "ok": true,
+      "detail": {
+        "emitted_at_arm": 0,
+        "emitted_two_seconds_later": 0,
+        "frame_outputs_enabled": false
+      }
+    },
+    {
+      "name": "round1_publishing_before_the_stop",
+      "ok": true,
+      "detail": {
+        "emitted": [
+          0,
+          7
+        ]
+      }
+    },
+    {
+      "name": "round1_car_side_latched_after_the_page_stop",
+      "ok": true,
+      "detail": {
+        "agent_estop_latched": true,
+        "process_latched_fault": "estop",
+        "frame_outputs_enabled": false
+      }
+    },
+    {
+      "name": "round1_stop_holds_publication",
+      "ok": true,
+      "detail": {
+        "emitted_at_stop": 10,
+        "later": 10
+      }
+    },
+    {
+      "name": "round1_both_car_layers_report_the_clear",
+      "ok": true,
+      "detail": {
+        "agent_estop_latched": false,
+        "process_latched_fault": null,
+        "reengage_required": true
+      }
+    },
+    {
+      "name": "round1_clear_granted_no_motion",
+      "ok": true,
+      "detail": {
+        "arm": "idle",
+        "frame_outputs_enabled": false
+      }
+    },
+    {
+      "name": "round1_release_leaves_nothing_emitting",
+      "ok": true,
+      "detail": {
+        "emitted": [
+          10,
+          10
+        ],
+        "control_active": false
+      }
+    },
+    {
+      "name": "round2_arming_alone_produces_nothing",
+      "ok": true,
+      "detail": {
+        "emitted_at_arm": 10,
+        "emitted_two_seconds_later": 10,
+        "frame_outputs_enabled": false
+      }
+    },
+    {
+      "name": "round2_publishing_before_the_stop",
+      "ok": true,
+      "detail": {
+        "emitted": [
+          10,
+          19
+        ]
+      }
+    },
+    {
+      "name": "round2_car_side_latched_after_the_page_stop",
+      "ok": true,
+      "detail": {
+        "agent_estop_latched": true,
+        "process_latched_fault": "estop",
+        "frame_outputs_enabled": false
+      }
+    },
+    {
+      "name": "round2_stop_holds_publication",
+      "ok": true,
+      "detail": {
+        "emitted_at_stop": 22,
+        "later": 22
+      }
+    },
+    {
+      "name": "round2_both_car_layers_report_the_clear",
+      "ok": true,
+      "detail": {
+        "agent_estop_latched": false,
+        "process_latched_fault": null,
+        "reengage_required": true
+      }
+    },
+    {
+      "name": "round2_clear_granted_no_motion",
+      "ok": true,
+      "detail": {
+        "arm": "idle",
+        "frame_outputs_enabled": false
+      }
+    },
+    {
+      "name": "round2_release_leaves_nothing_emitting",
+      "ok": true,
+      "detail": {
+        "emitted": [
+          22,
+          22
+        ],
+        "control_active": false
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "acquire-1",
+      "file": "acquire-1.png",
+      "sha256": "04292f176a213838eaeb07a6b8c0b22c28ccb3e690e9d040fb325b19dcd74e46"
+    },
+    {
+      "name": "armed-no-output-1",
+      "file": "armed-no-output-1.png",
+      "sha256": "d5562da8bc0fd632f1f32a4f02d0657fca63734d4f3bdb80d146defda1ec5a57"
+    },
+    {
+      "name": "estop-1",
+      "file": "estop-1.png",
+      "sha256": "e91ab045712236a00348771ce47f4d1d7fe48925dcc5f120a68d677327f00c37"
+    },
+    {
+      "name": "cleared-1",
+      "file": "cleared-1.png",
+      "sha256": "1ca221e4edd1868219eec57760aa3d104826e9cc377e81b70141487eda472216"
+    },
+    {
+      "name": "acquire-2",
+      "file": "acquire-2.png",
+      "sha256": "6bc3c2fca99af9f63a47b72b1a7b648960afd56603c5c09086179269e200ad44"
+    },
+    {
+      "name": "armed-no-output-2",
+      "file": "armed-no-output-2.png",
+      "sha256": "903f90cd7b1573103b6c5b0959f424b95ab95ac64eca1041299b65a7f069260a"
+    },
+    {
+      "name": "estop-2",
+      "file": "estop-2.png",
+      "sha256": "850f6e08f232b596068e0f6f9b3eea16c61d73fc736a5eee3cf34fd2d0173dad"
+    },
+    {
+      "name": "cleared-2",
+      "file": "cleared-2.png",
+      "sha256": "687c02390c37e6b5ebad8132a3742cf590a559e86bf87525ded699f0f3ea9687"
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "estop_state_after_s": 0.067,
+      "car_latched_after_s": 0.002,
+      "state_after_clear": "fault",
+      "last_error_after_clear": null,
+      "car_clear_waited_s": 0.003
+    },
+    {
+      "round": 2,
+      "estop_state_after_s": 0.068,
+      "car_latched_after_s": 0.002,
+      "state_after_clear": "fault",
+      "last_error_after_clear": null,
+      "car_clear_waited_s": 0.002
+    }
+  ],
+  "final_status": {
+    "state": "disconnected",
+    "session_id": null,
+    "session_epoch": null,
+    "profile": "simulated_hybrid_manual_v1",
+    "simulated": true,
+    "leases": {
+      "upper": {
+        "held": false,
+        "expires_in_s": null,
+        "reason": "upper_lease_held",
+        "state": "idle",
+        "task": null
+      },
+      "car": {
+        "held": false,
+        "expires_in_s": null,
+        "reason": "car_lease_held",
+        "last_confirmed_age_s": 2.056
+      }
+    },
+    "diagnostics": {
+      "heartbeats": 2,
+      "heartbeat_failures": 0,
+      "last_heartbeat_outcome": "ok",
+      "last_heartbeat_duration_s": 0.005,
+      "operator_presence_age_s": 8.704,
+      "state": "disconnected",
+      "state_changes": [
+        {
+          "kind": "state_change",
+          "mono_ns": 351312024084239,
+          "state": "ready",
+          "arm_state": "idle",
+          "session_epoch": 2067121653416262,
+          "previous": "disconnected",
+          "reason": "session_acquired",
+          "last_error": null
+        },
+        {
+          "kind": "state_change",
+          "mono_ns": 351315710917093,
+          "state": "estop",
+          "arm_state": "following",
+          "session_epoch": 2067121653416262,
+          "previous": "ready",
+          "reason": "operator",
+          "last_error": null
+        },
+        {
+          "kind": "state_change",
+          "mono_ns": 351317949472977,
+          "state": "fault",
+          "arm_state": "idle",
+          "session_epoch": 2067121653416262,
+          "previous": "estop",
+          "reason": "clear_estop",
+          "last_error": null
+        },
+        {
+          "kind": "state_change",
+          "mono_ns": 351318135538405,
+          "state": "disconnected",
+          "arm_state": "idle",
+          "session_epoch": null,
+          "previous": "fault",
+          "reason": "released",
+          "last_error": null
+        },
+        {
+          "kind": "state_change",
+          "mono_ns": 351320781778526,
+          "state": "ready",
+          "arm_state": "idle",
+          "session_epoch": 3813806472921868,
+          "previous": "disconnected",
+          "reason": "session_acquired",
+          "last_error": null
+        },
+        {
+          "kind": "state_change",
+          "mono_ns": 351324775975464,
+          "state": "estop",
+          "arm_state": "following",
+          "session_epoch": 3813806472921868,
+          "previous": "ready",
+          "reason": "operator",
+          "last_error": null
+        },
+        {
+          "kind": "state_change",
+          "mono_ns": 351327435183269,
+          "state": "fault",
+          "arm_state": "idle",
+          "session_epoch": 3813806472921868,
+          "previous": "estop",
+          "reason": "clear_estop",
+          "last_error": null
+        },
+        {
+          "kind": "state_change",
+          "mono_ns": 351327540669414,
+          "state": "disconnected",
+          "arm_state": "idle",
+          "session_epoch": null,
+          "previous": "fault",
+          "reason": "released",
+          "last_error": null
+        }
+      ],
+      "observation_cache": {
+        "running": false,
+        "poll_period_s": 0.05,
+        "polls": 238,
+        "cache_age_s": null,
+        "last_poll_duration_s": 0.012,
+        "last_error": null
+      }
+    },
+    "channels": {
+      "base": {
+        "enabled": false,
+        "permitted": false,
+        "locked": true,
+        "gamepad": {
+          "armed": false,
+          "neutral_seen": false,
+          "intent": null,
+          "last_seq": -1,
+          "last_received_mono_ns": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "seq": 0,
+        "pending": null,
+        "source": "gamepad"
+      },
+      "arm": {
+        "state": "idle",
+        "enabled": false,
+        "permitted": false,
+        "seq": 0,
+        "pending": null,
+        "source": "so101_leader"
+      },
+      "gripper": {
+        "state": "idle",
+        "enabled": false,
+        "permitted": false,
+        "seq": 0,
+        "pending": null,
+        "source": "so101_leader"
+      }
+    },
+    "devices": {},
+    "calibrations": {
+      "ready": false,
+      "reasons": [
+        "session_not_acquired"
+      ],
+      "camera_capability": "unknown",
+      "firmware_capability": "unknown"
+    },
+    "feedback": {
+      "valid": false,
+      "reason": "unavailable",
+      "trusted": false,
+      "trusted_reasons": [
+        "trusted_feedback_unavailable"
+      ],
+      "source_kind": null,
+      "scan_span_ns": null,
+      "note": "vendor /controller_manager joint_states is a command cache, never measured"
+    },
+    "video": {
+      "available": false,
+      "reason": "unknown",
+      "frame_seq": null
+    },
+    "last_error": null,
+    "missing_for_following": [
+      "session_not_ready"
+    ],
+    "outputs_enabled": false,
+    "control_semantics": "preview_readback_only",
+    "phase": "grasp",
+    "recording": {
+      "source": "hybrid_recording_controller",
+      "status": "invalid",
+      "session_id": null,
+      "session_epoch": null,
+      "clock_domain": null,
+      "clock_epoch": null,
+      "calibration_bundle_hash": null,
+      "car_session_path": null,
+      "car_recording_id": null,
+      "episode_id": null,
+      "episode_started_time_ns": null,
+      "phase": null,
+      "phases": [],
+      "episodes": [],
+      "phase_timeline_complete": false,
+      "paused_before_wrapup": null,
+      "motion_commands_sent": 0,
+      "lease_acquired": false,
+      "outputs_enabled": false,
+      "last_error": "estop",
+      "error_detail": "operator",
+      "event_count": 2,
+      "estop_save_pending": false
+    },
+    "calibration_bundle_hash": null,
+    "channels_meta": null,
+    "follow_runtime": {
+      "active": false,
+      "commands_sent": 23,
+      "last_error": null
+    },
+    "transport": "frame_stream_v1",
+    "frame_link": null,
+    "stop_stage": {
+      "requested_reason": "operator",
+      "car_preempt_send_failed": null,
+      "local_stopped_s": 0.0,
+      "agent_latch": "confirmed",
+      "process_latch": "latched",
+      "agent_estop_latched": true,
+      "agent_frame_outputs_enabled": false,
+      "process_outputs_enabled": false,
+      "process_latched_fault": "estop",
+      "process_reengage_required": false,
+      "process_witness": "fresh",
+      "clear_still_queued": false,
+      "process_age_s": 0.0017981542623601854,
+      "queue_depth": 0,
+      "confirmed_s": 0.003
+    },
+    "car_clear": {
+      "car_clear": "confirmed",
+      "authorised_by": "control_token",
+      "clear_estop_sent": true,
+      "announcements": "partial_no_actuator_topics",
+      "agent_estop_latched": false,
+      "agent_frame_outputs_enabled": false,
+      "process_outputs_enabled": false,
+      "process_latched_fault": null,
+      "process_reengage_required": true,
+      "process_witness": "fresh",
+      "clear_still_queued": false,
+      "process_age_s": 0.0464090236928314,
+      "queue_depth": 0
+    }
+  },
+  "final_car": {
+    "control_active": false,
+    "agent_estop_latched": false,
+    "frame_outputs_requested": false,
+    "frame_outputs_enabled": false,
+    "frame_stream_connected": false,
+    "process_latched_fault": null,
+    "process_outputs_enabled": false,
+    "process_reengage_required": true,
+    "emitted": 22,
+    "queue_depth": 0
+  },
+  "failed": []
+}

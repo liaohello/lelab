@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "profile": "hardware_teleop_v1",
+  "created": "2026-10-31",
+  "runtime": {
+    "mode": "hardware_teleop",
+    "adapter": "ros2_sensor_gateway_arm_only",
+    "actuator_outputs": true,
+    "clock_domain": "hardware_system_time",
+    "base_velocity_topic": null,
+    "wheel_odom_topic": null,
+    "joint_state_topic": null,
+    "record_joint_state_topic": "/controller_manager/joint_states",
+    "joint_record_hz": 0,
+    "task_truth": false,
+    "training_export": true,
+    "data_source": "hardware_teleop_arm_gripper"
+  },
+  "robot": {
+    "model": "raspberry_pi5_landerpi_humble_container",
+    "arm_joints": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5"
+    ],
+    "gripper_master_joint": "r_joint",
+    "wrist_camera_frame": null,
+    "base_frame": null,
+    "odom_frame": null,
+    "gripper_exec_joints": [
+      "r_joint"
+    ],
+    "mimic_joints_not_independently_controlled": [
+      "gripper_base_joint",
+      "gripper_left_join",
+      "gripper_right_joint",
+      "left_jaw_joint",
+      "right_jaw_joint"
+    ]
+  },
+  "task": {
+    "id": "mobile_arm_gripper_teleop",
+    "language": "Teleoperate the car arm and gripper from an SO-101 leader; chassis stays locked.",
+    "labels": "manual_or_unknown",
+    "success": "unknown"
+  },
+  "sensors": {
+    "wrist_rgb": {
+      "required": true,
+      "rgb_topic": "/ascamera/camera_publisher/rgb0/image",
+      "camera_info_topic": "/ascamera/camera_publisher/rgb0/camera_info",
+      "profile_id": "wrist_original",
+      "mount_chain": null,
+      "tilt_rad": null,
+      "optical_frame": null,
+      "calibration_version": null,
+      "extrinsics": "unverified_real_mount",
+      "qos": "sensor_data",
+      "stale_after_s": 1.5,
+      "capture_width": 640,
+      "capture_height": 400,
+      "verified_at": "2026-10-31T15:54Z",
+      "verification_source": "pi_passive_ros_uid1000_probe",
+      "reverified_at": "2026-11-02T15:55Z",
+      "reverification_source": "pi_container_passive_probe_depth_camera_type_aurora",
+      "publisher_qos_measured": "RELIABLE/VOLATILE",
+      "frame_id_measured": "rgb_camera_link",
+      "step_measured": 1920,
+      "rate_hz_measured": 14.742,
+      "driver_branch_required": "DEPTH_CAMERA_TYPE=aurora (ascamera branch opens no device on this Aurora 930)"
+    },
+    "depth": {
+      "record_raw": false,
+      "topic": "/ascamera/camera_publisher/depth0/image_raw",
+      "camera_info_topic": "/ascamera/camera_publisher/depth0/camera_info"
+    },
+    "lidar": {
+      "record_raw": false,
+      "topic": "/scan"
+    },
+    "imu": {
+      "record_raw": true,
+      "topic": "/imu"
+    },
+    "joint_state": {
+      "record_raw": true,
+      "topic": "/joint_states",
+      "names_units": "unverified"
+    },
+    "odom": {
+      "record_raw": true,
+      "topic": "/odom",
+      "semantics": "unverified"
+    }
+  },
+  "features": {
+    "fps": 14.74,
+    "image": {
+      "name": "observation.images.wrist_real",
+      "topic": "/ascamera/camera_publisher/rgb0/image",
+      "frame": "rgb_camera_link"
+    },
+    "state": {
+      "names": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "r_joint"
+      ],
+      "units": [
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad"
+      ],
+      "source": "measured_follower_joint_states",
+      "joint_topic": "/controller_manager/joint_states",
+      "base_topic": null,
+      "chassis_state": "not_available_locked_phase_1_do_not_zero_fill"
+    },
+    "action": {
+      "names": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "r_joint"
+      ],
+      "units": [
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad"
+      ],
+      "source": "gateway_sent_target_after_clamp",
+      "leader_reading_is_not_action": true
+    }
+  },
+  "limits": {
+    "joint_positions_rad": {
+      "joint1": [
+        -2.09,
+        2.09
+      ],
+      "joint2": [
+        -2.09,
+        2.09
+      ],
+      "joint3": [
+        -2.09,
+        2.09
+      ],
+      "joint4": [
+        -2.09,
+        2.09
+      ],
+      "joint5": [
+        -2.09,
+        2.09
+      ],
+      "r_joint": [
+        -2.09,
+        2.09
+      ]
+    },
+    "gripper_base_rad": [
+      -2.09,
+      2.09
+    ],
+    "max_trajectory_duration_s": 2.0,
+    "base_command_ttl_s": 0.3,
+    "arm_command_ttl_s": 0.6,
+    "base_vx_mps": 0.0,
+    "base_vy_mps": 0.0,
+    "base_wz_radps": 0.0
+  },
+  "remote_source": {
+    "enabled": false,
+    "backend": "rosbridge",
+    "url": "",
+    "topics": [],
+    "note": "teleop runs car-side; the relay stays a read-only preview path only"
+  },
+  "modes": {
+    "base": [],
+    "arm_sources": [
+      "leader_arm",
+      "scripted_expert"
+    ],
+    "initial": "idle",
+    "leader_arm_available": true,
+    "exclusive": true
+  },
+  "recording": {
+    "raw_storage": "sqlite3",
+    "session_root": "work/ros2_collection/car/sessions",
+    "topics": [
+      "/ascamera/camera_publisher/rgb0/image",
+      "/ascamera/camera_publisher/rgb0/camera_info",
+      "/imu",
+      "/joint_states",
+      "/odom",
+      "/lelab/events",
+      "/lelab/recording/teleop",
+      "/lelab/arm/trajectory_request",
+      "/lelab/gripper/trajectory_request",
+      "/lelab/applied_command",
+      "/controller_manager/joint_states"
+    ],
+    "required_topics": [
+      "/ascamera/camera_publisher/rgb0/image",
+      "/ascamera/camera_publisher/rgb0/camera_info",
+      "/controller_manager/joint_states",
+      "/lelab/recording/teleop"
+    ],
+    "event_topic": "/lelab/events",
+    "min_free_bytes": 2147483648,
+    "stream_stale_s": 1.5,
+    "clock_domain": "hardware_system_time",
+    "joint_record_hz": 0,
+    "capacity_note": "Pi root has ~8.7 GiB free; keep a 2 GiB system margin and prefer short episodes/removable media."
+  },
+  "alignment": {
+    "output_fps": null,
+    "max_image_age_s": 0.5
+  },
+  "training_export": {
+    "enabled": true,
+    "schema": "arm_gripper_6dof_phase1",
+    "requires": [
+      "leader_rad",
+      "pre_clip_rad",
+      "sent_target_rad",
+      "measured_follower_rad",
+      "calibration_version"
+    ],
+    "note": "six dimensions only; the mobile base stays excluded until keyboard control and base feedback are accepted"
+  },
+  "hardware": {
+    "serial_devices": "enumerated; controller identity unverified",
+    "leader_arm": "not_verified",
+    "camera_interface": "aurora depth camera via existing ROS driver",
+    "observed_actuator_topics_never_published": [
+      "/cmd_vel",
+      "/controller/cmd_vel",
+      "/joint_controller",
+      "/servo_controller",
+      "/set_odom",
+      "/set_pose",
+      "/ros_robot_controller/set_motor",
+      "/ros_robot_controller/bus_servo/set_position",
+      "/ros_robot_controller/bus_servo/set_state",
+      "/ros_robot_controller/pwm_servo/set_state",
+      "/ros_robot_controller/enable_reception",
+      "/ros_robot_controller/set_buzzer",
+      "/ros_robot_controller/set_led",
+      "/ros_robot_controller/set_rgb",
+      "/ros_robot_controller/set_oled",
+      "/joy/set_feedback"
+    ],
+    "note": "hardware_teleop_v1 is a separate identity from hardware_readonly_v1: it enables arm and gripper goals through the existing gateway with leader_arm mode, requires fresh follower feedback, and keeps the chassis locked (no base publisher, base limits zero, base commands refused). Real hardware still needs ros_robot_controller + servo_controller running, which have documented startup writes, so this profile is not activated without operator authorization."
+  },
+  "follower_feedback": {
+    "enabled": true,
+    "joint_states_topic": "/controller_manager/joint_states",
+    "servo_pulses_service": "/ros_robot_controller/bus_servo/get_state",
+    "joints": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5",
+      "r_joint"
+    ],
+    "stale_after_s": 0.5,
+    "servo_ids": {
+      "joint1": 1,
+      "joint2": 2,
+      "joint3": 3,
+      "joint4": 4,
+      "joint5": 5,
+      "r_joint": 10
+    },
+    "unit": {
+      "rad": "/controller_manager/joint_states (vendor pulse→rad conversion)",
+      "pulse": "GetBusServoState.response.pulse (0-1000)"
+    },
+    "source_of_truth": "servo bus read-back owned by ros_robot_controller; the agent never opens the board serial port itself"
+  },
+  "teleop": {
+    "enabled": true,
+    "leader_arm_mode": true,
+    "chassis_locked": true,
+    "publish_hz": 10.0,
+    "state_topic": "/lelab/recording/teleop",
+    "control_hz_max": 20.0,
+    "command_ttl_s": 0.6,
+    "hold_policy": "vendor servos hold the last commanded position in position mode; torque is never disabled as a substitute for stopping",
+    "exclusive_control": true,
+    "exclusive_guard_topics": [
+      "/lelab/arm/trajectory_request",
+      "/lelab/gripper/trajectory_request"
+    ],
+    "exclusive_exempt_nodes": []
+  }
+}

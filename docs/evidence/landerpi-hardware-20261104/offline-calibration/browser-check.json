@@ -1,0 +1,65 @@
+{
+  "app": "http://127.0.0.1:46115",
+  "browser_errors": [],
+  "checks": [
+    {
+      "detail": "\u4e0d\u80fd\u6807\u8bb0\uff1a\u5148\u62d6\u52a8\u6ed1\u8f68\u5f00\u59cb\u5939\u722a\u53d7\u63a7\u8fd0\u52a8",
+      "name": "mark_blocked_before_drag",
+      "ok": true
+    },
+    {
+      "count": 3,
+      "name": "slider_drag_sends_targets",
+      "ok": true,
+      "raws": [
+        450,
+        510,
+        546
+      ]
+    },
+    {
+      "name": "slider_direction",
+      "ok": true
+    },
+    {
+      "name": "only_id10",
+      "ok": true
+    },
+    {
+      "after": 3,
+      "before": 3,
+      "name": "pointerup_stops_new_targets",
+      "ok": true
+    },
+    {
+      "detail": true,
+      "name": "motion_badge_is_not_output_off",
+      "ok": true
+    },
+    {
+      "detail": "\u6b63\u5728\u53d1\u9001\u53d7\u63a7\u76ee\u6807\uff08\u226410 Hz\uff09",
+      "name": "drag_state_text",
+      "ok": true
+    },
+    {
+      "name": "mark_enabled_after_settle",
+      "ok": true
+    },
+    {
+      "marks": 1,
+      "name": "closed_mark_recorded",
+      "ok": true,
+      "rounds": 0
+    },
+    {
+      "name": "closed_mark_button_state",
+      "ok": true
+    },
+    {
+      "name": "no_browser_script_errors",
+      "ok": true
+    }
+  ],
+  "fixture": "http://127.0.0.1:37413",
+  "passed": true
+}

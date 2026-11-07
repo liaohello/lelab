@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:18286/landerpi/teleop",
+  "title": true,
+  "start": true,
+  "align": true,
+  "arm": true,
+  "engage": true,
+  "pause": true,
+  "estop": true,
+  "driver": false,
+  "browser_errors": [],
+  "screenshot": "/home/liaozhengyan/Desktop/lelab/docs/evidence/landerpi-teleop-real-20261105/browser-real-output-controls.png"
+}

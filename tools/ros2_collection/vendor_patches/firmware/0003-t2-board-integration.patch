@@ -1,0 +1,267 @@
+--- a/Hiwonder/System/packet_handle.c
++++ b/Hiwonder/System/packet_handle.c
+@@ -5,6 +5,8 @@
+ #include "serial_servo.h"
+ #include "packet_reports.h"
+ #include "motors_param.h"
++#include "t2_protocol.h"
++#include "t2_board.h"
+ 
+ #pragma pack(1)
+ typedef struct {
+@@ -401,6 +403,16 @@
+         motor_init_flag = 1;
+         motors_init();
+     }
++    if(t2_gate_legacy(t2_board_state())) {
++        uint8_t cmd = frame->data_and_checksum[0];
++        if(cmd == 2 || cmd == 3) {
++            for(int i = 0; i < 4; ++i) {
++                motors[i]->pid_controller.set_point = 0;
++            }
++            t2_force_stop(t2_board_state());
++        }
++        return;  /* legacy speed source cannot bypass the T2 deadline */
++    }
+     switch(frame->data_and_checksum[0]) {
+         case 0: {
+             MotorSingalCtrlCommandTypeDef *mscc = (MotorSingalCtrlCommandTypeDef *)frame->data_and_checksum;
+@@ -520,6 +532,23 @@
+ }
+ 
+ 
++/* T2: runs in packet_rx task context, never in the motor ISR. */
++static void packet_t2_handle(struct PacketRawFrame *frame)
++{
++    uint8_t reply[T2_FRAME_MAX];
++    size_t n;
++    if(frame->data_length > 0 && frame->data_and_checksum[0] == T2_SUB_CAP_QUERY) {
++        n = t2_capabilities(t2_board_state(), t2_board_build_id(), reply, sizeof(reply));
++        if(n > 5) {
++            packet_transmit(&packet_controller, PACKET_FUNC_LELAB_T2, reply + 4, n - 5);
++        }
++        return;
++    }
++    /* PacketRawFrame is packed: the struct bytes ARE the wire frame. */
++    t2_board_on_frame((const uint8_t *)frame, (size_t)frame->data_length + 5u);
++}
++
++
+ void packet_handle_init(void)
+ {
+     packet_register_callback(&packet_controller, PACKET_FUNC_LED, packet_led_handle);
+@@ -529,6 +558,7 @@
+     packet_register_callback(&packet_controller, PACKET_FUNC_PWM_SERVO, packet_pwm_servo_handle);
+     packet_register_callback(&packet_controller, PACKET_FUNC_SYS, packet_battery_limit_handle);
+     packet_register_callback(&packet_controller, PACKET_FUNC_RGB, packet_RGB_Ctl_handle);
++    packet_register_callback(&packet_controller, PACKET_FUNC_LELAB_T2, packet_t2_handle);
+ #if ENABLE_OLED
+ 	packet_register_callback(&packet_controller, PACKET_FUNC_OLED, packet_oled_handle);
+ #endif
+--- a/Hiwonder/System/app.c
++++ b/Hiwonder/System/app.c
+@@ -21,6 +21,7 @@
+ #include "serial_servo.h"
+ #include "rgb_spi.h"
+ #include "iwdg.h"
++#include "t2_board.h"
+ 
+ void buzzers_init(void);
+ void buttons_init(void);
+@@ -68,6 +69,7 @@
+     osTimerStart(button_timerHandle, BUTTON_TASK_PERIOD);
+     osTimerStart(battery_check_timerHandle, BATTERY_TASK_PERIOD);
+     packet_handle_init();
++    t2_board_init();
+     
+ //    osDelay(1000);
+ //    buzzer_didi(buzzers[0],1500 , 100,50,1);
+@@ -122,6 +124,7 @@
+ //        struct Pixel rgb = {1,255,0,0};
+ //        set_rgb_color(1,&rgb);
+         HAL_IWDG_Refresh(&hiwdg);
++        t2_task_emit_snapshot();  /* task context; NOT a comm timeout */
+         ATOMIC_SET_BIT(huart1.Instance->CR1, (USART_CR1_RXNEIE));
+         osDelay(10);
+ //        rgb[0] = 0;
+--- a/Hiwonder/Misc/packet.h
++++ b/Hiwonder/Misc/packet.h
+@@ -65,7 +65,9 @@
+     
+     PACKET_FUNC_RGB,
+     
+-    PACKET_FUNC_NONE,
++    PACKET_FUNC_LELAB_T2,  /* = 12; T2 capability / wheel snapshot / command */
++    
++    PACKET_FUNC_NONE,      /* = 13; legacy firmware had NONE = 12 */
+ };
+ 
+ typedef void(*packet_handle)(struct PacketRawFrame *);
+--- a/Core/Src/stm32f4xx_it.c
++++ b/Core/Src/stm32f4xx_it.c
+@@ -420,7 +420,8 @@
+ {
+   /* USER CODE BEGIN TIM7_IRQn 0 */
+     extern EncoderMotorObjectTypeDef *motors[4];
+-    if(__HAL_TIM_GET_FLAG(&htim7, TIM_FLAG_UPDATE) != RESET) {
++    extern void t2_isr_tick(void);
++    if(motors[0] != NULL && __HAL_TIM_GET_FLAG(&htim7, TIM_FLAG_UPDATE) != RESET) {
+         __HAL_TIM_CLEAR_FLAG(&htim7, TIM_FLAG_UPDATE);
+         encoder_update(motors[0], 0.01, __HAL_TIM_GET_COUNTER(&htim5));
+         encoder_update(motors[1], 0.01, __HAL_TIM_GET_COUNTER(&htim2));
+@@ -429,6 +430,7 @@
+         for(int i = 0; i < 4; ++i) {
+             encoder_motor_control(motors[i], 0.01);
+         }
++        t2_isr_tick();  /* pure memory work; no malloc / UART / wait */
+     }
+   /* USER CODE END TIM7_IRQn 0 */
+   /* USER CODE BEGIN TIM7_IRQn 1 */
+--- a/Hiwonder/System/t2_board.h
++++ b/Hiwonder/System/t2_board.h
+@@ -0,0 +1,21 @@
++#ifndef LELAB_T2_BOARD_H
++#define LELAB_T2_BOARD_H
++#include <stddef.h>
++#include <stdint.h>
++#include "t2_protocol.h"
++
++/* Board glue for the T2 increment. t2_protocol.c is hardware-independent and
++ * is host-tested; this file needs the STM32 HAL/FreeRTOS project and is NOT
++ * compiled by the host harness. */
++t2_state *t2_board_state(void);
++const uint8_t *t2_board_build_id(void);
++void t2_board_init(void);
++void t2_board_on_frame(const uint8_t *frame, size_t len);
++/* Called from TIM7 IRQ (10 ms). Pure memory work: no malloc, no UART, no wait. */
++void t2_isr_tick(void);
++/* Called from the app task. packet_transmit uses the existing DMA queue. */
++void t2_task_emit_snapshot(void);
++/* Override with a genuinely fresh 128-bit id per power-on. The default returns
++ * 0 so the board fails closed: no capability report, no snapshot, no command. */
++int t2_board_get_boot_id(uint8_t out[16]);
++#endif
+--- a/Hiwonder/System/t2_board.c
++++ b/Hiwonder/System/t2_board.c
+@@ -0,0 +1,121 @@
++#include "t2_board.h"
++#include "global.h"
++#include "tim.h"
++#include "packet.h"
++#include <string.h>
++
++/* PLACEHOLDER only. A reproducible ARM build must replace this with the first
++ * 16 bytes of the SHA-256 of its own fresh hex; it must never be reported as
++ * the identity of the .hex already present in the reference tree. */
++static uint8_t g_t2_build_id[16] = "T2-UNBUILT-0001";
++static t2_state g_t2_state;
++static t2_sampler g_t2_sampler;
++static uint8_t g_t2_boot_id[16];
++static uint32_t g_t2_tick_ms;
++static uint32_t g_t2_sample_seq;
++static int g_t2_ready;
++
++#if defined(__GNUC__)
++__attribute__((weak))
++#endif
++int t2_board_get_boot_id(uint8_t out[16])
++{
++    /* No verified entropy/persistence source in this offline wave. Fail closed:
++     * a real build MUST override this (UID + non-volatile boot counter + RTC,
++     * validated across software reset AND power loss). */
++    (void)out;
++    return 0;
++}
++
++t2_state *t2_board_state(void) { return &g_t2_state; }
++const uint8_t *t2_board_build_id(void) { return g_t2_build_id; }
++
++void t2_board_init(void)
++{
++    memset(&g_t2_state, 0, sizeof(g_t2_state));
++    memset(g_t2_boot_id, 0, sizeof(g_t2_boot_id));
++    t2_sampler_init(&g_t2_sampler);
++    g_t2_tick_ms = 0;
++    g_t2_sample_seq = 0;
++    g_t2_ready = 0;
++    if (t2_board_get_boot_id(g_t2_boot_id) && t2_init(&g_t2_state, g_t2_boot_id)) {
++        g_t2_ready = 1;
++    }
++    /* g_t2_ready == 0 -> boot_valid == 0 -> no CAP_REPORT, no snapshot,
++     * and t2_command_ex returns REJ_DISABLED_BOOT for every command. */
++}
++
++void t2_board_on_frame(const uint8_t *frame, size_t len)
++{
++    /* packet_rx task context; t2_expire() inside also runs here at the current
++     * board tick, but the ISR calls it every 10 ms independently of traffic. */
++    (void)t2_command_ex(&g_t2_state, frame, len, g_t2_tick_ms);
++}
++
++static uint32_t t2_counter_of(unsigned i)
++{
++    switch (i) {
++        case 0: return __HAL_TIM_GET_COUNTER(&htim5);
++        case 1: return __HAL_TIM_GET_COUNTER(&htim2);
++        case 2: return __HAL_TIM_GET_COUNTER(&htim4);
++        default: return __HAL_TIM_GET_COUNTER(&htim3);
++    }
++}
++
++void t2_isr_tick(void)
++{
++    t2_sample snap;
++    unsigned i;
++    int consistent = 1;
++    g_t2_tick_ms += 10u;                      /* TIM7 period is 10 ms */
++    t2_expire(&g_t2_state, g_t2_tick_ms);    /* independent of UART and IWDG */
++    if (!g_t2_state.enabled) {
++        /* Only override the setpoint; PID gains, kinematics and PWM calls are
++         * left exactly as the vendor implementation. */
++        for (i = 0; i < T2_WHEELS; ++i) {
++            motors[i]->pid_controller.set_point = 0.0f;
++        }
++    }
++    memset(&snap, 0, sizeof(snap));
++    snap.tick_ms = g_t2_tick_ms;
++    snap.sample_seq = ++g_t2_sample_seq;
++    snap.faults = g_t2_state.faults | g_t2_state.latched_faults;
++    for (i = 0; i < T2_WHEELS; ++i) {
++        int64_t before = motors[i]->overflow_num;
++        uint32_t counter = t2_counter_of(i);
++        int64_t after = motors[i]->overflow_num;
++        int64_t count = 0;
++        if (!t2_compose_count_checked(before, counter, after,
++                                      T2_TICKS_OVERFLOW, &count)) {
++            consistent = 0;   /* rollover raced the read; do not publish a torn count */
++            break;
++        }
++        snap.count[i] = count;
++        snap.measured_rps[i] = motors[i]->rps;  /* encoder-derived, NOT the setpoint */
++        snap.target_rps[i] = g_t2_state.enabled ? g_t2_state.target[i] : 0.0f;
++    }
++    if (!consistent) {
++        g_t2_state.faults |= T2_FAULT_ENCODER_INVALID;
++        return;                 /* skip this cycle, never emit a half frame */
++    }
++    t2_sampler_publish(&g_t2_sampler, &snap);  /* seqlock copy, no serial I/O */
++}
++
++void t2_task_emit_snapshot(void)
++{
++    uint8_t frame[T2_FRAME_MAX];
++    t2_sample s;
++    size_t n;
++    if (!g_t2_ready) return;                 /* fail closed without a fresh boot id */
++    if (!t2_sampler_read(&g_t2_sampler, &s)) {
++        g_t2_state.faults |= T2_FAULT_SNAPSHOT_STALE;
++        return;
++    }
++    n = t2_snapshot(&g_t2_state, &s, frame, sizeof(frame));
++    if (n < 5) {
++        g_t2_state.faults |= T2_FAULT_SNAPSHOT_STALE;
++        return;
++    }
++    /* task context: packet_transmit mallocs and enqueues onto the existing DMA queue */
++    packet_transmit(&packet_controller, PACKET_FUNC_LELAB_T2, frame + 4, n - 5);
++}

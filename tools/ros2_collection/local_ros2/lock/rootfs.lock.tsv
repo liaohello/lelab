@@ -1,0 +1,5 @@
+rootfs_file	ubuntu-base-22.04-base-amd64.tar.gz
+rootfs_sha256	df6fe77cee11bd216ac532f0ee082bdc4da3c0cc1f1d9cb20f3f743196bc4b07
+rootfs_url	http://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu-base-22.04-base-amd64.tar.gz
+ros_apt_url	http://packages.ros.org/ros2/ubuntu
+prepared_utc	2026-11-05T12:47:24Z

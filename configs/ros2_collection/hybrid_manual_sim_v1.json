@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "profile": "hybrid_manual_sim_v1",
+  "created": "2026-11-04",
+  "source": "simulation",
+  "simulation": {
+    "simulated": true,
+    "identity": "simulation:hybrid_manual_sim_v1",
+    "data_source": "simulated_offline",
+    "hardware_available": false,
+    "output_scope": "simulation_only"
+  },
+  "runtime": {
+    "mode": "hybrid_manual_sim",
+    "adapter": "gazebo",
+    "actuator_outputs": true,
+    "simulation_only": true,
+    "simulated": true,
+    "hardware_available": false,
+    "data_source": "simulated_offline",
+    "clock_domain": "ros_sim_time",
+    "task_truth": false,
+    "export_schema": "mobile_9dof_sim",
+    "base_velocity_topic": "/lelab/base/model_odom",
+    "wheel_odom_topic": "/lelab/base/odom",
+    "joint_state_topic": "/joint_states",
+    "record_joint_state_topic": "/lelab/recording/joint_states",
+    "joint_record_hz": 50,
+    "camera_profile_default": "wrist_demo_downward",
+    "feedback_provenance": {
+      "joint_source_kind": "synthetic",
+      "base_source_kind": "simulation_odometry_estimate",
+      "calibration_bundle_hash": "simulation:hybrid_manual_sim_v1",
+      "base_estimate_has_covariance": true,
+      "max_state_age_s": 0.25,
+      "scan_span_ms": 0.0,
+      "joint_topic": "/joint_states",
+      "base_topic": "/lelab/base/model_odom",
+      "hardware_measurement": false
+    }
+  },
+  "robot": {
+    "model": "landerpi_mecanum_5dof_with_gripper_sim",
+    "base_joints": [
+      "wheel_left_front_joint",
+      "wheel_left_back_joint",
+      "wheel_right_front_joint",
+      "wheel_right_back_joint"
+    ],
+    "arm_joints": ["joint1", "joint2", "joint3", "joint4", "joint5"],
+    "gripper_master_joint": "r_joint",
+    "wrist_camera_frame": "wrist_camera_optical_frame",
+    "base_frame": "base_footprint",
+    "odom_frame": "odom",
+    "world_frame": "pick_place"
+  },
+  "task": {
+    "id": "place_in_tray",
+    "language": "Manual offline hybrid rehearsal: observe, grasp and place the simulated object.",
+    "labels": "manual_or_unknown",
+    "success_min_lift_m": 0.03,
+    "place_in_tray": {
+      "container_model": "container",
+      "wall_height_m": 0.02
+    }
+  },
+  "features": {
+    "fps": 10,
+    "image": {
+      "name": "observation.images.wrist_rgb",
+      "topic": "/lelab/wrist/rgb/image_raw",
+      "width": 640,
+      "height": 480,
+      "encoding": "rgb8",
+      "frame": "wrist_camera_optical_frame"
+    },
+    "state": {
+      "name": "observation.state",
+      "names": [
+        "base_vx", "base_vy", "base_wz",
+        "joint1.position", "joint2.position", "joint3.position",
+        "joint4.position", "joint5.position", "r_joint.position"
+      ],
+      "units": ["m/s", "m/s", "rad/s", "rad", "rad", "rad", "rad", "rad", "rad"],
+      "source": "synthetic_simulation",
+      "joint_topic": "/joint_states",
+      "base_topic": "/lelab/base/model_odom",
+      "wheel_diagnostic_topic": "/lelab/base/odom"
+    },
+    "action": {
+      "name": "action",
+      "names": [
+        "base_vx", "base_vy", "base_wz",
+        "joint1.target", "joint2.target", "joint3.target",
+        "joint4.target", "joint5.target", "r_joint.target"
+      ],
+      "units": ["m/s", "m/s", "rad/s", "rad", "rad", "rad", "rad", "rad", "rad"],
+      "source": "simulated_gateway_applied_target"
+    },
+    "auxiliary_raw_only": [
+      "/lelab/wrist/depth/image_raw",
+      "/lelab/lidar/scan",
+      "/lelab/imu"
+    ]
+  },
+  "limits": {
+    "base_vx_mps": 0.3,
+    "base_vy_mps": 0.3,
+    "base_wz_radps": 1.0,
+    "joint_positions_rad": {
+      "joint1": [-2.09, 2.09],
+      "joint2": [-2.09, 2.09],
+      "joint3": [-2.09, 2.09],
+      "joint4": [-2.09, 2.09],
+      "joint5": [-2.09, 2.09],
+      "r_joint": [-1.638, 0.0]
+    },
+    "base_command_ttl_s": 0.3,
+    "arm_command_ttl_s": 2.5,
+    "max_trajectory_duration_s": 4.0,
+    "control_session_ttl_s": 30.0,
+    "heartbeat_timeout_s": 0.5,
+    "watchdog_web_stale_s": 1.5
+  },
+  "modes": {
+    "base": ["keyboard", "scripted_expert", "leader_arm"],
+    "arm_sources": ["scripted_expert", "leader_arm"],
+    "initial": "idle",
+    "leader_arm_available": true,
+    "exclusive": true,
+    "channel_sources": {
+      "base": "gamepad",
+      "arm": "so101_leader",
+      "gripper": "so101_leader"
+    }
+  },
+  "safety": {
+    "default_base_locked": false,
+    "grasp_base_locked": true,
+    "simulated_only": true,
+    "hardware_measurement": false,
+    "firmware_watchdog_verified": false
+  },
+  "recording": {
+    "raw_storage": "sqlite3",
+    "topics": [
+      "/clock",
+      "/tf",
+      "/joint_states",
+      "/lelab/base/model_odom",
+      "/lelab/base/odom",
+      "/lelab/wrist/rgb/image_raw",
+      "/lelab/wrist/rgb/camera_info",
+      "/lelab/wrist/depth/image_raw",
+      "/lelab/lidar/scan",
+      "/lelab/imu",
+      "/lelab/safety_state",
+      "/lelab/applied_command",
+      "/lelab/task/cube_pose",
+      "/lelab/task/container_pose",
+      "/lelab/task/box_pose"
+    ],
+    "extra_topics": [
+      "/lelab/events",
+      "/lelab/recording/joint_states",
+      "/lelab/recording/cube_pose",
+      "/lelab/recording/container_pose",
+      "/lelab/recording/box_pose",
+      "/lelab/contact/left_jaw_link",
+      "/lelab/contact/right_jaw_link",
+      "/lelab/contact/gripper_base_link"
+    ],
+    "event_topic": "/lelab/events",
+    "required_topics": [
+      "/lelab/wrist/rgb/image_raw",
+      "/joint_states",
+      "/lelab/base/model_odom"
+    ],
+    "min_free_bytes": 536870912,
+    "stream_stale_s": 1.5,
+    "feedback_provenance_required": true
+  },
+  "sensors": {
+    "wrist_rgb": {
+      "required": true,
+      "rgb_topic": "/lelab/wrist/rgb/image_raw",
+      "camera_info_topic": "/lelab/wrist/rgb/camera_info",
+      "profile_id": "wrist_demo_downward",
+      "profiles": {
+        "wrist_demo_downward": {
+          "optical_frame": "wrist_camera_optical_frame",
+          "calibration_version": "simulation_hybrid_manual_sim_v1"
+        }
+      }
+    },
+    "depth": {"topic": "/lelab/wrist/depth/image_raw"},
+    "lidar": {"topic": "/lelab/lidar/scan"},
+    "imu": {"topic": "/lelab/imu"}
+  },
+  "training_export": {
+    "enabled": true,
+    "schema": "mobile_9dof_sim",
+    "reason": "explicit_offline_simulation_only"
+  },
+  "teleop": {
+    "enabled": false,
+    "chassis_locked": false
+  }
+}

@@ -1,0 +1,277 @@
+{
+  "job_id": "6d59a350ae3d8030",
+  "generation": 1,
+  "phase": "stopped",
+  "stop_reason": "manual_calibration_asset_saved",
+  "expires_in_s": 180.0,
+  "idle_expires_in_s": 15.0,
+  "safe_window_raw": [
+    0,
+    1000
+  ],
+  "device_identity": {
+    "kind": "landerpi_bus_servo_follower",
+    "control_board": "landerpi_mentorpi",
+    "controller_owner": "ros_robot_controller",
+    "joint_order": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5",
+      "r_joint"
+    ],
+    "servo_ids": {
+      "joint1": 1,
+      "joint2": 2,
+      "joint3": 3,
+      "joint4": 4,
+      "joint5": 5,
+      "r_joint": 10
+    },
+    "board_serial": null,
+    "board_serial_source": "unavailable",
+    "host_serial": "e3a668c4e643d5eb",
+    "agent_version": "0.1.0",
+    "profile": "hardware_hybrid_manual_v1",
+    "feedback_service": "/ros_robot_controller/bus_servo/get_state",
+    "command_topic": "/servo_controller"
+  },
+  "torque": {
+    "released_joints": [],
+    "all_enabled": true,
+    "gripper_releasable": false
+  },
+  "joints": {
+    "joint1": {
+      "name": "joint1",
+      "servo_id": 1,
+      "reference_raw": 531,
+      "observed_min_raw": 531,
+      "observed_max_raw": 531,
+      "span_raw": 0,
+      "samples": 36,
+      "noise_raw": 0.0,
+      "anomalies": 0,
+      "duplicates": 406,
+      "stale": 0,
+      "missing": 0,
+      "last_raw": 531,
+      "last_seq": 90,
+      "age_s": 0.129,
+      "valid": false,
+      "reasons": [
+        "span_low"
+      ],
+      "min_span_raw": 80,
+      "min_samples": 30,
+      "max_noise_raw": 6.0,
+      "anomaly_allowance": 2
+    },
+    "joint2": {
+      "name": "joint2",
+      "servo_id": 2,
+      "reference_raw": 505,
+      "observed_min_raw": 505,
+      "observed_max_raw": 505,
+      "span_raw": 0,
+      "samples": 36,
+      "noise_raw": 0.0,
+      "anomalies": 0,
+      "duplicates": 406,
+      "stale": 0,
+      "missing": 0,
+      "last_raw": 505,
+      "last_seq": 90,
+      "age_s": 0.129,
+      "valid": false,
+      "reasons": [
+        "span_low"
+      ],
+      "min_span_raw": 80,
+      "min_samples": 30,
+      "max_noise_raw": 6.0,
+      "anomaly_allowance": 2
+    },
+    "joint3": {
+      "name": "joint3",
+      "servo_id": 3,
+      "reference_raw": 522,
+      "observed_min_raw": 522,
+      "observed_max_raw": 522,
+      "span_raw": 0,
+      "samples": 36,
+      "noise_raw": 0.0,
+      "anomalies": 0,
+      "duplicates": 406,
+      "stale": 0,
+      "missing": 0,
+      "last_raw": 522,
+      "last_seq": 90,
+      "age_s": 0.129,
+      "valid": false,
+      "reasons": [
+        "span_low"
+      ],
+      "min_span_raw": 80,
+      "min_samples": 30,
+      "max_noise_raw": 6.0,
+      "anomaly_allowance": 2
+    },
+    "joint4": {
+      "name": "joint4",
+      "servo_id": 4,
+      "reference_raw": 151,
+      "observed_min_raw": 151,
+      "observed_max_raw": 151,
+      "span_raw": 0,
+      "samples": 36,
+      "noise_raw": 0.0,
+      "anomalies": 0,
+      "duplicates": 406,
+      "stale": 0,
+      "missing": 0,
+      "last_raw": 151,
+      "last_seq": 90,
+      "age_s": 0.129,
+      "valid": false,
+      "reasons": [
+        "span_low"
+      ],
+      "min_span_raw": 80,
+      "min_samples": 30,
+      "max_noise_raw": 6.0,
+      "anomaly_allowance": 2
+    },
+    "joint5": {
+      "name": "joint5",
+      "servo_id": 5,
+      "reference_raw": 877,
+      "observed_min_raw": 877,
+      "observed_max_raw": 878,
+      "span_raw": 1,
+      "samples": 36,
+      "noise_raw": 0.0,
+      "anomalies": 0,
+      "duplicates": 406,
+      "stale": 0,
+      "missing": 0,
+      "last_raw": 878,
+      "last_seq": 90,
+      "age_s": 0.129,
+      "valid": false,
+      "reasons": [
+        "span_low"
+      ],
+      "min_span_raw": 80,
+      "min_samples": 30,
+      "max_noise_raw": 6.0,
+      "anomaly_allowance": 2
+    },
+    "r_joint": {
+      "name": "r_joint",
+      "servo_id": 10,
+      "reference_raw": 492,
+      "observed_min_raw": 488,
+      "observed_max_raw": 495,
+      "span_raw": 7,
+      "samples": 36,
+      "noise_raw": 1.0,
+      "anomalies": 0,
+      "duplicates": 406,
+      "stale": 0,
+      "missing": 0,
+      "last_raw": 495,
+      "last_seq": 90,
+      "age_s": 0.129,
+      "valid": false,
+      "reasons": [
+        "span_low"
+      ],
+      "min_span_raw": 40,
+      "min_samples": 20,
+      "max_noise_raw": 6.0,
+      "anomaly_allowance": 2
+    }
+  },
+  "arm_valid": true,
+  "arm_invalid_joints": [],
+  "gripper": {
+    "method": "operator_manual_entry",
+    "safe_window_raw": [
+      0,
+      1000
+    ],
+    "observed_closed_raw": 504,
+    "observed_open_raw": 192,
+    "usable_closed_raw": 496,
+    "usable_open_raw": 200,
+    "repeatability_raw": null,
+    "direction": -1,
+    "rounds_completed": 0,
+    "min_rounds": 0,
+    "marks": [],
+    "commands_sent": 0,
+    "commands_dropped": 0,
+    "rate_limited": 0,
+    "max_error_raw": 18.0,
+    "mark_tolerance_raw": 12.0,
+    "repeatability_tolerance_raw": 15,
+    "pointer_generation": 0,
+    "last_target_raw": null,
+    "feedback_raw": null,
+    "error_raw": null,
+    "feedback_age_s": null,
+    "settle_remaining_ms": 0,
+    "fault": null,
+    "valid": true,
+    "reasons": []
+  },
+  "diagnostics": {
+    "temperature": "unavailable",
+    "voltage": "unavailable",
+    "load": "unavailable",
+    "torque_readback": "unavailable"
+  },
+  "faults": [],
+  "motion": "idle",
+  "outputs_enabled": false,
+  "teleop_enabled": false,
+  "readback": {
+    "source_kind": "servo_position_readback",
+    "paused_for_drag": false,
+    "rounds": 441,
+    "last_reason": "invalid_or_untrusted_feedback"
+  },
+  "worker": {
+    "ticks": 441,
+    "last_error": null
+  },
+  "manual_arm_ranges": {
+    "joint1": {
+      "min_raw": 10,
+      "max_raw": 998
+    },
+    "joint2": {
+      "min_raw": 10,
+      "max_raw": 961
+    },
+    "joint3": {
+      "min_raw": 0,
+      "max_raw": 990
+    },
+    "joint4": {
+      "min_raw": 100,
+      "max_raw": 980
+    },
+    "joint5": {
+      "min_raw": 80,
+      "max_raw": 910
+    }
+  },
+  "manual_arm_ranges_at_utc": "2026-11-05T07:59:37Z",
+  "manual_gripper_range": {
+    "closed_raw": 504,
+    "open_raw": 192
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "kind": "hardware_read_only_evidence_leader_serial",
+  "title": "SO-101 主臂实机只读：上位机 USB 串口独占与真实标定读数",
+  "date_utc": "2026-11-03",
+  "scope": "只读：连接主臂串口并读取 Present_Position。未发送任何位置命令、未写任何配置、未改任何电机 ID、未断任何力矩。小车从臂与任何执行器输出不在本文件范围内。",
+  "verdict": "主臂读数链路（设备识别 → 标定绑定 → 独占串口 → 稳定采样 → 释放端口）在真实硬件上通过；映射之后的从臂跟随仍未验证。",
+  "device": {
+    "attached_to": "upper_host (this machine, Linux 7.0.0-38-generic, x64)",
+    "by_id": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00",
+    "serial": "5B90149652",
+    "resolved_node_during_this_run": "/dev/ttyACM3",
+    "role": "right_leader（2026-10-31 逐根拔插确认）",
+    "node_numbering_note": "同一序列在 2026-10-31 记录中解析为 ttyACM2，本次解析为 ttyACM3；/dev/ttyACM* 随枚举变化，只有 by-id 序列是身份，代码与配置均按 by-id 选择端口。",
+    "adapter": "CH340 USB-Single-Serial，VID:PID 1a86:55d3（四台适配器完全相同，不能用 VID:PID 区分）"
+  },
+  "runtime": {
+    "backend": "隔离实例 http://127.0.0.1:18193（pid 记录于 /tmp/lelab_scratch_pids_18193），LELAB_MOBILE_TELEOP_HOME=/tmp/lelab_leader_hw",
+    "leader_reader": "app_ros_mobile/lelab/mobile_leader_reader.py，经 POST /ros-mobile/teleop/leader {action:open} 触发",
+    "lerobot": "本地定制 LeRobot（current/lerobot），FeetechMotorsBus，norm_mode=DEGREES（关节）/RANGE_0_100（夹爪）",
+    "car_agent_touched": false,
+    "tunnel_8110_used": false
+  },
+  "measured": {
+    "open_result": {"port_claim": "flock+tioxcl", "connected": true, "reads_at_open": 0},
+    "sampling_window": {"reads_delta": 88, "elapsed_s": 3.01, "measured_hz": 29.2, "configured_read_hz": 30.0},
+    "snapshot_last": {
+      "reads": 88,
+      "healthy": true,
+      "age_s": 0.0076,
+      "source": "leader:usb-1a86_USB_Single_Serial_5B90149652-if00",
+      "port_claim": "flock+tioxcl",
+      "positions_deg": {
+        "shoulder_pan": -2.989010989010989,
+        "shoulder_lift": -105.01098901098901,
+        "elbow_flex": 96.3956043956044,
+        "wrist_flex": 61.23076923076923,
+        "wrist_roll": 1.010989010989011
+      },
+      "gripper_percent": 2.477291494632535,
+      "units": {
+        "joints": "deg→rad (deg from Feetech bus with use_degrees)",
+        "gripper": "0-100 opening percent, not an angle"
+      },
+      "missing_joints": [],
+      "consecutive_failures": 0
+    },
+    "stability_note": "窗口内 6 次采样的位置完全一致，因为主臂静置于桌面、无人扳动。连续性/回绕的运动证据需要人手搬动主臂，按分工留给操作员验证；本文件只声明“读数在 29.2 Hz 下无失败、年龄 <0.02 s”。",
+    "failures": {"read_errors": 0, "missing_joints": 0, "unhealthy_snapshots": 0}
+  },
+  "exclusivity_checks": {
+    "second_opener_while_open": "os.open('/dev/ttyACM3', O_RDWR|O_EXCL) → OSError errno 16 (EBUSY) Device or resource busy（TIOCEXCL 生效）",
+    "after_close": "POST /teleop/leader {action:close} → {\"connected\": false}；随后 os.open('/dev/ttyACM3', O_RDWR) 成功，说明端口随 close 释放，没有残留占用",
+    "contention_refusal_path": "另一 OFD 预占 flock 时 open() 抛 RuntimeError('leader_serial_busy: …') 且 connected 保持 False（无硬件回归测试覆盖）",
+    "limitation": "flock 只约束协作进程，TIOCEXCL 只约束 O_EXCL/普通 open；不遵守两者的程序仍可打开节点，因此上位机硬件租约仍是权威门禁，这一点写在 reader 的 docstring 与运行手册里。"
+  },
+  "calibration_provenance": {
+    "layer_a_record": "/tmp/lelab_leader_hw/leader/so101-leader-5B90149652.json（version=870f0953340b，content_sha256=870f0953340b934b957d190faba098871a02010a98d8b5e6fa15478a5e1b1d86）",
+    "lerobot_calibration_source": "~/.local/share/lelab-jetson-20261031/approot/hf/calibration/teleoperators/so_leader/right_rig.json",
+    "verified_equal_to_source": "六个电机的 id/drive_mode/homing_offset/range_min/range_max 与 right_rig.json 完全一致（shoulder_pan 1467/796-3216 … gripper 91/1561-2772）",
+    "caveat": "该临时记录仍带有模板顶层标记 _example_not_measured=true，且 reference_pose_deg 等字段来自示例文件，没有作为任何验收依据；只有 lerobot_calibration 块被 build_bus 使用并参与本次读数。正式流程应由页面重新保存一层 A，去掉示例标记。"
+  },
+  "write_audit": {
+    "calls_made": ["FeetechMotorsBus.connect()（握手/只读）", "sync_read('Present_Position', …)", "disconnect(disable_torque=False)"],
+    "calls_never_made": ["write", "sync_write", "torque_enable", "disable_torque", "write_calibration", "reset_calibration", "set_turning_range", "set_motors_id", "configure"],
+    "enforcement": "reader 只暴露只读路径；单元测试 FakeBus.__getattr__ 对任何写方法直接断言失败，测试文件 tools/ros2_collection/tests/test_mobile_leader_reader.py",
+    "why_disable_torque_false": "LeRobot 的 disconnect() 默认写力矩关闭；被动观察者关闭时绝不能让带载机械臂掉下来。"
+  },
+  "code_and_test_changes_this_round": {
+    "api_drift_fix": "build_bus 原先按不存在的 LeRobot API 构造（motors_bus 里的 OperatingMode、Motor(operating_mode=…)），真机首次打开才暴露 ImportError；现按安装版 API 重写：Motor(id, model, norm_mode) + MotorCalibration(id, drive_mode, homing_offset, range_min, range_max) + FeetechMotorsBus(port, motors, calibration)。",
+    "layer_a_requirement": "build_bus 强制一层 A 携带 lerobot_calibration 块：缺失/字段不全/关节缺项分别抛 ValueError，open_leader 转成 HTTP 409，不再静默使用默认值。",
+    "identity_forwarding": "/teleop/leader 与 /teleop/acquire 现在把 leader_identity 传到协调器，标定在真正开串口处绑定（早先只在 acquire 时设置身份，导致保存了一层 A 仍报 calibration missing）。",
+    "tests_added": [
+      "app_ros_mobile/tests/test_mobile_leader_bus_api.py：4 项，用安装版 LeRobot 构造总线（无硬件）验证 norm_mode/电机 id/型号/calibration 传入且未连接，以及三种标定拒绝路径",
+      "tools/ros2_collection/tests/test_mobile_leader_reader.py：新增 4 项独占性测试（pty 上 flock+tioxcl 并拒绝二次 open；普通文件上 flock 争用与 close 后释放；被预占时 leader_serial_busy 且不标记 connected；无 fd 时如实报告 unverified:no_fileno）",
+      "app_ros_mobile/tests/test_ros_mobile_teleop_routes.py：open_leader 桩签名与断言覆盖 leader_identity 转发"
+    ],
+    "suite_results_after_this_round": {
+      "tools/ros2_collection/tests": "115 passed（含此前偶发的 rosbridge 分片用例，本轮单独与整组各跑一次均通过）",
+      "app_ros_mobile -k 'ros or leader or teleop'": "47 passed"
+    }
+  },
+  "still_unverified": {
+    "real_follower_feedback": "车端 ros_robot_controller + servo_controller 未启动，/controller_manager/joint_states 无实测来源",
+    "leader_to_follower_motion": "映射后的目标从未下发；本轮无任何执行器输出",
+    "teleop_profile_on_car": "车端仍运行 hardware_readonly_v1；部署由用户执行",
+    "teleop_episodes_and_export": "六维导出只有合成 bag + 单元测试证据",
+    "hand_motion_continuity": "需要操作员搬动主臂，确认连续采样、角度回绕与离合重对齐的实际表现"
+  },
+  "how_to_reproduce": [
+    "cd app_ros_mobile && LELAB_MOBILE_TELEOP_HOME=/tmp/lelab_leader_hw .venv/bin/python -m uvicorn lelab.server:app --host 127.0.0.1 --port 18193（用 ss -ltnp 记录的监听 pid 管理，不用 pkill）",
+    "POST /ros-mobile/teleop/calibration 保存一层 A（身份 so101-leader-5B90149652，含 right_rig.json 的 lerobot_calibration）",
+    "POST /ros-mobile/teleop/leader {\"action\":\"open\",\"port\":\"/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149652-if00\",\"leader_identity\":\"so101-leader-5B90149652\"}",
+    "GET /ros-mobile/teleop/status 观察 leader.reads / age_s / positions_deg / gripper_percent / port_claim",
+    "POST /ros-mobile/teleop/leader {\"action\":\"close\"} 后确认端口可再次打开"
+  ]
+}

@@ -1,0 +1,172 @@
+ M .gitignore
+ M app_ros_mobile/frontend/src/App.tsx
+ M app_ros_mobile/frontend/src/components/control/MobileTeleopPanel.tsx
+ M app_ros_mobile/frontend/src/pages/DatasetViewer.tsx
+ M app_ros_mobile/frontend/src/pages/RosMobile.tsx
+ M app_ros_mobile/frontend/vite.config.ts
+ M app_ros_mobile/lelab/dataset_viewer.py
+ M app_ros_mobile/lelab/hardware_lease.py
+ M app_ros_mobile/lelab/mobile_leader_reader.py
+ M app_ros_mobile/lelab/mobile_teleop.py
+ M app_ros_mobile/lelab/mobile_teleop_coordinator.py
+ M app_ros_mobile/lelab/ros_export_worker.py
+ M app_ros_mobile/lelab/ros_mobile.py
+ M app_ros_mobile/lelab/server.py
+ M app_ros_mobile/tests/test_hardware_lease_api.py
+ M app_ros_mobile/tests/test_ros_mobile_teleop_export.py
+ M docs/ros2-collection-runbook.md
+ M ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py
+ M ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/contract.py
+ M ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/follower_feedback.py
+ M ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/recorder.py
+ M tools/ros2_collection/deploy_readonly_agent.sh
+ M tools/ros2_collection/start_car_arm_stack.sh
+ M tools/ros2_collection/teleop_preflight.py
+ M tools/ros2_collection/tests/test_agent_exclusivity_guard.py
+ M tools/ros2_collection/tests/test_deploy_readonly_agent_script.py
+ M tools/ros2_collection/tests/test_mobile_leader_reader.py
+ M tools/ros2_collection/tests/test_mobile_teleop.py
+ M tools/ros2_collection/tests/test_mobile_teleop_coordinator.py
+ M tools/ros2_collection/tests/test_recorder_faults.py
+ M tools/ros2_collection/tests/test_teleop_preflight.py
+?? app_ros_mobile/frontend/docs/
+?? app_ros_mobile/frontend/src/components/control/HybridDataReview.tsx
+?? app_ros_mobile/frontend/src/components/control/HybridTeleopPanel.tsx
+?? app_ros_mobile/frontend/src/components/control/hybridContract.ts
+?? app_ros_mobile/frontend/src/lib/
+?? app_ros_mobile/frontend/src/pages/LanderpiSetup.tsx
+?? app_ros_mobile/frontend/src/pages/LanderpiTeleop.tsx
+?? app_ros_mobile/lelab/follower_calibration_asset.py
+?? app_ros_mobile/lelab/hybrid_calibration.py
+?? app_ros_mobile/lelab/hybrid_channel.py
+?? app_ros_mobile/lelab/hybrid_export_schema.py
+?? app_ros_mobile/lelab/hybrid_facade.py
+?? app_ros_mobile/lelab/hybrid_fixtures.py
+?? app_ros_mobile/lelab/hybrid_frame_link.py
+?? app_ros_mobile/lelab/hybrid_gamepad.py
+?? app_ros_mobile/lelab/hybrid_hardware.py
+?? app_ros_mobile/lelab/hybrid_home_plan.py
+?? app_ros_mobile/lelab/hybrid_recording.py
+?? app_ros_mobile/lelab/hybrid_session.py
+?? app_ros_mobile/lelab/hybrid_stream_hardware.py
+?? app_ros_mobile/lelab/teleop_frame_v1.py
+?? app_ros_mobile/lelab/teleop_stream.py
+?? app_ros_mobile/tests/t4_fixtures.py
+?? app_ros_mobile/tests/test_follower_calibration_api.py
+?? app_ros_mobile/tests/test_hybrid_hardware.py
+?? app_ros_mobile/tests/test_hybrid_home_plan.py
+?? app_ros_mobile/tests/test_hybrid_stream_hardware.py
+?? app_ros_mobile/tests/test_integration_upper.py
+?? app_ros_mobile/tests/test_t3_wave_a.py
+?? app_ros_mobile/tests/test_t4_contract_parity.py
+?? app_ros_mobile/tests/test_t4_hybrid_9d_export.py
+?? app_ros_mobile/tests/test_t4_hybrid_recording.py
+?? configs/ros2_collection/hardware-hybrid-arm-trial-v1.json
+?? configs/ros2_collection/hardware-hybrid-arm2-trial-v1.json
+?? configs/ros2_collection/hardware-hybrid-arm3-trial-v1.json
+?? configs/ros2_collection/hardware-hybrid-arm4-trial-v1.json
+?? configs/ros2_collection/hardware-hybrid-arm5-trial-v1.json
+?? configs/ros2_collection/hardware-hybrid-homing-v1.json
+?? configs/ros2_collection/hardware-hybrid-manual-v1.json
+?? configs/ros2_collection/hardware-recorder-probe-v1.json
+?? configs/ros2_collection/hybrid_manual_sim_v1.json
+?? docs/evidence/integration-current/
+?? docs/evidence/landerpi-agent-wiring-2026-11-05/
+?? docs/evidence/landerpi-facade-p0-lease-stability-2026-11-05/
+?? docs/evidence/landerpi-facade-p0-p4-offline-closeout-2026-11-05/
+?? docs/evidence/landerpi-facade-p1-web-closure-2026-11-05/
+?? docs/evidence/landerpi-facade-p2-fault-matrix-2026-11-05/
+?? docs/evidence/landerpi-facade-p3-frame-benchmark-2026-11-05/
+?? docs/evidence/landerpi-facade-p4-build-and-candidate-2026-11-05/
+?? docs/evidence/landerpi-firmware-servo-audit-2026-11-06/
+?? docs/evidence/landerpi-frame-safety-recovery-2026-11-06/
+?? docs/evidence/landerpi-hardware-20261104/
+?? docs/evidence/landerpi-hardware-planning-probe-20261104.json
+?? docs/evidence/landerpi-homing-20261107-live/
+?? docs/evidence/landerpi-homing-20261107-offline/
+?? docs/evidence/landerpi-live-20261106-preflight/
+?? docs/evidence/landerpi-midpoint-ros2-20261106/
+?? docs/evidence/landerpi-reconnect-20261106T014256Z/
+?? docs/evidence/landerpi-teleop-real-20261105/
+?? docs/evidence/landerpi-teleop-review-20261105/
+?? docs/evidence/parallel-20261104/
+?? docs/evidence/so101-car-joint1-torque-release-20261104.json
+?? docs/evidence/so101-mobile-teleop-preflight-and-fixes-20261104.md
+?? docs/evidence/tmp-joint1/
+?? docs/handoffs/2026-11-04-landerpi-hardware-execution.md
+?? docs/handoffs/2026-11-04-landerpi-hardware-plan-and-agent-goal.md
+?? docs/handoffs/2026-11-04-landerpi-integration-agent-goal.md
+?? docs/handoffs/2026-11-04-landerpi-parallel-development-plan.md
+?? docs/handoffs/2026-11-05-facade-offline-wrapup-plan-and-agent-goal.md
+?? docs/handoffs/2026-11-05-landerpi-agent-wiring-plan-and-goal.md
+?? docs/handoffs/2026-11-05-landerpi-current-debug-development-summary.md
+?? docs/handoffs/2026-11-05-landerpi-facade-framelink-implementation-plan.md
+?? docs/handoffs/2026-11-05-landerpi-local-ros2-agent-goal.md
+?? docs/handoffs/2026-11-05-landerpi-local-ros2-offline-development-plan.md
+?? docs/handoffs/2026-11-05-landerpi-local-ros2-offline-status.md
+?? docs/handoffs/2026-11-05-landerpi-teleop-comprehensive-review.md
+?? docs/handoffs/2026-11-05-landerpi-vendor-docker-reuse.md
+?? docs/handoffs/2026-11-06-facade-framelink-progress.md
+?? docs/handoffs/2026-11-06-frame-safety-recovery-plan-and-agent-goal.md
+?? docs/handoffs/2026-11-06-landerpi-firmware-servo-control-audit.md
+?? docs/handoffs/2026-11-06-landerpi-homing-parallel-agent-plan.md
+?? docs/handoffs/2026-11-06-landerpi-ros2-midpoint-progress.md
+?? docs/handoffs/parallel-20261104/
+?? docs/landerpi-follower-calibration-offline-implementation.md
+?? docs/landerpi-gripper-auto-manual-calibration-design.md
+?? docs/landerpi-hybrid-teleop-system-design-2026-11-04.md
+?? releases/training-monitor-20261030-01/
+?? releases/training-monitor-20261030-02/
+?? ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm-trial-v1.json
+?? ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm2-trial-v1.json
+?? ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm3-trial-v1.json
+?? ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm4-trial-v1.json
+?? ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-arm5-trial-v1.json
+?? ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-homing-v1.json
+?? ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d.json
+?? ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1.json
+?? ros2_ws/src/lelab_mobile_agent/config/hybrid_manual_sim_v1.json
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent_licence_bridge.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/car_control_process.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/follower_calibration_job.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/hardware_adapter.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/hardware_io.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/hardware_safety.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/hybrid_gateway.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/licence_ipc.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/recording_contract.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/ros_servo_output.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/ros_servo_readback.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/teleop_frame_v1.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/teleop_stream.py
+?? ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/wheel_protocol.py
+?? tools/ros2_collection/car_bus_servo_torque_ros.py
+?? tools/ros2_collection/car_servo_step_probe.py
+?? tools/ros2_collection/car_servo_torque.py
+?? tools/ros2_collection/car_servo_watch.py
+?? tools/ros2_collection/follower_calibration_browser_check.py
+?? tools/ros2_collection/http_follower_calibration_fixture.py
+?? tools/ros2_collection/hybrid_offline_acceptance.py
+?? tools/ros2_collection/local_ros2/
+?? tools/ros2_collection/tests/test_agent_frame_arbitration.py
+?? tools/ros2_collection/tests/test_agent_lease_reaper.py
+?? tools/ros2_collection/tests/test_agent_licence_bridge.py
+?? tools/ros2_collection/tests/test_car_control_process.py
+?? tools/ros2_collection/tests/test_car_emission_identity.py
+?? tools/ros2_collection/tests/test_car_servo_torque.py
+?? tools/ros2_collection/tests/test_container_ops_stop.py
+?? tools/ros2_collection/tests/test_follower_calibration_job.py
+?? tools/ros2_collection/tests/test_hybrid_frame_link.py
+?? tools/ros2_collection/tests/test_integration_car_phase.py
+?? tools/ros2_collection/tests/test_licence_ipc.py
+?? tools/ros2_collection/tests/test_ros_servo_output.py
+?? tools/ros2_collection/tests/test_t1_hardware.py
+?? tools/ros2_collection/tests/test_t1_wave_a_acceptance.py
+?? tools/ros2_collection/tests/test_t2_firmware_protocol.py
+?? tools/ros2_collection/tests/test_t3_channel_contract.py
+?? tools/ros2_collection/tests/test_t3_hybrid.py
+?? tools/ros2_collection/tests/test_teleop_frame_v1.py
+?? tools/ros2_collection/tests/test_teleop_stream.py
+?? tools/ros2_collection/tests/test_wheel_protocol_contract.py
+?? tools/ros2_collection/vendor_patches/
+?? tools/ros2_collection/webdriver_firefox.py

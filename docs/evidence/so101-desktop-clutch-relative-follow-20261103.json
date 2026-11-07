@@ -1,0 +1,56 @@
+{
+  "generated_utc": "2026-11-03T16:33Z",
+  "level": "上位机单元/构建验证，无硬件参与，不是实机验收",
+  "modules": {
+    "lelab/desktop_follow.py": "capture / follow_target / wrap_delta，纯函数，总线角度空间 (<motor>.pos)",
+    "lelab/teleoperate.py": "clutch 状态 + handle_teleop_clutch + _try_engage（工作线程在实测帧建参考）+ 未接合不下发 + 断开清参考",
+    "lelab/server.py": "POST /teleop-clutch",
+    "frontend": "/so101 第 3 步接合/断开按钮与会话内离合状态与拒绝原因；曲线目标优先取 target；旧入口显式 engage:true"
+  },
+  "contract": {
+    "default": "session starts with the clutch out: both arms are read and streamed, nothing is written",
+    "engage": "request only; the loop captures leader+follower references on its next measured frame",
+    "refusals": [
+      "follower_feedback_not_measured: <status>",
+      "alignment_incomplete: [missing joints]",
+      "preview_session_sends_nothing",
+      "no live session"
+    ],
+    "release": "clears the alignment, so a re-engage cannot resume from the old reference",
+    "frame_keys_added": [
+      "target",
+      "clutch"
+    ],
+    "request_field_added": "TeleoperateRequest.engage (default False)"
+  },
+  "tests": {
+    "test_desktop_follow.py": "6: 缺一路就整帧拒绝 / null 算缺失 / 主臂不动则目标=从臂自身 / 179->0 折成 -179 / 非回绕关节不动 / 无参考的关节被丢弃",
+    "test_teleoperate.py new": "5: 未接合不下发且 clutch 快照正确 / 接合后第二个实测帧下发相对目标 / 从臂读不到时接合被拒且仍不下发 / 断开清参考+预览拒绝+无会话拒绝 / engage=true 的请求自行接合",
+    "module_results": {
+      "tests/test_desktop_follow.py + tests/test_teleoperate.py": "33 passed",
+      "move-arm 与 teleoperation-status 相关模块": "91 passed",
+      "frontend": "tsc --noEmit 干净, npm run build 干净"
+    },
+    "direction_evidence": "加入离合门时，6 条原有断言 send 次数的用例立刻变红（test_broadcast_…、dead-follower、自停、恢复、refuses-command、follows-and-configures），说明门确实改变了行为；随后这些用例改为显式接合而非删除",
+    "full_app_suite": "583 passed, 1 failed — the only failure is the known test_remote_inference.py::test_client_command_targets_the_tunnel, unrelated to this change"
+  },
+  "not_yet_verified": [
+    "真臂插上后：预览/未接合时机械不动、接合瞬间不跳、断开后重摆主臂再重新接合",
+    "页面按钮的实际点击（八.8）与离合状态在刷新后的显示",
+    "record.py 的桌面录制路径仍是既有绝对跟随，未接入离合（下一项）",
+    "车端网关的跟随与反馈（小车未开机）"
+  ],
+  "mutation_check": {
+    "break": "replace the clutch gate in the loop with an always-available empty reference",
+    "went_red": [
+      "test_a_started_session_sends_nothing_until_the_clutch_is_engaged",
+      "test_engaging_captures_the_reference_pair_and_then_sends_relative_targets",
+      "test_engaging_is_refused_while_the_follower_cannot_be_measured",
+      "test_a_following_request_engages_on_its_first_measured_frame",
+      "test_broadcast_carries_the_leader_reading_that_drove_the_follower"
+    ],
+    "after_restore": "33 passed; git diff empty for lelab/teleoperate.py, so the file is exactly the committed state",
+    "extra_evidence": "when the gate was introduced, 6 pre-existing tests that counted sends turned red immediately, which shows the default really changed"
+  },
+  "commit": "8f9a98c feat(desktop-teleop): gate the follow loop behind an explicit clutch"
+}

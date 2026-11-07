@@ -1,0 +1,60 @@
+{
+  "source": "operator_entered_not_mechanical",
+  "motion_executed": false,
+  "rows": [
+    {
+      "joint": "joint1",
+      "servo_id": 1,
+      "current_raw": 536,
+      "midpoint_raw": 504.0,
+      "delta_deg": -7.68,
+      "range_source": "operator_manual_entry",
+      "samples": 0
+    },
+    {
+      "joint": "joint2",
+      "servo_id": 2,
+      "current_raw": 641,
+      "midpoint_raw": 485.5,
+      "delta_deg": -37.32,
+      "range_source": "operator_manual_entry",
+      "samples": 0
+    },
+    {
+      "joint": "joint3",
+      "servo_id": 3,
+      "current_raw": 72,
+      "midpoint_raw": 495.0,
+      "delta_deg": 101.52,
+      "range_source": "operator_manual_entry",
+      "samples": 0
+    },
+    {
+      "joint": "joint4",
+      "servo_id": 4,
+      "current_raw": 118,
+      "midpoint_raw": 540.0,
+      "delta_deg": 101.28,
+      "range_source": "operator_manual_entry",
+      "samples": 0
+    },
+    {
+      "joint": "joint5",
+      "servo_id": 5,
+      "current_raw": 907,
+      "midpoint_raw": 495.0,
+      "delta_deg": -98.88,
+      "range_source": "operator_manual_entry",
+      "samples": 0
+    },
+    {
+      "joint": "r_joint",
+      "servo_id": 10,
+      "current_raw": 457,
+      "midpoint_raw": 348.0,
+      "delta_deg": -26.16,
+      "range_source": "operator_manual_entry",
+      "samples": null
+    }
+  ]
+}

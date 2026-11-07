@@ -1,0 +1,10 @@
+{
+  "url": "http://127.0.0.1:18286/ros-mobile",
+  "title": "LeLab",
+  "browser_errors": [],
+  "has_real_feedback": true,
+  "has_leader_blocker": true,
+  "has_calibration_blocker": false,
+  "has_no_output": true,
+  "has_zero_submit": true
+}

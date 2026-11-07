@@ -139,10 +139,12 @@ from .system_monitor import system_snapshot
 # 遥操作：主臂→从臂的实时跟随
 # Import our custom teleoperation functionality
 from .teleoperate import (
+    TeleopClutchRequest,
     TeleoperateRequest,
     handle_get_joint_positions,
     handle_start_teleoperation,
     handle_stop_teleoperation,
+    handle_teleop_clutch,
     handle_teleoperation_status,
 )
 
@@ -493,8 +495,14 @@ def _hardware_task_active(task: str) -> bool:
         return bool(_record.recording_active) or get_ros_mobile_bridge().is_active()
     if task == "teleoperation":
         from . import teleoperate as _teleoperate
+        from .mobile_teleop_coordinator import peek_mobile_teleop_coordinator
 
-        return bool(_teleoperate.teleoperation_active)
+        mobile = peek_mobile_teleop_coordinator()
+        return bool(_teleoperate.teleoperation_active) or bool(mobile and mobile.is_live())
+    if task == "hybrid_teleoperation":
+        from .ros_mobile import get_hybrid_facade
+
+        return getattr(get_hybrid_facade(), "session_id", None) is not None
     if task == "inference":
         from . import rollout as _rollout
 
@@ -506,7 +514,7 @@ def _hardware_task_active(task: str) -> bool:
 
 # 统一的任务停止入口：按任务名分发到各模块的 stop 函数。
 # 单个任务失败不影响其它任务，且本函数自身绝不抛异常。
-def _hardware_stop_task(task: str) -> dict[str, Any]:
+def _hardware_stop_task(task: str, reason: str = "lease-stop") -> dict[str, Any]:
     """Run the stop path for one task; never raises."""
     try:
         if task == "recording":
@@ -519,7 +527,26 @@ def _hardware_stop_task(task: str) -> dict[str, Any]:
                 logger.exception("ROS mobile emergency stop failed")
             return result
         if task == "teleoperation":
-            return handle_stop_teleoperation()
+            result = handle_stop_teleoperation()
+            try:
+                from .mobile_teleop_coordinator import peek_mobile_teleop_coordinator
+
+                mobile = peek_mobile_teleop_coordinator()
+                if mobile is not None and mobile.is_live():
+                    # A revoked teleop lease must latch the car's stop, not just silence us:
+                    # the arm would otherwise keep holding the last commanded trajectory.
+                    mobile.emergency_stop(reason=f"hardware-stop:{reason}")
+                    mobile.release(reason=f"hardware-stop:{reason}")
+            except Exception:
+                logger.exception("ROS mobile teleop release failed")
+            return result
+        if task == "hybrid_teleoperation":
+            from .ros_mobile import get_hybrid_facade
+
+            facade = get_hybrid_facade()
+            if getattr(facade, "session_id", None) is not None:
+                return facade.release_session(f"hardware-stop:{reason}")
+            return {"success": True, "message": "no active hybrid teleoperation session"}
         if task == "inference":
             return handle_stop_inference()
         if task == "calibration":
@@ -534,7 +561,7 @@ def _hardware_stop_task(task: str) -> dict[str, Any]:
 def _hardware_stop_hook(task: str, reason: str) -> None:
     """Called by the lease watchdog when a lease expires (fail safe)."""
     logger.warning("Hardware lease for %s lost (%s); stopping the task", task, reason)
-    _hardware_stop_task(task)
+    _hardware_stop_task(task, reason=reason)
 
 
 # 解析“谁在申请租约”：X-LeLab-Client 是浏览器/设备的稳定 id，缺失时退回来源 IP。
@@ -689,7 +716,7 @@ def emergency_stop(body: EmergencyStopRequest | None = None):
     except Exception:
         logger.exception("ROS mobile emergency stop failed")
     preempted = hardware_lease.preempt(reason=reason)
-    stopped = {task: _hardware_stop_task(task) for task in HARDWARE_TASKS}
+    stopped = {task: _hardware_stop_task(task, reason=reason) for task in HARDWARE_TASKS}
     return {
         "success": True,
         "reason": reason,
@@ -720,6 +747,12 @@ def teleoperate_arm(request: TeleoperateRequest, http_request: Request):
 
 
 # 停止遥操作并释放租约。
+# 桌面遥操作离合：接合由环路在下一个实测帧建立参考，断开立刻停发并清参考。
+@app.post("/teleop-clutch")
+def teleop_clutch(request: TeleopClutchRequest):
+    return handle_teleop_clutch(request.engage)
+
+
 @app.post("/stop-teleoperation")
 def stop_teleoperation():
     """Stop the current teleoperation session"""
@@ -2665,6 +2698,43 @@ def get_available_ports():
         return {"status": "error", "message": str(e)}
 
 
+# 桌面双臂工作台（/so101）的只读清单：串口 + 每个口上次标定成哪一侧、
+# 两份标定树的文件身份（电机 id 与内容哈希）+ 控制权与遥操作会话状态。
+# 不开串口、不写舵机；Motor ids come from the calibration files, the hardware's own
+# ids are only compared when teleoperation actually starts.
+@app.get("/so101/devices")
+def so101_devices():
+    """Ports, calibration identities and the arm-binding table for the workbench."""
+    from . import arm_bindings
+
+    try:
+        inventory = arm_bindings.workbench_inventory()
+    except Exception as e:
+        logger.error(f"Error building workbench inventory: {e}")
+        return {"status": "error", "message": str(e)}
+    return {
+        "status": "success",
+        **inventory,
+        "lease": hardware_lease.status(),
+        "teleoperation": handle_teleoperation_status(),
+    }
+
+
+# 工作台在"开始遥操作"之前做一次同样的标定归属核查（不打开串口，所以不比对
+# 硬件电机 id；启动路径仍会做完整核查并据此拒绝）。
+@app.get("/so101/identity")
+def so101_identity(leader_port: str = "", leader_config: str = "",
+                   follower_port: str = "", follower_config: str = ""):
+    """Would this leader/follower pair be refused for calibration mismatch?"""
+    from . import arm_bindings
+
+    verdict = arm_bindings.check_pair(
+        arm_bindings.side(leader_port, "leader", leader_config),
+        arm_bindings.side(follower_port, "follower", follower_config),
+    )
+    return {"status": "success", **verdict}
+
+
 # 这段脚本在全新的 Python 子进程里执行（原因见 _avfoundation_cameras_in_cv2_order）：
 # 复刻 OpenCV 在 macOS 上的设备枚举顺序 —— video + muxed 设备按 uniqueID 排序
 # （对应 cap_avfoundation_mac.mm），这样返回的下标与 cv2.VideoCapture 实际打开的设备一致。
@@ -3142,6 +3212,17 @@ def startup_event():
 async def shutdown_event():
     """Clean up resources when FastAPI shuts down"""
     logger.info("🔄 FastAPI shutting down, cleaning up...")
+
+    # 需求六: exiting the upper host must not leave the car holding a live control lease.
+    # peek (not get) so a server that never opened the teleop page does not build one here.
+    try:
+        from .mobile_teleop_coordinator import peek_mobile_teleop_coordinator
+
+        teleop = peek_mobile_teleop_coordinator()
+        if teleop is not None:
+            teleop.shutdown(reason="server-shutdown")
+    except Exception:
+        logger.exception("ROS mobile teleop shutdown failed")
 
     hardware_lease.stop_watchdog()
     hardware_lease.preempt(reason="server-shutdown")

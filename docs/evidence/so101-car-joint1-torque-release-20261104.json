@@ -1,0 +1,90 @@
+{
+  "schema": "lelab.evidence.car_joint1_torque_release/v1",
+  "recorded_at_local": "2026-11-04T06:27:00-08:00",
+  "recorded_at_pi": "2026-11-04T22:27:00+08:00",
+  "operator_request": "解除机械臂1轴的限位；1轴疑似被硬件限位卡住，解除后断电手动转动检查",
+  "target": {
+    "host": "pi@<private-ip>",
+    "hostname": "raspberrypi",
+    "arch": "aarch64",
+    "container": "MentorPi",
+    "uart": "/dev/rrc -> ttyACM0",
+    "bus_baudrate": 1000000,
+    "servo_model_note": "总线舵机，协议由 RosRobotControllerLite 固件 packet_handle.c 定义"
+  },
+  "preflight": {
+    "container_status": "Up (RestartPolicy=always)",
+    "ros_stack_running": true,
+    "ros_stack_note": "bringup.launch.py 由人工 docker exec 启动，非开机自启；.sync_typerc.sh 只做 /home/ubuntu/shared/.typerc 的文件同步",
+    "nodes_seen_via_rosbridge": 27,
+    "uart_owner_before": "PID 2926 ros_robot_controller",
+    "ros2_cli_discovery_note": "容器内 bash -lc 下 ros2 node list 为空，改用 rosbridge(9090)/rosapi 读取真实图；未改动 RMW 配置"
+  },
+  "measurement_before_action": {
+    "method": "car_servo_readout.py 直连 /dev/rrc（单属主，有限超时，逐帧校验 id+cmd+status）",
+    "servo_id": 1,
+    "joint_semantics": {
+      "joint1": "servo_controller.yaml joint1.id=1，URDF arm.urdf.xacro axis≈(0,-0.0087,0.99996) 即 Z 轴/底座偏航，松力矩不会掉臂",
+      "urdf_limit_rad": [-2.09, 2.09],
+      "servo_range": [0, 1000],
+      "init_raw": 500
+    },
+    "position_raw": 500,
+    "angle_limit_raw": [0, 1000],
+    "torque_state": 1,
+    "temperature_c": 26,
+    "vin_mv": 7097,
+    "conclusion": "不存在可解除的限位：EEPROM 位置限制为满量程 0..1000，joint1 停在中点 500，且 torque_state=1 正在保持。所谓卡住是保持力矩造成的，不是限位。"
+  },
+  "action": {
+    "command": "0x0B 卸载动力 (firmware packet_handle.c case 0x0B -> serial_servo_load_unload(..., 0))",
+    "tool": "tools/ros2_collection/car_servo_torque.py --ids 1 --unload --i-authorize-servo-writes",
+    "scope": "仅 servo id 1",
+    "before": 1,
+    "after": 0,
+    "verified": true,
+    "rollback": "car_servo_torque.py --ids 1 --load --i-authorize-servo-writes，或断电重启（力矩状态不写 EEPROM）"
+  },
+  "state_after_action": {
+    "servo_1": {"position": 500, "torque_state": 0, "temp_c": 26, "vin_mv": 7092},
+    "servo_2": {"position": 728, "torque_state": 1, "temp_c": 24, "vin_mv": 7061},
+    "servo_3": {"position": 119, "torque_state": 1, "temp_c": 34, "vin_mv": 7064},
+    "servo_4": {"position": 100, "torque_state": 1, "temp_c": 22, "vin_mv": 7048},
+    "servo_5": {"position": 499, "torque_state": 1, "temp_c": 22, "vin_mv": 7041},
+    "servo_10": {"position": 150, "torque_state": 1, "temp_c": 22, "vin_mv": 7041},
+    "responding_ids": [1, 2, 3, 4, 5, 10],
+    "observation": "仅 1 轴卸载，其余保持；3 轴温度 34 ℃ 高于其他 22-26 ℃，作为次要信号记录，未作结论"
+  },
+  "incident_during_investigation": {
+    "what": "/ros_robot_controller 节点退出（PID 2926 消失，/dev/rrc 无占用，节点不在图内）",
+    "trigger": "通过 vendor 服务 /ros_robot_controller/bus_servo/get_state 请求 get_position_limit 后开始无响应，随后节点消失",
+    "root_cause": "vendor SDK bus_servo_read_and_unpack 用 bus_servo_queue.get(block=True) 等回包，无超时且不校验帧长度/回显；服务回调收到不匹配帧后 struct.unpack 抛错（rclpy 单线程执行器），节点退出",
+    "why_it_matters": "这条路径正是本项目禁止用第二条读通道争用串口的原因；car_servo_readout.py/torque.py 自带有限超时与帧校验，走同一串口时未复现该问题",
+    "current_impact": [
+      "/dev/rrc 空闲，无进程持有",
+      "servo_manager(controller_manager)、init_pose、rosbridge 仍在运行",
+      "/ros_robot_controller/bus_servo/set_position 无订阅者，手臂指令不再到达硬件",
+      "已发出目标的舵机继续由自身保持，未观察到掉臂"
+    ],
+    "recovery_not_performed": "未重启。恢复 bringup 会执行 init_pose（再次命令 joint1=500，直接压向待确认的机械卡点），须先完成手动检查并确认路径清空。",
+    "recovery_when_ready": "确认 1 轴手动可自由转动、臂周围无人无遮挡后，再重启容器内 bringup，并先看 joint1 是否被驱动到 500"
+  },
+  "hand_test": {
+    "performed_by": "操作员手动转动 joint1（力矩已卸）",
+    "observed_with": "car_servo_watch.py --ids 1 2 3 4 5 10 --seconds 6 --rate 3",
+    "servo_1_series": {"start": 500, "end": 1021, "span_within_6s": 0, "samples": "907..1021 变动后稳定在 1021"},
+    "other_joints_span": {"2": 0, "3": 1, "4": 1, "5": 0, "10": 0},
+    "interpretation": "1 轴可被手动转动（500->1021 说明编码器跟随、机械未被抱死），停在 1021 不动；1021 已超出标称 0..1000 与 angle_limit [0,1000]，所以挡住它的是机械行程终点，不是软件限位。",
+    "unnamed_question": "操作员口中的“0 轴”经实测对应 servo id 1 / URDF joint1（本轮唯一位置大幅变化的关节）"
+  },
+  "unverified": [
+    "1021 之外是否还有行程：目前是机械终点，需拆装/换支架才能改，软件无法放开",
+    "断电重启后 init_pose 对 1 轴的表现",
+    "3 轴 34 ℃ 是否与持续负载/卡滞有关"
+  ],
+  "artifacts": {
+    "servo1_probe": "docs/evidence/tmp-joint1/servo1_probe.json",
+    "servo1_unload": "docs/evidence/tmp-joint1/servo1_unload.json",
+    "servos_after_unload": "docs/evidence/tmp-joint1/servos_after_unload.json"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "driver_bound": true,
+  "outputs_enabled": false,
+  "feedback_reason": "no_feedback_yet",
+  "last_error": "controller_reported_read_failure",
+  "raw": {},
+  "scan_span_s": null,
+  "successful_scans": 0,
+  "failed_scans": 58
+}
+{
+  "driver_bound": true,
+  "outputs_enabled": false,
+  "feedback_reason": "no_feedback_yet",
+  "last_error": "controller_reported_read_failure",
+  "raw": {},
+  "scan_span_s": null,
+  "successful_scans": 0,
+  "failed_scans": 58
+}

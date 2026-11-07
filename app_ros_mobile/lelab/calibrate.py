@@ -23,7 +23,7 @@ import logging
 import threading
 import time
 import traceback
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
 from lerobot.motors import MotorCalibration
@@ -549,17 +549,36 @@ class CalibrationManager:
         # Robot-record write-back: if this calibration was launched from a tile,
         # update the robot's port + config field for the side that was just calibrated.
         request = self._current_request
-        if request is not None and request.robot_name:
-            from .utils.config import save_robot_record
+        if request is not None:
+            self._record_arm_binding(request, calibration)
+            if request.robot_name:
+                from .utils.config import save_robot_record
 
-            if request.device_type == "teleop":
-                patch = {"leader_port": request.port, "leader_config": f"{request.config_file}.json"}
-            else:
-                patch = {"follower_port": request.port, "follower_config": f"{request.config_file}.json"}
-            try:
-                save_robot_record(request.robot_name, patch, allow_create=False)
-            except Exception as e:
-                logger.warning(f"Robot-record write-back failed for {request.robot_name}: {e}")
+                if request.device_type == "teleop":
+                    patch = {"leader_port": request.port, "leader_config": f"{request.config_file}.json"}
+                else:
+                    patch = {"follower_port": request.port, "follower_config": f"{request.config_file}.json"}
+                try:
+                    save_robot_record(request.robot_name, patch, allow_create=False)
+                except Exception as e:
+                    logger.warning(f"Robot-record write-back failed for {request.robot_name}: {e}")
+
+    def _record_arm_binding(self, request: CalibrationRequest, calibration: dict) -> None:
+        """Bind the port just measured to the calibration written onto it.
+
+        Every SO-101 here uses motor ids 1..6, so ids alone cannot tell two arms
+        apart; the USB by-id path is the identity, and this is the only moment the
+        app knows which numbers were measured against which physical port. A failed
+        bookkeeping write must not undo a completed calibration, so it is logged.
+        """
+        from . import arm_bindings
+
+        try:
+            entry = arm_bindings.record(request.port, request.device_type, request.config_file,
+                                        {name: asdict(body) for name, body in calibration.items()})
+            logger.info("Recorded arm binding for %s: %s", request.port, entry["config"])
+        except Exception as e:
+            logger.warning("Arm binding not recorded for %s: %s", request.port, e)
 
     def _cleanup_and_finish(self, message: str, status: str = "completed"):
         """Clean up and finish calibration"""

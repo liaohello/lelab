@@ -1,0 +1,34 @@
+{
+  "session_identity": {
+    "session_id": "89c9f9f38ace4674b2874a0c1685d83a",
+    "session_epoch": 2505293220509536,
+    "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf"
+  },
+  "state": "ready",
+  "last_error": null,
+  "outputs_enabled": false,
+  "leader": {
+    "shoulder_pan": 0.208672,
+    "shoulder_lift": -1.324916,
+    "elbow_flex": 1.476817,
+    "wrist_flex": 1.178385,
+    "wrist_roll": 0.072882
+  },
+  "leader_gripper": 30.438311688311686,
+  "targets": {
+    "joint1": 0.146608,
+    "joint2": 1.319469,
+    "joint3": -2.027374,
+    "joint4": -1.608495,
+    "joint5": 1.704838
+  },
+  "gripper_target": 456.0,
+  "follower_raw": {
+    "joint1": 535,
+    "joint2": 815,
+    "joint3": 16,
+    "joint4": 116,
+    "joint5": 907,
+    "r_joint": 456
+  }
+}

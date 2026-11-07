@@ -1,0 +1,188 @@
+--- a/ros_robot_controller_sdk.py
++++ b/ros_robot_controller_sdk.py
+@@ -96,12 +96,19 @@
+             'GAMEPAD_BUTTON_MASK_R1':        0x8000
+     }
+ 
+-    def __init__(self, device="/dev/rrc", baudrate=1000000, timeout=10):
++    def __init__(self, device="/dev/rrc", baudrate=1000000, timeout=10, servo_read_timeout=0.1):
++        if not 0 < servo_read_timeout <= 1:
++            raise ValueError("invalid servo_read_timeout")
++        self.servo_read_timeout = servo_read_timeout
++        self.bus_reply_lock = threading.Lock()
++        self.bus_reply_active = False
++        self.bus_reply_fault = False
++        self.port_write_lock = threading.Lock()
+         self.enable_recv = False
+         self.frame = []
+         self.recv_count = 0
+ 
+-        self.port = serial.Serial(None, baudrate, timeout=timeout)
++        self.port = serial.Serial(None, baudrate, timeout=timeout, write_timeout=servo_read_timeout)
+         self.port.rts = False
+         self.port.dtr = False
+         self.port.setPort(device)
+@@ -159,10 +166,14 @@
+             pass
+ 
+     def packet_report_serial_servo(self, data):
+-        try:
+-            self.bus_servo_queue.put_nowait(data)
+-        except queue.Full:
+-            pass
++        with self.bus_reply_lock:
++            if not self.bus_reply_active or self.bus_reply_fault:
++                self.bus_reply_fault = True
++                return
++            try:
++                self.bus_servo_queue.put_nowait(data)
++            except queue.Full:
++                self.bus_reply_fault = True
+ 
+     def packet_report_pwm_servo(self, data):
+         try:
+@@ -326,7 +337,13 @@
+         buf.append(checksum_crc8(bytes(buf[2:])))
+         print(buf)
+         buf = bytes(buf)
+-        self.port.write(buf)
++        if not self.port_write_lock.acquire(timeout=self.servo_read_timeout):
++            raise IOError("serial writer busy")
++        try:
++            if self.port.write(buf) != len(buf):
++                raise IOError("short serial write")
++        finally:
++            self.port_write_lock.release()
+         # for i in buf: 
+             # print(i)
+         # print('''''''')
+@@ -412,7 +429,7 @@
+         self.buf_write(PacketFunction.PACKET_FUNC_PWM_SERVO, data)
+ 
+     def pwm_servo_read_and_unpack(self, servo_id, cmd, unpack):
+-        with self.servo_read_lock:
++        with self.pwm_servo_read_lock:
+             self.buf_write(PacketFunction.PACKET_FUNC_PWM_SERVO, [cmd, servo_id])
+             data = self.pwm_servo_queue.get(block=True)
+             servo_id, cmd, info = struct.unpack(unpack, data)
+@@ -475,12 +492,44 @@
+         self.buf_write(PacketFunction.PACKET_FUNC_BUS_SERVO, data)
+ 
+     def bus_servo_read_and_unpack(self, servo_id, cmd, unpack):
+-        with self.servo_read_lock:
+-            self.buf_write(PacketFunction.PACKET_FUNC_BUS_SERVO, [cmd, servo_id])
+-            data = self.bus_servo_queue.get(block=True)
+-            servo_id, cmd, success, *info = struct.unpack(unpack, data)
+-            if success == 0:
++        # Broadcast reads cannot be attributed to one servo. The legacy protocol
++        # has no transaction id, so any anomaly latches reads until recovery.
++        if not isinstance(servo_id, int) or isinstance(servo_id, bool) or not 0 <= servo_id <= 253:
++            return None
++        if unpack not in ("<BBbh", "<BBbB", "<BBbb", "<BBbH", "<BBb2H"):
++            return None
++        if not self.servo_read_lock.acquire(timeout=self.servo_read_timeout):
++            return None
++        try:
++            with self.bus_reply_lock:
++                if self.bus_reply_fault or not self.bus_servo_queue.empty():
++                    self.bus_reply_fault = True
++                    return None
++                self.bus_reply_active = True
++            deadline = time.monotonic() + self.servo_read_timeout
++            try:
++                self.buf_write(PacketFunction.PACKET_FUNC_BUS_SERVO, [cmd, servo_id])
++                remaining = deadline - time.monotonic()
++                if remaining <= 0:
++                    raise queue.Empty()
++                data = self.bus_servo_queue.get(timeout=remaining)
++                if len(data) != struct.calcsize(unpack):
++                    raise ValueError("invalid response length")
++                reply_id, reply_cmd, error, *info = struct.unpack(unpack, data)
++                if reply_id != servo_id or reply_cmd != cmd or error != 0:
++                    raise ValueError("invalid response id, command or status")
++                with self.bus_reply_lock:
++                    if self.bus_reply_fault or not self.bus_servo_queue.empty():
++                        raise ValueError("duplicate or unsolicited response")
++                    self.bus_reply_active = False
+                 return info
++            except (queue.Empty, ValueError, struct.error, OSError, serial.SerialException):
++                with self.bus_reply_lock:
++                    self.bus_reply_active = False
++                    self.bus_reply_fault = True
++                return None
++        finally:
++            self.servo_read_lock.release()
+ 
+     def bus_servo_read_id(self, servo_id=254):
+         return self.bus_servo_read_and_unpack(servo_id, 0x12, "<BBbB")
+--- a/ros_robot_controller_node.py
++++ b/ros_robot_controller_node.py
+@@ -268,48 +268,67 @@
+ 
+     def get_bus_servo_state(self, request, response):
+         states = []
++        all_succeeded = True
+         for i in request.cmd:
+             data = BusServoState()
+             if i.get_id:
+                 state = self.board.bus_servo_read_id(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     i.id = state[0]
+                     data.present_id = state
+             if i.get_position:
+                 state = self.board.bus_servo_read_position(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     data.position = state
+             if i.get_offset:
+                 state = self.board.bus_servo_read_offset(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     data.offset = state
+             if i.get_voltage:
+                 state = self.board.bus_servo_read_voltage(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     data.voltage = state
+             if i.get_temperature:
+                 state = self.board.bus_servo_read_temp(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     data.temperature = state
+             if i.get_position_limit:
+                 state = self.board.bus_servo_read_angle_limit(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     data.position_limit = state
+             if i.get_voltage_limit:
+                 state = self.board.bus_servo_read_vin_limit(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     data.voltage_limit = state
+             if i.get_max_temperature_limit:
+                 state = self.board.bus_servo_read_temp_limit(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     data.max_temperature_limit = state
+             if i.get_torque_state:
+                 state = self.board.bus_servo_read_torque(i.id)
++                if state is None:
++                    all_succeeded = False
+                 if state is not None:
+                     data.enable_torque = state
+             states.append(data)
+         response.state = states
+-        response.success = True
++        response.success = all_succeeded
+         return response
+ 
+     def pub_battery_data(self, pub):

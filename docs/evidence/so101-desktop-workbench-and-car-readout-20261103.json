@@ -1,0 +1,229 @@
+{
+  "stage": "SO-101 遥操作 · 桌面双臂工作台 + 车端舵机只读识别",
+  "recorded_utc": "2026-11-03T15:41:00Z",
+  "host": "liaoComputer (Ubuntu, Python 3.12 venv app_ros_mobile/.venv)",
+  "repository_state": {
+    "branch": "codex/ros2-mobile-collection",
+    "head_before_this_work": "e6430f7",
+    "commits_in_this_work": [
+      "e09401a",
+      "5b670f4",
+      "0b05fec",
+      "416ea78",
+      "c3c3714"
+    ],
+    "working_copy": "app_ros_mobile (plus tools/ros2_collection, docs)"
+  },
+  "part_a_desktop_workbench": {
+    "intent": "用户选定范围：桌面双臂为主、复用现有遥操作 WebSocket 流、先写代码后由用户真机验。",
+    "changed_or_added_files": [
+      "app_ros_mobile/lelab/arm_bindings.py (新：端口↔标定绑定与核查)",
+      "app_ros_mobile/lelab/teleoperate.py (joint_update 增加 leader 字段；打开串口前拒绝错标定；status 暴露 session)",
+      "app_ros_mobile/lelab/calibrate.py (标定保存后写绑定)",
+      "app_ros_mobile/lelab/record.py (录制路径共用同一核查，bring_up_devices)",
+      "app_ros_mobile/lelab/server.py (GET /so101/devices, GET /so101/identity)",
+      "app_ros_mobile/frontend/src/pages/So101Workbench.tsx (新)",
+      "app_ros_mobile/frontend/src/components/control/JointTrackPanel.tsx (新)",
+      "app_ros_mobile/frontend/src/hooks/useRealTimeJoints.ts (viewerRef 变可选，新增 onFrame)",
+      "app_ros_mobile/frontend/src/App.tsx, components/landing/RobotTile.tsx, components/landing/RobotConfigManager.tsx (路由与入口)"
+    ],
+    "why_ids_cannot_identify_an_arm": {
+      "measured": "work/ros2_collection/lerobot/calibration 下 {teleoperators/so_leader,robots/so_follower}/{left,right}_rig.json 四个文件的逐电机 id 都是 1..6，关节名相同",
+      "lerobot_behaviour": "lerobot/src/lerobot/motors/feetech/feetech.py:268 write_calibration 按 motor name 遍历并经总线 name->id 写入，不比对条目里的 id",
+      "consequence": "另一台臂的标定可被静默写入；唯一稳定身份是 /dev/serial/by-id 序列号"
+    },
+    "leader_stream_change": {
+      "source_of_leader_values": "本轮已经用于下发的 teleop_device.get_action() 读数，不再向主臂总线追加第二次 sync_read",
+      "verified_by": "tests/test_teleoperate.py::test_broadcast_carries_the_leader_reading_that_drove_the_follower（跑真实 worker 环路一次，假设备只挡在串口边界）",
+      "mutation_check": "删掉 broadcast 里的 leader 键后该用例变红；恢复后 25 passed"
+    },
+    "guard_rules": {
+      "refuse": [
+        "同一端口同时为主/从",
+        "端口上次标定成另一侧",
+        "该端口量的是别的标定文件",
+        "标定条目 id 与总线将轮询的 id 不一致"
+      ],
+      "warn_only": [
+        "该端口没有测量记录（本改造之前标定的臂）",
+        "文件内容与记录哈希不一致（量完后手工改过）",
+        "标定文件缺失/不可解析",
+        "绑定表损坏"
+      ],
+      "entry_points_covered": [
+        "/move-arm (teleoperate._identity_guard → arm_bindings.check_desktop_pair)",
+        "桌面录制 (record.bring_up_devices，同一函数)"
+      ],
+      "measured": "拒绝发生在设备构造完、串口仍未打开时；实测日志顺序：Teleop identity 警告 06:43:33 → Could not connect to the follower arm 06:43:33"
+    },
+    "checks": {
+      "tools_ros2_collection": "250 passed, 5 subtests passed",
+      "app_desktop_teleop_set": "128 passed (test_record/test_teleoperate/test_arm_bindings/test_calibrate/test_server/test_ros_mobile_teleop_routes/test_hardware_lease)",
+      "app_full_suite": "558 passed, 1 failed（同一既有已知失败 tests/test_remote_inference.py::test_client_command_targets_the_tunnel）",
+      "frontend": "npx tsc --noEmit 无输出；npm run build 通过",
+      "ruff": "本机 app_ros_mobile/.venv 与 ros_jazzy 环境均未安装 ruff，本次未执行"
+    },
+    "browser_verification": {
+      "how": "browser-use 无可视视口，按钮点击由 evaluate_script 派发真实事件（不是坐标点击），读数取自 document.body.innerText 与实际渲染",
+      "servers_under_test": "127.0.0.1:18192 与 127.0.0.1:18193（本任务自起；HF_LEROBOT_HOME=work/ros2_collection/lerobot，LELAB_ARM_BINDINGS=/tmp 临时文件；用户自己的 18186 实例全程未触碰）",
+      "verified": [
+        "Landing 臂卡片新图标可进入 /so101；left_rig 的选择由 localStorage 带入，主/从端口与标定自动填入",
+        "无串口主机上端口清单为空并给出主臂必须接在上位机 USB 上的提示（与内核 0 条插入事件一致）",
+        "标定步骤列出 4 份文件：6 关节 + 哈希 e9716ef6/56bbd88b/cfc1d4d9/22e61a21，与 /so101/devices 返回一致，均显示无端口记录",
+        "遥操作步骤显示两侧 no recorded measurement 警告；点开始跟随后收到 Could not connect to the follower arm … 并显示在错误区与 toast，会话状态保持无遥操作会话，租约回到 idle",
+        "在 /tmp 绑定表里人为写入一条矛盾记录后：/so101/identity 返回 ready=false，页面出现红色启动会被拒绝块且开始按钮置灰；删除该人为记录后恢复 ready=true + 两条警告",
+        "补上离开页面即停会话的安全网后：无会话时挂载/卸载 /so101 期间服务端 /stop-teleoperation 调用计数为 0（不误停）",
+        "收尾重跑（15:41Z，18193，新构建）：步骤条进入遥操作后显示 会话中的臂：无（未启动会话），空闲时 /teleoperation-status 与 /so101/devices 的 session 均为 null，状态芯片为 关节流已连接 / 无遥操作会话"
+      ],
+      "not_covered": [
+        "真实坐标点击（无可视视口）",
+        "有会话时的离开即停，以及 session 非空时端口单选/配置下拉被禁用的界面表现（需要能启动会话的硬件）",
+        "有真实主臂读数时曲线的绘制与主从一致性",
+        "3D 视口实际渲染（只确认 UrdfViewer 挂载并显示 Live Robot Data）"
+      ]
+    },
+    "missing_data_rule": {
+      "defect": "get_joint_positions_from_robot 在读异常时返回六关节全零、缺键逐个补 0.0 ⇒ 从臂掉线被画成臂回零位，跟随误差=|目标-0|",
+      "now": "read_joint_side 给 measured/read_failed/partial；后两者 joints=None；joint_update 带 follower_status/leader_status/*_missing；/joint-positions 失败时 success=False",
+      "frontend": "joints 为 null 时仍投递帧（跳过 URDF），曲线在 null 处断开，面板显示 读数失败/残缺（缺 xxx），逐关节显示 缺",
+      "mutation_check": "把补零改回后三条用例同时变红（partial / read_failed / 死总线仍可下发一次动作），恢复后 12 passed",
+      "verified": "app 相关集 143 passed；npx tsc --noEmit 干净；npm run build 通过",
+      "not_verified": "真机总线掉线时的页面观感与 URDF 是否保持上一姿态（需硬件）"
+    },
+    "feedback_loss_self_stop": {
+      "rule": "连续 LELAB_MAX_FOLLOWER_READ_FAILURES（默认 10，20 FPS≈0.5 s）次 measured 失败 ⇒ 写 stop_reason、置 teleoperation_active=False，由 worker 自身 finally 断开两台设备",
+      "surface": "/teleoperation-status 新增 stop_reason；/so101 遥操作步骤显示上一次会话自行结束原因",
+      "verified": [
+        "第 3 次失败即停止下发（sent==3）且 disconnect 已调用",
+        "偶发两帧失败后恢复读数则会话继续（跑到测试上限 sent==9、stop_reason is None）",
+        "限幅可配：2→2、非数字→10、-5→1"
+      ],
+      "mutation_check": "把停止条件短路后仅『该停』那条用例变红；恢复后 15 passed",
+      "counts": "app 相关集 176 passed；npx tsc --noEmit 干净；npm run build 通过",
+      "limit": "这是上位机本地链路的保护；车端 TTL/单调时钟/停止逻辑与网关反馈下的跟随仍待实机（需求六、八.4/八.6）"
+    },
+    "structured_error_display": {
+      "measured": "curl 抢占用 teleoperation 租约后 POST /move-arm → HTTP 409，body 为 {\"detail\": {\"message\": \"teleoperation is holding the hardware lease (owner: somebody-else, 60s left)...\", \"holder\": {...}, \"task\": \"teleoperation\"}}",
+      "defect": "apiRequest 把 errBody.detail 原样当字符串用（ApiError.detail / `${label} failed: ${detail}`），因此任何显示 exc.detail 的页面要么打印 [object Object]，要么把对象当 React child 渲染；控制权冲突这个真实原因到不了操作员眼前",
+      "fix": "新增 describeDetail()：结构化 detail 取其 message，并在带 holder 时补上（持有者 owner / task），字符串照旧，其余 JSON.stringify",
+      "verified": "npx tsc --noEmit 干净；npm run build 通过；409 响应体形状用 curl 实测（互斥本身工作正常，且控制锁横幅显示 somebody-else·剩余118s）",
+      "not_verified": "该消息在 /so101 错误区与 toast 里的最终观感：换到新验证端口后臂卡片未渲染出已选中的 rig（Workbench 图标不出现），未点到按钮；不影响上面的 409 事实"
+    }
+  },
+  "part_b_car_side": {
+    "intent": "用户问小车上的从臂能否识别，随后选择先只读直探总线（不写板），并提供机型 LanderPi_Mecanum 供日后走 vendor 栈时使用。",
+    "authorized_actions": [
+      "docker start MentorPi（用户明确选择）",
+      "只读：ls/lsusb/dmesg/docker inspect/ros2 topic list/板协议读命令"
+    ],
+    "not_done": [
+      "未写控制板、未使能任何舵机力矩、未发位置命令、未部署或启动我方车端 Agent、未改 vendor 任何文件",
+      "车上两份本任务副本已删除，shared 目录恢复原 4 项"
+    ],
+    "physical_identification": {
+      "pi": "raspberrypi aarch64，boot 2026-11-03 14:36 本地（uptime 3h39m），15:06Z 起容器",
+      "serial_by_id": [
+        "usb-1a86_USB_Single_Serial_5AE2006307-if00 -> /dev/ttyACM0 (cdc_acm @ usb 1-1, 1a86:55d4)",
+        "usb-1a86_USB_Serial-if00-port0 -> /dev/ttyUSB0 (ch341 @ usb 3-1, 1a86:7523，名字里没有序列号)"
+      ],
+      "arm_bus": "vendor 的 /etc/udev/rules.d/99-ttyACM0.rules 把 ttyACM 链接为 /dev/rrc，实测 /dev/rrc -> ttyACM0 ⇒ 从臂总线在 ACM0；ttyUSB0 属 xf_mic（讯飞麦克风）",
+      "other_usb": [
+        "Aurora 930 腕相机 @ usb 1-2 (SN HY400516001016128G00076)",
+        "USB WirelessGamepad @ usb 3-2"
+      ],
+      "permissions": "/dev/ttyACM0 为 0777，pi 在 dialout 组；读前与读时 holders 均为空（无进程占用）"
+    },
+    "protocol_correction": {
+      "assumption_replaced": "/dev/rrc 不是裸 Feetech 舵机总线，而是 vendor 控制板的串口协议；舵机挂在板子后面",
+      "evidence": "ros_robot_controller_sdk.py：PacketFunction.PACKET_FUNC_BUS_SERVO=5，读法 buf_write(FUNC_BUS_SERVO,[cmd,servo_id]) 后从 bus_servo_queue 取回；Board.__init__(device=/dev/rrc, baudrate=1000000) 只开串口并起接收线程",
+      "status_semantics": "回复帧是 [servo_id, cmd, status, *value]，vendor 的 bus_servo_read_* 是 if success == 0: return info ⇒ status==0 才是成功；把它当失败标志结论会完全反过来",
+      "echo": "板子先回显我们发出的 2 字节请求再回舵机答案，而 SDK 队列 maxsize=1 ⇒ 必须发一次后持续消费到匹配帧，不能在下一次发送前清队列",
+      "reception_flag": "Board.__init__ 里 enable_recv=False，接收线程不读串口；不调 enable_reception(True) 时所有读都超时（该开关只是本进程标志位，不发包）"
+    },
+    "read_only_servo_readout": {
+      "tool": "tools/ros2_collection/car_servo_readout.py：只发送 READ_ONLY_COMMANDS 里的读命令 0x12/0x05/0x22/0x07/0x09/0x0D/0x3A/0x32/0x36，含写命令字节即拒绝运行，端口被占用也拒绝运行",
+      "how_run": "脚本经 /home/pi/docker/tmp（= 容器内 /home/ubuntu/shared）拷入，在容器里 source ROS 后 python3 运行；不需装包（宿主与容器都无 scservo_sdk，但 ros_robot_controller 自带 SDK）",
+      "measured": {
+        "servo 1": {
+          "id": 1,
+          "position": 483,
+          "temp": 27,
+          "vin": 6318,
+          "torque_state": 0
+        },
+        "servo 2": {
+          "id": 2,
+          "position": 740,
+          "temp": 23,
+          "vin": 6298,
+          "torque_state": 0
+        },
+        "servo 3": {
+          "id": 3,
+          "position": 31,
+          "temp": 22,
+          "vin": 6298,
+          "torque_state": 0
+        },
+        "servo 4": {
+          "id": 4,
+          "position": 117,
+          "temp": 23,
+          "vin": 6276,
+          "torque_state": 0
+        },
+        "servo 5": {
+          "id": 5,
+          "position": 495,
+          "temp": 23,
+          "vin": 6263,
+          "torque_state": 0
+        },
+        "servo 6": "五次读全部 status=-1 ⇒ 板子转发了但 6 号没答"
+      },
+      "self_consistency": "每台自报 id 与请求 id 一致；第二次单独复读位置逐台不变而 vin 有 1–5 抖动 ⇒ 活读不是缓存",
+      "expected_joints": "joint1..joint5 + r_joint（w_joint 仅 JetRover_Acker）⇒ 6 号无响应即最后一路读不到",
+      "raw_report": "docs/evidence/so101-car-servo-readout-20261103.json（含每帧 raw 字节与 attempts）"
+    },
+    "vendor_stack_state": {
+      "before": "MentorPi Exited (137) finished=2026-11-03T06:36:10Z restart=no（断电那次）",
+      "after_user_authorized_start": "running=true startedat=2026-11-03T15:06:35Z；容器 CMD 只是 tail -f /dev/null，臂栈节点没起，ros2 topic list 只有 /parameter_events 与 /rosout",
+      "blocker": "ros_robot_controller_node.py:61 用 os.environ[MACHINE_TYPE]（未设即 KeyError）；容器 env 与宿主 profile 都没有，我们的启动脚本因此拒绝起它",
+      "consequence": "/controller_manager/joint_states 仍不存在 ⇒ 需求八.3 的真实从臂反馈经网关这一项未完成，本次只到总线级只读识别"
+    }
+  },
+  "bugs_found_and_fixed": [
+    {
+      "bug": "start_car_arm_stack.sh 的 UART/共控审计里 bytes 列表用空格 join 抛 TypeError",
+      "impact": "谁持有控制板串口、有没有别的 vendor 节点在跑这个安全前置从未给出答案；原测试只 grep 标签字符串所以一直绿",
+      "evidence": "--check 实测 Traceback ... TypeError: sequence item 0: expected str instance, bytes found",
+      "fix": "先 decode 再替换 NUL；补假 /proc 执行用例"
+    },
+    {
+      "bug": "修好上一条后，审计把自己（docker exec bash -lc 带整段 heredoc 的父进程链）认成运行中的 vendor 节点",
+      "evidence": "实测 vendor_nodes_running 出现 pid 18590 且 matched 同时含 9 个 needle，只可能是自己的命令行",
+      "fix": "沿 PPid 跳过整条祖先链，新增 self_ancestry_excluded；变异检查（skip 改回空集）使该用例变红"
+    },
+    {
+      "bug": "审计把 pid 固定在路径第 3 段，PROC_ROOT 指向别处时取到临时目录名",
+      "evidence": "假 /proc 用例断言 holders 时得到 [tmpXXXX, '']",
+      "fix": "改为相对 PROC 取 pid"
+    },
+    {
+      "bug": "car_servo_readout.py 初版三处误判：没开 enable_recv（全部超时）、把 status==0 当失败（结论正好反过来）、回显后清队列会丢掉真答案",
+      "fix": "开接收标志、按 vendor 语义判 status、改为发一次后持续消费帧直到匹配；tests/test_car_servo_readout.py 用假 Board 钉住这四点（含回显跳过与有限超时）"
+    }
+  ],
+  "upper_computer_usb": "两次核查（14:36Z 与 15:0xZ）：/dev/serial/by-id 不存在、无 ttyACM/ttyUSB、lsusb 只有 hub/网卡/无线/摄像头、journalctl -k --since -2h 0 条 new-*-speed USB device；用户说的 leader 已插好既没落在上位机也没落在车上。",
+  "process_hygiene": {
+    "verification_server": "自起的 uvicorn（18192→18193）已按记录 PID 停止；用户自己的 18186 实例全程未触碰",
+    "lesson": "一次 pkill -f 的模式命中了执行它的 shell 自身，把 shell 一起杀掉且后续步骤静默没跑——与当天在车端审计里修的自匹配缺陷同类；改为启动时 echo $! 记录 PID、按 PID 停",
+    "car_side_scratch": "/home/pi/docker/tmp 下本任务两份副本已删除，shared 目录恢复原 4 项"
+  },
+  "next_steps_requiring_the_user": [
+    "把主臂接到上位机（换确定能传数据的线、直插主板口），再走 /so101 的真机识别与标定",
+    "车上 6 号舵机无响应：查该路供电/信号线，否则最后一路取不到实测反馈",
+    "走网关反馈（八.3）需授权 start_car_arm_stack.sh --apply --i-authorize-board-writes 并带 MACHINE_TYPE=LanderPi_Mecanum，之后用 ros2 topic info -v 定控制权",
+    "车端只读 Agent 尚未部署（§5.2 第 3 步 --check/--render/--apply 已授权但还没跑）"
+  ]
+}

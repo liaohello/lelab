@@ -1,0 +1,156 @@
+{
+  "admission": {
+    "channel_seq": {
+      "arm": 62,
+      "gripper": 62
+    },
+    "counters": {
+      "accepted": 62,
+      "expired_in_queue": 0,
+      "received": 62,
+      "refused": 0
+    },
+    "data_identity": "hardware",
+    "last_frame_seq": 62,
+    "next_frame_seq": 63,
+    "queue_age_ms": 0.0,
+    "queue_depth": 0,
+    "refusals": {},
+    "session_epoch": 267694787576205
+  },
+  "configured_bundle_hash": "19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba",
+  "control_hz": 10.0,
+  "counters": {
+    "contexted_rows": 0,
+    "empty_ticks": 309,
+    "frames_emitted": 62,
+    "frames_expired": 0,
+    "frames_received": 62,
+    "frames_refused": 0,
+    "hold_frames": 1,
+    "licences_lost": 0,
+    "ticks": 875,
+    "uncontexted_rows": 62,
+    "window_issues": 875
+  },
+  "data_identity": "hardware",
+  "effective_emit_hz": 0.71,
+  "emit_intervals": {
+    "count": 61,
+    "max_ms": 205.69,
+    "p50_ms": 199.96,
+    "p95_ms": 202.79,
+    "p99_ms": 205.69
+  },
+  "feedback": {
+    "ages_ms": {
+      "joint1": 219.8,
+      "joint2": 219.8,
+      "joint3": 219.8,
+      "joint4": 219.8,
+      "joint5": 219.8,
+      "r_joint": 219.8
+    },
+    "available": true,
+    "ingests": 2304,
+    "last_error": null,
+    "oldest_age_s": 0.21982762100014952,
+    "position_rad": {
+      "joint1": -0.33091442617812483,
+      "joint2": -0.5864306286700947,
+      "joint3": -0.7749261878854823,
+      "joint4": -1.6671385015049833,
+      "joint5": 0.19268434942017396,
+      "r_joint": -0.749793446656764
+    },
+    "publisher_generation": 0,
+    "publisher_identity_kind": "software_owner_instance",
+    "publisher_instance": 1065580317,
+    "raw": {
+      "joint1": 421,
+      "joint2": 360,
+      "joint3": 315,
+      "joint4": 102,
+      "joint5": 546,
+      "r_joint": 321
+    },
+    "reason": "ok",
+    "rejects": 0,
+    "sample_seq": 10643,
+    "scan_period_s": 0.2,
+    "scan_span_s": 0.02265,
+    "stale_after_s": 0.5
+  },
+  "homing_active_joint": null,
+  "homing_first_frame_pending": false,
+  "homing_last_target_raw": null,
+  "homing_motion": null,
+  "homing_torque_enabled": false,
+  "homing_torque_error": null,
+  "homing_torque_results": {},
+  "homing_torque_state": "idle",
+  "last_clear": null,
+  "last_refusal": null,
+  "last_step_clamp": null,
+  "latched_fault": null,
+  "licence": {
+    "authorised": false,
+    "counters": {
+      "context_expired": 0,
+      "contexts": 0,
+      "eof": 0,
+      "expired": 0,
+      "received": 140,
+      "refreshed": 137,
+      "refused": 0,
+      "replaced": 2,
+      "revoked": 1
+    },
+    "last_error": null,
+    "licence": null,
+    "pending_clear": null,
+    "recording_context": null,
+    "revoked_reason": "car_lease_released"
+  },
+  "outputs_enabled": false,
+  "paused": true,
+  "publish_count": 62,
+  "publisher_subscriptions": 1,
+  "reengage_required": false,
+  "step_clamp_count": 0,
+  "stop_count": 1,
+  "stream": {
+    "client_connected": false,
+    "counters": {
+      "connections": 1,
+      "frames": 62,
+      "handler_errors": 0,
+      "malformed": 0,
+      "preempts": 1,
+      "push_failures": 0,
+      "refused_hellos": 0
+    },
+    "generation": 1,
+    "hello": {
+      "capabilities": [
+        "teleop_frame_v1"
+      ],
+      "frame_protocols": [
+        1
+      ],
+      "protocol": 1,
+      "session_epoch": 267694787576205,
+      "session_id": "690c6ffd803f4775ac2e6043c86f4429",
+      "type": "hello"
+    },
+    "last_error": "idle"
+  },
+  "stream_epoch": 2,
+  "torque_publish_count": 0,
+  "torque_servo_ids": [],
+  "training_eligible": false,
+  "trial_first_frame_pending": false,
+  "trial_motion": null,
+  "uptime_s": 87.5,
+  "window_ms": 400
+}

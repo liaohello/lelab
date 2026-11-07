@@ -1,0 +1,212 @@
+{
+  "hybrid": {
+    "session_id": "77fd7aecebd84144ab5ed9a5eb55eef7",
+    "session_epoch": 4323756389300251,
+    "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+    "profile": "hardware_hybrid_homing_v1",
+    "available": false,
+    "outputs_enabled": false,
+    "permits": {
+      "base": false,
+      "arm": true,
+      "gripper": true
+    },
+    "pending": {},
+    "last_seq": {},
+    "retired": false,
+    "feedback": {
+      "trusted": false,
+      "source_kind": null,
+      "reason": "no_trusted_readback_verified"
+    },
+    "capabilities": {
+      "camera_capability": "unknown",
+      "firmware_capability": "unknown",
+      "firmware_watchdog_verified": false,
+      "hardware_stop_effect": "unverified"
+    },
+    "last_error": null,
+    "confirmation_levels": [
+      "requested",
+      "gateway_accepted",
+      "driver_sent",
+      "controller_acknowledged",
+      "execution_observed"
+    ],
+    "simulated": false,
+    "data_source": "hardware",
+    "hardware_available": "unknown",
+    "driver_bound": true,
+    "driver_sent": "unavailable",
+    "actuator_outputs": false,
+    "controller_acknowledged": "unavailable",
+    "execution_observed": "unavailable"
+  },
+  "licence": {
+    "output_transport": "frame_stream",
+    "frame_outputs_requested": false,
+    "frame_outputs_enabled": false,
+    "frame_lease_live": true,
+    "frame_estop_latched": false,
+    "frame_estop_age_s": null,
+    "frame_stream_connected": false,
+    "bridge": {
+      "state": "issuing",
+      "generation": 7,
+      "context_seq": 0,
+      "recording_context": null,
+      "ttl_ms": 300,
+      "heartbeat_s": 0.1,
+      "connected": true,
+      "counters": {
+        "published": 7,
+        "revoked": 1,
+        "failures": 0,
+        "wakes": 10,
+        "cleared": 0,
+        "contexts": 0,
+        "context_refused": 0,
+        "heartbeats": 1535
+      },
+      "last_error": null,
+      "issuing": true,
+      "clear_pending": false,
+      "frame_process": {
+        "data_identity": "hardware",
+        "configured_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+        "trial_motion": null,
+        "trial_first_frame_pending": false,
+        "homing_motion": {
+          "axis_order": [
+            "joint1",
+            "joint2",
+            "joint3",
+            "joint4",
+            "joint5",
+            "r_joint"
+          ],
+          "enable_torque": true,
+          "first_frame_tolerance_raw": 20,
+          "locked_tolerance_raw": 2,
+          "max_step_raw": 20,
+          "targets_raw": {
+            "joint1": 500,
+            "joint2": 500,
+            "joint3": 500,
+            "joint4": 500,
+            "joint5": 500,
+            "r_joint": 350
+          },
+          "tolerance_raw": 2
+        },
+        "homing_first_frame_pending": true,
+        "homing_active_joint": null,
+        "homing_last_target_raw": null,
+        "publisher_subscriptions": 1,
+        "homing_torque_enabled": true,
+        "homing_torque_state": "verified",
+        "homing_torque_results": {
+          "1": {
+            "enable_torque": 1,
+            "position": 526,
+            "reason": null,
+            "requested": true,
+            "servo_id": 1,
+            "state": "verified",
+            "verified": true
+          },
+          "2": {
+            "enable_torque": 1,
+            "position": 573,
+            "reason": null,
+            "requested": true,
+            "servo_id": 2,
+            "state": "verified",
+            "verified": true
+          },
+          "3": {
+            "enable_torque": 1,
+            "position": 103,
+            "reason": null,
+            "requested": true,
+            "servo_id": 3,
+            "state": "verified",
+            "verified": true
+          },
+          "4": {
+            "enable_torque": 1,
+            "position": 117,
+            "reason": null,
+            "requested": true,
+            "servo_id": 4,
+            "state": "verified",
+            "verified": true
+          },
+          "5": {
+            "enable_torque": 1,
+            "position": 906,
+            "reason": null,
+            "requested": true,
+            "servo_id": 5,
+            "state": "verified",
+            "verified": true
+          },
+          "10": {
+            "enable_torque": 1,
+            "position": 457,
+            "reason": null,
+            "requested": true,
+            "servo_id": 10,
+            "state": "verified",
+            "verified": true
+          }
+        },
+        "homing_torque_error": null,
+        "torque_publish_count": 6,
+        "torque_servo_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          10
+        ],
+        "ticks": 11760,
+        "publish_count": 0,
+        "effective_emit_hz": 0.0,
+        "emit_intervals": {
+          "count": 0,
+          "max_ms": null,
+          "p50_ms": null,
+          "p95_ms": null,
+          "p99_ms": null
+        },
+        "frames_received": 1,
+        "frames_emitted": 0,
+        "frames_refused": 1,
+        "last_refusal": {
+          "frame_seq": "1",
+          "reason": "channel_refused"
+        },
+        "paused": true,
+        "outputs_enabled": false,
+        "latched_fault": null,
+        "reengage_required": false,
+        "last_clear": null,
+        "queue_depth": 0,
+        "context": {
+          "session_id": null,
+          "session_epoch": null,
+          "episode_id": null,
+          "phase": null,
+          "clock_epoch": null,
+          "calibration_bundle_hash": null,
+          "context_seq": null,
+          "agent_boot": null
+        },
+        "age_s": 0.5144808745576483
+      },
+      "frame_stream": null
+    }
+  }
+}

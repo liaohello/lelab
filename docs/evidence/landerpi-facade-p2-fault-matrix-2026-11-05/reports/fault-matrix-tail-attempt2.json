@@ -1,0 +1,265 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "container": "lelab-humble-facade-integration",
+  "freshness_window_s": 0.5,
+  "frame_ttl_policy": "unchanged",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "cases": [
+    {
+      "name": "estop_repeat",
+      "injection": "two emergency stops and clears in the same session",
+      "started_utc": "2026-11-06T11:49:25Z",
+      "after": {
+        "facade_state": "estop",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 42,
+          "received": 45,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 528
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "initial_session_follows",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 11,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    },
+    {
+      "name": "estop_repeat_1_latched",
+      "ok": true,
+      "detail": {
+        "state": "estop",
+        "last_error": null
+      }
+    },
+    {
+      "name": "estop_repeat_1_session_latched",
+      "ok": true,
+      "detail": {
+        "state": "estop",
+        "latched": true
+      }
+    },
+    {
+      "name": "estop_repeat_1_car_stream_dropped",
+      "ok": true,
+      "detail": {
+        "frame_stream_connected": false,
+        "detected_after_s": 0.2,
+        "agent_estop_latched": false,
+        "finding": "frame-mode emergency stop aborts the stream and drops the car-side connection; it does NOT set the agent's estop_latched flag, which the legacy HTTP path sets"
+      }
+    },
+    {
+      "name": "estop_repeat_1_upper_stops_submitting",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "estop_repeat_1_car_stops_admitting",
+      "ok": true,
+      "detail": {
+        "quiet_window": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        },
+        "frames_still_in_flight": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 1,
+          "submitted": 0
+        }
+      }
+    },
+    {
+      "name": "estop_repeat_1_queue_drained",
+      "ok": true,
+      "detail": {
+        "queue_depth": 0,
+        "expired_in_queue": 0
+      }
+    },
+    {
+      "name": "estop_repeat_1_no_board_output",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "estop_repeat_1_clear_does_not_resume",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 0,
+        "submitted_delta": 0,
+        "arm": "idle"
+      }
+    },
+    {
+      "name": "estop_repeat_2_latched",
+      "ok": true,
+      "detail": {
+        "state": "estop",
+        "last_error": null
+      }
+    },
+    {
+      "name": "estop_repeat_2_session_latched",
+      "ok": true,
+      "detail": {
+        "state": "estop",
+        "latched": true
+      }
+    },
+    {
+      "name": "estop_repeat_2_car_stream_dropped",
+      "ok": true,
+      "detail": {
+        "frame_stream_connected": false,
+        "detected_after_s": 0.0,
+        "agent_estop_latched": false,
+        "finding": "frame-mode emergency stop aborts the stream and drops the car-side connection; it does NOT set the agent's estop_latched flag, which the legacy HTTP path sets"
+      }
+    },
+    {
+      "name": "estop_repeat_2_upper_stops_submitting",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "estop_repeat_2_car_stops_admitting",
+      "ok": true,
+      "detail": {
+        "quiet_window": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        },
+        "frames_still_in_flight": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        }
+      }
+    },
+    {
+      "name": "estop_repeat_2_queue_drained",
+      "ok": true,
+      "detail": {
+        "queue_depth": 0,
+        "expired_in_queue": 0
+      }
+    },
+    {
+      "name": "estop_repeat_2_no_board_output",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "estop_repeat_2_clear_does_not_resume",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 0,
+        "submitted_delta": 0,
+        "arm": "idle"
+      }
+    }
+  ],
+  "resume_failures": {
+    "estop_repeat": "RuntimeError:session_not_ready"
+  },
+  "acquire_retries": {
+    "estop_repeat": "3: state=estop after acquire",
+    "initial": "3: state=estop after acquire"
+  },
+  "case_errors": {
+    "estop_repeat": {
+      "type": "RuntimeError",
+      "detail": "session_never_became_ready:estop",
+      "traceback": "else self.identity)\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_hardware.py\", line 1136, in preview\n    out = super().preview(request)\n          ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_facade.py\", line 309, in preview\n    out = super().preview(request)\n          ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_session.py\", line 640, in preview\n    raise RuntimeError(\"session_not_ready\")\nRuntimeError: session_not_ready\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 679, in main\n    getattr(matrix, f\"case_{name}\")()\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 549, in case_estop_repeat\n    self.report[\"cases\"][-1][\"recovery\"] = self.resume(\"estop_repeat\")\n                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 232, in resume\n    self.open_session(name, verify_motion=False)\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 371, in open_session\n    raise RuntimeError(f\"session_never_became_ready:{self.facade.state}\")\nRuntimeError: session_never_became_ready:estop\n"
+    },
+    "estop_during_bag_close": {
+      "type": "RuntimeError",
+      "detail": "session_never_became_ready:estop",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 677, in main\n    matrix.open_session(\"initial\")\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 371, in open_session\n    raise RuntimeError(f\"session_never_became_ready:{self.facade.state}\")\nRuntimeError: session_never_became_ready:estop\n"
+    },
+    "retired_generation_frame": {
+      "type": "RuntimeError",
+      "detail": "session_never_became_ready:estop",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 677, in main\n    matrix.open_session(\"initial\")\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 371, in open_session\n    raise RuntimeError(f\"session_never_became_ready:{self.facade.state}\")\nRuntimeError: session_never_became_ready:estop\n"
+    }
+  },
+  "recording_cleanup_error": "TypeError:'NoneType' object is not a mapping",
+  "car_after_matrix": {
+    "control_active": true,
+    "estop_latched": false,
+    "frame_outputs_enabled": false
+  },
+  "failed": []
+}

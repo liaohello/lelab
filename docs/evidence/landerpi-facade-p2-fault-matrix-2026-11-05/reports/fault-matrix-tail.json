@@ -1,0 +1,225 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "container": "lelab-humble-facade-integration",
+  "freshness_window_s": 0.5,
+  "frame_ttl_policy": "unchanged",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "cases": [
+    {
+      "name": "estop_during_bag_close",
+      "injection": "emergency stop while a real bag close holds the recorder lock",
+      "started_utc": "2026-11-06T11:50:34Z",
+      "after": {
+        "facade_state": "estop",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 84,
+          "received": 88,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 572
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "initial_session_follows",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 13,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    },
+    {
+      "name": "estop_during_close_returns",
+      "ok": true,
+      "detail": {
+        "result": {
+          "source": "hybrid_recording_controller",
+          "status": "stopped",
+          "session_id": "e4a1bfbf3ac740c4b8284c6982c0151c",
+          "session_epoch": 3834509637830112,
+          "clock_domain": "car_system_time",
+          "clock_epoch": "29680d606aed4d399e54cd84eb1b17d7",
+          "calibration_bundle_hash": "ae3bf41b21185b69c68c5322e69c81065257db87fe51ee66a05799c07dcc62ca",
+          "car_session_path": "/work/out/local_humble/docker/sessions/ros_20261106T115035Z_2821846a",
+          "car_recording_id": "ros_20261106T115035Z_2821846a",
+          "episode_id": null,
+          "episode_started_time_ns": null,
+          "phase": null,
+          "phases": [
+            {
+              "phase": "observe",
+              "started_time_ns": 1793965836376377421,
+              "ended_time_ns": 1793965838413811479,
+              "car_recorded": true
+            }
+          ],
+          "episodes": [
+            {
+              "episode_id": "fault_ep_1",
+              "started_time_ns": 1793965835837908108,
+              "ended_time_ns": 1793965838413811479,
+              "phases": [
+                {
+                  "phase": "observe",
+                  "started_time_ns": 1793965836376377421,
+                  "ended_time_ns": 1793965838413811479,
+                  "car_recorded": true
+                }
+              ],
+              "result": "unknown",
+              "evaluation": {
+                "success": "unknown",
+                "labels": "manual_or_unknown",
+                "task": "place_in_tray",
+                "failure_reasons": [],
+                "reason": "no_simulator_ground_truth_declared_by_profile",
+                "manual_label": null,
+                "note": null,
+                "camera_profile": "wrist_original",
+                "privileged_truth_used_for_scripted_expert_only": false,
+                "evaluation_policy": {
+                  "source": "manual_or_unknown",
+                  "simulator_truth_available": false
+                },
+                "timestamp_wall": 1793965838.413786
+              },
+              "paused_before_wrapup": true,
+              "pause_error": null
+            }
+          ],
+          "phase_timeline_complete": true,
+          "paused_before_wrapup": true,
+          "motion_commands_sent": 0,
+          "lease_acquired": false,
+          "outputs_enabled": false,
+          "last_error": null,
+          "error_detail": null,
+          "event_count": 5,
+          "estop_save_pending": true,
+          "recording": {
+            "source": "hybrid_recording_controller",
+            "status": "stopped",
+            "session_id": "e4a1bfbf3ac740c4b8284c6982c0151c",
+            "session_epoch": 3834509637830112,
+            "clock_domain": "car_system_time",
+            "clock_epoch": "29680d606aed4d399e54cd84eb1b17d7",
+            "calibration_bundle_hash": "ae3bf41b21185b69c68c5322e69c81065257db87fe51ee66a05799c07dcc62ca",
+            "car_session_path": "/work/out/local_humble/docker/sessions/ros_20261106T115035Z_2821846a",
+            "car_recording_id": "ros_20261106T115035Z_2821846a",
+            "episode_id": null,
+            "episode_started_time_ns": null,
+            "phase": null,
+            "phases": [
+              {
+                "phase": "observe",
+                "started_time_ns": 1793965836376377421,
+                "ended_time_ns": 1793965838413811479,
+                "car_recorded": true
+              }
+            ],
+            "episodes": [
+              {
+                "episode_id": "fault_ep_1",
+                "started_time_ns": 1793965835837908108,
+                "ended_time_ns": 1793965838413811479,
+                "phases": [
+                  {
+                    "phase": "observe",
+                    "started_time_ns": 1793965836376377421,
+                    "ended_time_ns": 1793965838413811479,
+                    "car_recorded": true
+                  }
+                ],
+                "result": "unknown",
+                "evaluation": {
+                  "success": "unknown",
+                  "labels": "manual_or_unknown",
+                  "task": "place_in_tray",
+                  "failure_reasons": [],
+                  "reason": "no_simulator_ground_truth_declared_by_profile",
+                  "manual_label": null,
+                  "note": null,
+                  "camera_profile": "wrist_original",
+                  "privileged_truth_used_for_scripted_expert_only": false,
+                  "evaluation_policy": {
+                    "source": "manual_or_unknown",
+                    "simulator_truth_available": false
+                  },
+                  "timestamp_wall": 1793965838.413786
+                },
+                "paused_before_wrapup": true,
+                "pause_error": null
+              }
+            ],
+            "phase_timeline_complete": true,
+            "paused_before_wrapup": true,
+            "motion_commands_sent": 0,
+            "lease_acquired": false,
+            "outputs_enabled": false,
+            "last_error": null,
+            "error_detail": null,
+            "event_count": 5,
+            "estop_save_pending": true
+          },
+          "stopped_first": true
+        }
+      }
+    },
+    {
+      "name": "estop_during_close_applied",
+      "ok": true,
+      "detail": {
+        "state": "estop",
+        "latency_s": 0.135,
+        "close_error": null
+      }
+    },
+    {
+      "name": "estop_during_close_is_not_a_lease_loss",
+      "ok": true,
+      "detail": {
+        "last_error": null,
+        "latency_s": 0.135,
+        "close_duration_s": null
+      }
+    },
+    {
+      "name": "estop_during_close_stops_the_car",
+      "ok": true,
+      "detail": {
+        "frame_stream_connected": false,
+        "session_latched": true,
+        "control_process": {
+          "control_process_latched_fault": null,
+          "control_process_reengage_required": false,
+          "agent_estop_latched": false
+        }
+      }
+    }
+  ],
+  "acquire_retries": {
+    "initial": "3: state=estop after acquire"
+  },
+  "case_errors": {
+    "retired_generation_frame": {
+      "type": "RuntimeError",
+      "detail": "session_never_became_ready:estop",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 681, in main\n    matrix.open_session(\"initial\")\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 373, in open_session\n    raise RuntimeError(f\"session_never_became_ready:{self.facade.state}\")\nRuntimeError: session_never_became_ready:estop\n"
+    }
+  },
+  "recording_cleanup_error": "TypeError:'NoneType' object is not a mapping",
+  "car_after_matrix": {
+    "control_active": true,
+    "estop_latched": false,
+    "frame_outputs_enabled": false
+  },
+  "failed": []
+}

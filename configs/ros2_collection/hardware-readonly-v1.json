@@ -47,8 +47,13 @@
       "capture_height": 400,
       "verified_at": "2026-10-31T15:54Z",
       "verification_source": "pi_passive_ros_uid1000_probe",
-      "reverified_at": "2026-11-01T03:07Z",
-      "reverification_source": "pi_web_video_server_snapshot_640x400_jpeg_plus_rosbridge_topic_list"
+      "reverified_at": "2026-11-02T15:55Z",
+      "reverification_source": "pi_container_passive_probe_depth_camera_type_aurora",
+      "publisher_qos_measured": "RELIABLE/VOLATILE",
+      "frame_id_measured": "rgb_camera_link",
+      "step_measured": 1920,
+      "rate_hz_measured": 14.742,
+      "driver_branch_required": "DEPTH_CAMERA_TYPE=aurora (ascamera branch opens no device on this Aurora 930)"
     },
     "depth": {
       "record_raw": false,
@@ -75,7 +80,7 @@
     }
   },
   "features": {
-    "fps": 8.59,
+    "fps": 14.74,
     "image": {
       "name": "observation.images.wrist_real",
       "topic": "/ascamera/camera_publisher/rgb0/image",
@@ -95,6 +100,16 @@
     }
   },
   "limits": {},
+  "remote_source": {
+    "enabled": false,
+    "backend": "rosbridge",
+    "url": "",
+    "queue_size": 200,
+    "reconnect_s": 2.0,
+    "read_timeout": 10.0,
+    "topics": [],
+    "note": "\u4e0a\u4f4d\u673a\u4fa7\u53ea\u8bfb\u4e2d\u7ee7\uff1a\u5f53\u8f66\u7aef DDS \u4e0d\u53ef\u8fbe\u4f46 rosbridge \u53ef\u8fbe\u65f6\uff0c\u7528 agent \u672c\u5730\u540c\u540d\u8bdd\u9898\u91cd\u53d1\u5e03\u771f\u5b9e\u89c2\u6d4b\u3002\u542f\u7528\u65f6 recording.topics \u4fdd\u6301\u8fd9\u4e9b\u8bdd\u9898\u540d\uff1bheader.stamp \u6765\u81ea\u8f66\u7aef\u65f6\u949f\uff08\u672a\u540c\u6b65\uff09\uff0cbag \u63a5\u6536\u65f6\u95f4\u6765\u81ea\u5f55\u5236\u4e3b\u673a\u65f6\u949f\u3002\u4ec5\u89c2\u6d4b\u8bdd\u9898\uff0c\u7edd\u4e0d\u91cd\u53d1\u5e03\u6267\u884c\u5668\u8bdd\u9898\u3002"
+  },
   "modes": {
     "base": [],
     "initial": "idle",
@@ -153,6 +168,6 @@
       "/ros_robot_controller/set_oled",
       "/joy/set_feedback"
     ],
-    "note": "Topics verified passively at 2026-10-31T15:54Z and re-listed over rosbridge at 2026-11-01T03:14Z (53 topics, /imu, /joint_states, /odom, /scan present). Pi ran down later; storage sqlite3 because the MCAP plugin was not visible. No action/joint measurement contract is claimed and none of the observed actuator topics is ever published in this mode."
+    "note": "Topics verified passively 2026-10-31T15:54Z, re-listed over rosbridge 2026-11-01T03:14Z, and re-measured in the MentorPi container 2026-11-02T15:55Z: /ascamera/camera_publisher/rgb0/image 640x400 bgr8 step 1920 at 14.742 Hz with RELIABLE/VOLATILE publisher QoS, camera_info plumb_bob, header stamps tracking wall time after NTP sync. Storage sqlite3 (no MCAP plugin). IMU/joint/odom topics exist on the car but their publishers (driver/controller) are intentionally not started in this read-only phase, so they are recorded opportunistically and are not required for READY. No action/joint measurement contract is claimed; none of the observed actuator topics is published."
   }
 }

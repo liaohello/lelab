@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# bin/prepare - build the isolated Ubuntu 22.04 / ROS 2 Humble rootfs.
+# Needs network on first run. Writes only inside work/ros2_collection/local_humble.
+# Usage: bin/prepare [--force-rootfs] [--offline]
+set -euo pipefail
+source "$(cd "$(dirname "$0")/../lib" && pwd)/common.sh"
+
+FORCE_ROOTFS=0
+OFFLINE=0
+for a in "$@"; do
+  case "$a" in
+    --force-rootfs) FORCE_ROOTFS=1 ;;
+    --offline) OFFLINE=1 ;;
+    *) lros_die "unknown argument: $a" ;;
+  esac
+done
+
+TARBALL="$CACHE_DIR/$ROOTFS_NAME"
+mkdir -p "$WORK_DIR"
+
+if [ "$OFFLINE" = "1" ]; then
+  lros_log "offline mode: expecting $TARBALL and a prepared rootfs, no downloads"
+  [ -f "$TARBALL" ] || lros_die "offline mode requires the cached tarball at $TARBALL"
+fi
+
+if [ ! -f "$TARBALL" ] || [ "$FORCE_ROOTFS" = "1" ]; then
+  [ "$OFFLINE" = "1" ] || { lros_log "downloading $ROOTFS_URL"; curl -fL --retry 3 -o "$TARBALL" "$ROOTFS_URL"; }
+fi
+actual="$(sha256sum "$TARBALL" | cut -d' ' -f1)"
+[ "$actual" = "$ROOTFS_SHA256" ] || lros_die "rootfs sha256 mismatch: got $actual want $ROOTFS_SHA256"
+lros_log "rootfs verified: $actual"
+
+if [ ! -d "$ROOTFS" ] || [ "$FORCE_ROOTFS" = "1" ]; then
+  [ "$FORCE_ROOTFS" = "1" ] && rm -rf "$ROOTFS"
+  mkdir -p "$ROOTFS"
+  lros_log "extracting rootfs into $ROOTFS"
+  tar xzf "$TARBALL" -C "$ROOTFS"
+fi
+
+APT=(apt-get -y -o APT::Sandbox::User=root -o Acquire::Retries=3
+     -o APT::Install-Recommends=false
+     -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
+# debconf prompts stall a non-tty install and tzdata is the package that asks.
+# UTC inside the runtime is inert for this work: frame freshness is judged on the
+# monotonic clock, not on the wall clock or timezone.
+PRESEED="printf 'tzdata tzdata/Areas select Etc\ntzdata tzdata/Zones/Etc select UTC\n' | debconf-set-selections;"
+RUN="DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC"
+# The dbus postinst runs dpkg-statoverride to hand its launch helper to the
+# messagebus uid.  A single-uid map cannot chown to any uid but its own, so that
+# call fails with EINVAL and every package depending on dbus stays unconfigured.
+# None of them are used by rclpy, rosbag2 or colcon, so they are removed instead
+# of being worked around.
+UNMAPPABLE_UID_PKGS=(dbus dbus-core libpam-systemd networkd-dispatcher dbus-user-session
+                     dconf-service dconf-gsettings-backend gsettings-desktop-schemas
+                     libgtk-3-common libgtk-3-0 libgtk-3-bin notification-daemon at-spi2-core)
+
+if [ "$OFFLINE" = "1" ]; then
+  lros_log "offline: skipping apt update, using the packages already in the rootfs"
+else
+  lros_log "recovering any interrupted dpkg transaction"
+  if ! humble_enter "$RUN dpkg --configure -a < /dev/null" >/dev/null 2>&1; then
+    lros_log "dpkg is stuck on uid-restricted chowns; purging the dbus/gtk chain it pulled in"
+    for pkg in "${UNMAPPABLE_UID_PKGS[@]}"; do
+      humble_enter "dpkg --purge --force-depends $pkg < /dev/null" >/dev/null 2>&1 || true
+    done
+    humble_enter "$RUN dpkg --configure -a < /dev/null"
+  fi
+
+  lros_log "apt update (base)"
+  humble_enter "${APT[*]} update < /dev/null"
+  # A previous interrupted run can leave unconfigured packages behind.
+  humble_enter "$PRESEED $RUN ${APT[*]} -f install < /dev/null"
+
+  lros_log "installing build/runtime system packages"
+  humble_enter "$PRESEED $RUN ${APT[*]} install ${APT_SYS_PKGS[*]} < /dev/null"
+
+  # Keep apt lists from growing unboundedly between runs.
+  humble_enter "${APT[*]} clean < /dev/null"
+
+  lros_log "adding the ROS 2 apt repository"
+  humble_enter "install -d /etc/apt/keyrings && curl -fsSL --retry 3 -o /tmp/ros.key.asc $ROS_KEY_URL && { command -v gpg >/dev/null && gpg --dearmor < /tmp/ros.key.asc > /etc/apt/keyrings/ros-archive-keyring.gpg || cp /tmp/ros.key.asc /etc/apt/keyrings/ros-archive-keyring.gpg; } && rm -f /tmp/ros.key.asc && printf 'deb [arch=amd64 signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] $ROS_APT_URL jammy main\n' > /etc/apt/sources.list.d/ros2.list"
+
+  humble_enter "${APT[*]} update < /dev/null"
+  lros_log "installing ROS 2 Humble packages (large download, one time)"
+  humble_enter "$PRESEED $RUN ${APT[*]} install ${APT_ROS_PKGS[*]} < /dev/null"
+  humble_enter "${APT[*]} clean < /dev/null"
+fi
+
+# Pin the exact package set actually installed, for reproducibility.
+humble_enter "dpkg-query -W -f='\${Package}\t\${Version} \${db:Status-Abbrev}\n' | sort" \
+  > "$LOCK_DIR/installed-deb-packages.txt"
+humble_enter "dpkg-query -W -f='\${Package}\t\${Version}\n' 'ros-humble-*' | sort" \
+  > "$LOCK_DIR/installed-ros-packages.txt" || true
+printf 'rootfs_file\t%s\nrootfs_sha256\t%s\nrootfs_url\t%s\nros_apt_url\t%s\nprepared_utc\t%s\n' \
+  "$ROOTFS_NAME" "$ROOTFS_SHA256" "$ROOTFS_URL" "$ROS_APT_URL" \
+  "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$LOCK_DIR/rootfs.lock.tsv"
+
+lros_log "verifying the Humble runtime actually works"
+humble_ros 'python3 -V; ros2 pkg prefix rosidl_default_generators >/dev/null && echo ROS_PKG_OK; ros2 bag record --help >/dev/null 2>&1 && echo ROS2_BAG_CLI_OK || echo ROS2_BAG_CLI_FAIL'
+humble_ros 'ros2 bag record --help >/dev/null 2>&1' || lros_die "ros2 bag record CLI does not start; the real recorder gate cannot pass"
+
+lros_log "listing rosbag2 storage plugins available"
+humble_ros 'ros2 bag record -h 2>/dev/null | head -40' > "$EVIDENCE_DIR/rosbag2-storage-help.txt" || true
+
+lros_log "prepare complete"

@@ -1,0 +1,129 @@
+{
+  "bound_identities": {
+    "follower": "landerpi-follower-v1",
+    "leader": "so101-leader-5B90149723"
+  },
+  "clutch": {
+    "engage_requires_explicit_action": true,
+    "on_reengage": "capture fresh reference",
+    "on_release": "clear targets and filter"
+  },
+  "command_hz": 10.0,
+  "content_sha256": "3a8e4edf229d28e70c1defa012da1818965b980080f8c091d6902bc5742210f4",
+  "created_utc": "2026-11-05T08:31:26Z",
+  "filter_alpha": 0.35,
+  "follow_law": "relative leader delta to measured follower reference; clamp, EMA and rate limit",
+  "gripper": {
+    "direction": -1,
+    "flipped": true,
+    "follower": "r_joint",
+    "follower_joint": "r_joint",
+    "follower_servo_id": 10,
+    "initial_position_raw": 500,
+    "leader_semantic": "0-100 gripper opening percent",
+    "provenance": "operator-entered closed/open endpoints; no-output preview pending",
+    "pulse_max": 496,
+    "pulse_min": 200,
+    "pulse_span_per_hundred_pct": 2.96,
+    "radians_per_pulse": 0.0041887902,
+    "report_width_mm": false,
+    "scale": 1.0,
+    "soft_max_rad": 1.256637,
+    "soft_min_rad": 0.016755
+  },
+  "identity": "landerpi-so101-mapping-v1",
+  "joint_order": [
+    "joint1",
+    "joint2",
+    "joint3",
+    "joint4",
+    "joint5",
+    "r_joint"
+  ],
+  "joints": [
+    {
+      "direction": 1,
+      "follower": "joint1",
+      "follower_semantic": "base yaw",
+      "leader": "shoulder_pan",
+      "leader_semantic": "base yaw",
+      "provenance": "operator semantic pairing; no-output direction preview pending",
+      "scale": 1.0,
+      "soft_max_rad": 2.086018,
+      "soft_min_rad": -2.052507,
+      "wrap": false
+    },
+    {
+      "direction": -1,
+      "follower": "joint2",
+      "follower_semantic": "shoulder pitch",
+      "leader": "shoulder_lift",
+      "leader_semantic": "shoulder pitch",
+      "provenance": "operator semantic pairing; no-output direction preview pending",
+      "scale": 1.0,
+      "soft_max_rad": 1.931032,
+      "soft_min_rad": -2.052507,
+      "wrap": false
+    },
+    {
+      "direction": 1,
+      "follower": "joint3",
+      "follower_semantic": "elbow pitch",
+      "leader": "elbow_flex",
+      "leader_semantic": "elbow pitch",
+      "provenance": "operator semantic pairing; no-output direction preview pending",
+      "scale": 1.0,
+      "soft_max_rad": 2.052507,
+      "soft_min_rad": -2.094395,
+      "wrap": false
+    },
+    {
+      "direction": -1,
+      "follower": "joint4",
+      "follower_semantic": "wrist pitch",
+      "leader": "wrist_flex",
+      "leader_semantic": "wrist pitch",
+      "provenance": "operator semantic pairing; no-output direction preview pending",
+      "scale": 1.0,
+      "soft_max_rad": 2.010619,
+      "soft_min_rad": -1.675516,
+      "wrap": false
+    },
+    {
+      "direction": 1,
+      "follower": "joint5",
+      "follower_semantic": "wrist roll",
+      "leader": "wrist_roll",
+      "leader_semantic": "wrist roll",
+      "provenance": "operator semantic pairing; no-output direction preview pending",
+      "scale": 1.0,
+      "soft_max_rad": 1.717404,
+      "soft_min_rad": -1.759292,
+      "wrap": true
+    }
+  ],
+  "kind": "mapping",
+  "max_step_rad_s": 0.5,
+  "measured": true,
+  "measured_at_utc": "2026-11-05T08:31:26Z",
+  "measurement_method": "operator_semantic_mapping_pending_preview",
+  "model_versions": {
+    "agent_schema": "lelab-mobile-agent-v1",
+    "car_profile": "hardware_hybrid_manual_v1",
+    "follower_calibration": "46da965c331d",
+    "leader_calibration": "cbf6d23f79d3"
+  },
+  "provenance": [
+    "operator supplied matching joint semantics and directions",
+    "physical validation must be completed in no-output preview",
+    "leader binding switched to left SO-101 5B90149723; no-output preview required"
+  ],
+  "reference_pose": {
+    "follower_rad": {},
+    "leader_deg": {}
+  },
+  "role": "leader_to_landerpi",
+  "schema_version": 1,
+  "unused_follower_joints": [],
+  "version": "3a8e4edf229d"
+}

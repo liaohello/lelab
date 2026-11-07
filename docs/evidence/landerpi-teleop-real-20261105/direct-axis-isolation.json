@@ -1,0 +1,86 @@
+{
+  "captured_at_utc": "2026-11-05T11:53:23Z",
+  "bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+  "base_raw": {
+    "joint1": 535,
+    "joint2": 815,
+    "joint3": 16,
+    "joint4": 116,
+    "joint5": 907,
+    "r_joint": 456
+  },
+  "results": [
+    {
+      "joint": "joint2",
+      "base": 815,
+      "requested": 820,
+      "out_http": 200,
+      "out_sent": true,
+      "out_raw": 816,
+      "back_http": 200,
+      "back_sent": true,
+      "return_raw": 815,
+      "out_error": null,
+      "back_error": null
+    },
+    {
+      "joint": "joint3",
+      "base": 16,
+      "requested": 21,
+      "out_http": 200,
+      "out_sent": true,
+      "out_raw": 17,
+      "back_http": 200,
+      "back_sent": true,
+      "return_raw": 16,
+      "out_error": null,
+      "back_error": null
+    },
+    {
+      "joint": "joint4",
+      "base": 116,
+      "requested": 121,
+      "out_http": 200,
+      "out_sent": true,
+      "out_raw": 117,
+      "back_http": 200,
+      "back_sent": true,
+      "return_raw": 117,
+      "out_error": null,
+      "back_error": null
+    },
+    {
+      "joint": "joint5",
+      "base": 907,
+      "requested": 912,
+      "out_http": 200,
+      "out_sent": false,
+      "out_raw": 907,
+      "back_http": 400,
+      "back_sent": null,
+      "return_raw": 907,
+      "out_error": null,
+      "back_error": {
+        "error": "channel_not_permitted",
+        "detail": ""
+      }
+    }
+  ],
+  "stop": [
+    200,
+    {
+      "stopped": true,
+      "reason": "axis-isolation-complete",
+      "queue_dropped": 0,
+      "outputs_enabled": false,
+      "driver_stopped": true,
+      "driver_stop_error": null,
+      "hardware_effect": "unverified",
+      "last_error": "rejected:channel_not_permitted",
+      "session_id": "codex-axis-isolation",
+      "session_epoch": 700000000000020,
+      "calibration_bundle_hash": "bb62bd9503c49019265464d69822093a784719b7e72a90453f2a5a1ea967adaf",
+      "simulated": false
+    }
+  ]
+}

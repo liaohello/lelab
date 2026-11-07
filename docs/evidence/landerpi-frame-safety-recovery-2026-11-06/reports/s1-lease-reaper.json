@@ -1,0 +1,123 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "meaning_of_stopped": "software admission and emission stopped; not a physical stop",
+  "cases": [
+    {
+      "name": "lease_expiry_cleanup",
+      "intent": "an expired control lease revokes the frame permission and the old identity on its own, with no legacy publisher present and no status call doing the cleanup",
+      "before": {
+        "agent_control_active": true,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 29.69,
+        "agent_frame_outputs_enabled": true,
+        "agent_frame_stream_connected": false,
+        "bridge_frame_process_age_s": 0.009441830450668931,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": null,
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 0,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 3407562260475877
+      },
+      "after": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 0.0,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": false,
+        "bridge_frame_process_age_s": 0.33734080946305767,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": true,
+        "process_latched_fault": null,
+        "process_reengage_required": false,
+        "process_outputs_enabled": true,
+        "process_emitted": 296,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 3407562260475877
+      },
+      "identity_dropped_after_s": null
+    }
+  ],
+  "checks": [
+    {
+      "case": "lease_expiry_cleanup",
+      "name": "car_lease_expired",
+      "ok": true,
+      "detail": {
+        "expires_in_s": 0.0,
+        "active": false
+      }
+    },
+    {
+      "case": "lease_expiry_cleanup",
+      "name": "frame_permission_dropped_with_the_lease",
+      "ok": true,
+      "detail": {
+        "agent_frame_outputs_enabled": false,
+        "process_outputs_enabled": false,
+        "detail": "the agent mirror still advertises outputs the emitter will not do"
+      }
+    },
+    {
+      "case": "lease_expiry_cleanup",
+      "name": "old_identity_dropped",
+      "ok": false,
+      "detail": {
+        "agent_client_id": "safety-repro"
+      }
+    },
+    {
+      "case": "lease_expiry_cleanup",
+      "name": "no_queued_targets_survive",
+      "ok": true,
+      "detail": {
+        "agent_control_active": false,
+        "agent_client_id": "safety-repro",
+        "agent_estop_latched": false,
+        "agent_lease_expires_in_s": 0.0,
+        "agent_frame_outputs_enabled": false,
+        "agent_frame_stream_connected": false,
+        "bridge_frame_process_age_s": 0.2883630244759843,
+        "bridge_queue_depth": 0,
+        "bridge_process_outputs": false,
+        "process_latched_fault": null,
+        "process_reengage_required": false,
+        "process_outputs_enabled": false,
+        "process_emitted": 296,
+        "process_refused": 0,
+        "process_queue_depth": 0,
+        "process_stream_epoch": 3407562260475877
+      }
+    }
+  ],
+  "clear_estop_note": "HardwareCompositionError:car_http_403:control_token: missing or invalid control token",
+  "car_after_repro": {
+    "agent_control_active": false,
+    "agent_client_id": "safety-repro",
+    "agent_estop_latched": false,
+    "agent_lease_expires_in_s": 0.0,
+    "agent_frame_outputs_enabled": false,
+    "agent_frame_stream_connected": false,
+    "bridge_frame_process_age_s": 0.3939224067144096,
+    "bridge_queue_depth": 0,
+    "bridge_process_outputs": false,
+    "process_latched_fault": null,
+    "process_reengage_required": false,
+    "process_outputs_enabled": false,
+    "process_emitted": 296,
+    "process_refused": 0,
+    "process_queue_depth": 0,
+    "process_stream_epoch": 3407562260475877
+  },
+  "failed": [
+    "old_identity_dropped"
+  ]
+}

@@ -1,0 +1,2601 @@
+{
+  "captured_at_utc": "2026-11-05T08:45:24Z",
+  "session_identity": {
+    "session_id": "43e0034b9d854198bfcd80ffd55b08f7",
+    "session_epoch": 1861848480461694,
+    "calibration_bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b"
+  },
+  "acquire_http": 200,
+  "preview_http": 200,
+  "align_http": 200,
+  "duration_target_s": 75,
+  "heartbeats": [
+    {
+      "t_rel_s": 0.0,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 3.099,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 6.17,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 9.241,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 12.561,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 15.808,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 18.867,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 22.004,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 25.131,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 28.267,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 31.329,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 34.359,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 37.572,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 40.679,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 43.81,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 47.348,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 50.477,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 53.612,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 56.808,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 60.062,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 63.257,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 66.807,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 70.351,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 73.437,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    },
+    {
+      "t_rel_s": 75.509,
+      "http": 200,
+      "state": "ready",
+      "last_error": null
+    }
+  ],
+  "samples": [
+    {
+      "t_rel_s": 0.315,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.19282081299934362,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 0.872,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.19219471700034774,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 1.438,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.2559083129999635,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 1.999,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.27682519599966326,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 2.599,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.025334660000225995,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 3.34,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.20732464999946387,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 3.892,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.22174681999968016,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 4.555,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.07940738299930672,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 5.116,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08969727699968644,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 5.67,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.14767753400064976,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 6.489,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.06739305599967338,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 7.086,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.11522234400035813,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 7.642,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.16966740299994854,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 8.195,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.17251211799975863,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 8.741,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1708332779999182,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 9.517,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.0421245990000898,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 10.168,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.09648367499994492,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 10.765,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.14284073599992553,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 11.507,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.084903330999623,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 12.061,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08752526800071792,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 12.886,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.013320758000190835,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 13.477,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.006791694999265019,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 14.087,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.11623375699946337,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 14.695,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.223119233000034,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 15.308,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08213206100026582,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 16.022,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.2497785469995506,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 16.607,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.03506353299962939,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 17.205,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.03400956600034988,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 17.767,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.043500568000126805,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 18.367,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.344149285999265,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 19.144,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.17303826700026548,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 19.743,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.22122537400082365,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 20.35,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.03076005200000509,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 20.898,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.07703578000018751,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 21.504,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08006827400004113,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 22.338,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.11450091499955306,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 22.939,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1655898850003723,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 23.481,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.10528676600006293,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 24.024,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.10166547399967385,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 24.631,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.15774865000003047,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 25.486,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1108953080001811,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 26.072,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.15036943399991287,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 26.659,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1392014620005284,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 27.215,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.14341020200026833,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 27.767,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.14654002899987972,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 28.586,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.16432593500030634,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 29.126,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.15495995200035395,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 29.663,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.14464289199986524,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 30.233,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.15514369399988936,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 30.829,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.15496660000007978,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 31.604,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.028514599000118324,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 32.158,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.034820051000679086,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 32.712,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.29398478399980377,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 33.257,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.28387224199923367,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 33.859,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08505999800036079,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 34.676,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.05530337500022142,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 35.282,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.008491997999954037,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 35.904,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08217705999959435,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 36.513,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08539873999961856,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 37.072,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.09626339599981293,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 37.886,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.11252375899948674,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 38.427,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.10410778000004939,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 38.972,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.050326929000220844,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 39.577,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.09825542300040979,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 40.178,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.15241701600007218,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 40.956,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.02815067099982116,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 41.546,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.07424160199934704,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 42.099,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.07798735800042778,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 42.703,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1802798709995841,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 43.31,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.038354639999852225,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 43.996,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.22465284999998403,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 44.597,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.026088311000421527,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 45.152,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08108679700035282,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 45.701,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.07979216100011399,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 46.244,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.07418841599974257,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 46.847,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.12597114799973497,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 47.599,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.07681650100039406,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 48.161,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.030536774000211153,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 48.796,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.12263239300045825,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 49.358,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.12854171399976622,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 49.977,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.20349761499983288,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 50.716,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.14407774099981907,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 51.331,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.210239883000213,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 51.937,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.01629166000020632,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 52.56,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08559157499985304,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 53.112,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.0913105789995825,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 53.911,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.03359817500040663,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 54.471,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.2981161890002113,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 55.121,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.049400111000068136,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 55.681,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.058582722999744874,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 56.308,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.08466775500073709,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 57.123,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.09583322799971938,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 57.733,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.09781523600031505,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 58.367,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1414710630006084,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 58.958,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.18444601800001692,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 59.562,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.038335917000040354,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 60.372,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.05192286200053786,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 60.963,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1390509610000663,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 61.558,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.18389942300018447,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 62.124,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.2053389740003695,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 62.757,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.03365174900045531,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 63.429,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.20712010999977792,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 63.994,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.02300674300022365,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 64.571,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.2995761019992642,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 65.183,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.2539380070002153,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 65.747,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.27587400500033255,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 66.307,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.2342981490000966,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 67.008,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1323219699997935,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 67.586,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.16783048599972972,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 68.164,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.228534216999833,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 68.715,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.29318690900072397,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 69.297,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.021087216000523767,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 69.851,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.27403679300005024,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 70.574,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.1047820789999605,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 71.227,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.20521206600005826,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 71.797,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.22532283300006384,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 72.358,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.23011544600012712,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 72.937,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.01666262400067353,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 73.756,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.23345188599978428,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 74.305,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.18262251000032848,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    },
+    {
+      "t_rel_s": 74.85,
+      "state": "ready",
+      "last_error": null,
+      "feedback_valid": true,
+      "feedback_reason": "ok",
+      "max_age_s": 0.2272072300002037,
+      "leases": {
+        "upper": {
+          "held": true
+        },
+        "car": {
+          "held": true
+        }
+      },
+      "leader_healthy": true,
+      "preview_available": true,
+      "outputs_enabled": false,
+      "motion_commands_sent": 0
+    }
+  ],
+  "final": {
+    "state": "ready",
+    "last_error": null,
+    "feedback_valid": true,
+    "leases": {
+      "upper": {
+        "held": true
+      },
+      "car": {
+        "held": true
+      }
+    },
+    "preview_available": true,
+    "outputs_enabled": false
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "generated_utc": "2026-11-03T16:08Z",
+  "level": "上位机单元/构建验证，无硬件参与，不是实机验收",
+  "change": {
+    "request_field": "TeleoperateRequest.preview (default False)",
+    "preview_session": [
+      "robot.configure() skipped on the follower (torque stays off)",
+      "send_action() skipped (nothing reaches the bus)",
+      "loop still reads leader and follower and broadcasts",
+      "follower-feedback self-stop not applied in preview"
+    ],
+    "frame_keys_added": [
+      "preview",
+      "target_sent"
+    ],
+    "session_key_added": "preview",
+    "ui": "/so101 step 3 has 仅预览（不下发目标） and 开始跟随; amber banner while previewing; 会话中的臂 shows · 仅预览"
+  },
+  "tests": {
+    "added": [
+      "test_a_preview_session_writes_nothing_to_the_follower",
+      "test_a_following_session_still_configures_and_sends",
+      "test_a_preview_session_does_not_end_itself_when_the_follower_goes_silent"
+    ],
+    "updated": [
+      "test_broadcast_carries_the_leader_reading_that_drove_the_follower (frame key set)"
+    ],
+    "module_result": "20 passed",
+    "desktop_app_set_result": "181 passed",
+    "frontend": "tsc --noEmit clean, npm run build clean"
+  },
+  "mutation_check": {
+    "break": "restore unconditional robot.configure() and short-circuit the send skip to if False",
+    "went_red": [
+      "test_a_preview_session_writes_nothing_to_the_follower",
+      "test_a_preview_session_does_not_end_itself_when_the_follower_goes_silent"
+    ],
+    "after_restore": "20 passed"
+  },
+  "hardware_state_observed": "16:01Z this host has no /dev/serial/by-id, no /dev/ttyACM*, no /dev/ttyUSB*",
+  "not_yet_verified": [
+    "两条真臂在预览下确实不动（需要主臂重新插上上位机）",
+    "页面上预览黄条与 仅预览/开始跟随 两个按钮的实际点击（需要浏览器一轮）",
+    "车端网关 preview（另一条链路，需要小车开机）"
+  ]
+}

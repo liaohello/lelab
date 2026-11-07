@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings, Trash2 } from "lucide-react";
+import { Settings, SlidersHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -25,6 +25,7 @@ interface RobotTileProps {
   onSelect: (name: string) => void;
   onCreateNew: (name: string) => Promise<boolean>;
   onConfigure: (name: string) => void;
+  onWorkbench: (name: string) => void;
   onTeleop: (robot: RobotRecord) => void;
   onDelete: (name: string) => void;
 }
@@ -37,6 +38,7 @@ const RobotTile: React.FC<RobotTileProps> = ({
   onSelect,
   onCreateNew,
   onConfigure,
+  onWorkbench,
   onTeleop,
   onDelete,
 }) => {
@@ -69,6 +71,20 @@ const RobotTile: React.FC<RobotTileProps> = ({
         )}
         {robot && (
           <div className="flex items-center gap-1 shrink-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-gray-300 hover:text-white"
+                  onClick={() => onWorkbench(robot.name)}
+                  aria-label="Workbench"
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Calibration + teleoperation workbench</TooltipContent>
+            </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

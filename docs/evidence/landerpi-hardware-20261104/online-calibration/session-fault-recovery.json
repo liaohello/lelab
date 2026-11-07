@@ -1,0 +1,429 @@
+{
+  "captured_at_utc": "2026-11-05T08:40:37Z",
+  "before": {
+    "state": "fault",
+    "session_id": "042be4b6a75b47edb982b6b9e41a8342",
+    "last_error": "stop_failed:HardwareCompositionError",
+    "feedback_valid": true,
+    "leases": {
+      "upper": {
+        "held": true
+      },
+      "car": {
+        "held": false
+      }
+    }
+  },
+  "release_http": 200,
+  "release": {
+    "state": "disconnected",
+    "session_id": null,
+    "session_epoch": null,
+    "profile": "hardware_hybrid_manual_v1",
+    "simulated": false,
+    "leases": {
+      "upper": {
+        "held": false
+      },
+      "car": {
+        "held": false
+      }
+    },
+    "channels": {
+      "base": {
+        "enabled": false,
+        "permitted": false,
+        "locked": true,
+        "gamepad": {
+          "armed": false,
+          "neutral_seen": false,
+          "intent": null,
+          "last_seq": -1,
+          "last_received_mono_ns": null,
+          "reason": "gamepad_unconfigured"
+        },
+        "seq": 0,
+        "pending": null,
+        "source": "gamepad"
+      },
+      "arm": {
+        "state": "idle",
+        "enabled": false,
+        "permitted": false,
+        "seq": 0,
+        "pending": null,
+        "source": "so101_leader"
+      },
+      "gripper": {
+        "state": "idle",
+        "enabled": false,
+        "permitted": false,
+        "seq": 0,
+        "pending": null,
+        "source": "so101_leader"
+      }
+    },
+    "devices": {
+      "leader": {
+        "connected": false,
+        "source": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+        "simulated": false
+      },
+      "follower": {
+        "driver_bound": true,
+        "source": "ros_robot_controller/bus_servo/get_state",
+        "simulated": false
+      },
+      "camera": {
+        "source": "/ascamera/camera_publisher/rgb0/image",
+        "stale": false,
+        "simulated": false
+      }
+    },
+    "calibrations": {
+      "ready": true,
+      "bundle_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+      "reasons": [],
+      "layout": "so101_three_layer",
+      "layers": {
+        "leader": {
+          "identity": "so101-leader-5B90149723",
+          "sha256": "277fb7e524b542b5ac744ea8294a6fb2e8ead57e0b51104a484f0fe18f3472bc",
+          "version": "cbf6d23f79d3"
+        },
+        "follower": {
+          "identity": "landerpi-follower-v1",
+          "sha256": "f4eebac5da8a3fdfb42d404a8f0355d836c3c9fcb2de30443f60e37d2299c9d1",
+          "version": "46da965c331d"
+        },
+        "mapping": {
+          "identity": "landerpi-so101-mapping-v1",
+          "sha256": "030a2df762deeb0aa691d9151de2fe68c119e77d515570831c8b14ed24a2ffc9",
+          "version": "3a8e4edf229d"
+        }
+      },
+      "simulated": false,
+      "camera_capability": "observed_real",
+      "firmware_capability": "unknown"
+    },
+    "feedback": {
+      "valid": true,
+      "source_kind": "servo_position_readback",
+      "clock_domain": "upper_receipt_monotonic",
+      "samples": [
+        {
+          "name": "joint1",
+          "servo_id": 1,
+          "raw_position": 531.0,
+          "position_rad": 0.12985249634837812,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        {
+          "name": "joint2",
+          "servo_id": 2,
+          "raw_position": 505.0,
+          "position_rad": 0.020943951023931952,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        {
+          "name": "joint3",
+          "servo_id": 3,
+          "raw_position": 522.0,
+          "position_rad": 0.09215338450530058,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        {
+          "name": "joint4",
+          "servo_id": 4,
+          "raw_position": 151.0,
+          "position_rad": -1.4618877814704503,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        {
+          "name": "joint5",
+          "servo_id": 5,
+          "raw_position": 878.0,
+          "position_rad": 1.5833626974092556,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        {
+          "name": "r_joint",
+          "servo_id": 10,
+          "raw_position": 492.0,
+          "position_rad": 0.033510321638291124,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        }
+      ],
+      "joint_samples": {
+        "joint1": {
+          "name": "joint1",
+          "servo_id": 1,
+          "raw_position": 531.0,
+          "position_rad": 0.12985249634837812,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        "joint2": {
+          "name": "joint2",
+          "servo_id": 2,
+          "raw_position": 505.0,
+          "position_rad": 0.020943951023931952,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        "joint3": {
+          "name": "joint3",
+          "servo_id": 3,
+          "raw_position": 522.0,
+          "position_rad": 0.09215338450530058,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        "joint4": {
+          "name": "joint4",
+          "servo_id": 4,
+          "raw_position": 151.0,
+          "position_rad": -1.4618877814704503,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        "joint5": {
+          "name": "joint5",
+          "servo_id": 5,
+          "raw_position": 878.0,
+          "position_rad": 1.5833626974092556,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        },
+        "r_joint": {
+          "name": "r_joint",
+          "servo_id": 10,
+          "raw_position": 492.0,
+          "position_rad": 0.033510321638291124,
+          "source_kind": "servo_position_readback",
+          "valid": true,
+          "error": null,
+          "calibration_hash": "f8936f62ba1ed73ecd91abac33f50c3d9ad54a2dae2c0a1323b0733277ebd88b",
+          "sample_seq": 8829,
+          "received_mono_ns": 245326690090735,
+          "sample_time_ns": 1793868034709516861,
+          "clock_domain": "upper_receipt_monotonic",
+          "age_s": 0.043988460000036866,
+          "age_ns": 43988460
+        }
+      },
+      "positions_rad": {
+        "joint1": 0.12985249634837812,
+        "joint2": 0.020943951023931952,
+        "joint3": 0.09215338450530058,
+        "joint4": -1.4618877814704503,
+        "joint5": 1.5833626974092556,
+        "r_joint": 0.033510321638291124
+      },
+      "servo_pulses": {
+        "joint1": 531,
+        "joint2": 505,
+        "joint3": 522,
+        "joint4": 151,
+        "joint5": 878,
+        "r_joint": 492
+      },
+      "scan_span_s": 0.05408376099967427,
+      "scan_span_ns": 54083760,
+      "stale_after_s": 0.5,
+      "reason": "ok",
+      "calibration_binding": "bound",
+      "trusted": true,
+      "trusted_reasons": [],
+      "note": "six measured servo positions relayed with age; no command cache"
+    },
+    "video": {
+      "available": true,
+      "valid": true,
+      "stale": false,
+      "reason": "fresh_camera_frame",
+      "preview_seq": 22149,
+      "source_stamp_ns": 1793868034620999936,
+      "age_s": 0.04,
+      "topic": "/ascamera/camera_publisher/rgb0/image",
+      "source": "/ascamera/camera_publisher/rgb0/image"
+    },
+    "last_error": "release_failed:HardwareCompositionError:car_http_403:control_token: missing or invalid control token",
+    "missing_for_following": [
+      "release_failed:HardwareCompositionError:car_http_403:control_token: missing or invalid control token"
+    ],
+    "outputs_enabled": false,
+    "control_semantics": "offline_intent_only",
+    "phase": "grasp",
+    "recording": {
+      "source": "hybrid_recording_controller",
+      "status": "not_started",
+      "session_id": null,
+      "session_epoch": null,
+      "clock_domain": null,
+      "clock_epoch": null,
+      "calibration_bundle_hash": null,
+      "car_session_path": null,
+      "episode_id": null,
+      "episode_started_time_ns": null,
+      "phase": null,
+      "phases": [],
+      "episodes": [],
+      "phase_timeline_complete": true,
+      "paused_before_wrapup": null,
+      "motion_commands_sent": 0,
+      "lease_acquired": false,
+      "outputs_enabled": false,
+      "last_error": null,
+      "error_detail": null,
+      "event_count": 0,
+      "estop_save_pending": false
+    },
+    "calibration_bundle_hash": null,
+    "channels_meta": null,
+    "leader": {
+      "connected": false,
+      "detected": true,
+      "healthy": false,
+      "reason": "leader_detected_not_opened",
+      "source": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B90149723-if00",
+      "positions_rad": {},
+      "gripper_percent": null
+    },
+    "hardware_preview": {
+      "available": false,
+      "reason": "leader_unhealthy",
+      "motion_commands_sent": 0
+    },
+    "hardware_probe": {
+      "available": true,
+      "leader_connected": false,
+      "leader_healthy": false,
+      "feedback_valid": true,
+      "exclusive_control": true,
+      "outputs_enabled": false
+    },
+    "release_warning": "RecordingError:session_not_ready: hybrid session state='fault'; acquire the lease before recording"
+  },
+  "state_after_release": "disconnected",
+  "last_error_after_release": "release_failed:HardwareCompositionError:car_http_403:control_token: missing or invalid control token",
+  "clear_http": null,
+  "clear": null,
+  "acquire_http": 200,
+  "acquired_state": "ready",
+  "acquire_detail": null,
+  "preview_http": 200,
+  "align_http": 200,
+  "after": {
+    "state": "fault",
+    "session_id": "d82e1be1d3b6402a929949472aac987b",
+    "session_epoch": 3413536264811241,
+    "last_error": "feedback_valid_missing",
+    "feedback_valid": true,
+    "leader_healthy": true,
+    "leases": {
+      "upper": {
+        "held": true
+      },
+      "car": {
+        "held": true
+      }
+    },
+    "preview_available": true,
+    "outputs_enabled": false
+  }
+}

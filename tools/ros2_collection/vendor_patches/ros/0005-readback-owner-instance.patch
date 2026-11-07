@@ -1,0 +1,30 @@
+--- a/ros_robot_controller_node.py
++++ b/ros_robot_controller_node.py
+@@ -9,6 +9,7 @@
+ import time
+ import rclpy
+ import signal
++import secrets
+ import threading
+ import yaml  # 已导入 PyYAML
+ from rclpy.node import Node
+@@ -94,6 +95,10 @@
+ 
+         self.servo_readback_pub = self.create_publisher(
+             Int32MultiArray, '/lelab/ros_robot_controller/servo_readback', 10)
++        # Software owner instance: drawn once per process start so consumers can tell
++        # a restarted publisher (sequence reset) from a replay. This is NOT an MCU boot
++        # ID; the board protocol has no transaction or boot identifier.
++        self.servo_readback_owner = secrets.randbits(31) | 1
+         self.servo_readback_seq = 0
+         self.servo_readback_failures = 0
+         self.servo_readback_stop = threading.Event()
+@@ -341,7 +346,7 @@
+                 continue
+             scan_us = max(0, min(2147483647, int((time.monotonic() - started) * 1e6)))
+             message = Int32MultiArray()
+-            message.data = [self.servo_readback_seq, scan_us, *values]
++            message.data = [2, self.servo_readback_owner, self.servo_readback_seq, scan_us, *values]
+             self.servo_readback_pub.publish(message)
+             self.servo_readback_seq += 1
+ 

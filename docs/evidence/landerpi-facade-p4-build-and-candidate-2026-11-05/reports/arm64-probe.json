@@ -1,0 +1,54 @@
+{
+  "purpose": "ARM64 / firmware cross-build attempt, build only, nothing flashed",
+  "date_utc": "2026-11-06",
+  "tool_on_path": {
+    "arm-none-eabi-gcc": null,
+    "arm-none-eabi-objcopy": null,
+    "aarch64-linux-gnu-gcc": null,
+    "qemu-aarch64": null,
+    "qemu-aarch64-static": null,
+    "docker-buildx": null
+  },
+  "probes": [
+    {
+      "cmd": "ls /proc/sys/fs/binfmt_misc 2>&1 | head -5",
+      "rc": 0,
+      "stdout": "python3.12\nregister\nstatus\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "arm-none-eabi-gcc --version 2>&1 | head -2",
+      "rc": 0,
+      "stdout": "/bin/sh: 1: arm-none-eabi-gcc: not found\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "docker run --rm --platform linux/arm64 debian:bookworm-sleep-unused uname -m 2>&1 | head -3",
+      "rc": 0,
+      "stdout": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "tools/ros2_collection/local_ros2/bin/doctor 2>&1 | tail -12",
+      "rc": 0,
+      "stdout": "al_humble/rootfs\nrootfs_bash            PASS   ok\nhumble                 PASS   /opt/ros/humble present in rootfs\nno_serial_module       PASS   no serial module inside the runtime\nprofile                PASS   offline profile pinned to simulated\nchroot_exec            PASS   can enter the rootfs\n\nrepo HEAD: e4312f0\ndirty tracked files: 143\ndomain id: 92  localhost-only: 1  rmw: rmw_cyclonedds_cpp\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "sg docker -c 'docker run --rm --platform linux/arm64 arm64v8/debian:bookworm-slim uname -m'",
+      "rc": 255,
+      "stdout": "",
+      "stderr": "exec /usr/bin/uname: exec format error\n"
+    }
+  ],
+  "image_lock_arm64": {
+    "manifest_digest": "sha256:48435c01f2876ff519a0d07edf8dd3ab29a8106c907965c64385a14c76470d6b",
+    "note": "this is the architecture the Pi runs; recorded so the car-side build can be compared against the same tag"
+  },
+  "conclusion": {
+    "mcu_firmware": "not buildable here: no arm-none-eabi-gcc, no armcc/Keil MDK; the vendor project is ARMCC 5.06u6 for STM32F407VETx (see vendor_patches/firmware/README.md)",
+    "arm64_ros_build": "not runnable here: the arm64 image pulls, but execution fails with 'exec format error' because /proc/sys/fs/binfmt_misc has no qemu-aarch64 registration; no cross-toolchain (aarch64-linux-gnu-gcc) is installed",
+    "amd64_isolation": "the offline Humble rootfs builds and runs on amd64 only; bin/doctor pins the deb set to amd64",
+    "action": "no ARM artifact was produced, and none is claimed; the arm64 gate stays a hardware/Pi-side task"
+  }
+}

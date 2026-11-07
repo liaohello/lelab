@@ -1,0 +1,82 @@
+{
+  "captured_utc": "2026-11-06",
+  "source_head": "e4312f05eea4f319d7402d570f5b3fd073b04af5",
+  "note": "This session's increment only. The working tree already held large untracked production source from earlier turns; git diff alone is not this round's delta.",
+  "files": {
+    "app_ros_mobile/lelab/hybrid_hardware.py": {
+      "sha256": "d64f53deecfa8d7673d9c8375dbd8b3463fc5f399a760fdf60abe1ce17713e5d",
+      "bytes": 54745,
+      "tracked": false
+    },
+    "app_ros_mobile/lelab/teleop_stream.py": {
+      "sha256": "aba338ebf4f1839c02cfa8b4e901e2381a298588072daa6f5692fa9ae84f5c75",
+      "bytes": 27838,
+      "tracked": false
+    },
+    "tools/ros2_collection/local_ros2/offline/container_ops.py": {
+      "sha256": "fe70bcf43c43c2c90d33fdb13136eb66785053cefebee6d1d767c6aa29f31c4f",
+      "bytes": 11151,
+      "tracked": false
+    },
+    "tools/ros2_collection/local_ros2/offline/web_closure.py": {
+      "sha256": "9ea284379bffaa0519c66296b2e017c61a7e7f7ebf1124ec2ed2cfd78c5e16e5",
+      "bytes": 35142,
+      "tracked": false
+    },
+    "tools/ros2_collection/local_ros2/offline/web_media_checks.py": {
+      "sha256": "d773cd99da8d3ba4792a43e40757ad5282e8c01a6b07dc6ec7a3bf702eae670f",
+      "bytes": 21498,
+      "tracked": false
+    },
+    "tools/ros2_collection/local_ros2/bin/package": {
+      "sha256": "b9fe5645f371082d6e5b4c5eba5ab145c2c0aee1c5e73191dd5adfb7af2b3ddd",
+      "bytes": 10153,
+      "tracked": false
+    },
+    "tools/ros2_collection/local_ros2/offline/facade_faults.py": {
+      "sha256": "a9377191ac6cdb2f5d44aebe81878ad6ff15d76c1627c49b1ddae809c8ae7417",
+      "bytes": 37114,
+      "tracked": false
+    },
+    "tools/ros2_collection/local_ros2/offline/facade_bench.py": {
+      "sha256": "37d9929c7e234816e80547a40b34f9acbb7b7a094aa6cdac9780168d3596301e",
+      "bytes": 20687,
+      "tracked": false
+    },
+    "tools/ros2_collection/tests/test_container_ops_stop.py": {
+      "sha256": "fa36ea7b69e5f1b1c1d69cdb6a07911454ae367880c548685e874c19b2f9b3a1",
+      "bytes": 4873,
+      "tracked": false
+    },
+    "docs/ros2-collection-runbook.md": {
+      "sha256": "b37232d64e7b6b287a7acafd2bbff6f229b743d473a2bd7d2cbbf902af6fd387",
+      "bytes": 94963,
+      "tracked": true
+    },
+    "docs/evidence/landerpi-facade-p1-web-closure-2026-11-05/README.md": {
+      "sha256": "e553f5fa67c2fb3db5f4c087214f0be1d21caff518dff74a4718c0351ae4dfa1",
+      "bytes": 9853,
+      "tracked": false
+    },
+    "docs/evidence/landerpi-facade-p2-fault-matrix-2026-11-05/README.md": {
+      "sha256": "649fb873a3b1bf1f6835ee4cc98dae9cf9a2bfbdc8bdb4b4e710e1c1b9e89abc",
+      "bytes": 6675,
+      "tracked": false
+    },
+    "docs/evidence/landerpi-facade-p3-frame-benchmark-2026-11-05/README.md": {
+      "sha256": "fd744dc37e6ec536c483c49f16b7556ed77ea5c43734deb7a0d2bad2c9aa22f4",
+      "bytes": 6797,
+      "tracked": false
+    },
+    "docs/evidence/landerpi-facade-p4-build-and-candidate-2026-11-05/README.md": {
+      "sha256": "192b1e718660dd559dcd5c28f816bda1c56d30672f624c664d7de2a481701e1e",
+      "bytes": 9258,
+      "tracked": false
+    }
+  },
+  "working_tree": {
+    "entries": 144,
+    "modified": 31,
+    "untracked": 113
+  }
+}

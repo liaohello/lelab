@@ -1,0 +1,69 @@
+{
+  "generated_utc": "2026-11-03T16:02Z",
+  "generated_by": "main agent, no hardware touched",
+  "level": "上位机单元/静态检查，不是实机验收",
+  "desktop_follow_loop_stop_reasons": {
+    "file": "app_ros_mobile/lelab/teleoperate.py",
+    "reasons": [
+      "leader_read_failed: <exception>",
+      "follower_send_failed: <exception>",
+      "follower_feedback_unavailable: N consecutive reads <status>"
+    ],
+    "tests": {
+      "module": "app_ros_mobile/tests/test_teleoperate.py",
+      "result": "17 passed",
+      "leader_case": "stop_reason prefix + exception text, sent == 0 (no target reached the follower)",
+      "follower_case": "stop_reason prefix + exception text, sent == 1 (the refusal is the write that failed)",
+      "mutation_check": "removing the send_action except clause turns test_a_follower_that_refuses_the_command_names_the_follower red (stop_reason None); restored",
+      "test_harness_defect_found": "the fake follower bus had no connect(), so the session failed during bring-up and never reached send_action; _Bus promoted to module scope"
+    },
+    "commit": "996ff15 fix(desktop-teleop): name which side went dark when the follow loop dies"
+  },
+  "preflight_new_probes": {
+    "file": "tools/ros2_collection/teleop_preflight.py",
+    "probes": [
+      "printenv MACHINE_TYPE || echo MACHINE_TYPE_UNSET",
+      "ros2 node list"
+    ],
+    "verdicts": [
+      "vendor_node_machine_type_exported (non-blocking)",
+      "vendor_board_node_driving_the_uart (non-blocking)"
+    ],
+    "why_non_blocking": "the accepted read-only recording session never needed the vendor stack; making these blocking would turn a green read-only pass red for an unrelated reason",
+    "skipped_probes_now_named": "without --pi every probe records 'not read: skipped: no --pi target' instead of producing no verdict",
+    "tests": {
+      "module": "tools/ros2_collection/tests/test_teleop_preflight.py",
+      "suite": "tools/ros2_collection/tests",
+      "result": "253 passed, 5 subtests"
+    }
+  },
+  "local_serial_inventory_2026_11_03T16_01Z": {
+    "dev_serial_by_id": "does not exist",
+    "dev_ttyACM": "none",
+    "dev_ttyUSB": "none",
+    "conclusion": "neither leader arm is plugged into this upper-computer host right now; requirement 八.3 (SO101 live read + wizard interaction) still waits for the arms to be reconnected",
+    "note": "earlier in the session the user reported the leaders were plugged in; they are gone now, so that state did not persist"
+  },
+  "preflight_stdout_local_pass_no_pi": [
+    "NO  [blocking] leader_serial_on_upper_host: no /dev/serial/by-id entry: the arm is not plugged into this host",
+    "NO  [blocking] car_agent_reachable: GET /status failed: agent unreachable and no --pi given, so the car side was not probed",
+    "NO  [blocking] upper_app_reachable: GET /ros-mobile/teleop/status failed",
+    "NO  [blocking] car_container_running: skipped: no --pi target",
+    "NO  [blocking] deployed_agent_matches_source: car=skipped: local=8d217fc8d24512347a42de0cf3bb66888f5d0043e2755feddd6d07ef423e224a",
+    "NO  no_foreign_publisher_on_/lelab/arm/trajectory_request: /lelab/arm/trajectory_request: foreign publishers none",
+    "NO  no_foreign_publisher_on_/lelab/gripper/trajectory_request: /lelab/gripper/trajectory_request: foreign publishers none",
+    "NO  [blocking] follower_feedback_publisher: /controller_manager/joint_states: skipped: no --pi target",
+    "NO  vendor_node_machine_type_exported: not read: skipped: no --pi target",
+    "NO  vendor_board_node_driving_the_uart: not read: skipped: no --pi target",
+    "",
+    "ready for a read-only session: False (blocking gaps: leader_serial_on_upper_host, car_agent_reachable, upper_app_reachable, car_container_running, deployed_agent_matches_source, follower_feedback_publisher)"
+  ],
+  "preflight_exit_code": 1,
+  "still_missing_for_hardware_acceptance": [
+    "小车充电中，车端 agent 与 MentorPi 容器不可达",
+    "两条主臂未接在本上位机",
+    "车端 vendor 栈未起，/controller_manager/joint_states 无发布者；MACHINE_TYPE 在容器内未设",
+    "舵机 6 无响应的原因未知",
+    "frontend/src/lib 被 .gitignore 的 lib/ 全目录规则排除，apiClient.ts 的修复无法入库（等用户决定）"
+  ]
+}

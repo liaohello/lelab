@@ -1,0 +1,45 @@
+{
+  "time_utc": "20261106T014256Z",
+  "mode": "read_only_probe",
+  "target": "pi@<private-ip>",
+  "exit_code": 0,
+  "stderr": "",
+  "result": {
+    "serial_owners": [],
+    "relevant_processes": [],
+    "deployment": {
+      "/home/ubuntu/lelab_car/lelab_mobile_agent/lelab_mobile_agent/agent.py": {
+        "exists": false,
+        "sha256": null
+      },
+      "/home/ubuntu/lelab_car/lelab_mobile_agent/config/hardware-hybrid-manual-v1.json": {
+        "exists": false,
+        "sha256": null
+      },
+      "/home/ubuntu/lelab_car/vendor/ros_robot_controller/ros_robot_controller_sdk.py": {
+        "exists": true,
+        "sha256": "7ea4e4f5aeea69d778f5cf93e35abd2c5b227bf3a12796fdfd7bc84d6fa2b8b7"
+      },
+      "/home/ubuntu/lelab_car/vendor/ros_robot_controller/ros_robot_controller_node.py": {
+        "exists": true,
+        "sha256": "7e171990ecbc7a99179266e00e6c915be10f01d74478b34f8af77d431d8e2615"
+      }
+    },
+    "root_entries": [
+      "car_arm_stack",
+      "car_servo_step_probe.py",
+      "config",
+      "debug",
+      "lelab_mobile_agent",
+      "probe_real_sensors.py",
+      "readonly_agent.log",
+      "readonly_agent.pid",
+      "run_readonly.sh",
+      "sessions",
+      "vendor",
+      "vendor_patch",
+      "vendor_patch.staging"
+    ]
+  },
+  "local_agent_sha256": "fa626172220773737b977098377037997dfe66430759e4f639a02a8ab701e244"
+}

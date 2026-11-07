@@ -1,0 +1,724 @@
+{
+  "agent": "http://127.0.0.1:18131",
+  "container": "lelab-humble-facade-integration",
+  "freshness_window_s": 0.5,
+  "frame_ttl_policy": "unchanged",
+  "data_identity": "simulated_offline",
+  "training_eligible": false,
+  "cases": [
+    {
+      "name": "leader_stall",
+      "injection": "the leader reader stops delivering new samples",
+      "started_utc": "2026-11-06T11:28:07Z",
+      "recovery": {
+        "recovery_path": "new_session",
+        "emitted_delta": 14,
+        "submitted_delta": 15,
+        "arm": "following"
+      },
+      "after": {
+        "facade_state": "ready",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 301,
+          "received": 303,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 337
+        }
+      }
+    },
+    {
+      "name": "feedback_stale",
+      "injection": "SIGSTOP the simulated board: feedback ages out",
+      "started_utc": "2026-11-06T11:28:16Z",
+      "recovery": {
+        "recovery_path": "new_session",
+        "emitted_delta": 13,
+        "submitted_delta": 15,
+        "arm": "following"
+      },
+      "after": {
+        "facade_state": "ready",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 320,
+          "received": 323,
+          "refused": 1,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 353
+        }
+      }
+    },
+    {
+      "name": "car_status_stale",
+      "injection": "SIGSTOP the agent: /status stops answering",
+      "started_utc": "2026-11-06T11:28:26Z",
+      "after": {
+        "facade_state": "disconnected",
+        "last_error": "lease_lost:car=car_status_read_failed:car_unreachable:<urlopen error timed out>, leader_healthy_missing, feedback_valid_missing, exclusive_control_missing;stop_failed:HardwareCompositionError:car_unreachable:<urlopen error timed out>",
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 324,
+          "received": 327,
+          "refused": 1,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 358
+        }
+      }
+    },
+    {
+      "name": "socket_reset",
+      "injection": "RST the frame socket from the upper side (SO_LINGER 0)",
+      "started_utc": "2026-11-06T11:28:53Z",
+      "recovery": {
+        "recovery_path": "new_session",
+        "emitted_delta": 12,
+        "submitted_delta": 15,
+        "arm": "following"
+      },
+      "after": {
+        "facade_state": "ready",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 352,
+          "received": 355,
+          "refused": 1,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 387
+        }
+      }
+    },
+    {
+      "name": "backpressure_half_open",
+      "injection": "SIGSTOP the control process: the socket stays open, nobody reads",
+      "started_utc": "2026-11-06T11:29:03Z",
+      "after": {
+        "facade_state": "fault",
+        "last_error": "frame_follow_failed:HardwareCompositionError:frame_admission_timeout",
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 354,
+          "received": 359,
+          "refused": 2,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 389
+        }
+      }
+    },
+    {
+      "name": "control_process_exit",
+      "injection": "stop the control process, then start it again",
+      "started_utc": "2026-11-06T11:29:10Z",
+      "after": {
+        "facade_state": "ready",
+        "last_error": null,
+        "car_reason": "car_lease_held",
+        "counters": {
+          "emitted": 354,
+          "received": 359,
+          "refused": 2,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 389
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "initial_session_follows",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 13,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    },
+    {
+      "name": "leader_stall_upper_stops_submitting",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "leader_stall_car_stops_admitting",
+      "ok": true,
+      "detail": {
+        "quiet_window": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        },
+        "frames_still_in_flight": {
+          "emitted": 2,
+          "received": 2,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 4,
+          "submitted": 0
+        }
+      }
+    },
+    {
+      "name": "leader_stall_queue_drained",
+      "ok": true,
+      "detail": {
+        "queue_depth": 0,
+        "expired_in_queue": 0
+      }
+    },
+    {
+      "name": "leader_stall_no_board_output",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "leader_stall_reported_as_stale",
+      "ok": true,
+      "detail": "leader_cached_sample_stale"
+    },
+    {
+      "name": "leader_stall_does_not_resume_by_itself",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 0,
+        "submitted_delta": 0,
+        "arm": "idle"
+      }
+    },
+    {
+      "name": "leader_stall_motion_resumes",
+      "ok": true,
+      "detail": {
+        "recovery_path": "new_session",
+        "emitted_delta": 14,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    },
+    {
+      "name": "feedback_stale_upper_stops_submitting",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "feedback_stale_car_stops_admitting",
+      "ok": true,
+      "detail": {
+        "quiet_window": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        },
+        "frames_still_in_flight": {
+          "emitted": 6,
+          "received": 7,
+          "refused": 1,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 5
+        }
+      }
+    },
+    {
+      "name": "feedback_stale_queue_drained",
+      "ok": true,
+      "detail": {
+        "queue_depth": 0,
+        "expired_in_queue": 0
+      }
+    },
+    {
+      "name": "feedback_stale_no_board_output",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "feedback_stale_flagged",
+      "ok": true,
+      "detail": "feedback_stale:4.489925410947762"
+    },
+    {
+      "name": "feedback_stale_does_not_resume_by_itself",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 0,
+        "submitted_delta": 0,
+        "arm": "idle"
+      }
+    },
+    {
+      "name": "feedback_stale_motion_resumes",
+      "ok": true,
+      "detail": {
+        "recovery_path": "new_session",
+        "emitted_delta": 13,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    },
+    {
+      "name": "car_status_stale_upper_stops_submitting",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "car_status_stale_car_stops_admitting",
+      "ok": true,
+      "detail": {
+        "quiet_window": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        },
+        "frames_still_in_flight": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        }
+      }
+    },
+    {
+      "name": "car_status_stale_queue_drained",
+      "ok": true,
+      "detail": {
+        "queue_depth": 0,
+        "expired_in_queue": 0
+      }
+    },
+    {
+      "name": "car_status_stale_no_board_output",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "car_status_stale_explains_itself",
+      "ok": true,
+      "detail": "car_status_read_failed:car_unreachable:<urlopen error timed out>"
+    },
+    {
+      "name": "initial_session_follows",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 13,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    },
+    {
+      "name": "socket_reset_upper_stops_submitting",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "socket_reset_car_stops_admitting",
+      "ok": true,
+      "detail": {
+        "quiet_window": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        },
+        "frames_still_in_flight": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        }
+      }
+    },
+    {
+      "name": "socket_reset_queue_drained",
+      "ok": true,
+      "detail": {
+        "queue_depth": 0,
+        "expired_in_queue": 0
+      }
+    },
+    {
+      "name": "socket_reset_no_board_output",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "socket_reset_car_sees_no_client",
+      "ok": true,
+      "detail": {
+        "client_connected": false,
+        "counters": {
+          "connections": 11,
+          "frames": 343,
+          "handler_errors": 0,
+          "malformed": 1,
+          "preempts": 7,
+          "push_failures": 0,
+          "refused_hellos": 0
+        },
+        "generation": 11,
+        "hello": {
+          "capabilities": [
+            "teleop_frame_v1"
+          ],
+          "frame_protocols": [
+            1
+          ],
+          "protocol": 1,
+          "session_epoch": 1869621883739471,
+          "session_id": "08e1a86bc8c4488f8daefff7f89f934e",
+          "type": "hello"
+        },
+        "last_error": "idle"
+      }
+    },
+    {
+      "name": "socket_reset_does_not_resume_by_itself",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 0,
+        "submitted_delta": 0,
+        "arm": "idle"
+      }
+    },
+    {
+      "name": "socket_reset_motion_resumes",
+      "ok": true,
+      "detail": {
+        "recovery_path": "new_session",
+        "emitted_delta": 12,
+        "submitted_delta": 15,
+        "arm": "following"
+      }
+    },
+    {
+      "name": "half_open_car_published_nothing",
+      "ok": true,
+      "detail": {
+        "emitted": 352,
+        "received": 355,
+        "refused": 1,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 389
+      }
+    },
+    {
+      "name": "half_open_does_not_release_a_burst_of_old_frames",
+      "ok": true,
+      "detail": {
+        "frames_published_after_resume": 2,
+        "window_s": 1.5,
+        "expired_in_queue_delta": 0,
+        "ttl_ms": 200
+      }
+    },
+    {
+      "name": "half_open_does_not_resume_by_itself",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 0,
+        "submitted_delta": 0,
+        "arm": "idle"
+      }
+    },
+    {
+      "name": "control_process_stop_confirmed",
+      "ok": true,
+      "detail": {
+        "stopped": true,
+        "pid": 271,
+        "reason": "terminated"
+      }
+    },
+    {
+      "name": "control_process_exit_upper_stops_submitting",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "control_process_exit_car_stops_admitting",
+      "ok": true,
+      "detail": {
+        "quiet_window": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        },
+        "frames_still_in_flight": {
+          "emitted": 0,
+          "received": 0,
+          "refused": 0,
+          "expired": 0,
+          "expired_in_queue": 0,
+          "queue_depth": 0,
+          "board_outputs": 0,
+          "submitted": 0
+        }
+      }
+    },
+    {
+      "name": "control_process_exit_queue_drained",
+      "ok": true,
+      "detail": {
+        "queue_depth": 0,
+        "expired_in_queue": 0
+      }
+    },
+    {
+      "name": "control_process_exit_no_board_output",
+      "ok": true,
+      "detail": {
+        "emitted": 0,
+        "received": 0,
+        "refused": 0,
+        "expired": 0,
+        "expired_in_queue": 0,
+        "queue_depth": 0,
+        "board_outputs": 0,
+        "submitted": 0
+      }
+    },
+    {
+      "name": "agent_notices_the_control_process_is_gone",
+      "ok": true,
+      "detail": {
+        "output_transport": "frame_stream",
+        "frame_outputs_enabled": false,
+        "frame_stream_connected": false,
+        "bridge": {
+          "state": "connecting",
+          "generation": 248,
+          "context_seq": 0,
+          "recording_context": null,
+          "ttl_ms": 300,
+          "heartbeat_s": 0.1,
+          "connected": false,
+          "counters": {
+            "published": 46,
+            "revoked": 11,
+            "failures": 0,
+            "wakes": 132,
+            "cleared": 0,
+            "contexts": 0,
+            "context_refused": 0,
+            "heartbeats": 1785
+          },
+          "last_error": "control_process_socket_unavailable",
+          "issuing": true,
+          "frame_process": {
+            "ticks": 7055,
+            "paused": true,
+            "outputs_enabled": false,
+            "queue_depth": 0,
+            "context": {
+              "session_id": null,
+              "session_epoch": null,
+              "episode_id": null,
+              "phase": null,
+              "clock_epoch": null,
+              "calibration_bundle_hash": null,
+              "context_seq": null,
+              "agent_boot": null
+            },
+            "age_s": 5.992111884581391
+          },
+          "frame_stream": null
+        }
+      }
+    },
+    {
+      "name": "control_process_restarted",
+      "ok": true,
+      "detail": {
+        "pid": 4216,
+        "log": "/work/out/local_humble/docker/logs/control.log"
+      }
+    },
+    {
+      "name": "control_process_exit_does_not_resume_by_itself",
+      "ok": true,
+      "detail": {
+        "emitted_delta": 0,
+        "submitted_delta": 0,
+        "arm": "idle"
+      }
+    }
+  ],
+  "resume_failures": {
+    "leader_stall": "RuntimeError:session_not_ready",
+    "feedback_stale": "RuntimeError:session_not_ready",
+    "socket_reset": "RuntimeError:session_not_ready",
+    "control_process_exit": "RuntimeError:session_not_ready"
+  },
+  "case_errors": {
+    "car_status_stale": {
+      "type": "TypeError",
+      "detail": "FrameCarControlLease.valid() missing 1 required positional argument: 'token'",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 556, in main\n    getattr(matrix, f\"case_{name}\")()\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 336, in case_car_status_stale\n    self.car_lease.valid() is False, {\"last_reason\": reason})\n    ^^^^^^^^^^^^^^^^^^^^^^\nTypeError: FrameCarControlLease.valid() missing 1 required positional argument: 'token'\n"
+    },
+    "licence_revoked": {
+      "type": "RuntimeError",
+      "detail": "observed_prerequisites_missing:feedback_valid",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 554, in main\n    matrix.open_session(\"initial\")\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 290, in open_session\n    acquired = self.facade.acquire_session({\"owner\": \"offline-fault-matrix\"})\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_stream_hardware.py\", line 424, in acquire_session\n    result = super().acquire_session(request)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_facade.py\", line 215, in acquire_session\n    super().acquire_session(request)\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_session.py\", line 431, in acquire_session\n    raise RuntimeError(\"observed_prerequisites_missing:\" + \",\".join(missing))\nRuntimeError: observed_prerequisites_missing:feedback_valid\n"
+    },
+    "control_process_exit": {
+      "type": "FrameLinkError",
+      "detail": "[Errno 111] Connection refused",
+      "traceback": "ab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 416, in case_control_process_exit\n    self.report[\"cases\"][-1][\"recovery\"] = self.resume(\"control_process_exit\")\n                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 219, in resume\n    self.open_session(name, verify_motion=False)\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 293, in open_session\n    self.engage()\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 189, in engage\n    call({\"action\": action, **self.identity} if action != \"preview\" else self.identity)\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_hardware.py\", line 1008, in set_arm_state\n    out = super().set_arm_state(event)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_facade.py\", line 250, in set_arm_state\n    enable({\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_stream_hardware.py\", line 328, in enable\n    welcome = link.engage()\n              ^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_frame_link.py\", line 149, in engage\n    raise FrameLinkError(error.reason, error.detail) from error\nlelab.hybrid_frame_link.FrameLinkError: [Errno 111] Connection refused\n"
+    },
+    "estop_repeat": {
+      "type": "FrameLinkError",
+      "detail": "[Errno 111] Connection refused",
+      "traceback": "/lelab/teleop_stream.py\", line 223, in connect\n    raise StreamError(\"connect_failed\", str(exc)) from exc\nlelab.teleop_stream.StreamError: [Errno 111] Connection refused\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 554, in main\n    matrix.open_session(\"initial\")\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 293, in open_session\n    self.engage()\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 189, in engage\n    call({\"action\": action, **self.identity} if action != \"preview\" else self.identity)\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_hardware.py\", line 1008, in set_arm_state\n    out = super().set_arm_state(event)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_facade.py\", line 250, in set_arm_state\n    enable({\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_stream_hardware.py\", line 328, in enable\n    welcome = link.engage()\n              ^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_frame_link.py\", line 149, in engage\n    raise FrameLinkError(error.reason, error.detail) from error\nlelab.hybrid_frame_link.FrameLinkError: [Errno 111] Connection refused\n"
+    },
+    "estop_during_bag_close": {
+      "type": "FrameLinkError",
+      "detail": "[Errno 111] Connection refused",
+      "traceback": "/lelab/teleop_stream.py\", line 223, in connect\n    raise StreamError(\"connect_failed\", str(exc)) from exc\nlelab.teleop_stream.StreamError: [Errno 111] Connection refused\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 554, in main\n    matrix.open_session(\"initial\")\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 293, in open_session\n    self.engage()\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 189, in engage\n    call({\"action\": action, **self.identity} if action != \"preview\" else self.identity)\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_hardware.py\", line 1008, in set_arm_state\n    out = super().set_arm_state(event)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_facade.py\", line 250, in set_arm_state\n    enable({\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_stream_hardware.py\", line 328, in enable\n    welcome = link.engage()\n              ^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_frame_link.py\", line 149, in engage\n    raise FrameLinkError(error.reason, error.detail) from error\nlelab.hybrid_frame_link.FrameLinkError: [Errno 111] Connection refused\n"
+    },
+    "retired_generation_frame": {
+      "type": "FrameLinkError",
+      "detail": "[Errno 111] Connection refused",
+      "traceback": "/lelab/teleop_stream.py\", line 223, in connect\n    raise StreamError(\"connect_failed\", str(exc)) from exc\nlelab.teleop_stream.StreamError: [Errno 111] Connection refused\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 554, in main\n    matrix.open_session(\"initial\")\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 293, in open_session\n    self.engage()\n  File \"/home/liaozhengyan/Desktop/lelab/tools/ros2_collection/local_ros2/offline/facade_faults.py\", line 189, in engage\n    call({\"action\": action, **self.identity} if action != \"preview\" else self.identity)\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_hardware.py\", line 1008, in set_arm_state\n    out = super().set_arm_state(event)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_facade.py\", line 250, in set_arm_state\n    enable({\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_stream_hardware.py\", line 328, in enable\n    welcome = link.engage()\n              ^^^^^^^^^^^^^\n  File \"/home/liaozhengyan/Desktop/lelab/app_ros_mobile/lelab/hybrid_frame_link.py\", line 149, in engage\n    raise FrameLinkError(error.reason, error.detail) from error\nlelab.hybrid_frame_link.FrameLinkError: [Errno 111] Connection refused\n"
+    }
+  },
+  "car_after_matrix": {
+    "control_active": false,
+    "estop_latched": false,
+    "frame_outputs_enabled": false
+  },
+  "failed": []
+}

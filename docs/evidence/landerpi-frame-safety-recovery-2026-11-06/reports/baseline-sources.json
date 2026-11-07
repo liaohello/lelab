@@ -1,0 +1,16 @@
+{
+  "frozen_utc": "2026-11-06T13:18:15Z",
+  "source_head": "e4312f05eea4f319d7402d570f5b3fd073b04af5",
+  "sha256": {
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent.py": "e4bda94117065c3b7acad57ed581d4ead612c553379f8dad43e0aff9afb0ac3e",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/car_control_process.py": "fb6df4248497a7667ed62ee8ef3eba0771eb72bb72e3480c5bd82c94ab8e02a4",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/licence_ipc.py": "b2df5df531a85089042a0b0866663b7bf40168afedc6b34761d778cba6ba45c6",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/teleop_frame_v1.py": "a1264f07b46f9cb2cbddf6534b50561f69db54918a84111f220dd9f8c7e17401",
+    "app_ros_mobile/lelab/hybrid_session.py": "9e5dd2e5942852bec4524b4d3a2fbb5a1888da8d47ebb3b64488d61155f266f3",
+    "app_ros_mobile/lelab/hybrid_stream_hardware.py": "0622a48049f2919bf56149d593ca24e51043612f76dccc9194c94e193e22988d",
+    "app_ros_mobile/lelab/hybrid_hardware.py": "d64f53deecfa8d7673d9c8375dbd8b3463fc5f399a760fdf60abe1ce17713e5d",
+    "app_ros_mobile/lelab/hybrid_recording.py": "e396c34bf701d0b72bc7b9799df6fc05b5d03f70979f1b3a9c3a9bd7c14cee25",
+    "app_ros_mobile/lelab/teleop_stream.py": "aba338ebf4f1839c02cfa8b4e901e2381a298588072daa6f5692fa9ae84f5c75",
+    "ros2_ws/src/lelab_mobile_agent/lelab_mobile_agent/agent_licence_bridge.py": "2741793187fcbbf4cb695fe4e7cd743e4f8dcb3829eea31f1f8db6b7a310199c"
+  }
+}

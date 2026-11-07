@@ -1,0 +1,56 @@
+{
+  "1": {
+    "success": true,
+    "position": [
+      527
+    ],
+    "enable_torque": [
+      1
+    ]
+  },
+  "2": {
+    "success": true,
+    "position": [
+      632
+    ],
+    "enable_torque": [
+      0
+    ]
+  },
+  "3": {
+    "success": true,
+    "position": [
+      76
+    ],
+    "enable_torque": [
+      0
+    ]
+  },
+  "4": {
+    "success": true,
+    "position": [
+      118
+    ],
+    "enable_torque": [
+      0
+    ]
+  },
+  "5": {
+    "success": true,
+    "position": [
+      907
+    ],
+    "enable_torque": [
+      0
+    ]
+  },
+  "10": {
+    "success": true,
+    "position": [
+      457
+    ],
+    "enable_torque": [
+      0
+    ]
+  }
+}

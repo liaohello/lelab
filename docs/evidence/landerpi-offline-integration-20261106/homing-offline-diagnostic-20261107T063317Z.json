@@ -1,0 +1,21 @@
+{
+  "agent_url": "http://127.0.0.1:18131",
+  "data_identity": "simulated_offline",
+  "failures": [
+    {
+      "error": "six servo samples are not present",
+      "stage": "preflight"
+    },
+    {
+      "error": "AssertionError:six servo samples are not present",
+      "stage": "unexpected"
+    }
+  ],
+  "frame_port": 18123,
+  "hardware_effect": "simulated_only",
+  "phases": {},
+  "simulated": true,
+  "status": "failed",
+  "timeline": [],
+  "training_eligible": false
+}
