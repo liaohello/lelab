@@ -15,7 +15,15 @@ import HfAuthBanner from "@/components/landing/HfAuthBanner";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { Loader2, Play, Square, Trash2, ArrowLeft } from "lucide-react";
+import {
+  Loader2,
+  Play,
+  Square,
+  Trash2,
+  ArrowLeft,
+  Pause,
+  RotateCcw,
+} from "lucide-react";
 
 import { DatasetItem, listDatasets } from "@/lib/replayApi";
 import {
@@ -28,8 +36,12 @@ import {
   startTrainingJob,
   stopJob,
   deleteJob,
+  getJobMonitor,
+  pauseJob,
+  resumeJob,
   listRunnerHardware,
   RunnerFlavor,
+  JobMonitorInfo,
 } from "@/lib/jobsApi";
 import { JobCheckpoint, listJobCheckpoints } from "@/lib/checkpointsApi";
 import CheckpointDropdown from "@/components/jobs/CheckpointDropdown";
@@ -40,19 +52,24 @@ import { getDatasetSyncStatus, syncDatasetToTrain } from "@/lib/systemStorageApi
 
 const POLL_INTERVAL_MS = 1000;
 const MAX_LOG_LINES = 5000;
+const ACTIVE_JOB_STATES = new Set(["running", "pause_requested", "resuming"]);
 
 function jobToStatus(job: JobRecord | null, isStarting: boolean): TrainingStatus {
   // Adapter so MonitoringStats can keep its current prop shape.
   if (!job) {
     return {
       training_active: isStarting,
+      state: isStarting ? "resuming" : "running",
       current_step: 0,
       total_steps: 0,
       available_controls: { stop_training: false, pause_training: false, resume_training: false },
     };
   }
+  const active = ACTIVE_JOB_STATES.has(job.state);
+  const readOnly = Boolean(job.read_only_monitor);
   return {
-    training_active: job.state === "running",
+    training_active: active,
+    state: job.state,
     current_step: job.metrics.current_step,
     total_steps: job.metrics.total_steps,
     current_loss: job.metrics.current_loss ?? undefined,
@@ -60,9 +77,9 @@ function jobToStatus(job: JobRecord | null, isStarting: boolean): TrainingStatus
     grad_norm: job.metrics.grad_norm ?? undefined,
     eta_seconds: job.metrics.eta_seconds ?? undefined,
     available_controls: {
-      stop_training: job.state === "running",
-      pause_training: false,
-      resume_training: false,
+      stop_training: active && !readOnly,
+      pause_training: job.state === "running" && !readOnly,
+      resume_training: job.state === "paused" && !readOnly,
     },
   };
 }
@@ -98,6 +115,20 @@ function configToRequest(c: TrainingConfig): TrainingRequest {
     optimizer_lr: c.optimizer_lr,
     optimizer_weight_decay: c.optimizer_weight_decay,
     optimizer_grad_clip_norm: c.optimizer_grad_clip_norm,
+    scheduler_type: c.scheduler_type || undefined,
+    scheduler_warmup_steps: c.scheduler_warmup_steps,
+    scheduler_decay_steps: c.scheduler_decay_steps,
+    scheduler_peak_lr: c.scheduler_peak_lr,
+    scheduler_floor_lr: c.scheduler_floor_lr,
+    eval_steps: c.eval_steps,
+    max_eval_samples: c.max_eval_samples,
+    dataset_eval_episodes:
+      c.dataset_eval_episodes && c.dataset_eval_episodes.length > 0
+        ? c.dataset_eval_episodes
+        : undefined,
+    dataset_eval_split: c.dataset_eval_split,
+    weight_norm_freq: c.weight_norm_freq,
+    action_loss_groups: c.action_loss_groups ?? undefined,
     use_policy_training_preset: c.use_policy_training_preset,
     // GR00T-specific. Only forward the policy_* fields for groot so other
     // policies never receive flags their config doesn't define.
@@ -145,6 +176,9 @@ const ConfigurationMode: React.FC = () => {
     policy_device: "cuda",
     policy_use_amp: false,
     optimizer_type: "adam",
+    eval_steps: 0,
+    max_eval_samples: 0,
+    weight_norm_freq: 250,
     use_policy_training_preset: true,
   });
 
@@ -231,12 +265,12 @@ const ConfigurationMode: React.FC = () => {
     // jobs in the started_at-desc ordering.
     listJobs(baseUrl, fetchWithHeaders, 200)
       .then((j) => {
-        setActiveJob(j.find((r) => r.state === "running") ?? null);
+        setActiveJob(j.find((r) => ACTIVE_JOB_STATES.has(r.state)) ?? null);
         setLocalJobRunning(
-          j.some((r) => r.runner === "local" && r.state === "running"),
+          j.some((r) => r.runner === "local" && ACTIVE_JOB_STATES.has(r.state)),
         );
         setSshJobRunning(
-          j.some((r) => r.runner === "ssh_remote" && r.state === "running"),
+          j.some((r) => r.runner === "ssh_remote" && ACTIVE_JOB_STATES.has(r.state)),
         );
       })
       .catch(() => {
@@ -355,10 +389,10 @@ const ConfigurationMode: React.FC = () => {
       listJobs(baseUrl, fetchWithHeaders, 200)
         .then((j) => {
           setLocalJobRunning(
-            j.some((r) => r.runner === "local" && r.state === "running"),
+            j.some((r) => r.runner === "local" && ACTIVE_JOB_STATES.has(r.state)),
           );
           setSshJobRunning(
-            j.some((r) => r.runner === "ssh_remote" && r.state === "running"),
+            j.some((r) => r.runner === "ssh_remote" && ACTIVE_JOB_STATES.has(r.state)),
           );
         })
         .catch(() => {});
@@ -524,6 +558,8 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
 
   const { selectedRecord } = useRobots();
   const [job, setJob] = useState<JobRecord | null>(null);
+  const [monitor, setMonitor] = useState<JobMonitorInfo | null>(null);
+  const [monitorError, setMonitorError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const logContainerRef = useRef<HTMLDivElement>(null);
@@ -555,6 +591,33 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
   const jobStateRef = useRef(job?.state);
   jobStateRef.current = job?.state;
 
+  // Monitor info: capabilities, attempts, resolved config, pause checkpoint.
+  // Poll gently even for terminal states so a paused/finished run still shows
+  // its final checkpoint and attempts after a refresh.
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const info = await getJobMonitor(baseUrl, fetchWithHeaders, jobId);
+        if (!cancelled) {
+          setMonitor(info);
+          setMonitorError(null);
+        }
+      } catch (e) {
+        if (!cancelled) setMonitorError(e instanceof Error ? e.message : String(e));
+      }
+    };
+    tick();
+    const id = setInterval(() => {
+      if (cancelled) return;
+      tick();
+    }, 2000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [baseUrl, fetchWithHeaders, jobId]);
+
   // Poll checkpoints — every 5s while the job is running.
   useEffect(() => {
     let cancelled = false;
@@ -582,7 +645,7 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
     tick();
     const id = setInterval(() => {
       if (cancelled) return;
-      if (jobStateRef.current && jobStateRef.current !== "running") return;
+      if (!jobStateRef.current || (!ACTIVE_JOB_STATES.has(jobStateRef.current) && jobStateRef.current !== "paused")) return;
       tick();
     }, 5000);
     return () => {
@@ -599,7 +662,7 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
         const next = await getJob(baseUrl, fetchWithHeaders, jobId);
         if (cancelled) return;
         setJob(next);
-        if (next.state === "running") {
+        if (ACTIVE_JOB_STATES.has(next.state)) {
           const newLogs = await getJobLogs(baseUrl, fetchWithHeaders, jobId);
           if (!cancelled && newLogs.length > 0) {
             setLogs((prev) => {
@@ -617,7 +680,7 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
     tick();
     const id = setInterval(() => {
       if (cancelled) return;
-      if (jobStateRef.current && jobStateRef.current !== "running") return;
+      if (!jobStateRef.current || !ACTIVE_JOB_STATES.has(jobStateRef.current)) return;
       tick();
     }, POLL_INTERVAL_MS);
     return () => {
@@ -663,6 +726,56 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
     }
   };
 
+  const handlePause = async () => {
+    if (!job) return;
+    if (
+      !window.confirm(
+        "Pause this run? The trainer will finish the current optimizer update, save a complete checkpoint, then exit.",
+      )
+    ) {
+      return;
+    }
+    try {
+      const next = await pauseJob(baseUrl, fetchWithHeaders, job.id);
+      setJob(next);
+      toast({
+        title: "Pause requested",
+        description: "等待完整 optimizer update 后保存 checkpoint。",
+      });
+    } catch (e) {
+      toast({
+        title: "Pause failed",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResume = async () => {
+    if (!job) return;
+    if (
+      !window.confirm(
+        "Resume from the verified pause checkpoint? The optimizer, scheduler, RNG, step and sampler state will be restored.",
+      )
+    ) {
+      return;
+    }
+    try {
+      const next = await resumeJob(baseUrl, fetchWithHeaders, job.id);
+      setJob(next);
+      toast({
+        title: "Resuming",
+        description: "从暂停 checkpoint 启动新的 attempt。",
+      });
+    } catch (e) {
+      toast({
+        title: "Resume failed",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async () => {
     if (!job) return;
     if (!window.confirm("Delete this run? This wipes the output directory.")) return;
@@ -702,7 +815,12 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
     );
   }
 
-  const isRunning = job.state === "running";
+  const isActive = ACTIVE_JOB_STATES.has(job.state);
+  const isReadOnly = Boolean(job.read_only_monitor);
+  const capabilities = monitor?.capabilities;
+  const pauseSupported = capabilities ? capabilities.pause_resume : job.pause_capable;
+  const canPause = job.state === "running" && pauseSupported;
+  const canResume = job.state === "paused" && (capabilities?.can_resume ?? false);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white p-4">
@@ -718,6 +836,10 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
                 {job.runner === "hf_cloud" ? (
                   <span className="text-xs px-2 py-0.5 rounded bg-amber-900/40 text-amber-200 border border-amber-700">
                     HF · {job.hf_flavor ?? "cloud"}
+                  </span>
+                ) : isReadOnly ? (
+                  <span className="text-xs px-2 py-0.5 rounded bg-cyan-900/40 text-cyan-200 border border-cyan-700">
+                    Remote · read-only
                   </span>
                 ) : (
                   <span className="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-200 border border-slate-600">
@@ -747,26 +869,71 @@ const MonitoringMode: React.FC<{ jobId: string }> = ({ jobId }) => {
               </div>
               <p className="text-xs text-slate-400">
                 {job.state}
+                {job.pause_status ? ` · pause: ${job.pause_status}` : ""}
                 {job.error_message ? ` — ${job.error_message}` : ""}
+                {monitorError ? ` — monitor: ${monitorError}` : ""}
               </p>
             </div>
           </div>
-          {isRunning ? (
-            <Button onClick={handleStop} className="bg-red-500 hover:bg-red-600 text-white">
-              <Square className="w-4 h-4 mr-2" /> Stop
-            </Button>
-          ) : (
-            <Button onClick={handleDelete} variant="ghost" className="text-slate-400 hover:text-white">
-              <Trash2 className="w-4 h-4 mr-2" /> Delete
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {canPause && (
+              <Button
+                onClick={handlePause}
+                className="bg-sky-500 hover:bg-sky-600 text-white"
+                title={
+                  capabilities?.reason ??
+                  "在完整 optimizer update 后保存 checkpoint 并释放 GPU"
+                }
+              >
+                <Pause className="w-4 h-4 mr-2" /> Pause
+              </Button>
+            )}
+            {canResume && (
+              <Button
+                onClick={handleResume}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                title="校验 checkpoint 后在同一逻辑运行中继续"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" /> Resume
+              </Button>
+            )}
+            {isActive && !isReadOnly && (
+              <Button onClick={handleStop} className="bg-red-500 hover:bg-red-600 text-white">
+                <Square className="w-4 h-4 mr-2" /> Stop
+              </Button>
+            )}
+            {!isActive && (
+              <Button onClick={handleDelete} variant="ghost" className="text-slate-400 hover:text-white">
+                <Trash2 className="w-4 h-4 mr-2" /> Delete
+              </Button>
+            )}
+            {job.state === "running" && !pauseSupported && !isReadOnly && (
+              <span className="text-xs text-slate-500" title={capabilities?.reason ?? undefined}>
+                该运行器不支持安全暂停
+              </span>
+            )}
+          </div>
         </div>
+
+        {isReadOnly && (
+          <div className="rounded-lg border border-cyan-800 bg-cyan-950/40 px-4 py-3 text-sm text-cyan-100">
+            只读监测已连接到现有训练日志。页面只读取远端日志和进程状态，不提供暂停、停止或续训控制。
+          </div>
+        )}
+
+        {monitor?.pause?.error && (
+          <p className="text-xs text-red-300">Pause error: {monitor.pause.error}</p>
+        )}
+        {monitor?.pause?.resume_error && (
+          <p className="text-xs text-red-300">Resume error: {monitor.pause.resume_error}</p>
+        )}
 
         <MonitoringStats
           jobId={jobId}
           trainingStatus={jobToStatus(job, false)}
           getProgressPercentage={getProgressPercentage}
           formatTime={formatTime}
+          monitor={monitor}
         />
         <div className="bg-slate-800/40 border border-slate-700 rounded-lg p-4 flex items-center gap-3">
           <span className="text-sm font-semibold text-slate-300">Run inference</span>

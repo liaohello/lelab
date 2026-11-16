@@ -30,11 +30,14 @@ from __future__ import annotations
 
 import builtins
 import contextlib
+import hashlib
 import json
 import logging
+import math
 import os
 import posixpath
 import re
+import shlex
 import shutil
 import signal
 import subprocess
@@ -48,14 +51,28 @@ from pathlib import Path
 from queue import Empty, Queue
 from typing import Any, Literal, Protocol, runtime_checkable
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from . import training_metrics
 from .train import TrainingRequest
 
 logger = logging.getLogger(__name__)
 
 
-JobState = Literal["running", "done", "failed", "interrupted"]
+#: `pause_requested`/`resuming` are non-terminal control states; `paused` holds
+#: a verified checkpoint and can be resumed. `pause_failed` means the worker
+#: reported or was found to have failed the pause (the run may still be live
+#: only in the transient report path, which is reset to `running`).
+JobState = Literal[
+    "running",
+    "pause_requested",
+    "paused",
+    "pause_failed",
+    "resuming",
+    "done",
+    "failed",
+    "interrupted",
+]
 
 
 class JobTarget(BaseModel):
@@ -96,6 +113,26 @@ class LogLine(BaseModel):
     message: str
 
 
+class JobAttempt(BaseModel):
+    """One trainer process inside a logical run.
+
+    A pause/resume cycle creates a new attempt on the same job (same run id)
+    so the UI can show continuous history while still marking the boundary and
+    any step replayed by the resumed process.
+    """
+
+    id: str
+    started_at: float
+    ended_at: float | None = None
+    state: JobState = "running"
+    resumed_from_step: int | None = None
+    resume_checkpoint: str | None = None
+    config_sha256: str | None = None
+    exit_code: int | None = None
+    error: str | None = None
+    paused_at: float | None = None
+
+
 class JobRecord(BaseModel):
     """单个训练任务的持久化记录（对应任务目录下的 job.json）。
 
@@ -114,7 +151,12 @@ class JobRecord(BaseModel):
     exit_code: int | None = None
     error_message: str | None = None
     metrics: TrainingMetrics = TrainingMetrics()
-    runner: Literal["local", "hf_cloud", "imported", "ssh_remote"] = "local"
+    runner: Literal["local", "hf_cloud", "imported", "ssh_remote", "ssh_readonly"] = "local"
+    #: True only for an attached external run. The monitor reads remote stdout
+    #: and process status; it never sends training control signals or writes
+    #: to the remote run directory.
+    read_only_monitor: bool = False
+    read_only_source_key: str | None = None
     # PID of the detached subprocess (local runner only); survives uvicorn
     # --reload so a fresh registry can re-attach by tailing the log file.
     process_pid: int | None = None
@@ -147,6 +189,27 @@ class JobRecord(BaseModel):
     # Number of checkpoints currently visible (local: filesystem; cloud:
     # Hub repo). Filled in by JobRegistry.list/get; persisted as zero.
     checkpoint_count: int = 0
+    #: One entry per trainer process (initial start + each resume). The job id
+    #: is the logical run id; metrics events carry the attempt id.
+    attempts: list[JobAttempt] = Field(default_factory=list)
+    #: Pause state as observed by the trainer/control plane.
+    pause_status: Literal["requested", "saving", "saved", "failed"] | None = None
+    pause_error: str | None = None
+    paused_at: float | None = None
+    pause_checkpoint: str | None = None
+    pause_step: int | None = None
+    #: Set when a resume launch itself failed (the record returns to `paused`).
+    resume_error: str | None = None
+    #: True only for jobs launched by a LeLab version whose runner injected the
+    #: cooperative pause control channel. Older runs cannot be paused safely.
+    pause_capable: bool = False
+
+    def current_attempt(self) -> JobAttempt | None:
+        return self.attempts[-1] if self.attempts else None
+
+    def current_attempt_id(self) -> str | None:
+        attempt = self.current_attempt()
+        return attempt.id if attempt is not None else None
 
 
 class JobCheckpoint(BaseModel):
@@ -163,17 +226,30 @@ class JobCheckpoint(BaseModel):
 
 
 class MetricsHistoryPoint(BaseModel):
-    """One (step, metrics) sample reconstructed from a job's log.jsonl.
+    """One metric sample keyed by its own sampling step.
 
-    Used by GET /jobs/{id}/metrics-history to seed the monitoring charts.
-    A point is emitted for each log line that carried a `step: ... loss: ...`
-    payload (the log-freq lines from lerobot). Tqdm progress lines are
-    skipped — they carry step + ETA but no loss/lr/grdn."""
+    Train/validation/weight-norm events arrive at different cadences; each
+    point keeps the step at which that metric was actually produced and the
+    attempt it belongs to. The legacy ``loss/lr/grad_norm`` fields stay for
+    older clients; new fields describe phase/kind/attempt and the extra series.
+    Points are ordered by event id, never merged across attempts or replayed
+    steps.
+    """
 
     step: int
     loss: float | None = None
     lr: float | None = None
     grad_norm: float | None = None
+    #: Extended fields (None on legacy-shaped points).
+    event_id: int | None = None
+    kind: str | None = None
+    phase: str | None = None
+    attempt_id: str | None = None
+    timestamp: float | None = None
+    source: str | None = None
+    validation_loss: float | None = None
+    weight_norm: float | None = None
+    trainable_weight_norm: float | None = None
 
 
 def _pid_alive(pid: int) -> bool:
@@ -187,6 +263,32 @@ def _pid_alive(pid: int) -> bool:
         # PID that cannot exist, where POSIX raises ProcessLookupError.
         return False
     return True
+
+
+def _pid_cmdline(pid: int) -> str | None:
+    """Read /proc/<pid>/cmdline on Linux; None when it is unavailable."""
+    try:
+        raw = Path(f"/proc/{pid}/cmdline").read_bytes()
+    except OSError:
+        return None
+    return raw.replace(b"\x00", b" ").decode("utf-8", errors="replace").strip()
+
+
+def _pid_belongs_to_output(pid: int, output_dir: str | None) -> bool:
+    """Best-effort PID-reuse guard for detached local runs.
+
+    A PID alone is not ownership: after a reboot the numeric PID may belong to
+    an unrelated process. On Linux we require the command line to carry the
+    job's output directory (the trainer is always launched with
+    ``--output_dir <job>/run``). On platforms without /proc the check is
+    unavailable and we fall back to liveness only.
+    """
+    if output_dir is None:
+        return True
+    cmdline = _pid_cmdline(pid)
+    if cmdline is None:
+        return True
+    return str(Path(output_dir)) in cmdline or Path(output_dir).name in cmdline
 
 
 def _checkpoint_ref(path: Path) -> str:
@@ -302,10 +404,17 @@ class SubprocessJobRunner:
     （0=done，非 0=failed）。
     """
 
+    supports_pause = False
+
     def __init__(
         self,
         metrics: TrainingMetrics,
         log_file_path: Path | None = None,
+        *,
+        event_sink: Callable[[str, float], None] | None = None,
+        control_dir: Path | None = None,
+        run_id: str | None = None,
+        attempt_id: str | None = None,
     ) -> None:
         self._metrics = metrics
         self._process: subprocess.Popen | None = None
@@ -315,6 +424,45 @@ class SubprocessJobRunner:
         self._log_file_path = log_file_path
         self._log_file = None  # type: ignore[assignment]
         self._wandb_run_url: str | None = None
+        #: The child writes directly into this file, so it survives LeLab being
+        #: restarted (a pipe would EPIPE the trainer on the next print).
+        self._raw_log_path = (
+            log_file_path.parent / "stdout.log" if log_file_path is not None else None
+        )
+        self._raw_offset_path = (
+            log_file_path.parent / "stdout.offset" if log_file_path is not None else None
+        )
+        self._event_sink = event_sink
+        self._control_dir = Path(control_dir) if control_dir is not None else None
+        self._run_id = run_id
+        self._attempt_id = attempt_id
+        self._stop_requested = False
+
+    # -- cooperative pause ------------------------------------------------------
+    def request_pause(self) -> None:
+        raise RuntimeError(f"{type(self).__name__} does not support cooperative pause")
+
+    def read_pause_state(self) -> dict[str, Any] | None:
+        if self._control_dir is None:
+            return None
+        path = self._control_dir / "pause.state.json"
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        return payload if isinstance(payload, dict) else None
+
+    @staticmethod
+    def _write_control_marker(directory: Path, name: str, payload: dict | None = None) -> Path:
+        directory.mkdir(parents=True, exist_ok=True)
+        target = directory / name
+        tmp = target.with_suffix(target.suffix + ".tmp")
+        if payload is None:
+            tmp.write_text("1\n", encoding="utf-8")
+        else:
+            tmp.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+        os.replace(tmp, target)
+        return target
 
     def _open_log_file(self) -> None:
         """Open the persistent log sink (one JSON line per consumed line).
@@ -340,31 +488,143 @@ class SubprocessJobRunner:
         # block-buffering hides log lines from our parser for many seconds.
         child_env = os.environ.copy()
         child_env["PYTHONUNBUFFERED"] = "1"
+        if self._run_id:
+            child_env["LELAB_RUN_ID"] = self._run_id
+        if self._attempt_id:
+            child_env["LELAB_ATTEMPT_ID"] = self._attempt_id
+        if self._control_dir is not None:
+            child_env["LELAB_CONTROL_DIR"] = str(self._control_dir)
+        if self._log_file_path is not None:
+            child_env["LELAB_EVENTS_PATH"] = str(
+                self._log_file_path.parent / "metrics" / "worker-events.jsonl"
+            )
 
         # start_new_session=True puts the child in its own session/process
         # group. Without it, signals sent to the uvicorn worker (e.g. when
         # --reload restarts it on a .py file change) cascade to the child
         # and kill the training. With it, the child survives reloads; the
         # next worker re-attaches via the reattach path.
-        self._process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True,
-            bufsize=1,
-            env=child_env,
-            start_new_session=True,
-        )
+        #
+        # stdout/stderr go to a file, not a pipe: a pipe's read end disappears
+        # with the LeLab process and the next print would raise BrokenPipeError
+        # in the trainer. The tail thread below feeds the same parsing/log
+        # pipeline from that durable file.
+        offset = 0
+        if self._raw_log_path is not None:
+            self._raw_log_path.parent.mkdir(parents=True, exist_ok=True)
+            if self._raw_log_path.exists():
+                offset = self._raw_log_path.stat().st_size
+            raw_stream = self._raw_log_path.open("a", encoding="utf-8", buffering=1)
+        else:  # pragma: no cover - every current caller supplies log_file_path
+            raw_stream = subprocess.DEVNULL
+        try:
+            self._process = subprocess.Popen(
+                cmd,
+                stdout=raw_stream,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+                env=child_env,
+                start_new_session=True,
+            )
+        finally:
+            if hasattr(raw_stream, "close"):
+                raw_stream.close()
+        self._write_raw_offset(offset)
 
-        self._monitor_thread = threading.Thread(target=self._pump_stdout, name=thread_name, daemon=True)
+        self._monitor_thread = threading.Thread(
+            target=self._tail_raw_loop, args=(offset, thread_name), name=thread_name, daemon=True
+        )
         self._monitor_thread.start()
+
+    def _write_raw_offset(self, offset: int) -> None:
+        if self._raw_offset_path is None:
+            return
+        try:
+            tmp = self._raw_offset_path.with_suffix(".tmp")
+            tmp.write_text(str(int(offset)), encoding="utf-8")
+            os.replace(tmp, self._raw_offset_path)
+        except OSError:
+            pass
+
+    def _read_raw_offset(self) -> int:
+        if self._raw_offset_path is None:
+            return 0
+        try:
+            return int(self._raw_offset_path.read_text(encoding="utf-8").strip() or 0)
+        except (OSError, ValueError):
+            return 0
+
+    def _handle_raw_line(self, raw: str, timestamp: float) -> None:
+        stripped = raw.rstrip()
+        if not stripped:
+            return
+        parse_metrics_into(stripped, self._metrics)
+        if self._wandb_run_url is None:
+            url = extract_wandb_run_url(stripped)
+            if url is not None:
+                self._wandb_run_url = url
+        self._on_line(stripped)
+        if self._event_sink is not None:
+            try:
+                self._event_sink(stripped, timestamp)
+            except Exception as exc:  # monitoring must never stop training
+                logger.warning("Metric event sink failed: %s", exc)
+        log_line = LogLine(timestamp=timestamp, message=stripped)
+        if self._log_file is not None:
+            try:
+                self._log_file.write(log_line.model_dump_json() + "\n")
+            except Exception as exc:  # pragma: no cover — best-effort persist
+                logger.exception("Error writing to log file: %s", exc)
+        if self._log_queue.qsize() >= 1000:
+            with contextlib.suppress(Empty):
+                self._log_queue.get_nowait()
+        self._log_queue.put(log_line)
+
+    def _tail_raw_loop(self, offset: int, thread_name: str) -> None:
+        del thread_name
+        if self._raw_log_path is None:
+            return
+        try:
+            with self._raw_log_path.open("rb") as stream:
+                stream.seek(offset)
+                while not self._stop_event.is_set():
+                    raw = stream.readline()
+                    if raw:
+                        self._handle_raw_line(raw.decode("utf-8", errors="replace"), time.time())
+                        offset += len(raw)
+                        self._write_raw_offset(offset)
+                        continue
+                    if self._process is not None and self._process.poll() is not None:
+                        # One last read to catch a final line written before exit.
+                        raw = stream.readline()
+                        if raw:
+                            self._handle_raw_line(
+                                raw.decode("utf-8", errors="replace"), time.time()
+                            )
+                            offset += len(raw)
+                            self._write_raw_offset(offset)
+                            continue
+                        return
+                    time.sleep(0.2)
+        except Exception as exc:
+            logger.exception("stdout tail failed: %s", exc)
+        finally:
+            if self._log_file is not None:
+                with contextlib.suppress(Exception):
+                    self._log_file.close()
+                self._log_file = None
 
     def pid(self) -> int | None:
         return self._process.pid if self._process is not None else None
 
+    @property
+    def stop_requested(self) -> bool:
+        return self._stop_requested
+
     def stop(self) -> None:
         if self._process is None or self._process.poll() is not None:
             return
+        self._stop_requested = True
         self._stop_event.set()
         try:
             self._process.terminate()
@@ -422,6 +682,11 @@ class SubprocessJobRunner:
                     if url is not None:
                         self._wandb_run_url = url
                 self._on_line(stripped)
+                if self._event_sink is not None:
+                    try:
+                        self._event_sink(stripped, time.time())
+                    except Exception as exc:  # monitoring must never stop training
+                        logger.warning("Metric event sink failed: %s", exc)
                 log_line = LogLine(timestamp=time.time(), message=stripped)
                 if self._log_file is not None:
                     try:
@@ -441,10 +706,6 @@ class SubprocessJobRunner:
                     self._log_file.close()
                 self._log_file = None
 
-    def _pump_stdout(self) -> None:
-        assert self._process is not None
-        self._consume_lines(iter(self._process.stdout.readline, ""))
-
 
 class LocalJobRunner(SubprocessJobRunner):
     """Run a training as a local subprocess.
@@ -452,6 +713,19 @@ class LocalJobRunner(SubprocessJobRunner):
     The runner is single-shot: instantiate a fresh one per job. Lifetime of
     the underlying subprocess is bounded by this object's existence in memory.
     """
+
+    supports_pause = True
+
+    def request_pause(self) -> None:
+        if self._control_dir is None:
+            raise RuntimeError("local runner has no control directory")
+        if self._process is None or self._process.poll() is not None:
+            raise RuntimeError("training process has already exited")
+        self._write_control_marker(
+            self._control_dir,
+            "pause.request",
+            {"requested_at": time.time(), "run_id": self._run_id, "attempt_id": self._attempt_id},
+        )
 
     def start(
         self,
@@ -474,6 +748,171 @@ class LocalJobRunner(SubprocessJobRunner):
         self._spawn(cmd, thread_name=f"job-{job_id}-stdout")
 
 
+class ReadOnlySshJobRunner(SubprocessJobRunner):
+    """Observe an already-running remote trainer through its stdout log.
+
+    This runner owns only a local SSH tail process. It never starts, stops,
+    pauses, resumes, or writes files for the remote training process.
+    """
+
+    supports_pause = False
+
+    def __init__(
+        self,
+        metrics: TrainingMetrics,
+        log_file_path: Path,
+        *,
+        ssh_target: str,
+        ssh_port: int,
+        identity_file: str | None,
+        remote_log_path: str,
+        remote_pid: int,
+        event_sink: Callable[[str, float], None] | None = None,
+        run_id: str | None = None,
+        attempt_id: str | None = None,
+    ) -> None:
+        super().__init__(
+            metrics,
+            log_file_path,
+            event_sink=event_sink,
+            run_id=run_id,
+            attempt_id=attempt_id,
+        )
+        self._ssh_target = ssh_target
+        self._ssh_port = ssh_port
+        self._identity_file = identity_file
+        self._remote_log_path = remote_log_path
+        self._remote_pid = remote_pid
+        self._remote_status = "running"
+        self._remote_watch_stop = threading.Event()
+        self._remote_watch_thread: threading.Thread | None = None
+        self._remote_status_lock = threading.Lock()
+
+    def _ssh_base(self) -> list[str]:
+        cmd = [
+            "ssh",
+            "-T",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=8",
+            "-o",
+            "ServerAliveInterval=15",
+            "-o",
+            "ServerAliveCountMax=2",
+            "-p",
+            str(self._ssh_port),
+        ]
+        if self._identity_file:
+            cmd.extend(["-i", self._identity_file])
+        cmd.append(self._ssh_target)
+        return cmd
+
+    def _probe_remote_training(self) -> bool | None:
+        code = (
+            "import pathlib,sys; p=pathlib.Path('/proc')/sys.argv[1]; "
+            "stat=(p/'stat').read_text().rsplit(')',1)[1].strip().split()[0]; "
+            "cmd=(p/'cmdline').read_bytes(); "
+            "print('1' if stat!='Z' and b'train_wrapper.py' in cmd else '0')"
+        )
+        remote = f"python3 -c {shlex.quote(code)} {self._remote_pid}"
+        try:
+            result = subprocess.run(
+                self._ssh_base() + [remote],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        if result.returncode != 0:
+            return None
+        return result.stdout.strip() == "1"
+
+    def _remote_log_readable(self) -> bool:
+        remote = f"test -r {shlex.quote(self._remote_log_path)}"
+        try:
+            result = subprocess.run(
+                self._ssh_base() + [remote],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            return False
+        return result.returncode == 0
+
+    def _watch_remote_process(self) -> None:
+        failures = 0
+        while not self._remote_watch_stop.wait(15):
+            alive = self._probe_remote_training()
+            if alive is True:
+                failures = 0
+                continue
+            if alive is None:
+                failures += 1
+                if failures < 4:
+                    continue
+                status = "connection_lost"
+            else:
+                status = "exited"
+            with self._remote_status_lock:
+                self._remote_status = status
+            # Closing this local observer connection does not signal the remote
+            # training PID. The training process is in its own session.
+            process = self._process
+            if process is not None and process.poll() is None:
+                with contextlib.suppress(OSError):
+                    process.terminate()
+            return
+
+    @property
+    def remote_status(self) -> str:
+        with self._remote_status_lock:
+            return self._remote_status
+
+    def start(self, job_id: str, config: TrainingRequest, output_dir: str) -> None:
+        del config, output_dir
+        check = self._probe_remote_training()
+        if check is not True:
+            raise RuntimeError("远端训练进程已退出或无法只读核验")
+        if not self._remote_log_readable():
+            raise RuntimeError("远端训练日志不可读")
+        remote_log = shlex.quote(self._remote_log_path)
+        # LeRobot's tqdm log uses carriage returns for in-place progress. Turn
+        # them into line breaks so the existing metrics parser can consume them.
+        remote_command = f"tail -n +1 -F -- {remote_log} 2>/dev/null | tr '\\r' '\\n'"
+        self._spawn(
+            self._ssh_base() + [remote_command],
+            thread_name=f"job-{job_id}-readonly-ssh-log",
+        )
+        self._remote_watch_thread = threading.Thread(
+            target=self._watch_remote_process,
+            name=f"job-{job_id}-readonly-ssh-status",
+            daemon=True,
+        )
+        self._remote_watch_thread.start()
+
+    def is_running(self) -> bool:
+        if self.remote_status in {"exited", "connection_lost"}:
+            return False
+        return super().is_running()
+
+    def returncode(self) -> int | None:
+        if self.remote_status == "exited":
+            return 0 if self._metrics.current_step >= self._metrics.total_steps > 0 else 1
+        if self.remote_status == "connection_lost":
+            return 255
+        return super().returncode()
+
+    def stop(self) -> None:
+        """Disconnect this observer only; the training process is untouched."""
+        self._remote_watch_stop.set()
+        super().stop()
+
+
 class TailingJobRunner:
     """Re-attaches to a detached subprocess after a uvicorn reload.
 
@@ -487,22 +926,64 @@ class TailingJobRunner:
     （与 LocalJobRunner 的差别：不拥有子进程 stdout，读的是磁盘日志）。
     """
 
+    supports_pause = True
+
     def __init__(
         self,
         metrics: TrainingMetrics,
         log_file_path: Path,
         pid: int,
+        *,
+        output_dir: str | None = None,
+        event_sink: Callable[[str, float], None] | None = None,
+        control_dir: Path | None = None,
+        run_id: str | None = None,
+        attempt_id: str | None = None,
     ) -> None:
         self._metrics = metrics
         self._log_file_path = log_file_path
         self._pid = pid
+        self._output_dir = output_dir
+        self._event_sink = event_sink
+        self._control_dir = Path(control_dir) if control_dir is not None else None
+        self._run_id = run_id
+        self._attempt_id = attempt_id
         self._log_queue: Queue[LogLine] = Queue()
         self._tail_thread: threading.Thread | None = None
         self._stop_event = threading.Event()
-        # Replay everything that's already on disk so the parser catches up
-        # on metrics, then tail from the current EOF.
-        self._tail_offset = 0
+        # The detached worker writes into stdout.log; we resume from the
+        # persisted byte offset so metrics/log lines produced while LeLab was
+        # down are replayed exactly once.
+        self._raw_log_path = log_file_path.parent / "stdout.log"
+        self._raw_offset_path = log_file_path.parent / "stdout.offset"
         self._wandb_run_url: str | None = None
+        self._stop_requested = False
+
+    @property
+    def stop_requested(self) -> bool:
+        return self._stop_requested
+
+    def request_pause(self) -> None:
+        if self._control_dir is None:
+            raise RuntimeError("tailing runner has no control directory")
+        if not _pid_alive(self._pid):
+            raise RuntimeError("detached training process has already exited")
+        SubprocessJobRunner._write_control_marker(
+            self._control_dir,
+            "pause.request",
+            {"requested_at": time.time(), "run_id": self._run_id, "attempt_id": self._attempt_id},
+        )
+
+    def read_pause_state(self) -> dict[str, Any] | None:
+        if self._control_dir is None:
+            return None
+        try:
+            payload = json.loads(
+                (self._control_dir / "pause.state.json").read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError):
+            return None
+        return payload if isinstance(payload, dict) else None
 
     def start(self, job_id: str, config: TrainingRequest, output_dir: str) -> None:
         # Required by JobRunner Protocol but irrelevant here; the subprocess
@@ -518,21 +999,49 @@ class TailingJobRunner:
         self._tail_thread.start()
 
     def stop(self) -> None:
+        if not _pid_belongs_to_output(self._pid, self._output_dir):
+            logger.error(
+                "Refusing to signal pid %d: it does not belong to output dir %s (PID reuse?)",
+                self._pid,
+                self._output_dir,
+            )
+            self._stop_event.set()
+            return
+        self._stop_requested = True
         with contextlib.suppress(ProcessLookupError):
             os.kill(self._pid, signal.SIGTERM)
         self._stop_event.set()
 
     def is_running(self) -> bool:
-        return _pid_alive(self._pid)
+        return _pid_alive(self._pid) and _pid_belongs_to_output(self._pid, self._output_dir)
 
     def returncode(self) -> int | None:
-        # We can't reap a process from another session, so we don't know the
-        # actual exit code. Return 0 once the pid is gone — the watchdog
-        # finalises as "done" rather than "failed", which is the better
-        # default for a detached training that completed normally.
+        # We can't reap a process from another session. Use persisted evidence
+        # instead of guessing: a completed run logs "End of training"; a paused
+        # run writes a saved control state. Anything else is reported as a
+        # failure rather than silently marked done.
         if _pid_alive(self._pid):
             return None
-        return 0
+        raw = ""
+        try:
+            with self._raw_log_path.open("rb") as stream:
+                size = self._raw_log_path.stat().st_size
+                stream.seek(max(0, size - 64 * 1024))
+                raw = stream.read().decode("utf-8", errors="replace")
+        except OSError:
+            pass
+        if "End of training" in raw:
+            return 0
+        if self._control_dir is not None:
+            try:
+                state = json.loads(
+                    (self._control_dir / "pause.state.json").read_text(encoding="utf-8")
+                )
+                if state.get("state") == "saved":
+                    return 0
+            except (OSError, json.JSONDecodeError):
+                pass
+        return 1
 
     def stream_log_lines(self) -> list[LogLine]:
         out: list[LogLine] = []
@@ -551,39 +1060,81 @@ class TailingJobRunner:
 
     # -- internals --
 
-    def _tail_loop(self) -> None:
-        """Read lines as they arrive in log_file_path. Exits when pid dies
-        AND there are no more new lines to read."""
+    def _read_offset(self) -> int:
         try:
-            while not self._stop_event.is_set():
-                if not self._log_file_path.exists():
-                    if not _pid_alive(self._pid):
-                        return
-                    self._stop_event.wait(0.5)
-                    continue
-                with self._log_file_path.open() as f:
-                    f.seek(self._tail_offset)
-                    while not self._stop_event.is_set():
-                        raw = f.readline()
-                        if not raw:
-                            self._tail_offset = f.tell()
+            return int(self._raw_offset_path.read_text(encoding="utf-8").strip() or 0)
+        except (OSError, ValueError):
+            return 0
+
+    def _write_offset(self, offset: int) -> None:
+        try:
+            self._raw_offset_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self._raw_offset_path.with_suffix(".tmp")
+            tmp.write_text(str(int(offset)), encoding="utf-8")
+            os.replace(tmp, self._raw_offset_path)
+        except OSError:
+            pass
+
+    def _handle_line(self, message: str, timestamp: float, log_file) -> None:
+        stripped = message.rstrip()
+        if not stripped:
+            return
+        parse_metrics_into(stripped, self._metrics)
+        if self._wandb_run_url is None:
+            url = extract_wandb_run_url(stripped)
+            if url is not None:
+                self._wandb_run_url = url
+        if self._event_sink is not None:
+            try:
+                self._event_sink(stripped, timestamp)
+            except Exception as exc:  # monitoring must never stop training
+                logger.warning("Metric event sink failed: %s", exc)
+        log_line = LogLine(timestamp=timestamp, message=stripped)
+        try:
+            log_file.write(log_line.model_dump_json() + "\n")
+        except Exception as exc:  # pragma: no cover — best-effort persist
+            logger.exception("Error appending to log file: %s", exc)
+        if self._log_queue.qsize() >= 1000:
+            with contextlib.suppress(Empty):
+                self._log_queue.get_nowait()
+        self._log_queue.put(log_line)
+
+    def _tail_loop(self) -> None:
+        """Replay/continue the detached worker's stdout file."""
+        offset = self._read_offset()
+        self._log_file_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with self._log_file_path.open("a", buffering=1) as log_file:
+                while not self._stop_event.is_set():
+                    if not self._raw_log_path.exists():
+                        if not _pid_alive(self._pid):
+                            return
+                        self._stop_event.wait(0.5)
+                        continue
+                    with self._raw_log_path.open("rb") as stream:
+                        stream.seek(offset)
+                        while not self._stop_event.is_set():
+                            raw = stream.readline()
+                            if raw:
+                                self._handle_line(
+                                    raw.decode("utf-8", errors="replace"), time.time(), log_file
+                                )
+                                offset += len(raw)
+                                self._write_offset(offset)
+                                continue
                             if not _pid_alive(self._pid):
+                                final = stream.readline()
+                                if final:
+                                    self._handle_line(
+                                        final.decode("utf-8", errors="replace"),
+                                        time.time(),
+                                        log_file,
+                                    )
+                                    offset += len(final)
+                                    self._write_offset(offset)
+                                    continue
                                 return
                             self._stop_event.wait(0.5)
-                            continue
-                        try:
-                            log_line = LogLine.model_validate_json(raw.strip())
-                        except Exception:
-                            continue
-                        parse_metrics_into(log_line.message, self._metrics)
-                        if self._wandb_run_url is None:
-                            url = extract_wandb_run_url(log_line.message)
-                            if url is not None:
-                                self._wandb_run_url = url
-                        if self._log_queue.qsize() >= 1000:
-                            with contextlib.suppress(Empty):
-                                self._log_queue.get_nowait()
-                        self._log_queue.put(log_line)
         except Exception as exc:
             logger.exception("Tailing loop error: %s", exc)
 
@@ -924,6 +1475,121 @@ class JobNotRunningError(Exception):
     """Raised when stop() is called on a non-running job."""
 
 
+class PauseNotSupportedError(RuntimeError):
+    """Raised when a runner has no safe cooperative-pause path."""
+
+
+class ResumeNotPossibleError(RuntimeError):
+    """Raised when a paused job cannot be resumed (missing/invalid checkpoint)."""
+
+
+def _new_attempt_id() -> str:
+    return f"a{datetime.now().strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:6]}"
+
+
+def _make_event_sink(
+    store: training_metrics.JobMetricsStore, job_id: str, attempt_id: str
+) -> Callable[[str, float], None]:
+    def sink(message: str, timestamp: float) -> None:
+        store.ingest_line(job_id, attempt_id, message, timestamp)
+
+    return sink
+
+
+def _runner_pause_state(runner: Any) -> dict[str, Any] | None:
+    """Read the worker-written pause state marker when the runner supports it."""
+    getter = getattr(runner, "read_pause_state", None)
+    if not callable(getter):
+        return None
+    try:
+        state = getter()
+    except Exception:
+        return None
+    return state if isinstance(state, dict) else None
+
+
+def _as_float(value: Any) -> float | None:
+    try:
+        number = float(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+    if number is None or not math.isfinite(number):
+        return None
+    return number
+
+
+def _finish_attempt(
+    record: JobRecord,
+    state: JobState,
+    error: str | None = None,
+    exit_code: int | None = None,
+) -> None:
+    attempt = record.current_attempt()
+    if attempt is None:
+        return
+    attempt.state = state
+    attempt.ended_at = time.time()
+    attempt.exit_code = exit_code
+    attempt.error = error
+
+
+def _pause_manifest(checkpoint: str | Path) -> dict[str, Any] | None:
+    path = Path(checkpoint) / "lelab_pause.json"
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def verify_local_pause_checkpoint(checkpoint: str | Path) -> tuple[bool, str | None, dict[str, Any] | None]:
+    """Verify a local pause checkpoint against its manifest."""
+    from lerobot.utils.lelab_monitor import manifest_matches
+
+    manifest = _pause_manifest(checkpoint)
+    if manifest is None:
+        return False, "pause manifest is missing or unreadable", None
+    ok, reason = manifest_matches(Path(checkpoint), manifest)
+    return ok, reason, manifest
+
+
+def pause_resume_capabilities(record: JobRecord) -> dict[str, Any]:
+    """What the monitoring UI may offer for this job, and why not."""
+    if record.runner in {"hf_cloud", "imported", "ssh_readonly"}:
+        if record.read_only_monitor:
+            reason = "只读挂接仅显示训练日志和指标，不提供训练控制"
+        else:
+            reason = "该运行器不支持安全的协作式暂停/续训（仅 local 与 ssh_remote 单进程任务支持）"
+        return {
+            "pause_resume": False,
+            "can_pause": False,
+            "can_resume": False,
+            "reason": reason,
+        }
+    if not record.pause_capable:
+        return {
+            "pause_resume": False,
+            "can_pause": False,
+            "can_resume": False,
+            "reason": "该任务由旧版 LeLab 启动，未注入暂停控制通道；请重新启动任务后再使用暂停/续训",
+        }
+    if record.state in {"paused", "pause_failed"}:
+        return {
+            "pause_resume": True,
+            "can_pause": False,
+            "can_resume": record.state == "paused",
+            "reason": record.pause_error or record.resume_error,
+        }
+    return {
+        "pause_resume": True,
+        "can_pause": record.state == "running",
+        "can_resume": False,
+        "reason": None,
+    }
+
+
 class JobRegistry:
     """Owns the registry of training jobs and their persistence.
 
@@ -1176,15 +1842,29 @@ class JobRegistry:
                 dataset_repo_ids=dataset_members,
                 dataset_composite_hash=config.dataset_composite_hash,
                 dataset_weights_mode=config.dataset_weights_mode,
+                pause_capable=target.runner in {"local", "ssh_remote"},
             )
 
             job_dir.mkdir(parents=True, exist_ok=True)
+            attempt_id = _new_attempt_id()
+            record.attempts.append(
+                JobAttempt(id=attempt_id, started_at=record.started_at, state="running")
+            )
             self._records[job_id] = record
             self._persist(record, force=True)
 
             log_path = _job_log_path(self._output_root, job_id)
+            store = training_metrics.store_for(job_dir)
+            event_sink = _make_event_sink(store, job_id, attempt_id)
             if target.runner == "local":
-                runner = LocalJobRunner(record.metrics, log_file_path=log_path)
+                runner = LocalJobRunner(
+                    record.metrics,
+                    log_file_path=log_path,
+                    event_sink=event_sink,
+                    control_dir=job_dir / "control",
+                    run_id=job_id,
+                    attempt_id=attempt_id,
+                )
             elif target.runner == "ssh_remote":
                 runner = SshRemoteJobRunner(
                     TrainServerConfig.from_env(),
@@ -1198,9 +1878,19 @@ class JobRegistry:
                     ),
                     remote_gpu=resolved_gpu,
                     min_free_vram_mb=min_free_vram,
+                    event_sink=event_sink,
+                    run_id=job_id,
+                    attempt_id=attempt_id,
                 )
             else:
-                runner = HfCloudJobRunner(record.metrics, log_path, target.flavor)
+                runner = HfCloudJobRunner(
+                    record.metrics,
+                    log_path,
+                    target.flavor,
+                    event_sink=event_sink,
+                    run_id=job_id,
+                    attempt_id=attempt_id,
+                )
 
             try:
                 runner.start(job_id, config, lerobot_output_dir)
@@ -1209,6 +1899,7 @@ class JobRegistry:
                 record.state = "failed"
                 record.ended_at = time.time()
                 record.error_message = f"Failed to start runner: {exc}"
+                _finish_attempt(record, "failed", exc)
                 self._persist(record, force=True)
                 raise
 
@@ -1285,6 +1976,95 @@ class JobRegistry:
         self._notify_change()
         return record
 
+    def attach_readonly_ssh_from_env(self) -> JobRecord:
+        """Attach the UI to an existing SSH training process without control.
+
+        Connection details are supplied only through the local process
+        environment. The remote side is queried for process identity and the
+        existing log is tailed; no remote files or training controls are used.
+        """
+        target = (os.environ.get("LELAB_READONLY_SSH_TARGET") or "").strip()
+        remote_log = (os.environ.get("LELAB_READONLY_REMOTE_LOG") or "").strip()
+        raw_pid = (os.environ.get("LELAB_READONLY_REMOTE_PID") or "").strip()
+        raw_steps = (os.environ.get("LELAB_READONLY_TOTAL_STEPS") or "").strip()
+        raw_port = (os.environ.get("LELAB_READONLY_SSH_PORT") or "22").strip()
+        identity = (os.environ.get("LELAB_READONLY_SSH_KEY") or "").strip()
+        name = (os.environ.get("LELAB_READONLY_JOB_NAME") or "SmolVLA · read-only monitor").strip()
+
+        if not target or not re.fullmatch(r"[A-Za-z0-9_.@:\-\[\]]+", target):
+            raise ValueError("LELAB_READONLY_SSH_TARGET is missing or invalid")
+        if not remote_log.startswith("/") or "\x00" in remote_log:
+            raise ValueError("LELAB_READONLY_REMOTE_LOG must be an absolute remote path")
+        try:
+            remote_pid = int(raw_pid)
+            total_steps = int(raw_steps)
+            ssh_port = int(raw_port)
+        except ValueError as exc:
+            raise ValueError("Remote PID, total steps, and SSH port must be integers") from exc
+        if remote_pid <= 0 or total_steps <= 0 or not 1 <= ssh_port <= 65535:
+            raise ValueError("Remote PID, total steps, or SSH port is out of range")
+        identity_path = str(Path(identity).expanduser()) if identity else None
+        if identity_path and not Path(identity_path).is_file():
+            raise ValueError("LELAB_READONLY_SSH_KEY does not point to a local key file")
+
+        source_key = hashlib.sha256(
+            f"{target}\n{ssh_port}\n{remote_log}\n{remote_pid}".encode()
+        ).hexdigest()
+        with self._lock:
+            for existing in self._records.values():
+                if (
+                    existing.read_only_source_key == source_key
+                    and existing.state in {"running", "pause_requested", "resuming"}
+                    and existing.id in self._runners
+                ):
+                    return existing
+
+        job_id = _generate_job_id("smolvla", "readonly-monitor")
+        attempt_id = _new_attempt_id()
+        job_dir = _job_dir(self._output_root, job_id)
+        config = TrainingRequest(
+            dataset_repo_id="read-only-remote-run",
+            policy_type="smolvla",
+            steps=total_steps,
+            save_checkpoint=False,
+            seed=None,
+        )
+        record = JobRecord(
+            id=job_id,
+            name=name or "SmolVLA · read-only monitor",
+            state="running",
+            config=config,
+            output_dir=str(job_dir / "external-monitor"),
+            started_at=time.time(),
+            metrics=TrainingMetrics(total_steps=total_steps),
+            runner="ssh_readonly",
+            remote_pid=remote_pid,
+            attempts=[JobAttempt(id=attempt_id, started_at=time.time(), state="running")],
+            read_only_monitor=True,
+            read_only_source_key=source_key,
+            pause_capable=False,
+        )
+        store = training_metrics.store_for(job_dir)
+        runner = ReadOnlySshJobRunner(
+            record.metrics,
+            _job_log_path(self._output_root, job_id),
+            ssh_target=target,
+            ssh_port=ssh_port,
+            identity_file=identity_path,
+            remote_log_path=remote_log,
+            remote_pid=remote_pid,
+            event_sink=_make_event_sink(store, job_id, attempt_id),
+            run_id=job_id,
+            attempt_id=attempt_id,
+        )
+        runner.start(job_id, config, record.output_dir)
+        with self._lock:
+            self._records[job_id] = record
+            self._runners[job_id] = runner
+        self._persist(record, force=True)
+        self._notify_change()
+        return record
+
     def stop(self, job_id: str) -> JobRecord:
         """中文：请求停止一个运行中的任务。
 
@@ -1297,7 +2077,16 @@ class JobRegistry:
             if record is None:
                 raise JobNotFoundError(job_id)
             runner = self._runners.get(job_id)
-        if record.state != "running" or runner is None:
+        if record.state in {"paused", "pause_failed"}:
+            # No live process; keep the checkpoint and record an explicit stop.
+            record.state = "interrupted"
+            record.ended_at = time.time()
+            record.pause_status = None
+            _finish_attempt(record, "interrupted")
+            self._persist(record, force=True)
+            self._notify_change()
+            return record
+        if record.state not in {"running", "pause_requested", "resuming"} or runner is None:
             raise JobNotRunningError(job_id)
         runner.stop()
         # The watchdog will finalise the record (state, ended_at, exit_code).
@@ -1305,9 +2094,260 @@ class JobRegistry:
         for _ in range(20):
             time.sleep(0.1)
             with self._lock:
-                if record.state != "running":
+                if record.state not in {"running", "pause_requested", "resuming"}:
                     return record
         return record
+
+    # -- cooperative pause / resume -------------------------------------------
+
+    def pause(self, job_id: str) -> JobRecord:
+        """Ask the owning worker to checkpoint at a safe optimizer boundary.
+
+        Only a verified control marker is written into the job's own control
+        directory; no signal is sent to a PID. The state stays
+        ``pause_requested`` (with ``pause_status`` progressing through
+        saving/saved/failed) until the watchdog verifies the checkpoint and
+        observes the process exit.
+        """
+        with self._lock:
+            record = self._records.get(job_id)
+            if record is None:
+                raise JobNotFoundError(job_id)
+            runner = self._runners.get(job_id)
+        if record.state == "paused":
+            return record
+        if record.state == "pause_requested":
+            return record
+        capabilities = pause_resume_capabilities(record)
+        if not capabilities["pause_resume"]:
+            raise PauseNotSupportedError(str(capabilities["reason"]))
+        if record.state != "running" or runner is None:
+            raise JobNotRunningError(job_id)
+        record.state = "pause_requested"
+        record.pause_status = "requested"
+        record.pause_error = None
+        self._persist(record, force=True)
+        self._notify_change()
+        try:
+            runner.request_pause()
+        except Exception as exc:
+            record.state = "running"
+            record.pause_status = "failed"
+            record.pause_error = str(exc)
+            self._persist(record, force=True)
+            self._notify_change()
+            raise PauseNotSupportedError(f"无法向训练进程发送暂停请求：{exc}") from exc
+        return record
+
+    def resume(self, job_id: str) -> JobRecord:
+        """Resume a paused job from its verified checkpoint as a new attempt.
+
+        The same logical run (job id) and output directory are reused, so the
+        curves stay continuous. The new attempt records the checkpoint/step it
+        resumed from; the previous attempt and all raw metric events are kept.
+        """
+        from .remote_sync import TrainServerConfig
+        from .runners.ssh_remote import (
+            SshRemoteJobRunner,
+            verify_remote_pause_checkpoint,
+        )
+
+        with self._lock:
+            record = self._records.get(job_id)
+            if record is None:
+                raise JobNotFoundError(job_id)
+        if record.state != "paused":
+            raise ResumeNotPossibleError(f"任务状态为 {record.state}，只有 paused 任务可以续训")
+        capabilities = pause_resume_capabilities(record)
+        if not capabilities["pause_resume"]:
+            raise PauseNotSupportedError(str(capabilities["reason"]))
+        if not record.pause_checkpoint:
+            raise ResumeNotPossibleError("没有可用的暂停 checkpoint 记录")
+
+        manifest: dict[str, Any] | None = None
+        if record.runner == "local":
+            ok, reason, manifest = verify_local_pause_checkpoint(record.pause_checkpoint)
+            if not ok:
+                record.pause_error = f"checkpoint 校验失败：{reason}"
+                self._persist(record, force=True)
+                raise ResumeNotPossibleError(record.pause_error)
+            resume_config_path = str(Path(record.pause_checkpoint) / "pretrained_model")
+        else:
+            ok, reason, manifest = verify_remote_pause_checkpoint(
+                TrainServerConfig.from_env(),
+                record.pause_checkpoint,
+                remote_python=os.environ.get("LELAB_TRAIN_PYTHON") or "python3",
+            )
+            if not ok:
+                record.pause_error = f"远端 checkpoint 校验失败：{reason}"
+                self._persist(record, force=True)
+                raise ResumeNotPossibleError(record.pause_error)
+            step_dir = f"{int(manifest['step']):06d}" if manifest and manifest.get("step") is not None else "last"
+            resume_config_path = posixpath.join("run", "checkpoints", step_dir, "pretrained_model")
+
+        step = int(manifest.get("step")) if manifest and manifest.get("step") is not None else record.pause_step
+        total_steps = int(manifest.get("total_steps") or record.config.steps)
+
+        if record.runner == "local":
+            with self._lock:
+                for other in self._records.values():
+                    if other.id != record.id and other.state in {"running", "pause_requested", "resuming"} and other.runner == "local":
+                        raise JobAlreadyRunningError(other.id)
+
+        attempt_id = _new_attempt_id()
+        record.attempts.append(
+            JobAttempt(
+                id=attempt_id,
+                started_at=time.time(),
+                state="resuming",
+                resumed_from_step=step,
+                resume_checkpoint=record.pause_checkpoint,
+                config_sha256=manifest.get("config_sha256") if manifest else None,
+            )
+        )
+        record.state = "resuming"
+        record.resume_error = None
+        record.pause_status = None
+        record.ended_at = None
+        record.exit_code = None
+        self._persist(record, force=True)
+        self._notify_change()
+
+        resume_request = record.config.model_copy(
+            update={
+                "resume": True,
+                "resume_config_path": resume_config_path,
+                "steps": total_steps,
+                "output_dir": record.output_dir,
+            }
+        )
+        job_dir = _job_dir(self._output_root, record.id)
+        log_path = _job_log_path(self._output_root, record.id)
+        store = training_metrics.store_for(job_dir)
+        event_sink = _make_event_sink(store, record.id, attempt_id)
+        try:
+            if record.runner == "local":
+                control_dir = job_dir / "control"
+                with contextlib.suppress(FileNotFoundError):
+                    (control_dir / "pause.request").unlink()
+                runner: JobRunner = LocalJobRunner(
+                    record.metrics,
+                    log_file_path=log_path,
+                    event_sink=event_sink,
+                    control_dir=control_dir,
+                    run_id=record.id,
+                    attempt_id=attempt_id,
+                )
+                runner.start(record.id, resume_request, record.output_dir)
+                record.process_pid = runner.pid()
+            else:
+                runner = SshRemoteJobRunner(
+                    TrainServerConfig.from_env(),
+                    record.id,
+                    record.metrics,
+                    log_file_path=log_path,
+                    remote_python=os.environ.get("LELAB_TRAIN_PYTHON") or "python3",
+                    remote_gpu=record.remote_gpu,
+                    min_free_vram_mb=record.min_free_vram_mb,
+                    event_sink=event_sink,
+                    run_id=record.id,
+                    attempt_id=attempt_id,
+                )
+                runner.start(record.id, resume_request, record.output_dir)
+                record.remote_dir = runner.remote_dir
+                record.remote_pid = runner.pid()
+        except Exception as exc:
+            logger.exception("Failed to resume job %s", record.id)
+            record.state = "paused"
+            record.resume_error = str(exc)
+            record.pause_status = "saved"
+            _finish_attempt(record, "failed", error=f"resume failed: {exc}")
+            self._persist(record, force=True)
+            self._notify_change()
+            raise ResumeNotPossibleError(f"续训启动失败：{exc}") from exc
+
+        record.state = "running"
+        record.resume_error = None
+        attempt = record.current_attempt()
+        if attempt is not None:
+            attempt.state = "running"
+        with self._lock:
+            self._runners[record.id] = runner
+        self._persist(record, force=True)
+        self._notify_change()
+        return record
+
+    # -- monitoring queries ----------------------------------------------------
+
+    def _store(self, job_id: str) -> tuple[JobRecord, training_metrics.JobMetricsStore]:
+        with self._lock:
+            record = self._records.get(job_id)
+            if record is None:
+                raise JobNotFoundError(job_id)
+        job_dir = _job_dir(self._output_root, job_id)
+        store = training_metrics.store_for(job_dir)
+        store.ensure_loaded(_job_log_path(self._output_root, job_id))
+        return record, store
+
+    def metrics_events(
+        self,
+        job_id: str,
+        *,
+        after: int = 0,
+        limit: int = 500,
+        kinds: list[str] | None = None,
+        attempt: str | None = None,
+    ) -> training_metrics.MetricEventPage:
+        _record, store = self._store(job_id)
+        return store.events(after=after, limit=max(1, min(limit, 5000)), kinds=kinds, attempt=attempt)
+
+    def monitor_info(self, job_id: str) -> dict[str, Any]:
+        record, store = self._store(job_id)
+        current_attempt = record.current_attempt_id()
+        resolved = store.resolved_config(current_attempt) or store.resolved_config()
+        latest = store.latest_values()
+        validation_configured = bool(
+            record.config.eval_steps > 0
+            and (record.config.dataset_eval_split or record.config.dataset_eval_episodes)
+        )
+        return {
+            "job_id": record.id,
+            "run_id": record.id,
+            "state": record.state,
+            "attempts": [attempt.model_dump() for attempt in record.attempts],
+            "current_attempt_id": current_attempt,
+            "capabilities": pause_resume_capabilities(record),
+            "requested": {} if record.read_only_monitor else {
+                "optimizer_lr": record.config.optimizer_lr,
+                "optimizer_weight_decay": record.config.optimizer_weight_decay,
+                "optimizer_grad_clip_norm": record.config.optimizer_grad_clip_norm,
+                "scheduler_type": record.config.scheduler_type,
+                "scheduler_warmup_steps": record.config.scheduler_warmup_steps,
+                "scheduler_decay_steps": record.config.scheduler_decay_steps,
+                "scheduler_peak_lr": record.config.scheduler_peak_lr,
+                "scheduler_floor_lr": record.config.scheduler_floor_lr,
+                "eval_steps": record.config.eval_steps,
+                "eval_episodes": record.config.dataset_eval_episodes,
+                "weight_norm_freq": record.config.weight_norm_freq,
+            },
+            "resolved_config": resolved,
+            "latest": latest,
+            "validation": {
+                "configured": validation_configured,
+                "eval_steps": record.config.eval_steps,
+                "eval_episodes": record.config.dataset_eval_episodes,
+                "latest": latest.get("validation"),
+            },
+            "pause": {
+                "status": record.pause_status,
+                "checkpoint": record.pause_checkpoint,
+                "step": record.pause_step,
+                "paused_at": record.paused_at,
+                "error": record.pause_error,
+                "resume_error": record.resume_error,
+            },
+            "metric_event_count": len(store.all_events()),
+        }
 
     def drain_logs(self, job_id: str) -> builtins.list[LogLine]:
         with self._lock:
@@ -1344,50 +2384,43 @@ class JobRegistry:
         return out
 
     def read_metrics_history(self, job_id: str) -> builtins.list[MetricsHistoryPoint]:
-        """Reconstruct the per-step loss/lr/grad-norm series from log.jsonl.
+        """Return the persisted metric series, ordered by event cursor.
 
-        Used by the frontend on Monitoring-page mount to seed the curves so
-        they survive page reloads, navigation, and lelab restarts. Re-parses
-        on every call; cache later if a slow file ever shows up.
+        Structured worker events (train/validation/weight_norm) are used when
+        present; older jobs fall back to parsing their human-readable
+        ``step:... loss:...`` lines. Each point keeps its own sampling step and
+        attempt id and is never deduplicated by step, so a resumed/replayed step
+        remains visible as a boundary instead of overwriting history.
         """
-        with self._lock:
-            if job_id not in self._records:
-                raise JobNotFoundError(job_id)
-        path = _job_log_path(self._output_root, job_id)
-        if not path.exists():
-            return []
+        _record, store = self._store(job_id)
         points: list[MetricsHistoryPoint] = []
-        with path.open() as f:
-            for raw in f:
-                raw = raw.strip()
-                if not raw:
-                    continue
-                try:
-                    log_line = LogLine.model_validate_json(raw)
-                except Exception:
-                    continue  # skip malformed line, same as read_persisted_logs
-                msg = log_line.message
-                # Only the log-freq lines carry per-step metric values.
-                # Tqdm lines have a step but no loss/lr — skip them so we
-                # don't emit a flat-line point per tqdm tick.
-                if "step:" not in msg or "loss:" not in msg:
-                    continue
-                fresh = TrainingMetrics()
-                parse_metrics_into(msg, fresh)
-                if fresh.current_step <= 0:
-                    continue
-                point = MetricsHistoryPoint(
-                    step=fresh.current_step,
-                    loss=fresh.current_loss,
-                    lr=fresh.current_lr,
-                    grad_norm=fresh.grad_norm,
+        for event in store.all_events():
+            if event.kind not in {"train", "validation", "weight_norm"}:
+                continue
+            data = event.data
+            loss = data.get("loss") if event.kind == "train" else None
+            validation_loss = data.get("loss") if event.kind == "validation" else None
+            points.append(
+                MetricsHistoryPoint(
+                    step=int(event.step or 0),
+                    loss=_as_float(loss),
+                    lr=_as_float(data.get("lr")) if event.kind == "train" else None,
+                    grad_norm=_as_float(data.get("grad_norm")) if event.kind == "train" else None,
+                    event_id=event.event_id,
+                    kind=event.kind,
+                    phase=event.phase,
+                    attempt_id=event.attempt_id,
+                    timestamp=event.timestamp,
+                    source=event.source,
+                    validation_loss=_as_float(validation_loss),
+                    weight_norm=_as_float(data.get("weight_norm"))
+                    if event.kind == "weight_norm"
+                    else None,
+                    trainable_weight_norm=_as_float(data.get("trainable_weight_norm"))
+                    if event.kind == "weight_norm"
+                    else None,
                 )
-                # Dedupe by step: overwrite on consecutive same-step lines.
-                if points and points[-1].step == point.step:
-                    points[-1] = point
-                else:
-                    points.append(point)
-        points.sort(key=lambda p: p.step)
+            )
         return points
 
     def _checkpoints_for(self, record: JobRecord) -> builtins.list[JobCheckpoint]:
@@ -1506,7 +2539,7 @@ class JobRegistry:
             record = self._records.get(job_id)
             if record is None:
                 raise JobNotFoundError(job_id)
-            if record.state == "running":
+            if record.state in {"running", "pause_requested", "resuming"}:
                 raise JobNotRunningError(job_id)
             self._records.pop(job_id, None)
             self._runners.pop(job_id, None)
@@ -1612,7 +2645,17 @@ class JobRegistry:
             except Exception as exc:
                 logger.warning("Skipping malformed job.json at %s: %s", meta, exc)
                 continue
-            if record.state == "running":
+            if record.state in {"running", "pause_requested", "resuming"}:
+                if not record.attempts:
+                    # Records written before attempts existed get a synthetic
+                    # one so monitoring/pause history remains addressable.
+                    record.attempts.append(
+                        JobAttempt(
+                            id=f"legacy-{record.id}",
+                            started_at=record.started_at,
+                            state="running",
+                        )
+                    )
                 if record.runner == "local":
                     pid = record.process_pid
                     if pid is not None and _pid_alive(pid):
@@ -1621,17 +2664,57 @@ class JobRegistry:
                             record.id,
                             pid,
                         )
+                        job_dir = _job_dir(self._output_root, record.id)
+                        store = training_metrics.store_for(job_dir)
+                        attempt_id = record.current_attempt_id() or f"legacy-{record.id}"
                         runner = TailingJobRunner(
                             record.metrics,
                             _job_log_path(self._output_root, record.id),
                             pid,
+                            output_dir=record.output_dir,
+                            event_sink=_make_event_sink(store, record.id, attempt_id),
+                            control_dir=job_dir / "control",
+                            run_id=record.id,
+                            attempt_id=attempt_id,
                         )
                         runner.start_tailing()
                         self._runners[record.id] = runner
                     else:
-                        record.state = "interrupted"
-                        if record.ended_at is None:
-                            record.ended_at = time.time()
+                        finalized = False
+                        if record.state == "pause_requested":
+                            # The service may have restarted while the worker
+                            # was saving its pause checkpoint. Trust only a
+                            # fully written, hash-verified manifest.
+                            state_path = job_dir / "control" / "pause.state.json"
+                            with contextlib.suppress(OSError, json.JSONDecodeError):
+                                control = json.loads(state_path.read_text(encoding="utf-8"))
+                                checkpoint = control.get("checkpoint") if isinstance(control, dict) else None
+                                if checkpoint:
+                                    ok, _reason, manifest = verify_local_pause_checkpoint(checkpoint)
+                                    if ok:
+                                        record.state = "paused"
+                                        record.pause_status = "saved"
+                                        record.pause_checkpoint = str(checkpoint)
+                                        record.pause_step = (
+                                            int(manifest["step"])
+                                            if manifest and manifest.get("step") is not None
+                                            else None
+                                        )
+                                        record.paused_at = time.time()
+                                        record.ended_at = time.time()
+                                        _finish_attempt(record, "paused")
+                                        finalized = True
+                        if not finalized:
+                            self._hydrate_metrics_from_store(record)
+                            if self._looks_completed(record):
+                                record.state = "done"
+                                record.exit_code = 0
+                                _finish_attempt(record, "done")
+                            else:
+                                record.state = "interrupted"
+                                _finish_attempt(record, "interrupted")
+                            if record.ended_at is None:
+                                record.ended_at = time.time()
                         self._write_meta(record)
                 elif record.runner == "hf_cloud" and record.hf_job_id and record.hf_flavor:
                     # Always reattach; the status poller is the source of truth
@@ -1667,11 +2750,17 @@ class JobRegistry:
 
                     try:
                         remote_config = TrainServerConfig.from_env()
+                        job_dir = _job_dir(self._output_root, record.id)
+                        store = training_metrics.store_for(job_dir)
+                        attempt_id = record.current_attempt_id() or f"legacy-{record.id}"
                         runner = SshRemoteJobRunner(
                             remote_config,
                             record.id,
                             record.metrics,
                             log_file_path=_job_log_path(self._output_root, record.id),
+                            event_sink=_make_event_sink(store, record.id, attempt_id),
+                            run_id=record.id,
+                            attempt_id=attempt_id,
                         )
                         runner.reattach(remote_dir=record.remote_dir)
                     except Exception as exc:
@@ -1683,13 +2772,79 @@ class JobRegistry:
                         self._write_meta(record)
                     else:
                         self._runners[record.id] = runner
+                elif record.runner == "ssh_readonly":
+                    # The observer connection is local to this LeLab process.
+                    # Its loss does not imply that the remote trainer stopped.
+                    record.state = "interrupted"
+                    record.ended_at = time.time()
+                    record.error_message = (
+                        "Read-only monitor detached during LeLab restart; "
+                        "the remote training process was not controlled."
+                    )
+                    _finish_attempt(record, "interrupted", error=record.error_message)
+                    self._write_meta(record)
                 else:
                     # Malformed running record — mark interrupted.
                     record.state = "interrupted"
                     if record.ended_at is None:
                         record.ended_at = time.time()
                     self._write_meta(record)
+            if record.state in {"running", "pause_requested", "resuming", "paused"}:
+                self._hydrate_metrics_from_store(record)
             self._records[record.id] = record
+
+    def _looks_completed(self, record: JobRecord) -> bool:
+        """Infer a completed run when a detached worker's exit code is lost.
+
+        We cannot reap a process from another session. Persisted evidence is
+        enough: all configured steps have metric events, or the raw stdout
+        contains LeRobot's end-of-training marker.
+        """
+        if record.metrics.current_step >= int(record.config.steps) > 0:
+            return True
+        raw_path = _job_dir(self._output_root, record.id) / "stdout.log"
+        try:
+            with raw_path.open("rb") as stream:
+                size = raw_path.stat().st_size
+                stream.seek(max(0, size - 64 * 1024))
+                tail = stream.read().decode("utf-8", errors="replace")
+        except OSError:
+            return False
+        return "End of training" in tail
+
+    def _hydrate_metrics_from_store(self, record: JobRecord) -> None:
+        """Restore the progress snapshot from persisted metric events.
+
+        After a restart the in-memory TrainingMetrics is whatever job.json last
+        flushed; the event sidecar is authoritative and includes lines emitted
+        while LeLab was down.
+        """
+        try:
+            store = training_metrics.store_for(_job_dir(self._output_root, record.id))
+            store.ensure_loaded(_job_log_path(self._output_root, record.id))
+            latest = store.latest_values().get("train")
+            if latest:
+                step = latest.get("step")
+                if step is not None:
+                    record.metrics.current_step = max(record.metrics.current_step, int(step))
+                for attribute, key in (
+                    ("current_loss", "loss"),
+                    ("current_lr", "lr"),
+                    ("grad_norm", "grad_norm"),
+                ):
+                    value = latest.get(key)
+                    if isinstance(value, (int, float)):
+                        setattr(record.metrics, attribute, float(value))
+            record.metrics.total_steps = max(
+                record.metrics.total_steps, int(record.config.steps)
+            )
+            attempt = record.current_attempt()
+            if attempt and attempt.resumed_from_step is not None:
+                record.metrics.current_step = max(
+                    record.metrics.current_step, int(attempt.resumed_from_step)
+                )
+        except Exception as exc:  # never let history hydration block startup
+            logger.warning("Could not hydrate metrics for %s: %s", record.id, exc)
 
     def _start_watchdog(self) -> None:
         self._watchdog_thread = threading.Thread(
@@ -1712,8 +2867,9 @@ class JobRegistry:
         已退出则依据退出码落定终态、写盘并触发 on_change；ssh_remote 成功结束
         后还会调度自动拉回最终模型。
         """
+        active_states = {"running", "pause_requested", "resuming"}
         with self._lock:
-            running_ids = [jid for jid, r in self._records.items() if r.state == "running"]
+            running_ids = [jid for jid, r in self._records.items() if r.state in active_states]
 
         progress_snapshots: builtins.list[dict] = []
 
@@ -1723,7 +2879,43 @@ class JobRegistry:
                 record = self._records.get(jid)
             if runner is None or record is None:
                 continue
+
+            if record.state == "pause_requested":
+                # Progress the pause sub-state from the worker's control marker
+                # (authoritative) or the structured event stream.
+                control_state = _runner_pause_state(runner)
+                if control_state is None:
+                    _r, store = self._store(jid)
+                    control_state = store.latest_pause_state(record.current_attempt_id())
+                if control_state:
+                    state_value = control_state.get("state")
+                    if state_value == "saving":
+                        record.pause_status = "saving"
+                        self._persist(record, force=False)
+                    elif state_value == "failed":
+                        # The worker reported a save failure but kept training.
+                        record.state = "running"
+                        record.pause_status = "failed"
+                        record.pause_error = str(control_state.get("error") or "pause checkpoint failed")
+                        self._persist(record, force=True)
+                        self._notify_change()
+                        continue
+                    elif state_value == "saved":
+                        record.pause_status = "saved"
+                        if control_state.get("checkpoint"):
+                            record.pause_checkpoint = str(control_state["checkpoint"])
+
             if runner.is_running():
+                # Keep the progress bar on the logical run's absolute step axis.
+                # A resumed worker starts counting from the checkpoint; never
+                # let a shorter "remaining" total or a pre-resume step win.
+                if record.metrics.total_steps < record.config.steps:
+                    record.metrics.total_steps = int(record.config.steps)
+                attempt = record.current_attempt()
+                if attempt and attempt.resumed_from_step is not None:
+                    record.metrics.current_step = max(
+                        record.metrics.current_step, int(attempt.resumed_from_step)
+                    )
                 # Pull the wandb run URL once it appears in stdout.
                 if record.wandb_run_url is None:
                     url = runner.wandb_run_url()
@@ -1755,23 +2947,113 @@ class JobRegistry:
                 self._sync_cloud_ids(record, runner)
             rc = runner.returncode()
             stop_requested = bool(getattr(runner, "stop_requested", False))
+            previous_state = record.state
+            control_state: dict[str, Any] | None = None
+            checkpoint: str | None = None
+            pause_step: int | None = None
+            manifest: dict[str, Any] | None = None
+            ok = False
+            reason: str | None = None
+            if previous_state == "pause_requested":
+                # Do the (possibly remote) verification before taking the
+                # registry lock; SSH verification is a blocking round-trip.
+                control_state = _runner_pause_state(runner)
+                if control_state is None:
+                    _r, store = self._store(jid)
+                    control_state = store.latest_pause_state(record.current_attempt_id())
+                checkpoint = record.pause_checkpoint or (
+                    str(control_state.get("checkpoint")) if control_state and control_state.get("checkpoint") else None
+                )
+                if checkpoint:
+                    if record.runner == "local":
+                        ok, reason, manifest = verify_local_pause_checkpoint(checkpoint)
+                    else:
+                        from .remote_sync import TrainServerConfig
+                        from .runners.ssh_remote import verify_remote_pause_checkpoint
+
+                        ok, reason, manifest = verify_remote_pause_checkpoint(
+                            TrainServerConfig.from_env(),
+                            str(checkpoint),
+                            remote_python=os.environ.get("LELAB_TRAIN_PYTHON") or "python3",
+                        )
+                    if manifest and manifest.get("step") is not None:
+                        pause_step = int(manifest["step"])
+                else:
+                    reason = "worker did not report a pause checkpoint"
             with self._lock:
                 if record.wandb_run_url is None:
                     record.wandb_run_url = runner.wandb_run_url()
-                # 退出码决定终态：0=done 正常结束，非 0=failed；用户主动停止则记为 interrupted。
-                if stop_requested and rc != 0:
+                if record.read_only_monitor:
+                    remote_status = getattr(runner, "remote_status", "connection_lost")
+                    if remote_status == "exited":
+                        completed = record.metrics.current_step >= record.config.steps
+                        record.state = "done" if completed else "interrupted"
+                        record.exit_code = 0 if completed else None
+                        if not completed:
+                            record.error_message = (
+                                "Remote process ended before the configured step count; "
+                                "the read-only monitor cannot distinguish a stop from a failure."
+                            )
+                    else:
+                        record.state = "interrupted"
+                        record.exit_code = None
+                        record.error_message = (
+                            "Read-only SSH monitoring disconnected; the remote training "
+                            "process may still be running."
+                        )
+                    record.ended_at = time.time()
+                    _finish_attempt(record, record.state, error=record.error_message)
+                elif stop_requested and rc != 0:
                     record.state = "interrupted"
+                    record.ended_at = time.time()
+                    record.exit_code = rc
+                    record.pause_status = None
+                    _finish_attempt(record, "interrupted", exit_code=rc)
+                elif previous_state == "pause_requested":
+                    if ok:
+                        record.state = "paused"
+                        record.pause_status = "saved"
+                        record.pause_checkpoint = str(checkpoint)
+                        record.pause_step = pause_step
+                        record.paused_at = time.time()
+                        record.ended_at = time.time()
+                        record.exit_code = rc
+                        record.pause_error = None
+                        _finish_attempt(record, "paused", exit_code=rc)
+                        attempt = record.current_attempt()
+                        if attempt is not None:
+                            attempt.paused_at = record.paused_at
+                    elif rc == 0 and control_state is None:
+                        # The run reached its final step before consuming the
+                        # request; there is nothing to pause.
+                        record.state = "done"
+                        record.pause_status = None
+                        record.ended_at = time.time()
+                        record.exit_code = rc
+                        _finish_attempt(record, "done", exit_code=rc)
+                    else:
+                        record.state = "pause_failed"
+                        record.pause_status = "failed"
+                        record.pause_error = f"pause checkpoint was not valid (exit code {rc}): {reason}"
+                        record.ended_at = time.time()
+                        record.exit_code = rc
+                        _finish_attempt(record, "pause_failed", error=record.pause_error, exit_code=rc)
                 else:
+                    # 退出码决定终态：0=done 正常结束，非 0=failed。
                     record.state = "done" if rc == 0 else "failed"
-                record.ended_at = time.time()
-                record.exit_code = rc
-                if record.state == "failed" and record.error_message is None:
-                    record.error_message = f"Job exited with code {rc}"
+                    record.ended_at = time.time()
+                    record.exit_code = rc
+                    if record.state == "failed" and record.error_message is None:
+                        record.error_message = f"Job exited with code {rc}"
+                    if previous_state == "resuming" and record.state == "failed":
+                        record.resume_error = record.error_message
+                    record.pause_status = None
+                    _finish_attempt(record, record.state, error=record.error_message, exit_code=rc)
                 self._runners.pop(jid, None)
             self._persist(record, force=True)
             self._notify_change()
 
-            if record.runner == "ssh_remote" and rc == 0:
+            if record.runner == "ssh_remote" and rc == 0 and record.state == "done":
                 self._schedule_model_pull(record)
 
         self._notify_progress(progress_snapshots)

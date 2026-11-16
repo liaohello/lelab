@@ -54,6 +54,24 @@ export interface TrainingConfig {
   optimizer_weight_decay?: number;
   optimizer_grad_clip_norm?: number;
 
+  // Scheduler overrides (applied after the policy preset; empty ⇒ preset).
+  scheduler_type?: "cosine_decay_with_warmup" | "cosine_annealing_with_warmup" | "constant_with_warmup" | "";
+  scheduler_warmup_steps?: number;
+  scheduler_decay_steps?: number;
+  scheduler_peak_lr?: number;
+  scheduler_floor_lr?: number;
+
+  // Validation loss + monitoring cadence.
+  eval_steps?: number;
+  max_eval_samples?: number;
+  /** Explicit held-out episodes (comma-separated in the form). */
+  dataset_eval_episodes?: number[];
+  /** Ratio-based alternative; never combined with eval episodes. */
+  dataset_eval_split?: number;
+  weight_norm_freq?: number;
+  /** Optional SmolVLA 12D grouped flow-loss diagnostics. */
+  action_loss_groups?: Record<string, number[]> | null;
+
   // Advanced configuration
   use_policy_training_preset: boolean;
 
@@ -68,8 +86,19 @@ export interface TrainingConfig {
   policy_use_bf16?: boolean;
 }
 
+export type TrainingRunState =
+  | "running"
+  | "pause_requested"
+  | "paused"
+  | "pause_failed"
+  | "resuming"
+  | "done"
+  | "failed"
+  | "interrupted";
+
 export interface TrainingStatus {
   training_active: boolean;
+  state: TrainingRunState;
   current_step: number;
   total_steps: number;
   current_loss?: number;

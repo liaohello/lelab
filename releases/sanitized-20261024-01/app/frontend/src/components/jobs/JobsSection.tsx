@@ -34,8 +34,10 @@ const LIMIT = 10;
 // CANCELED, …) gets demoted to UNTRACKED.
 const HUB_ACTIVE_STAGES = new Set(["RUNNING", "QUEUED", "SCHEDULING"]);
 
+const JOB_ACTIVE_STATES = new Set(["running", "pause_requested", "resuming"]);
+
 const isJobActive = (j: JobRecord) =>
-  j.state === "running" || j.checkpoint_count > 0;
+  JOB_ACTIVE_STATES.has(j.state) || j.checkpoint_count > 0;
 
 const isHubJobActive = (h: HubJob) =>
   HUB_ACTIVE_STAGES.has((h.status?.stage ?? "").toUpperCase());
@@ -179,7 +181,13 @@ const JobsSection: React.FC = () => {
   const trackedCloudJobs = useMemo(
     // ssh_remote（训练机）作业以前被漏在这里，导致运行中的远端训练在 Jobs 页
     // 完全看不到；两者都属于"远端/云端"分组。
-    () => filteredJobs.filter((j) => j.runner === "hf_cloud" || j.runner === "ssh_remote"),
+    () =>
+      filteredJobs.filter(
+        (j) =>
+          j.runner === "hf_cloud" ||
+          j.runner === "ssh_remote" ||
+          j.runner === "ssh_readonly",
+      ),
     [filteredJobs],
   );
   const importedJobs = useMemo(

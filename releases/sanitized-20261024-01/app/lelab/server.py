@@ -105,6 +105,8 @@ from .jobs import (
     JobNotFoundError,
     JobNotRunningError,
     JobTarget,
+    PauseNotSupportedError,
+    ResumeNotPossibleError,
     job_registry,
 )
 from .observe import (
@@ -1996,6 +1998,22 @@ def import_model(body: ImportModelRequest):
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@app.post("/jobs/attach-readonly", status_code=201)
+def attach_readonly_training_job():
+    """Attach the UI to one existing remote run using local env configuration.
+
+    The attachment starts only an SSH log reader. It does not launch or control
+    the remote training process.
+    """
+    try:
+        return job_registry.attach_readonly_ssh_from_env()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.warning("Read-only training attach failed: %s", exc)
+        raise HTTPException(status_code=409, detail=f"只读挂接失败：{exc}") from exc
+
+
 # 列出最近的作业记录（默认 10 条）。
 @app.get("/jobs")
 def list_jobs(limit: int = 10):
@@ -2142,6 +2160,65 @@ def get_job_metrics_history(job_id: str):
     except JobNotFoundError as exc:
         raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found") from exc
     return {"points": points}
+
+
+# 增量拉取结构化指标事件（train/validation/weight_norm/resolved_config/...）。
+# 客户端携带上一次的 next_cursor，断线重连或刷新后即可补齐漏掉的点。
+@app.get("/jobs/{job_id}/metrics-events")
+def get_job_metrics_events(
+    job_id: str,
+    after: int = 0,
+    limit: int = 500,
+    kinds: str | None = None,
+    attempt: str | None = None,
+):
+    """Cursor-paginated metric events persisted in metrics/events.jsonl."""
+    kind_list = [item.strip() for item in (kinds or "").split(",") if item.strip()]
+    try:
+        page = job_registry.metrics_events(
+            job_id,
+            after=max(0, after),
+            limit=limit,
+            kinds=kind_list or None,
+            attempt=attempt,
+        )
+    except JobNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found") from exc
+    return page
+
+
+# 监控页的聚合信息：attempt 边界、resolved 配置（实际 LR/scheduler/split）、
+# 最新值、验证配置状态与暂停/续训能力。
+@app.get("/jobs/{job_id}/monitor")
+def get_job_monitor(job_id: str):
+    try:
+        return job_registry.monitor_info(job_id)
+    except JobNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found") from exc
+
+
+# 协作式安全暂停：只向该任务自己的控制目录写标记，不向任意 PID 发信号。
+@app.post("/jobs/{job_id}/pause")
+def pause_job(job_id: str):
+    try:
+        return job_registry.pause(job_id)
+    except JobNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found") from exc
+    except JobNotRunningError as exc:
+        raise HTTPException(status_code=409, detail=f"Job {job_id!r} is not running") from exc
+    except PauseNotSupportedError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+# 从已校验的暂停 checkpoint 继续，同一逻辑运行内创建新 attempt。
+@app.post("/jobs/{job_id}/resume")
+def resume_job(job_id: str):
+    try:
+        return job_registry.resume(job_id)
+    except JobNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found") from exc
+    except (ResumeNotPossibleError, PauseNotSupportedError, JobAlreadyRunningError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 # 列出该作业已保存的 checkpoint（按 step 升序）。

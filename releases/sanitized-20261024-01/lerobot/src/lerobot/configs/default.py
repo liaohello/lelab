@@ -60,14 +60,40 @@ class DatasetConfig:
     streaming: bool = False
     # Fraction of episodes held out per task for offline evaluation (0.0 = disabled).
     eval_split: float = 0.0
+    # Explicit held-out episode ids. When set, every other loaded episode is
+    # used for training and `eval_split` must stay 0: this is the auditable
+    # split LeLab exposes instead of re-slicing a ratio (e.g. Scene1 train
+    # 12..63 / validation 0..11). Requires map-style datasets.
+    eval_episodes: list[int] | None = None
 
     def __post_init__(self) -> None:
         if self.repo_type not in ("dataset", "bucket"):
             raise ValueError(f"repo_type must be 'dataset' or 'bucket', got {self.repo_type!r}")
-        if self.eval_split != 0.0 and self.streaming:
+        if (self.eval_split != 0.0 or self.eval_episodes) and self.streaming:
             raise ValueError(
-                "eval_split requires map-style datasets and is not supported with dataset.streaming=true."
+                "eval_split/eval_episodes require map-style datasets and are not supported "
+                "with dataset.streaming=true."
             )
+        if self.eval_split != 0.0 and self.eval_episodes:
+            raise ValueError(
+                "Set either eval_split (fraction) or eval_episodes (explicit ids), not both."
+            )
+        if self.eval_episodes is not None:
+            if not self.eval_episodes:
+                raise ValueError("eval_episodes must not be empty when provided")
+            if any(episode < 0 for episode in self.eval_episodes):
+                raise ValueError(
+                    f"eval_episodes must be non-negative, got {[ep for ep in self.eval_episodes if ep < 0]}"
+                )
+            if len(self.eval_episodes) != len(set(self.eval_episodes)):
+                raise ValueError("eval_episodes contains duplicates")
+            if self.episodes is not None:
+                overlap = sorted(set(self.episodes) & set(self.eval_episodes))
+                if overlap:
+                    raise ValueError(
+                        f"eval_episodes overlap with dataset.episodes: {overlap}. "
+                        "Leave dataset.episodes unset and let eval_episodes derive the training split."
+                    )
         if self.depth_output_unit not in (DEPTH_METER_UNIT, DEPTH_MILLIMETER_UNIT):
             raise ValueError(
                 f"depth_output_unit must be '{DEPTH_METER_UNIT}' or '{DEPTH_MILLIMETER_UNIT}', got {self.depth_output_unit!r}"

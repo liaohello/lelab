@@ -124,6 +124,19 @@ class TrainingRequest(BaseModel):
     save_freq: int = 1000
     env_eval_freq: int = 0
     save_checkpoint: bool = True
+    # Validation loss cadence and held-out episodes. The explicit episode list
+    # is the auditable split (e.g. Scene1 validation 0..11); eval_split is the
+    # optional ratio-based alternative. Only one may be set.
+    eval_steps: int = 0
+    max_eval_samples: int = 0
+    dataset_eval_split: float | None = None
+    dataset_eval_episodes: list[int] | None = None
+    # Low-frequency model/trainable weight L2 sampling (0 disables). 250 keeps
+    # the all-parameter pass off the hot path while still showing a curve.
+    weight_norm_freq: int = 250
+    # Optional named action-dimension groups for SmolVLA grouped loss
+    # diagnostics (e.g. 10 joints + 2 grippers for Scene1).
+    action_loss_groups: dict[str, list[int]] | None = None
 
     # Output configuration
     output_dir: str = "outputs/train"
@@ -170,9 +183,24 @@ class TrainingRequest(BaseModel):
     optimizer_weight_decay: float | None = None
     optimizer_grad_clip_norm: float | None = None
 
+    # Scheduler. These are explicit overrides applied *after* the policy
+    # preset (LeRobot's validate); empty fields keep the preset/checkpoint
+    # values. Supported types: cosine_decay_with_warmup,
+    # cosine_annealing_with_warmup, constant_with_warmup.
+    scheduler_type: str | None = None
+    scheduler_warmup_steps: int | None = None
+    scheduler_decay_steps: int | None = None
+    scheduler_peak_lr: float | None = None
+    scheduler_floor_lr: float | None = None
+
     # Advanced
     use_policy_training_preset: bool = True
     config_path: str | None = None
+    #: Set only by the resume flow: a checkpoint `pretrained_model` directory
+    #: (local absolute, or server-relative for ssh_remote). When present the
+    #: command is the minimal LeRobot resume invocation and all optimizer/
+    #: scheduler/split settings come from the checkpoint.
+    resume_config_path: str | None = None
 
     @model_validator(mode="after")
     def _normalize_dataset_selection(self) -> "TrainingRequest":
@@ -211,6 +239,65 @@ class TrainingRequest(BaseModel):
                 )
             if any(weight is None or float(weight) <= 0 for weight in weights):
                 raise ValueError("dataset_weights must all be greater than 0")
+        return self
+
+    @model_validator(mode="after")
+    def _validate_monitoring_options(self) -> "TrainingRequest":
+        if self.eval_steps < 0:
+            raise ValueError("eval_steps must be >= 0")
+        if self.max_eval_samples < 0:
+            raise ValueError("max_eval_samples must be >= 0")
+        if self.dataset_eval_split is not None and self.dataset_eval_episodes:
+            raise ValueError("Set either dataset_eval_split or dataset_eval_episodes, not both")
+        if self.dataset_eval_split is not None and not (0.0 < float(self.dataset_eval_split) < 1.0):
+            raise ValueError("dataset_eval_split must be in (0, 1)")
+        if self.dataset_eval_episodes is not None:
+            if not self.dataset_eval_episodes:
+                raise ValueError("dataset_eval_episodes must not be empty")
+            if any(int(ep) < 0 for ep in self.dataset_eval_episodes):
+                raise ValueError("dataset_eval_episodes must be non-negative")
+            if len(set(self.dataset_eval_episodes)) != len(self.dataset_eval_episodes):
+                raise ValueError("dataset_eval_episodes contains duplicates")
+            if self.dataset_episodes and set(self.dataset_episodes) & set(self.dataset_eval_episodes):
+                raise ValueError(
+                    "dataset_eval_episodes must not overlap dataset_episodes; "
+                    "leave dataset_episodes empty so the training split is derived"
+                )
+        if self.eval_steps > 0 and not (self.dataset_eval_split or self.dataset_eval_episodes):
+            raise ValueError(
+                "eval_steps > 0 requires dataset_eval_episodes or dataset_eval_split so validation "
+                "data is explicit"
+            )
+        if self.weight_norm_freq < 0:
+            raise ValueError("weight_norm_freq must be >= 0")
+        if self.action_loss_groups is not None:
+            if not isinstance(self.action_loss_groups, dict) or not self.action_loss_groups:
+                raise ValueError("action_loss_groups must be a non-empty object")
+            used: set[int] = set()
+            for name, indices in self.action_loss_groups.items():
+                if not str(name).strip():
+                    raise ValueError("action_loss_groups names must be non-empty")
+                if not indices:
+                    raise ValueError(f"action_loss_groups[{name!r}] must not be empty")
+                for index in indices:
+                    if int(index) < 0:
+                        raise ValueError(f"action_loss_groups[{name!r}] has a negative index")
+                    if int(index) in used:
+                        raise ValueError(f"action dimension {index} appears in more than one group")
+                    used.add(int(index))
+        supported = {"cosine_decay_with_warmup", "cosine_annealing_with_warmup", "constant_with_warmup"}
+        if self.scheduler_type is not None and self.scheduler_type not in supported:
+            raise ValueError(
+                f"Unsupported scheduler_type {self.scheduler_type!r}. Supported: {sorted(supported)}"
+            )
+        for name in ("scheduler_warmup_steps", "scheduler_decay_steps"):
+            value = getattr(self, name)
+            if value is not None and value < 0:
+                raise ValueError(f"{name} must be >= 0")
+        for name in ("scheduler_peak_lr", "scheduler_floor_lr"):
+            value = getattr(self, name)
+            if value is not None and value < 0:
+                raise ValueError(f"{name} must be >= 0")
         return self
 
     @property
@@ -255,6 +342,18 @@ def build_training_command(
     """
     cmd: list[str] = [python_executable, "-m", "lerobot.scripts.lerobot_train"]
 
+    is_cloud = job_target is not None and job_target.runner == "hf_cloud"
+
+    # Resume of a paused LeLab job: the checkpoint's train_config.json is the
+    # authoritative source for optimizer, scheduler, steps, dataset split and
+    # policy. Only the output dir and the explicit checkpoint are passed, so a
+    # resume cannot silently change the learning-rate schedule.
+    if request.resume and request.resume_config_path and not is_cloud:
+        cmd.extend(["--resume", "true"])
+        cmd.extend(["--config_path", request.resume_config_path])
+        cmd.extend(["--output_dir", output_dir])
+        return cmd
+
     # Dataset
     effective_repo_id = request.dataset_repo_id
     if len(request.dataset_ids) > 1:
@@ -282,6 +381,11 @@ def build_training_command(
         cmd.extend(["--dataset.root", request.dataset_root])
     if request.dataset_episodes:
         cmd.extend(["--dataset.episodes"] + [str(ep) for ep in request.dataset_episodes])
+    if request.dataset_eval_episodes:
+        # draccus parses list[int] from a single JSON token.
+        cmd.extend(["--dataset.eval_episodes", json.dumps(request.dataset_eval_episodes)])
+    if request.dataset_eval_split is not None:
+        cmd.extend(["--dataset.eval_split", str(request.dataset_eval_split)])
     if request.dataset_image_transforms_enable:
         cmd.extend(["--dataset.image_transforms.enable", "true"])
 
@@ -312,7 +416,6 @@ def build_training_command(
     # the pod itself; _pod_forwarded_args drops any --policy.push_to_hub/--policy.repo_id
     # we'd pass, so we must not emit them. Local runs keep the existing behavior:
     # LeRobot defaults push_to_hub=True and demands --policy.repo_id when so.
-    is_cloud = job_target is not None and job_target.runner == "hf_cloud"
     if not is_cloud:
         cmd.extend(["--policy.push_to_hub", "true" if request.policy_push_to_hub else "false"])
         if request.policy_push_to_hub and request.policy_repo_id:
@@ -384,16 +487,53 @@ def build_training_command(
     cmd.extend(["--eval.n_episodes", str(request.eval_n_episodes)])
     cmd.extend(["--eval.batch_size", str(request.eval_batch_size)])
     cmd.extend(["--eval.use_async_envs", "true" if request.eval_use_async_envs else "false"])
+    # Offline validation loss (separate from simulation env_eval_freq).
+    cmd.extend(["--eval_steps", str(request.eval_steps)])
+    cmd.extend(["--max_eval_samples", str(request.max_eval_samples)])
 
-    # Optimizer
+    # Monitoring instrumentation.
+    cmd.extend(["--weight_norm_freq", str(request.weight_norm_freq)])
+    if request.action_loss_groups:
+        cmd.extend(["--action_loss_groups", json.dumps(request.action_loss_groups)])
+
+    # Optimizer. With the policy preset active, plain `--optimizer.lr` is
+    # silently replaced by `get_optimizer_preset()` inside LeRobot's validate();
+    # explicit values therefore travel as post-preset overrides. Without the
+    # preset the classic construction flags still apply.
     if request.optimizer_type:
         cmd.extend(["--optimizer.type", request.optimizer_type])
+    optimizer_overrides: dict[str, float] = {}
     if request.optimizer_lr is not None:
-        cmd.extend(["--optimizer.lr", str(request.optimizer_lr)])
+        optimizer_overrides["lr"] = float(request.optimizer_lr)
     if request.optimizer_weight_decay is not None:
-        cmd.extend(["--optimizer.weight_decay", str(request.optimizer_weight_decay)])
+        optimizer_overrides["weight_decay"] = float(request.optimizer_weight_decay)
     if request.optimizer_grad_clip_norm is not None:
-        cmd.extend(["--optimizer.grad_clip_norm", str(request.optimizer_grad_clip_norm)])
+        optimizer_overrides["grad_clip_norm"] = float(request.optimizer_grad_clip_norm)
+    if request.use_policy_training_preset and not request.resume:
+        if optimizer_overrides:
+            cmd.extend(["--optimizer_overrides", json.dumps(optimizer_overrides)])
+    else:
+        if request.optimizer_lr is not None:
+            cmd.extend(["--optimizer.lr", str(request.optimizer_lr)])
+        if request.optimizer_weight_decay is not None:
+            cmd.extend(["--optimizer.weight_decay", str(request.optimizer_weight_decay)])
+        if request.optimizer_grad_clip_norm is not None:
+            cmd.extend(["--optimizer.grad_clip_norm", str(request.optimizer_grad_clip_norm)])
+
+    # Scheduler overrides are applied after the preset for the same reason.
+    scheduler_overrides: dict[str, object] = {}
+    if request.scheduler_type:
+        scheduler_overrides["type"] = request.scheduler_type
+    if request.scheduler_warmup_steps is not None:
+        scheduler_overrides["num_warmup_steps"] = int(request.scheduler_warmup_steps)
+    if request.scheduler_decay_steps is not None:
+        scheduler_overrides["num_decay_steps"] = int(request.scheduler_decay_steps)
+    if request.scheduler_peak_lr is not None:
+        scheduler_overrides["peak_lr"] = float(request.scheduler_peak_lr)
+    if request.scheduler_floor_lr is not None:
+        scheduler_overrides["decay_lr"] = float(request.scheduler_floor_lr)
+    if scheduler_overrides and not request.resume:
+        cmd.extend(["--scheduler_overrides", json.dumps(scheduler_overrides)])
 
     # Advanced
     cmd.extend(["--use_policy_training_preset", "true" if request.use_policy_training_preset else "false"])

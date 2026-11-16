@@ -1,6 +1,14 @@
 import { ApiError, Fetcher, apiRequest } from "./apiClient";
 
-export type JobState = "running" | "done" | "failed" | "interrupted";
+export type JobState =
+  | "running"
+  | "pause_requested"
+  | "paused"
+  | "pause_failed"
+  | "resuming"
+  | "done"
+  | "failed"
+  | "interrupted";
 
 export interface TrainingMetrics {
   current_step: number;
@@ -21,7 +29,144 @@ export type MetricsHistoryPoint = {
   loss: number | null;
   lr: number | null;
   grad_norm: number | null;
+  event_id?: number | null;
+  kind?: string | null;
+  phase?: string | null;
+  attempt_id?: string | null;
+  timestamp?: number | null;
+  source?: string | null;
+  validation_loss?: number | null;
+  weight_norm?: number | null;
+  trainable_weight_norm?: number | null;
 };
+
+export type MetricEventKind =
+  | "train"
+  | "validation"
+  | "weight_norm"
+  | "resolved_config"
+  | "attempt_started"
+  | "pause"
+  | string;
+
+export interface MetricEvent {
+  event_id: number;
+  run_id: string | null;
+  attempt_id: string | null;
+  timestamp: number;
+  kind: MetricEventKind;
+  step: number | null;
+  phase: string | null;
+  source: "worker" | "legacy_log";
+  data: Record<string, unknown>;
+}
+
+export interface MetricEventPage {
+  events: MetricEvent[];
+  next_cursor: number;
+  has_more: boolean;
+  run_id: string | null;
+}
+
+export interface JobAttempt {
+  id: string;
+  started_at: number;
+  ended_at: number | null;
+  state: JobState;
+  resumed_from_step: number | null;
+  resume_checkpoint: string | null;
+  config_sha256: string | null;
+  exit_code: number | null;
+  error: string | null;
+  paused_at: number | null;
+}
+
+export interface PauseCapabilities {
+  pause_resume: boolean;
+  can_pause: boolean;
+  can_resume: boolean;
+  reason: string | null;
+}
+
+export interface ResolvedConfigSummary {
+  policy_type?: string | null;
+  steps?: number;
+  batch_size?: number;
+  seed?: number | null;
+  grad_accum_steps?: number;
+  world_size?: number;
+  device?: string;
+  eval_steps?: number;
+  weight_norm_freq?: number;
+  total_parameters?: number;
+  trainable_parameters?: number;
+  optimizer?: {
+    class?: string;
+    config_type?: string;
+    config?: {
+      lr?: number;
+      weight_decay?: number;
+      grad_clip_norm?: number;
+      betas?: number[];
+      eps?: number;
+    };
+    overrides?: Record<string, number>;
+    param_groups?: Array<{ index?: number; lr?: number; parameter_count?: number }>;
+  };
+  scheduler?: {
+    config_type?: string | null;
+    config?: {
+      num_warmup_steps?: number;
+      num_decay_steps?: number;
+      peak_lr?: number;
+      decay_lr?: number;
+    } | null;
+    overrides?: Record<string, unknown>;
+    runtime?: {
+      type?: string;
+      base_lrs?: number[];
+      last_epoch?: number;
+    } | null;
+  };
+  dataset?: {
+    repo_id?: string;
+    root?: string | null;
+    train_episodes?: number[];
+    eval_episodes?: number[];
+    eval_split?: number;
+    eval_episodes_requested?: number[] | null;
+    num_train_frames?: number;
+    num_eval_frames?: number;
+  };
+  action_loss_groups?: Record<string, number[]>;
+}
+
+export interface JobMonitorInfo {
+  job_id: string;
+  run_id: string;
+  state: JobState;
+  attempts: JobAttempt[];
+  current_attempt_id: string | null;
+  capabilities: PauseCapabilities;
+  requested: Record<string, unknown>;
+  resolved_config: ResolvedConfigSummary | null;
+  latest: Record<string, Record<string, unknown>>;
+  validation: {
+    configured: boolean;
+    eval_steps: number;
+    eval_episodes: number[] | null;
+    latest: Record<string, unknown> | null;
+  };
+  pause: {
+    status: string | null;
+    checkpoint: string | null;
+    step: number | null;
+    paused_at: number | null;
+    error: string | null;
+    resume_error: string | null;
+  };
+  metric_event_count: number;
+}
 
 // Mirror of the backend TrainingRequest. The frontend doesn't send all of
 // these; defaults on the server fill in the rest.
@@ -52,6 +197,17 @@ export interface TrainingRequest {
   optimizer_lr?: number;
   optimizer_weight_decay?: number;
   optimizer_grad_clip_norm?: number;
+  scheduler_type?: string;
+  scheduler_warmup_steps?: number;
+  scheduler_decay_steps?: number;
+  scheduler_peak_lr?: number;
+  scheduler_floor_lr?: number;
+  eval_steps?: number;
+  max_eval_samples?: number;
+  dataset_eval_split?: number;
+  dataset_eval_episodes?: number[];
+  weight_norm_freq?: number;
+  action_loss_groups?: Record<string, number[]> | null;
   use_policy_training_preset: boolean;
   // GR00T-specific (only sent when policy_type === "groot"); backend ignores
   // the policy_* ones for other policies.
@@ -83,16 +239,26 @@ export interface JobRecord {
   exit_code: number | null;
   error_message: string | null;
   metrics: TrainingMetrics;
-  runner: "local" | "hf_cloud" | "ssh_remote" | "imported";
+  runner: "local" | "hf_cloud" | "ssh_remote" | "ssh_readonly" | "imported";
+  read_only_monitor?: boolean;
   remote_dir?: string | null;
   remote_pid?: number | null;
   remote_host?: string | null;
+  remote_gpu?: number | null;
   hf_job_id: string | null;
   hf_flavor: string | null;
   hf_repo_id: string | null;
   hf_job_url: string | null;
   wandb_run_url: string | null;
   checkpoint_count: number;
+  attempts: JobAttempt[];
+  pause_capable: boolean;
+  pause_status: "requested" | "saving" | "saved" | "failed" | null;
+  pause_error: string | null;
+  paused_at: number | null;
+  pause_checkpoint: string | null;
+  pause_step: number | null;
+  resume_error: string | null;
 }
 
 // Per-running-job snapshot pushed by the watchdog over WS at ~1Hz. Subset
@@ -175,6 +341,60 @@ export async function getJobMetricsHistory(
     { signal, action: "Get job metrics history" },
   );
   return body.points;
+}
+
+export async function getJobMetricsEvents(
+  baseUrl: string,
+  fetcher: Fetcher,
+  id: string,
+  options: { after?: number; limit?: number; kinds?: string[]; attempt?: string } = {},
+  signal?: AbortSignal,
+): Promise<MetricEventPage> {
+  const params = new URLSearchParams();
+  params.set("after", String(options.after ?? 0));
+  params.set("limit", String(options.limit ?? 1000));
+  if (options.kinds?.length) params.set("kinds", options.kinds.join(","));
+  if (options.attempt) params.set("attempt", options.attempt);
+  return apiRequest<MetricEventPage>(
+    baseUrl,
+    fetcher,
+    `/jobs/${id}/metrics-events?${params.toString()}`,
+    { signal, action: "Get job metric events" },
+  );
+}
+
+export async function getJobMonitor(
+  baseUrl: string,
+  fetcher: Fetcher,
+  id: string,
+  signal?: AbortSignal,
+): Promise<JobMonitorInfo> {
+  return apiRequest<JobMonitorInfo>(baseUrl, fetcher, `/jobs/${id}/monitor`, {
+    signal,
+    action: "Get job monitor info",
+  });
+}
+
+export async function pauseJob(
+  baseUrl: string,
+  fetcher: Fetcher,
+  id: string,
+): Promise<JobRecord> {
+  return apiRequest<JobRecord>(baseUrl, fetcher, `/jobs/${id}/pause`, {
+    method: "POST",
+    action: "Pause job",
+  });
+}
+
+export async function resumeJob(
+  baseUrl: string,
+  fetcher: Fetcher,
+  id: string,
+): Promise<JobRecord> {
+  return apiRequest<JobRecord>(baseUrl, fetcher, `/jobs/${id}/resume`, {
+    method: "POST",
+    action: "Resume job",
+  });
 }
 
 export async function startTrainingJob(

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
@@ -20,6 +20,36 @@ const SectionHeading: React.FC<{ children: React.ReactNode }> = ({ children }) =
     {children}
   </h4>
 );
+
+const EpisodeListInput: React.FC<{
+  value?: number[];
+  onChange: (value: number[] | undefined) => void;
+}> = ({ value, onChange }) => {
+  const [text, setText] = useState((value ?? []).join(', '));
+  useEffect(() => {
+    setText((value ?? []).join(', '));
+  }, [value]);
+  return (
+    <Input
+      value={text}
+      onChange={(event) => setText(event.target.value)}
+      onBlur={() => {
+        const parts = text
+          .split(',')
+          .map((part) => part.trim())
+          .filter((part) => part.length > 0);
+        const parsed = parts.map(Number);
+        onChange(
+          parsed.length > 0 && parsed.every((value) => Number.isInteger(value) && value >= 0)
+            ? parsed
+            : undefined,
+        );
+      }}
+      placeholder="例如 0,1,2,3,4,5,6,7,8,9,10,11"
+      className="bg-slate-900 border-slate-600 text-white rounded-lg"
+    />
+  );
+};
 
 const AdvancedCard: React.FC<ConfigComponentProps> = ({ config, updateConfig }) => {
   const [expanded, setExpanded] = useState(false);
@@ -155,9 +185,12 @@ const AdvancedCard: React.FC<ConfigComponentProps> = ({ config, updateConfig }) 
                   step="0.0001"
                   value={config.optimizer_lr}
                   onChange={(v) => updateConfig('optimizer_lr', v)}
-                  placeholder="Use policy default"
+                  placeholder="Policy default (SmolVLA preset 1e-4)"
                   className="bg-slate-900 border-slate-600 text-white rounded-lg"
                 />
+                <p className="mt-1 text-xs text-slate-500">
+                  该值在 policy preset 之后应用，并可在监控页核对实际 resolved LR。
+                </p>
               </div>
               <div>
                 <Label htmlFor="optimizer_weight_decay" className="text-slate-300">
@@ -188,6 +221,204 @@ const AdvancedCard: React.FC<ConfigComponentProps> = ({ config, updateConfig }) 
                 />
               </div>
             </div>
+          </section>
+
+          <Separator className="bg-slate-700" />
+
+          {/* Learning-rate schedule */}
+          <section className="space-y-4">
+            <SectionHeading>Learning-rate schedule</SectionHeading>
+            <div>
+              <Label htmlFor="scheduler_type" className="text-slate-300">
+                Scheduler
+              </Label>
+              <Select
+                value={config.scheduler_type || 'preset'}
+                onValueChange={(value) =>
+                  updateConfig(
+                    'scheduler_type',
+                    value === 'preset'
+                      ? ''
+                      : (value as
+                          | 'cosine_decay_with_warmup'
+                          | 'cosine_annealing_with_warmup'
+                          | 'constant_with_warmup'),
+                  )
+                }
+              >
+                <SelectTrigger
+                  id="scheduler_type"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600 text-white">
+                  <SelectItem value="preset">Use policy preset</SelectItem>
+                  <SelectItem value="cosine_decay_with_warmup">
+                    Cosine decay with warmup
+                  </SelectItem>
+                  <SelectItem value="cosine_annealing_with_warmup">
+                    Cosine annealing with warmup
+                  </SelectItem>
+                  <SelectItem value="constant_with_warmup">Constant with warmup</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <Label htmlFor="scheduler_warmup_steps" className="text-slate-300">
+                  Warmup steps
+                </Label>
+                <NumberInput
+                  id="scheduler_warmup_steps"
+                  value={config.scheduler_warmup_steps}
+                  onChange={(v) => updateConfig('scheduler_warmup_steps', v)}
+                  placeholder="preset"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+              <div>
+                <Label htmlFor="scheduler_decay_steps" className="text-slate-300">
+                  Decay horizon
+                </Label>
+                <NumberInput
+                  id="scheduler_decay_steps"
+                  value={config.scheduler_decay_steps}
+                  onChange={(v) => updateConfig('scheduler_decay_steps', v)}
+                  placeholder="preset"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+              <div>
+                <Label htmlFor="scheduler_peak_lr" className="text-slate-300">
+                  Peak LR
+                </Label>
+                <NumberInput
+                  id="scheduler_peak_lr"
+                  integer={false}
+                  value={config.scheduler_peak_lr}
+                  onChange={(v) => updateConfig('scheduler_peak_lr', v)}
+                  placeholder="preset"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+              <div>
+                <Label htmlFor="scheduler_floor_lr" className="text-slate-300">
+                  Floor LR
+                </Label>
+                <NumberInput
+                  id="scheduler_floor_lr"
+                  integer={false}
+                  value={config.scheduler_floor_lr}
+                  onChange={(v) => updateConfig('scheduler_floor_lr', v)}
+                  placeholder="preset"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-slate-500">
+              SmolVLA Scene1 常用：peak 1e-4、warmup 500、cosine horizon 15000、floor 1e-5。
+              留空则沿用 policy preset；显式值在 preset 之后生效。续训任务锁定 checkpoint 中的
+              optimizer/scheduler，不会静默改写。
+            </p>
+          </section>
+
+          <Separator className="bg-slate-700" />
+
+          {/* Validation and monitoring */}
+          <section className="space-y-4">
+            <SectionHeading>Validation & monitoring</SectionHeading>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="eval_steps" className="text-slate-300">
+                  Validation every N steps
+                </Label>
+                <NumberInput
+                  id="eval_steps"
+                  value={config.eval_steps}
+                  onChange={(v) => updateConfig('eval_steps', v)}
+                  placeholder="0 = disabled"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+              <div>
+                <Label htmlFor="max_eval_samples" className="text-slate-300">
+                  Max validation samples
+                </Label>
+                <NumberInput
+                  id="max_eval_samples"
+                  value={config.max_eval_samples}
+                  onChange={(v) => updateConfig('max_eval_samples', v)}
+                  placeholder="0 = all"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+              <div>
+                <Label htmlFor="weight_norm_freq" className="text-slate-300">
+                  Weight norm every N steps
+                </Label>
+                <NumberInput
+                  id="weight_norm_freq"
+                  value={config.weight_norm_freq}
+                  onChange={(v) => updateConfig('weight_norm_freq', v)}
+                  placeholder="250"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="dataset_eval_episodes" className="text-slate-300">
+                  Validation episodes (explicit)
+                </Label>
+                <EpisodeListInput
+                  value={config.dataset_eval_episodes}
+                  onChange={(v) => updateConfig('dataset_eval_episodes', v)}
+                />
+                <p className="mt-1 text-xs text-slate-500">
+                  Scene1：validation 0–11，train 由其余 episode 自动构成（12–63）。
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="dataset_eval_split" className="text-slate-300">
+                  Validation split (fraction, optional)
+                </Label>
+                <NumberInput
+                  id="dataset_eval_split"
+                  integer={false}
+                  value={config.dataset_eval_split}
+                  onChange={(v) => updateConfig('dataset_eval_split', v)}
+                  placeholder="e.g. 0.2; leave empty for explicit episodes"
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+                <p className="mt-1 text-xs text-slate-500">
+                  与显式 episodes 二选一；不要对 Scene1 使用比例重切。
+                </p>
+              </div>
+            </div>
+            {config.policy_type === 'smolvla' && (
+              <div className="flex items-center space-x-3">
+                <Switch
+                  id="action_loss_groups"
+                  checked={!!config.action_loss_groups}
+                  onCheckedChange={(checked) =>
+                    updateConfig(
+                      'action_loss_groups',
+                      checked
+                        ? {
+                            joints: [0, 1, 2, 3, 4, 6, 7, 8, 9, 10],
+                            gripper_left: [5],
+                            gripper_right: [11],
+                          }
+                        : null,
+                    )
+                  }
+                />
+                <Label htmlFor="action_loss_groups" className="text-slate-300">
+                  Record grouped flow loss (10 relative joints + 2 absolute grippers, 12D)
+                </Label>
+              </div>
+            )}
           </section>
 
           <Separator className="bg-slate-700" />
