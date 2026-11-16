@@ -170,3 +170,56 @@ def ensure_safe_goal_position(
         )
 
     return safe_goal_positions
+
+
+# LeLab local customization (not upstream): absolute workspace around the pose
+# captured on the first action. Kept beside ensure_safe_goal_position because the
+# two guards compose in a fixed order inside SOFollower.send_action.
+def ensure_safe_position_deviation(
+    goal_origin_pos: dict[str, tuple[float, float]], max_position_deviation: float | dict[str, float]
+) -> dict[str, float]:
+    """Clamp goals to a fixed range around a captured startup position.
+
+    Dictionary limits intentionally require an exact key match. A partially
+    specified safety envelope is more dangerous than rejecting the command,
+    because an omitted joint would otherwise move without an absolute bound.
+    """
+
+    if isinstance(max_position_deviation, float):
+        deviation_cap = dict.fromkeys(goal_origin_pos, max_position_deviation)
+    elif isinstance(max_position_deviation, dict):
+        if set(goal_origin_pos) != set(max_position_deviation):
+            raise ValueError("max_position_deviation keys must match those of goal_origin_pos.")
+        deviation_cap = max_position_deviation
+    else:
+        raise TypeError(max_position_deviation)
+
+    invalid_limits = {
+        key: value
+        for key, value in deviation_cap.items()
+        if not isinstance(value, (int, float)) or isinstance(value, bool) or value <= 0
+    }
+    if invalid_limits:
+        raise ValueError(f"max_position_deviation values must be positive numbers: {invalid_limits}")
+
+    warnings_dict = {}
+    safe_goal_positions = {}
+    for key, (goal_pos, origin_pos) in goal_origin_pos.items():
+        max_deviation = deviation_cap[key]
+        safe_goal_pos = min(goal_pos, origin_pos + max_deviation)
+        safe_goal_pos = max(safe_goal_pos, origin_pos - max_deviation)
+        safe_goal_positions[key] = safe_goal_pos
+        if abs(safe_goal_pos - goal_pos) > 1e-4:
+            warnings_dict[key] = {
+                "original goal_pos": goal_pos,
+                "startup origin_pos": origin_pos,
+                "safe goal_pos": safe_goal_pos,
+            }
+
+    if warnings_dict:
+        logger.warning(
+            "Goal position exceeded the configured startup-position workspace and was clamped.\n"
+            f"{pformat(warnings_dict, indent=4)}"
+        )
+
+    return safe_goal_positions

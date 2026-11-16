@@ -35,6 +35,22 @@ class SOFollowerConfig:
     # names to the max_relative_target value for that motor.
     max_relative_target: float | dict[str, float] | None = None
 
+    # `max_position_deviation` limits each motor to a fixed workspace around the
+    # position observed immediately before the first action is sent. This is an
+    # additional guard (not a replacement for `max_relative_target`): the
+    # relative limit caps one control step while this limit caps total travel
+    # from the startup pose. Set a positive scalar for every motor or provide a
+    # dictionary whose keys exactly match the commanded motor names.
+    max_position_deviation: float | dict[str, float] | None = None
+
+    # `calibration_range_margin` clamps every command into the joint range
+    # measured at calibration time. Positive values shrink that range, negative
+    # values expand it (covering a calibration measured slightly narrower than
+    # the real motion range). Units follow the command space: degrees when
+    # `use_degrees=True`, otherwise normalized units. Unlike
+    # `max_position_deviation`, this bound is task-independent.
+    calibration_range_margin: float | dict[str, float] | None = None
+
     # cameras
     cameras: dict[str, CameraConfig] = field(default_factory=dict)
 

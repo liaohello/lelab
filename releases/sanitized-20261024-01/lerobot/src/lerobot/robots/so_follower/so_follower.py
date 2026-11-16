@@ -24,7 +24,8 @@ from lerobot.motors import Motor, MotorNormMode, SerialMotorsBus
 from lerobot.utils.decorators import check_if_already_connected, check_if_not_connected
 
 from ..robot import Robot
-from ..utils import ensure_safe_goal_position
+from ..calibration_limits import ensure_within_calibrated_range
+from ..utils import ensure_safe_goal_position, ensure_safe_position_deviation
 from .config_so_follower import SOFollowerRobotConfig
 
 logger = logging.getLogger(__name__)
@@ -79,6 +80,32 @@ class SOFollower(Robot):
             calibration=self.calibration,
         )
         self.cameras = make_cameras_from_configs(config.cameras)
+        # Captured lazily on the first action rather than at connect time so
+        # setup/calibration can finish before the fixed safety workspace is
+        # established. It is reset whenever the device reconnects.
+        self._position_origin: dict[str, float] | None = None
+        # Command-space bounds from the calibration file (task-independent).
+        self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+            limits[motor] = (min(low, high), max(low, high))
+        return limits
 
     @property
     def _motors_ft(self) -> dict[str, type]:
@@ -114,12 +141,19 @@ class SOFollower(Robot):
         and torque can be safely disabled to run calibration.
         """
 
+        self._position_origin = None
         self.bus.connect()
+        self._calibration_limits = self._build_calibration_limits()
         if not self.is_calibrated and calibrate:
             logger.info(
                 "Mismatch between calibration values in the motor and the calibration file or no calibration file found"
             )
             self.calibrate()
+            # A fresh calibration changes the measurable joint range, so the
+            # cached command bounds must be rebuilt. Without this, connect() on
+            # an uncalibrated arm leaves the range guard empty (silently off)
+            # until the next reconnect.
+            self._calibration_limits = self._build_calibration_limits()
 
         for cam in self.cameras.values():
             cam.connect()
@@ -188,8 +222,10 @@ class SOFollower(Robot):
     def send_action(self, action: RobotAction) -> RobotAction:
         """Command arm to move to a target joint configuration.
 
-        The relative action magnitude may be clipped depending on the configuration parameter
-        `max_relative_target`. In this case, the action sent differs from original action.
+        The target may be clipped by `max_position_deviation` (a fixed
+        workspace around the first pre-action pose) and/or
+        `max_relative_target` (the maximum change from the present pose). In
+        that case, the action sent differs from the original action.
         Thus, this function always returns the action actually sent.
 
         Raises:
@@ -201,10 +237,39 @@ class SOFollower(Robot):
 
         goal_pos = {key.removesuffix(".pos"): val for key, val in action.items() if key.endswith(".pos")}
 
+        # Capture the startup pose when the absolute workspace guard first
+        # becomes active. If the relative guard is enabled as well, reuse this
+        # same present-position read; never perform two serial reads per action.
+        present_pos = None
+        needs_origin = self.config.max_position_deviation is not None and self._position_origin is None
+        if self.config.max_relative_target is not None or needs_origin:
+            present_pos = self.bus.sync_read("Present_Position", num_retry=self.config.num_read_retries)
+        if needs_origin:
+            assert present_pos is not None
+            self._position_origin = dict(present_pos)
+            logger.info("Captured startup-position safety origin for %s", self)
+
+        # Apply the fixed workspace first. Applying the per-step limit second
+        # ensures that, if an externally moved joint is already outside the
+        # workspace, recovery still cannot command one large jump.
+        if self.config.max_position_deviation is not None:
+            assert self._position_origin is not None
+            goal_origin_pos = {key: (g_pos, self._position_origin[key]) for key, g_pos in goal_pos.items()}
+            goal_pos = ensure_safe_position_deviation(
+                goal_origin_pos, self.config.max_position_deviation
+            )
+
+        # Absolute joint bounds from the calibration file. Applied before the
+        # relative cap so an externally moved joint still cannot jump.
+        if self.config.calibration_range_margin is not None and self._calibration_limits:
+            goal_pos = ensure_within_calibrated_range(
+                goal_pos, self._calibration_limits, self.config.calibration_range_margin
+            )
+
         # Cap goal position when too far away from present position.
         # /!\ Slower fps expected due to reading from the follower.
         if self.config.max_relative_target is not None:
-            present_pos = self.bus.sync_read("Present_Position", num_retry=self.config.num_read_retries)
+            assert present_pos is not None
             goal_present_pos = {key: (g_pos, present_pos[key]) for key, g_pos in goal_pos.items()}
             goal_pos = ensure_safe_goal_position(goal_present_pos, self.config.max_relative_target)
 
@@ -215,6 +280,7 @@ class SOFollower(Robot):
     @check_if_not_connected
     def disconnect(self):
         self.bus.disconnect(self.config.disable_torque_on_disconnect)
+        self._position_origin = None
         for cam in self.cameras.values():
             cam.disconnect()
 

@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from contextlib import contextmanager
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -23,6 +24,19 @@ from lerobot.robots.so_follower import (
     SO100Follower,
     SO100FollowerConfig,
 )
+
+
+# The real bus maps encoder ticks to degrees around a 500-tick centre with 240
+# degrees across the 1000-tick span. The fake only needs the same shape so the
+# calibration-range guard can be exercised without hardware.
+DEGREES_PER_TICK = 240 / 1000
+TICK_CENTRE = 500
+
+
+def _ticks_to_degrees(ids_values: dict[int, int]) -> dict[int, float]:
+    return {
+        motor_id: (value - TICK_CENTRE) * DEGREES_PER_TICK for motor_id, value in ids_values.items()
+    }
 
 
 def _make_bus_mock() -> MagicMock:
@@ -62,6 +76,13 @@ def follower(tmp_path):
         bus_mock.disable_torque.return_value = None
         bus_mock.enable_torque.return_value = None
         bus_mock.is_calibrated = True
+        # `_build_calibration_limits` iterates the calibration mapping and asks the
+        # bus to normalize each endpoint. A bare MagicMock would make both calls
+        # return mocks and `min()`/`max()` would raise TypeError, so the default
+        # fake reports "no calibration file" (empty mapping) and the range guard
+        # stays inactive unless a test installs a real mapping.
+        bus_mock.calibration = {}
+        bus_mock._normalize.side_effect = _ticks_to_degrees
         return bus_mock
 
     with (
@@ -131,6 +152,128 @@ def test_send_action_uses_read_retries(follower):
     follower.send_action(action)
 
     follower.bus.sync_read.assert_called_once_with("Present_Position", num_retry=7)
+
+
+def test_send_action_combines_relative_and_startup_workspace_limits_with_one_read(follower):
+    follower.config.max_relative_target = 3.0
+    follower.config.max_position_deviation = 12.0
+    follower.connect()
+    follower.bus.sync_read.return_value = dict.fromkeys(follower.bus.motors, 10.0)
+
+    action = {f"{motor}.pos": 100.0 for motor in follower.bus.motors}
+    returned = follower.send_action(action)
+
+    follower.bus.sync_read.assert_called_once_with(
+        "Present_Position", num_retry=follower.config.num_read_retries
+    )
+    assert returned == {f"{motor}.pos": 13.0 for motor in follower.bus.motors}
+    follower.bus.sync_write.assert_called_once_with(
+        "Goal_Position", dict.fromkeys(follower.bus.motors, 13.0)
+    )
+
+
+def test_startup_workspace_origin_is_captured_once(follower):
+    follower.config.max_position_deviation = 12.0
+    follower.connect()
+    follower.bus.sync_read.return_value = dict.fromkeys(follower.bus.motors, 10.0)
+
+    first_action = {f"{motor}.pos": 100.0 for motor in follower.bus.motors}
+    second_action = {f"{motor}.pos": -100.0 for motor in follower.bus.motors}
+    assert follower.send_action(first_action) == {f"{motor}.pos": 22.0 for motor in follower.bus.motors}
+    assert follower.send_action(second_action) == {f"{motor}.pos": -2.0 for motor in follower.bus.motors}
+
+    # The fixed workspace no longer needs a serial read after its origin has
+    # been captured (unless the per-step guard is also enabled).
+    follower.bus.sync_read.assert_called_once()
+
+
+def test_startup_workspace_origin_survives_a_step_towards_the_envelope(follower):
+    # TC-SAF-02: the arm was pushed outside the envelope by an external force.
+    # Recovery must walk back one relative step at a time instead of jumping to
+    # the workspace boundary, and the origin must not drift between steps.
+    follower.config.max_position_deviation = 10.0
+    follower.config.max_relative_target = 2.0
+    follower.connect()
+
+    follower.bus.sync_read.return_value = dict.fromkeys(follower.bus.motors, 0.0)
+    follower.send_action({f"{motor}.pos": 0.0 for motor in follower.bus.motors})  # capture origin
+
+    follower.bus.sync_read.return_value = dict.fromkeys(follower.bus.motors, 25.0)  # pushed out
+    returned = follower.send_action({f"{motor}.pos": 0.0 for motor in follower.bus.motors})
+
+    # workspace clamps 0 -> -10+ ... origin 0, deviation 10 -> allowed [-10, 10];
+    # present 25 so the relative cap of 2 dominates and yields 23, still outside
+    # the absolute envelope. That temporary excursion is the documented cost of
+    # keeping the per-step guard authoritative during recovery.
+    assert returned == {f"{motor}.pos": 23.0 for motor in follower.bus.motors}
+
+
+def test_startup_workspace_dict_requires_all_commanded_motor_keys(follower):
+    follower.config.max_position_deviation = {"shoulder_pan": 12.0}
+    follower.connect()
+
+    action = {f"{motor}.pos": 0.0 for motor in follower.bus.motors}
+    with pytest.raises(ValueError, match="max_position_deviation keys"):
+        follower.send_action(action)
+
+    follower.bus.sync_write.assert_not_called()
+
+
+def test_all_three_guards_compose_in_the_documented_order(follower):
+    # TC-SAF-01 canonical case: origin=0 (captured at present=0), then present=6,
+    # target=100, workspace=+-10, calibrated range [-8, 8], step cap=2.
+    # workspace -> 10, calibration -> 8, relative -> 8 (diff 2 fits).
+    follower.bus.calibration = {
+        motor: SimpleNamespace(range_min=500 - 8 / DEGREES_PER_TICK, range_max=500 + 8 / DEGREES_PER_TICK)
+        for motor in follower.bus.motors
+    }
+    follower.config.calibration_range_margin = 0.0
+    follower.config.max_position_deviation = 10.0
+    follower.config.max_relative_target = 2.0
+    follower.connect()
+
+    follower.bus.sync_read.return_value = dict.fromkeys(follower.bus.motors, 0.0)
+    follower.send_action({f"{motor}.pos": 0.0 for motor in follower.bus.motors})
+
+    follower.bus.sync_read.return_value = dict.fromkeys(follower.bus.motors, 6.0)
+    returned = follower.send_action({f"{motor}.pos": 100.0 for motor in follower.bus.motors})
+
+    for motor in follower.bus.motors:
+        assert returned[f"{motor}.pos"] == pytest.approx(8.0)
+    follower.bus.sync_write.assert_called_with(
+        "Goal_Position", {motor: pytest.approx(8.0) for motor in follower.bus.motors}
+    )
+
+
+def test_calibration_range_margin_clamps_into_measured_range(follower):
+    follower.bus.calibration = {
+        motor: SimpleNamespace(range_min=200, range_max=800) for motor in follower.bus.motors
+    }
+    follower.config.calibration_range_margin = 0.0
+    follower.connect()
+
+    assert follower._calibration_limits["shoulder_pan"] == (-72.0, 72.0)
+
+    returned = follower.send_action({f"{motor}.pos": 200.0 for motor in follower.bus.motors})
+
+    assert returned == {f"{motor}.pos": 72.0 for motor in follower.bus.motors}
+    # No serial read: the range guard is derived from the calibration file.
+    follower.bus.sync_read.assert_not_called()
+    follower.bus.sync_write.assert_called_once_with(
+        "Goal_Position", dict.fromkeys(follower.bus.motors, 72.0)
+    )
+
+
+def test_calibration_range_margin_shrinks_the_measured_range(follower):
+    follower.bus.calibration = {
+        motor: SimpleNamespace(range_min=200, range_max=800) for motor in follower.bus.motors
+    }
+    follower.config.calibration_range_margin = 12.0
+    follower.connect()
+
+    returned = follower.send_action({f"{motor}.pos": -100.0 for motor in follower.bus.motors})
+
+    assert returned == {f"{motor}.pos": -60.0 for motor in follower.bus.motors}
 
 
 def test_send_action(follower):
