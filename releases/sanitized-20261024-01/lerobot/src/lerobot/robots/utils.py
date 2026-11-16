@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import math
 from pprint import pformat
 from typing import cast
 
@@ -26,7 +27,11 @@ logger = logging.getLogger(__name__)
 
 def make_robot_from_config(config: RobotConfig) -> Robot:
     # TODO(Steven): Consider just using the make_device_from_device_class for all types
-    if config.type == "koch_follower":
+    if config.type == "sim":
+        from .sim_robot import SimRobot
+
+        return SimRobot(config)
+    elif config.type == "koch_follower":
         from .koch_follower import KochFollower
 
         return KochFollower(config)
@@ -70,6 +75,14 @@ def make_robot_from_config(config: RobotConfig) -> Robot:
         from .bi_openarm_follower import BiOpenArmFollower
 
         return BiOpenArmFollower(config)
+    elif config.type == "bi_yam_follower":
+        from .bi_yam_follower import BiYamFollower
+
+        return BiYamFollower(config)
+    elif config.type == "yam_follower":
+        from .yam_follower import YamFollower
+
+        return YamFollower(config)
     elif config.type == "rebot_b601_follower":
         from .rebot_b601_follower import RebotB601Follower
 
@@ -87,6 +100,37 @@ def make_robot_from_config(config: RobotConfig) -> Robot:
             return cast(Robot, make_device_from_device_class(config))
         except Exception as e:
             raise ValueError(f"Error creating robot with config {config}: {e}") from e
+
+
+# A sim robot is imported where it is used, as in make_robot_from_config: it pulls the env configs.
+def check_control_rate(robot: Robot, fps: float, flag: str | None = None, multiplier: int = 1) -> None:
+    """Raise unless `fps * multiplier` commands per second match a sim robot's control rate."""
+    from .sim_robot import SimRobot
+
+    if not isinstance(robot, SimRobot):
+        return
+    sent, rate = fps * multiplier, robot.descriptor.fps
+    if not math.isclose(sent, rate):
+        hint = f": pass {flag}={rate / multiplier:g}" if flag else ""
+        raise ValueError(
+            f"The control loop sends {sent:g} commands per second but the simulator control rate is {rate:g} Hz"
+            f"{hint}"
+        )
+
+
+def start_episode(robot: Robot) -> None:
+    """Start a new episode. A sim robot resets its environment; a real robot's scene is reset by hand."""
+    from .sim_robot import SimRobot
+
+    if isinstance(robot, SimRobot):
+        robot.start_episode()
+
+
+def episode_ended(robot: Robot) -> bool:
+    """Return whether a sim robot's episode just ended; always False for a real robot."""
+    from .sim_robot import SimRobot
+
+    return isinstance(robot, SimRobot) and robot.episode_ended
 
 
 # TODO(pepijn): Move to pipeline step to make sure we don't have to do this in the robot code and send action to robot is clean for use in dataset
@@ -122,56 +166,6 @@ def ensure_safe_goal_position(
     if warnings_dict:
         logger.warning(
             "Relative goal position magnitude had to be clamped to be safe.\n"
-            f"{pformat(warnings_dict, indent=4)}"
-        )
-
-    return safe_goal_positions
-
-
-def ensure_safe_position_deviation(
-    goal_origin_pos: dict[str, tuple[float, float]], max_position_deviation: float | dict[str, float]
-) -> dict[str, float]:
-    """Clamp goals to a fixed range around a captured startup position.
-
-    Dictionary limits intentionally require an exact key match. A partially
-    specified safety envelope is more dangerous than rejecting the command,
-    because an omitted joint would otherwise move without an absolute bound.
-    """
-
-    if isinstance(max_position_deviation, float):
-        deviation_cap = dict.fromkeys(goal_origin_pos, max_position_deviation)
-    elif isinstance(max_position_deviation, dict):
-        if set(goal_origin_pos) != set(max_position_deviation):
-            raise ValueError("max_position_deviation keys must match those of goal_origin_pos.")
-        deviation_cap = max_position_deviation
-    else:
-        raise TypeError(max_position_deviation)
-
-    invalid_limits = {
-        key: value
-        for key, value in deviation_cap.items()
-        if not isinstance(value, (int, float)) or isinstance(value, bool) or value <= 0
-    }
-    if invalid_limits:
-        raise ValueError(f"max_position_deviation values must be positive numbers: {invalid_limits}")
-
-    warnings_dict = {}
-    safe_goal_positions = {}
-    for key, (goal_pos, origin_pos) in goal_origin_pos.items():
-        max_deviation = deviation_cap[key]
-        safe_goal_pos = min(goal_pos, origin_pos + max_deviation)
-        safe_goal_pos = max(safe_goal_pos, origin_pos - max_deviation)
-        safe_goal_positions[key] = safe_goal_pos
-        if abs(safe_goal_pos - goal_pos) > 1e-4:
-            warnings_dict[key] = {
-                "original goal_pos": goal_pos,
-                "startup origin_pos": origin_pos,
-                "safe goal_pos": safe_goal_pos,
-            }
-
-    if warnings_dict:
-        logger.warning(
-            "Goal position exceeded the configured startup-position workspace and was clamped.\n"
             f"{pformat(warnings_dict, indent=4)}"
         )
 

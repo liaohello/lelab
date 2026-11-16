@@ -12,189 +12,167 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Keep this file conservative: ignore files that are generated, local to one
-# machine, or sensitive. Source assets (including URDF/XML/STL), test fixtures,
-# project configuration, and dependency lock files should remain trackable.
-
-### Secrets and local-only configuration ###
+### Environments & Dependencies ###
 .env
-.env.*
-!.env.example
-!.env.sample
-!.env.template
-.secrets/
-*.key
-*.pem
-*.p12
-*.pfx
-credentials.local.*
-secrets.local.*
+.venv
+env/
+venv/
+env.bak/
+venv.bak/
+.python-version
+__pypackages__/
+node_modules/
 
-### Environments and dependencies ###
-/.venv/
-/venv/
-/env/
-/env.bak/
-/venv.bak/
-/.conda/
-/__pypackages__/
-/.python-version
-/node_modules/
+# Lock files
+poetry.lock
+Pipfile.lock
 
-# Dependency lock files are intentionally not ignored. In particular, uv.lock
-# is part of the reproducible development environment and should be committed.
-
-### Build and distribution ###
-/build/
-/dist/
-/sdist/
-/wheels/
-/downloads/
-/.eggs/
+### Build & Distribution ###
+build/
+dist/
+sdist/
+wheels/
+downloads/
+eggs/
+.eggs/
+parts/
+var/
+pip-wheel-metadata/
+share/python-wheels/
+develop-eggs/
 *.egg-info/
+.installed.cfg
 *.egg
-/.installed.cfg
-/pip-wheel-metadata/
-/develop-eggs/
 MANIFEST
+lib/
+lib64/
 
-### Python bytecode, compiled extensions, and caches ###
+# PyInstaller
+*.manifest
+*.spec
+
+### Compiled & Cached Files ###
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-*.pyd
 *.sage.py
 .cache/
-.uv-cache/
 .ruff_cache/
 .mypy_cache/
 .pyre/
 .pytype/
-.dmypy.json
-dmypy.json
 cython_debug/
 
-### Tests and coverage ###
-.pytest_cache/
-.hypothesis/
+### Testing & Coverage ###
+htmlcov/
 .tox/
 .nox/
-htmlcov/
 .coverage
 .coverage.*
-coverage.xml
+.pytest_cache/
+.hypothesis/
 nosetests.xml
-junit*.xml
+coverage.xml
 *.cover
 *.py,cover
-.testmondata
-/tests/outputs/
+!tests/artifacts
 
-# tests/artifacts contains committed fixtures, including videos, bags, and
-# safetensors. Do not add global ignores for those file extensions.
-
-### Runtime logs and temporary files ###
+### Logs & Temporary Files ###
+logs/
+tmp/
 *.log
-*.pid
-*.pid.lock
-*.tmp
-*.temp
-*.bak
-*.orig
-*.swp
-*~
-/.tmp/
-/tmp/
-/temp/
 pip-log.txt
 pip-delete-this-directory.txt
 celerybeat-schedule
 celerybeat.pid
-*.crdownload
-*.partial
 
-### Training, evaluation, and robot data ###
-/data/
-/outputs/
-/checkpoints/
-/runs/
-/recordings/
-/artifacts/
-/wandb/
-/mlruns/
-/lightning_logs/
-/tensorboard/
+### IDE & Editor Config ###
+# VS Code
+.vscode/
+.devcontainer/
 
-# LeRobot datasets, model weights, calibration files, and Hugging Face caches
-# normally live outside the repository (for example under ~/.cache/huggingface).
-# Add an explicit project-relative directory above if a local workflow creates
-# another large output location; avoid ignoring data/model extensions globally.
+# JetBrains / PyCharm
+.idea/
 
-### IDE and editor state ###
-/.idea/
-/.vs/
-/.vscode/*
-!/.vscode/extensions.json
-!/.vscode/launch.json
-!/.vscode/settings.json
-!/.vscode/tasks.json
-!/.vscode/*.code-snippets
+# Spyder
 .spyderproject
 .spyproject
+
+# Rope
 .ropeproject
 
-# Project-level .devcontainer content is intentionally trackable.
+# Vim
+*.swp
 
-### Notebooks and documentation builds ###
-.ipynb_checkpoints/
-profile_default/
-ipython_config.py
-/docs/_build/
-/site/
-/.pybuilder/
-/target/
+# Other
+*~
 
-### Framework-specific local state ###
-/.Python
+### OS Specific ###
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+### Framework & Tool Specific ###
+
+.Python
+
+# Django
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+
+# Flask
 instance/
 .webassets-cache
-.scrapy/
 
-### Development scratch space ###
-/.dev/
+# Scrapy
+.scrapy
 
-### Generated translations ###
-*.mo
+# Jupyter
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
 
-### Operating-system metadata ###
-.DS_Store
-._*
-Thumbs.db
-Desktop.ini
-$RECYCLE.BIN/
+# Sphinx
+docs/_build/
 
-# Deployment-local state; templates remain trackable.
-.workbuddy/
-AGENTS.md
-.private/
-.smoke/
-remote_server.md
-server_des.md
-.env
-.env.*
-*.env
-!*.env.example
-!.env.example
-!*.env.*.example
-*.pem
+# MkDocs
+/site
+
+# PyBuilder
+.pybuilder/
+target/
+
+# mypy
+.dmypy.json
+dmypy.json
+
+### HPC & Slurm ###
+nautilus/*.yaml
 *.key
-*.p12
-*.pfx
-id_ed25519*
-id_rsa*
-secrets/
-credentials/
+sbatch*.sh
+
+### Miscellaneous ###
+# Trackio artifact downloads
+.trackio/
+
+# Dev scripts
+.dev/
+
+# Data folders
+data/
+outputs/
+
+# Translations
+*.mo
+*.pot
+
+# Dev folders
+.cache/*
+*.stl
+*.urdf
+*.xml
+*.part

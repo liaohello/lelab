@@ -121,6 +121,7 @@ from lerobot.robots import (  # noqa: F401
     bi_openarm_follower,
     bi_rebot_b601_follower,
     bi_so_follower,
+    bi_yam_follower,
     earthrover_mini_plus,
     hope_jr,
     koch_follower,
@@ -129,9 +130,12 @@ from lerobot.robots import (  # noqa: F401
     openarm_follower,
     reachy2,
     rebot_b601_follower,
+    sim_robot,
     so_follower,
     unitree_g1 as unitree_g1_robot,
+    yam_follower,
 )
+from lerobot.robots.utils import check_control_rate, episode_ended, start_episode
 from lerobot.teleoperators import (  # noqa: F401
     Teleoperator,
     TeleoperatorConfig,
@@ -227,7 +231,7 @@ class RecordConfig:
 @safe_stop_image_writer
 def record_loop(
     robot: Robot,
-    events: dict,
+    events: dict[str, bool],
     fps: int,
     teleop_action_processor: RobotProcessorPipeline[
         tuple[RobotAction, RobotObservation], RobotAction
@@ -240,15 +244,13 @@ def record_loop(
     ],  # runs after robot
     dataset: LeRobotDataset | None = None,
     teleop: Teleoperator | list[Teleoperator] | None = None,
-    control_time_s: int | None = None,
+    control_time_s: float | None = None,
     single_task: str | None = None,
     display_data: bool = False,
     display_mode: str = "rerun",
     display_compressed_images: bool = False,
     timer: CycleTimer | None = None,
-    cycle_callback=None,
-    save_sent_action: bool = False,
-):
+) -> None:
     """Drive the robot from the teleoperator at *fps*, optionally recording each frame.
 
     *timer* lets a caller that runs several phases — :func:`record` records one episode
@@ -257,38 +259,14 @@ def record_loop(
     statistics span the whole session and are reported per episode.  Without it each
     call gets a private timer: identical pacing and identical slow-loop warnings, just
     no end-of-run summary, since a single phase has no run to summarise.
-
-    中文说明（单条 episode 内的逐帧数据流，整体节奏由 CycleTimer 按 *fps* 定频）：
-        1. 观测采集：robot.get_observation() 拉取原始观测（各关节 state 向量 + 各相机图像），
-           经 robot_observation_processor 处理后，按 ``observation.*`` 前缀组装成
-           observation_frame（build_dataset_frame 依据 dataset.features 决定哪些列存数值、
-           哪些存视频）。
-        2. 动作获取与执行：teleop.get_action() 读取示教动作，先后经两级管线——
-           teleop_action_processor 输出 action_values（这就是最终写入数据集的 action），
-           robot_action_processor 输出 robot_action_to_send（可能含 max_relative_target
-           幅度裁剪），再由 robot.send_action() 下发给机器人执行。
-        3. 帧写入：dataset.add_frame() 把「本帧观测 + 本帧动作 + 任务文本」合为一帧，
-           即 t 时刻的 obs(t) 与 a(t) 配对成一条训练样本，先进入 episode 内存缓冲。
-        4. episode 边界：control_time_s 计时到或 events["exit_early"]（键盘触发）为真时
-           退出循环，本次录下的帧序列即一条 episode；episode 的保存（save_episode）、
-           重录（clear_episode_buffer）由外层 :func:`record` 处理。
-        CTRL+C 等中断由 @safe_stop_image_writer 装饰器与 :func:`record` 的 finally 块兜底收尾。
-
-    *cycle_callback* is a LeLab-local extension: it receives one dict per control
-    cycle with the raw observation, the teleop target, the post-safety sent
-    action and timing information. It lets the web recorder publish a
-    same-cycle joint snapshot and write sidecar diagnostics without reading the
-    serial buses from an HTTP thread.
-
-    *save_sent_action* is also a LeLab-local extension. When true, ``action``
-    stores the command returned by ``robot.send_action()`` (after local safety
-    clamps) instead of the teleop-processor output. It defaults to false so
-    existing single-arm datasets keep their historical semantics.
     """
     if dataset is not None and dataset.fps != fps:
         raise ValueError(f"The dataset fps should be equal to requested fps ({dataset.fps} != {fps}).")
+    if control_time_s is None:
+        raise ValueError("`control_time_s` is required: it is how long the loop runs.")
 
-    teleop_arm = teleop_keyboard = None
+    # Multi-teleop is LeKiwi-only: one arm leader plus a keyboard that drives the base.
+    multi_teleop: tuple[Teleoperator, KeyboardTeleop] | None = None
     if isinstance(teleop, list):
         teleop_keyboard = next((t for t in teleop if isinstance(t, KeyboardTeleop)), None)
         teleop_arm = next(
@@ -312,31 +290,26 @@ def record_loop(
             raise ValueError(
                 "For multi-teleop, the list must contain exactly one KeyboardTeleop and one arm teleoperator. Currently only supported for LeKiwi robot."
             )
+        multi_teleop = (teleop_arm, teleop_keyboard)
 
     if timer is None:
         timer = CycleTimer(fps, records_data=dataset is not None)
 
     no_action_count = 0
-    timestamp = 0
-    episode_frame_index = 0
+    timestamp = 0.0
     start_episode_t = time.perf_counter()
     while timestamp < control_time_s:
         # Checked before `tick()`: this iteration is not a control tick, so it should not
-        # be timed as one. `stop_recording` aborts the current phase immediately so a
-        # web/emergency stop is not delayed by another observe/send cycle.
-        if events["exit_early"] or events.get("stop_recording", False):
+        # be timed as one.
+        if events["exit_early"]:
             events["exit_early"] = False
             break
 
-        cycle_started = time.perf_counter()
-        cycle_started_wall = time.time()
-        cycle_started_monotonic = time.monotonic()
         timer.tick()
 
         with timer.section("observe"):
             # Get robot observation
             obs = robot.get_observation()
-        observe_done = time.perf_counter()
 
         with timer.section("process_obs"):
             # Applies a pipeline to the raw robot observation, default is IdentityProcessor
@@ -357,11 +330,12 @@ def record_loop(
                 action_values = act_processed_teleop
                 robot_action_to_send = robot_action_processor((act_processed_teleop, obs))
 
-            elif isinstance(teleop, list):
-                arm_action = teleop_arm.get_action()
+            elif multi_teleop is not None:
+                arm_teleop, keyboard_teleop = multi_teleop
+                arm_action = arm_teleop.get_action()
                 arm_action = {f"arm_{k}": v for k, v in arm_action.items()}
-                keyboard_action = teleop_keyboard.get_action()
-                base_action = robot._from_keyboard_to_base_action(keyboard_action)
+                keyboard_action = keyboard_teleop.get_action()
+                base_action = robot._from_keyboard_to_base_action(keyboard_action)  # type: ignore[attr-defined]
                 act = {**arm_action, **base_action} if len(base_action) > 0 else arm_action
                 act_processed_teleop = teleop_action_processor((act, obs))
                 action_values = act_processed_teleop
@@ -375,7 +349,6 @@ def record_loop(
                         "This is likely to happen when resetting the environment without a teleop device. "
                         "The robot won't be at its rest position at the start of the next episode."
                     )
-        teleop_done = time.perf_counter()
 
         # Nothing to send and nothing to record, but the phase still has to be paced and
         # still has to end: `continue`ing straight past the tail of the loop body used to
@@ -391,65 +364,13 @@ def record_loop(
             # so action actually sent is saved in the dataset. action = postprocessor.process(action)
             # TODO(steven, pepijn, adil): we should use a pipeline step to clip the action, so the sent action is the action that we input to the robot.
             _sent_action = robot.send_action(robot_action_to_send)
-        send_done = time.perf_counter()
 
-        recorded_frame_index = None
         # Write to dataset
         if dataset is not None:
             with timer.section("record"):
-                # action 记录的是本帧（t 时刻）示教动作经 teleop 管线后的值；它与同一时刻的
-                # observation（各关节 state + 相机图像）合并为一帧，经 add_frame 写入当前
-                # episode 缓冲，save_episode 时才落盘为 parquet 行 + 视频帧。
-                action_for_dataset = action_values
-                if save_sent_action:
-                    missing = [key for key in action_values if key not in _sent_action]
-                    if missing:
-                        raise ValueError(
-                            "save_sent_action=True but send_action() omitted action keys: "
-                            f"{missing}"
-                        )
-                    action_for_dataset = _sent_action
-                recorded_frame_index = episode_frame_index
-                action_frame = build_dataset_frame(
-                    dataset.features, action_for_dataset, prefix=ACTION
-                )
+                action_frame = build_dataset_frame(dataset.features, action_values, prefix=ACTION)
                 frame = {**observation_frame, **action_frame, "task": single_task}
                 dataset.add_frame(frame)
-                episode_frame_index += 1
-        record_done = time.perf_counter()
-
-        if cycle_callback is not None:
-            try:
-                cycle_callback(
-                    {
-                        "observation": obs_processed,
-                        "raw_action": dict(action_values),
-                        "sent_action": dict(_sent_action),
-                        "recorded": dataset is not None,
-                        "frame_index": recorded_frame_index,
-                        "episode_index": dataset.num_episodes
-                        if dataset is not None
-                        else None,
-                        "standard_timestamp_s": (recorded_frame_index / fps)
-                        if recorded_frame_index is not None
-                        else None,
-                        "cycle_started_wall_s": cycle_started_wall,
-                        "cycle_started_monotonic_s": cycle_started_monotonic,
-                        "elapsed_s": cycle_started - start_episode_t,
-                        "fps": fps,
-                        "timings_ms": {
-                            "observe": (observe_done - cycle_started) * 1000.0,
-                            "process_obs": (teleop_done - observe_done) * 1000.0,
-                            "send": (send_done - teleop_done) * 1000.0,
-                            "record": (record_done - send_done) * 1000.0,
-                            "total": (record_done - cycle_started) * 1000.0,
-                        },
-                    }
-                )
-            except Exception:
-                # A UI/diagnostics callback must never stop data capture. The
-                # app-level callback records its own last error for the status API.
-                logging.exception("cycle_callback failed; recording continues")
 
         if display_data:
             with timer.section("telemetry"):
@@ -459,6 +380,10 @@ def record_loop(
                     action=action_values,
                     compress_images=display_compressed_images,
                 )
+
+        # End the recorded episode when the sim robot's episode ends (success, failure or step limit).
+        if dataset is not None and episode_ended(robot):
+            break
 
         timer.wait()
 
@@ -472,25 +397,6 @@ def record(
     robot_action_processor: RobotProcessorPipeline | None = None,
     robot_observation_processor: RobotProcessorPipeline | None = None,
 ) -> LeRobotDataset:
-    """录制主入口：把真实设备（机器人 + 示教器 + 相机）的示范数据采集为 LeRobotDataset。
-
-    中文说明（整体流程）：
-        1. 初始化：由 robot.action_features / robot.observation_features 结合各处理管线聚合出
-           dataset_features，它决定 parquet 的数值列、哪些观测以视频形式存储；
-        2. 数据集初始化：cfg.resume=True 时用 LeRobotDataset.resume() 在已有数据集上追加；
-           否则用 LeRobotDataset.create() 新建。落盘结构为 meta/（info.json、stats.json、
-           tasks 等）+ data/chunk-xxx/file-xxx.parquet（state/action 等数值列，每行一帧）
-           + videos/observation.images.<相机名>/chunk-xxx/file-xxx.mp4（相机帧）；
-        3. 连接设备：先连 teleop 再连 robot，并注册键盘监听（events 控制提前结束当前
-           episode、重录、整体停止）；
-        4. 逐 episode 循环：record_loop() 录满一条 → dataset.save_episode() 落盘（parquet
-           追加该 episode 的所有帧、编码视频、更新 meta/episodes 元数据）；两集之间插入一段
-           不录制的 reset 阶段供人工复位环境；若按了 rerecord_episode 键，则用
-           clear_episode_buffer() 丢弃当前缓冲并重录；
-        5. 收尾（finally 块，正常结束与 CTRL+C 中断都走这里）：打印节拍统计 →
-           dataset.finalize() 刷盘收尾（写 parquet footer，缺少则数据集无效）→ 断开设备 →
-           可选 push_to_hub 上传 Hub。
-    """
     init_logging()
     logging.info(pformat(asdict(cfg)))
     if cfg.display_data:
@@ -504,6 +410,7 @@ def record(
     )
 
     robot = make_robot_from_config(cfg.robot)
+    check_control_rate(robot, cfg.dataset.fps, "--dataset.fps")
     teleop = make_teleoperator_from_config(cfg.teleop) if cfg.teleop is not None else None
 
     # Fall back to identity pipelines when the caller doesn't supply processors.
@@ -567,17 +474,16 @@ def record(
                     "lerobot-record is for data collection only. Use lerobot-rollout for policy deployment."
                 )
             cfg.dataset.stamp_repo_id()
-            # 新建空数据集：立即写出 meta/（info.json 等）与特征定义；后续每帧经 add_frame
-            # 进入内存缓冲，save_episode 时才真正写成 parquet + mp4。
+            num_cameras = len(robot.cameras)  # type: ignore[attr-defined]
             dataset = LeRobotDataset.create(
                 cfg.dataset.repo_id,
                 cfg.dataset.fps,
                 root=cfg.dataset.root,
-                robot_type=robot.name,
+                robot_type=robot.robot_type,
                 features=dataset_features,
                 use_videos=cfg.dataset.video,
                 image_writer_processes=cfg.dataset.num_image_writer_processes,
-                image_writer_threads=cfg.dataset.num_image_writer_threads_per_camera * len(robot.cameras),
+                image_writer_threads=cfg.dataset.num_image_writer_threads_per_camera * num_cameras,
                 batch_encoding_size=cfg.dataset.video_encoding_batch_size,
                 rgb_encoder=cfg.dataset.rgb_encoder,
                 depth_encoder=cfg.dataset.depth_encoder,
@@ -603,6 +509,7 @@ def record(
             recorded_episodes = 0
             while recorded_episodes < cfg.dataset.num_episodes and not events["stop_recording"]:
                 episode_index = dataset.num_episodes
+                start_episode(robot)
                 log_say(f"Recording episode {episode_index}", cfg.play_sounds)
                 record_loop(
                     robot=robot,
@@ -652,8 +559,6 @@ def record(
                     timer.restart()
                     continue
 
-                # episode 边界落盘点：把缓冲的帧写成 parquet 行、编码相机视频、更新元数据，
-                # 至此这一条示范才真正成为数据集的一部分。
                 dataset.save_episode()
                 recorded_episodes += 1
                 # Close the window on the episode just saved.  The digest is emitted on
@@ -670,8 +575,6 @@ def record(
 
         log_say("Stop recording", cfg.play_sounds, blocking=True)
 
-        # 无论正常录完还是 CTRL+C 中断都在此收尾：finalize() 冲刷剩余缓冲并写 parquet
-        # footer（不调用会导致数据集无效），随后断开设备、按配置上传 Hub。
         if dataset:
             dataset.finalize()
 

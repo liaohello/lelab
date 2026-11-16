@@ -23,6 +23,7 @@ import math
 from collections import deque
 from collections.abc import Callable
 from itertools import chain
+from typing import Any
 
 import einops
 import numpy as np
@@ -43,19 +44,6 @@ class ACTPolicy(PreTrainedPolicy):
     """
     Action Chunking Transformer Policy as per Learning Fine-Grained Bimanual Manipulation with Low-Cost
     Hardware (paper: https://huggingface.co/papers/2304.13705, code: https://github.com/tonyzhaozh/act)
-
-    中文说明（ACT 一句话原理）：ACT = CVAE + Transformer 的「动作分块」策略。训练时用 VAE encoder
-    把「当前机器人状态 + 未来 chunk_size 步真值动作」压缩为隐变量分布（CVAE 条件变分自编码器），
-    Transformer 以隐变量 z、机器人状态、相机图像为条件，一次性回归出一段（chunk）未来动作序列；
-    推理时 z 置零、只走 Transformer，每次前向输出 chunk_size 个动作，按 n_action_steps 逐个消费。
-    config（ACTConfig）决定：输入哪些相机（image_features）、机器人状态维度（robot_state_feature）、
-    chunk_size（一次预测的动作步数）、n_action_steps（每个环境步实际消耗的动作步数）等。
-
-    中文说明（保存/加载，继承自 PreTrainedPolicy 基类，本文件不重写）：
-    - save_pretrained(dir)：写出 config.json（模型结构与特征配置）+ model.safetensors（全部权重）。
-    - from_pretrained(path)：读 config.json 重建 ACTPolicy，再从 model.safetensors 加载权重，
-      默认置于 eval 模式与 config.device。注意：观测/动作的归一化统计不在本文件中，
-      由 processor（pre_post_processing 管道，见 processor_act.py）随 checkpoint 一并保存与恢复。
     """
 
     config_class = ACTConfig
@@ -72,14 +60,6 @@ class ACTPolicy(PreTrainedPolicy):
         Args:
             config: Policy configuration class instance or None, in which case the default instantiation of
                     the configuration class is used.
-
-        中文说明：只负责「搭积木」，本文件内不做输入/输出归一化与动作边界处理（见文件级说明）：
-        - self.model = ACT(config)：创建完整网络（见 ACT 类），内含：
-          * vision encoder（backbone，如 ResNet，逐相机提取图像特征图）；
-          * Transformer encoder + decoder（推理主干；训练且 use_vae 时另有 VAE encoder）；
-          * action head（末端线性层，把 decoder 每个 token 映射为 action_dim 维动作向量）。
-        - 若配置 temporal_ensemble_coeff，额外创建时间集成器（推理时对多个重叠 chunk 做指数加权融合）。
-        - 最后调用 reset() 初始化推理动作队列 _action_queue。
         """
         super().__init__(config)
         config.validate_features()
@@ -92,7 +72,7 @@ class ACTPolicy(PreTrainedPolicy):
 
         self.reset()
 
-    def get_optim_params(self) -> dict:
+    def get_optim_params(self) -> list[dict[str, Any]]:
         # TODO(aliberts, rcadene): As of now, lr_backbone == lr
         # Should we remove this and just `return self.parameters()`?
         return [
@@ -114,12 +94,7 @@ class ACTPolicy(PreTrainedPolicy):
         ]
 
     def reset(self):
-        """This should be called whenever the environment is reset.
-
-        中文说明：清空推理状态。环境 reset / 新回合开始时必须调用，避免上一回合的残留动作污染当前回合。
-        - 启用时间集成：重置集成缓存 ensembled_actions / ensembles 计数。
-        - 否则：新建空动作队列 _action_queue（容量 n_action_steps），下一次 select_action 会重新前向。
-        """
+        """This should be called whenever the environment is reset."""
         if self.config.temporal_ensemble_coeff is not None:
             self.temporal_ensembler.reset()
         else:
@@ -132,16 +107,6 @@ class ACTPolicy(PreTrainedPolicy):
         This method wraps `select_actions` in order to return one action at a time for execution in the
         environment. It works by managing the actions in a queue and only calling `select_actions` when the
         queue is empty.
-
-        中文说明（推理接口，LeLab rollout 循环每个控制步调用一次）：
-        - 动作队列机制：内部维护 deque（容量 n_action_steps）。队列非空时直接 popleft() 弹出一个动作、
-          不跑模型；队列耗尽时才触发一次完整前向（predict_action_chunk），把新 chunk 转置成
-          (n_action_steps, B, action_dim) 逐个入队再弹出第一个——即「一次前向供 n_action_steps 个
-          环境步使用」，摊薄推理开销。
-        - 若配置 temporal_ensemble_coeff：改为每步都完整前向，对时间上重叠的 chunk 做指数加权集成。
-        - 返回形状 (B, action_dim)。本方法只做动作选择；反归一化（unnormalize）由外部 processor
-          完成，保证动作回到真实关节空间后再下发给机器人。
-        - 注意保持 eval 模式：即使队列消费期间被误设为 train 模式，这里也会强制切回。
         """
         self.eval()  # keeping the policy in eval mode as it could be set to train mode while queue is consumed
 
@@ -162,12 +127,7 @@ class ACTPolicy(PreTrainedPolicy):
 
     @torch.no_grad()
     def predict_action_chunk(self, batch: dict[str, Tensor]) -> Tensor:
-        """Predict a chunk of actions given environment observations.
-
-        中文说明：完整前向一次，输出整段动作。若 config.image_features 非空，先把观测 dict 里
-        各相机图像按 config 顺序整理为列表放入 batch[OBS_IMAGES]；再调 self.model(batch)，
-        取返回元组第一个元素，得到 (B, chunk_size, action_dim) 的动作序列张量。
-        """
+        """Predict a chunk of actions given environment observations."""
         self.eval()
 
         if self.config.image_features:
@@ -178,18 +138,7 @@ class ACTPolicy(PreTrainedPolicy):
         return actions
 
     def forward(self, batch: dict[str, Tensor]) -> tuple[Tensor, dict]:
-        """Run the batch through the model and compute the loss for training or validation.
-
-        中文说明（训练损失计算）：输入 batch 需包含与 config 特征一致的观测
-        （observation.image(s)、observation.state，可能含 observation.environment_state）
-        以及监督信号 action (B, chunk_size, action_dim)、padding 掩码 action_is_pad (B, chunk_size)。
-        数据流：整理 OBS_IMAGES → self.model 前向得到预测动作 actions_hat (B, chunk_size, action_dim)
-        与隐分布参数 (mu_hat, log_sigma_x2_hat)，然后：
-        1) L1 重建损失：逐元素 |action - actions_hat|，用 action_is_pad 掩掉填充步后对有效元素取均值；
-        2) 若 use_vae：再加 KL 散度 D_KL(q(z|s,a) ‖ N(0, I))，乘 kl_weight 后与 L1 相加。
-        返回 (loss, loss_dict)：loss 为标量张量供反向传播；loss_dict 只含浮点日志值
-        （"l1_loss"，及 use_vae 时的 "kld_loss"）。
-        """
+        """Run the batch through the model and compute the loss for training or validation."""
         if self.config.image_features:
             batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
             batch[OBS_IMAGES] = [batch[key] for key in self.config.image_features]
@@ -342,19 +291,19 @@ class ACT(nn.Module):
                 inputs    └─────┼──┘  │ image emb.      │
                                 │    state emb.         │
                                 └───────────────────────┘
-
-    中文小结：结构 = (可选 VAE encoder) + Transformer encoder + Transformer decoder + action head。
-    训练时：VAE encoder 输入 token 序列 [cls, (机器人状态), 动作序列]，由 cls token 输出隐分布参数
-    (mu, log σ²)，重参数化采样得到 z；Transformer encoder 输入 [z, (机器人状态), (环境状态),
-    各相机图像特征 token]，decoder 用 chunk_size 个可学习 query（DETR 风格）做交叉注意力，
-    action head 逐 token 回归出动作。推理时 z 取全零、不走 VAE encoder，Transformer 充当 VAE decoder。
     """
 
-    def __init__(self, config: ACTConfig):
+    def __init__(self, config: ACTConfig) -> None:
         # BERT style VAE encoder with input tokens [cls, robot_state, *action_sequence].
         # The cls token forms parameters of the latent's distribution (like this [*means, *log_variances]).
         super().__init__()
         self.config = config
+
+        action_feature = config.action_feature
+        if action_feature is None:
+            raise ValueError(
+                "ACT requires an action output feature (FeatureType.ACTION) in `output_features`."
+            )
 
         if self.config.use_vae:
             self.vae_encoder = ACTEncoder(config, is_vae_encoder=True)
@@ -366,7 +315,7 @@ class ACT(nn.Module):
                 )
             # Projection layer for action (joint-space target) to hidden dimension.
             self.vae_encoder_action_input_proj = nn.Linear(
-                self.config.action_feature.shape[0],
+                action_feature.shape[0],
                 config.dim_model,
             )
             # Projection layer from the VAE encoder's output to the latent distribution's parameter space.
@@ -427,7 +376,7 @@ class ACT(nn.Module):
         self.decoder_pos_embed = nn.Embedding(config.chunk_size, config.dim_model)
 
         # Final action regression head on the output of the transformer's decoder.
-        self.action_head = nn.Linear(config.dim_model, self.config.action_feature.shape[0])
+        self.action_head = nn.Linear(config.dim_model, action_feature.shape[0])
 
         self._reset_parameters()
 
@@ -455,15 +404,6 @@ class ACT(nn.Module):
             (B, chunk_size, action_dim) batch of action sequences
             Tuple containing the latent PDF's parameters (mean, log(σ²)) both as (B, L) tensors where L is the
             latent dimension.
-
-        中文数据流（训练/推理共用，三步）：
-        1) 准备隐变量：训练且 use_vae 时，拼 VAE encoder 输入 [cls, (state), action]（(B, S+2, D)），
-           取 cls token 输出经投影得到 mu / log_sigma_x2（各 (B, L)），重参数化采样 z；
-           推理（或不用 VAE）时跳过，z 直接取全零 (B, L)，mu/log_sigma_x2 为 None。
-        2) 组装 encoder 输入 token：[z, (state), (env_state), 各相机 backbone 特征图展平的像素 token]，
-           各配线性/卷积投影与位置编码，沿序列维堆成 (seq, B, D)。
-        3) decoder 输入 chunk_size 个全零 query（靠可学习位置编码区分时刻），交叉注意力读 encoder 输出，
-           输出转置回 (B, chunk_size, D)，经 action_head 得到动作 (B, chunk_size, action_dim)。
         """
         if self.config.use_vae and self.training:
             assert ACTION in batch, (
@@ -517,8 +457,6 @@ class ACT(nn.Module):
             log_sigma_x2 = latent_pdf_params[:, self.config.latent_dim :]
 
             # Sample the latent with the reparameterization trick.
-            # 重参数化技巧：z = mu + σ·ε（σ = exp(log_sigma_x2 / 2)），ε~N(0,1)；
-            # 把随机性挪到 ε 上，使采样对 mu/log_sigma_x2 可导。
             latent_sample = mu + log_sigma_x2.div(2).exp() * torch.randn_like(mu)
         else:
             # When not using the VAE encoder, we set the latent to be all zeros.
@@ -563,7 +501,6 @@ class ACT(nn.Module):
         # Forward pass through the transformer modules.
         encoder_out = self.encoder(encoder_in_tokens, pos_embed=encoder_in_pos_embed)
         # TODO(rcadene, alexander-soare): remove call to `device` ; precompute and use buffer
-        # decoder 查询序列 (chunk_size, B, D)：内容全零，仅靠可学习 decoder_pos_embed 区分 chunk 内各时刻。
         decoder_in = torch.zeros(
             (self.config.chunk_size, batch_size, self.config.dim_model),
             dtype=encoder_in_pos_embed.dtype,

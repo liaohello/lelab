@@ -1,0 +1,168 @@
+# Adding a Benchmark
+
+A benchmark is a simulator that LeRobot drives in one place, `lerobot.sim`, so that every way of using it behaves the same: `lerobot-eval` (a batched env, `--env.type=<benchmark>`), rollout and recording (a sim robot, `--robot.type=sim --robot.env.type=<benchmark>`), locally or served by `lerobot-env-server` from its own Docker image. See [Simulation: local or served](./simulation) for how it is used.
+
+## What to add
+
+| Component            | Location                                      | What to add                                                                                                                                                             |
+| -------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Integration          | `src/lerobot/sim/integrations/<benchmark>.py` | The `gym.Env`, `env_fns()` factories, `canonical_observation()` adapter and `conventions()` for that simulator                                                          |
+| Config               | `src/lerobot/envs/configs.py`                 | An `EnvConfig` subclass whose `sim_settings()` maps its options to the factory's kwargs                                                                                 |
+| Server configuration | `docker/sim/configs/<benchmark>.yaml`         | The task and factory kwargs the server and CI use                                                                                                                       |
+| Simulator image      | `docker/Dockerfile.sim`                       | A `<benchmark>_native` stage: pinned native dependencies (including any CUDA toolkit, as the base is plain Ubuntu) and asset revisions; the final stage adds the server |
+| CI manifest          | `benchmarks/benchmarks.yaml`                  | Name, tasks, checkpoint revision, camera `rename_map` and optional `parity`; the rest defaults from the name                                                            |
+| Dependencies         | `pyproject.toml`                              | An optional-dependency group for local use                                                                                                                              |
+| Documentation        | `docs/source/<benchmark>.mdx`, `_toctree.yml` | A user-facing page                                                                                                                                                      |
+| Provenance           | `docs/source/<benchmark>.mdx`                 | Source repositories, pinned code and asset revisions with their licenses, and a published success rate for a checkpoint you can run                                     |
+
+Both paths expose the same environment behavior:
+
+```text
+native simulator → LocalVectorEnv, locally or on an env server → canonical NumPy observations
+  → batched env or sim robot → one-time image/tensor preparation → saved policy preprocessing
+  → policy → saved action postprocessing → native simulator
+```
+
+Put image orientation, quaternion conversion and state ordering in that simulator's `canonical_observation()` adapter, and its control conventions in its `conventions()`, so that evaluation and rollout agree. Reuse `sim/integrations/utils.py` only for mappings shared by integrations; shared environment code must not branch on simulator names. A new benchmark needs no [environment processor](./env_processor): observations reach the policy's own processors already canonical.
+
+## How evaluation runs
+
+`lerobot-eval` evaluates every benchmark the same way:
+
+1. `make_env()` builds the nested `{suite: {task_id: vector env}}` dict.
+2. `eval_policy_all()` runs `n_episodes` rollouts of each task, one task at a time (or `--env.max_parallel_tasks` at once).
+3. Results are aggregated per episode, task, suite and overall: `pc_success` (success rate), `avg_sum_reward` and `avg_max_reward`. Every success rate comes with its counts (`n_success` out of `n_episodes`) and a 95% Wilson interval in percent (`pc_success_ci95`). The interval covers sampling noise over episodes only; it says nothing about variation between training runs of the same recipe.
+
+Success comes from `info["is_success"]`, which your environment reports on every `step()`. Your environment can also report numbers of its own. It puts them in `info["metrics"]`, a map from each name to one float per environment. They reach each episode's entry under `per_episode[i]["metrics"]`, taken at the step the episode ended.
+
+## What your environment must provide
+
+### Environment structure
+
+`env_fns()` returns each task's environment factories, without building them:
+
+```python
+def env_fns(
+    task: str,
+    n_envs: int,
+    gym_kwargs: dict | None = None,
+) -> dict[str, dict[int, list[Callable[[], gym.Env]]]]:
+    """{suite: {task_id: [make_single_env] * n_envs}} for MyBenchmark."""
+```
+
+A single-task benchmark returns `{"<task>": {0: [...]}}`; a multi-task one (like LIBERO) returns `{"libero_spatial": {0: [...], 1: [...], ...}, ...}`. `LocalVectorEnv` calls each `make_single_env` factory on first use, locally or on the server and, with `--eval.use_async_envs=true`, in a separate process per environment.
+
+### The gym.Env
+
+```python
+class MyBenchmarkEnv(gym.Env):
+    metadata = {"render_modes": ["rgb_array"], "render_fps": <fps>}
+
+    def __init__(self, task_suite, task_id, ...):
+        super().__init__()
+        self.task = <task_name_string>
+        self.task_description = <natural_language_instruction>
+        self._max_episode_steps = <max_steps>
+        self.observation_space = spaces.Dict({...})
+        self.action_space = spaces.Box(low=..., high=..., shape=(...,), dtype=np.float32)
+```
+
+| Attribute            | Type  | Why                                                  |
+| -------------------- | ----- | ---------------------------------------------------- |
+| `_max_episode_steps` | `int` | Ends (truncates) an episode                          |
+| `task_description`   | `str` | Passed to VLA policies as a language instruction     |
+| `task`               | `str` | Fallback identifier if `task_description` is not set |
+
+`step()` reports success in `info["is_success"]`, and anything else it measures in `info["metrics"]`. Actions are a one-dimensional continuous `Box`.
+
+Observations are a dict the integration's `canonical_observation()` adapter understands. The reusable default adapter maps:
+
+| Your env outputs          | Canonical key                   | What it is                          |
+| ------------------------- | ------------------------------- | ----------------------------------- |
+| `"pixels"` (single array) | `observation.image`             | Single camera image, HWC uint8      |
+| `"pixels"` (dict)         | `observation.images.<cam>`      | Multiple cameras, each HWC uint8    |
+| `"agent_pos"`             | `observation.state`             | Proprioceptive state vector         |
+| `"environment_state"`     | `observation.environment_state` | Full environment state (e.g. PushT) |
+
+Any other array is passed as `observation.<key>`. Rename your simulator's outputs to these keys inside the `gym.Env`, or handle its native representation in that integration's adapter.
+
+**GPU-based simulators (e.g. MuJoCo with EGL rendering):** if your simulator allocates GPU/EGL contexts during `__init__`, defer that allocation to a `_ensure_env()` helper called on first `reset()`/`step()`, so that an environment built in a worker process does not inherit stale GPU handles. See `LiberoEnv._ensure_env()` for the pattern.
+
+### Conventions (`conventions()` in the integration)
+
+Return the simulator's control rate, controller and ordered component names from `conventions(kwargs)`, a function of the simulator's options (they can depend on an action mode, as for RoboTwin). They fill the settings a configuration leaves out, and name the state and action components for robots, datasets and checkpoints. `semantics` defaults to `<type>-<control>-v1`. `robot_type` names the simulated body, recorded by a sim robot: the type the real robot records when lerobot has a class for it (`so_follower`), else a short name (`panda`, `sawyer`); left out, datasets record `sim_robot`.
+
+### The config (`src/lerobot/envs/configs.py`)
+
+Register a config so users can select your benchmark with `--env.type=<name>` (and `--robot.env.type=<name>`). Its `sim_settings()` describes the simulator as a server YAML's `sim` section; `LocalVectorEnv` does the rest:
+
+```python
+@EnvConfig.register_subclass("<benchmark_name>")
+@dataclass
+class MyBenchmarkEnvConfig(EnvConfig):
+    task: str = "<default_task>"
+    fps: int = <fps>
+    obs_type: str = "pixels_agent_pos"
+
+    @property
+    def gym_kwargs(self) -> dict:
+        return {"obs_type": self.obs_type}
+
+    def sim_settings(self) -> dict:
+        return {"type": "<benchmark_name>", "task": self.task, "kwargs": {"gym_kwargs": self.gym_kwargs}}
+```
+
+Keep its defaults and the server YAML's in agreement: a served evaluation refuses a server that runs another environment than the command describes. Features come from the environment's description when it is created, so the config declares none.
+
+## Checkpoint admission
+
+`--rename_map` aliases environment camera keys to the checkpoint's trained keys, as for any robot; in CI it comes from the entry's `rename_map` in `benchmarks/benchmarks.yaml`. Checkpoint inputs must exist after renaming, and state/action dimensions must match; renaming cannot repair checkpoint metadata. RGB channel count and layout are checked at admission. Acquisition height/width may differ from training metadata; resizing belongs to policy preprocessing.
+
+## Verification and CI
+
+1. Check the integration's observation adapter against your simulator's raw outputs, especially camera orientation and state order, and check the environment wrapper's applied actions.
+2. Compare seeded reset/step sequences locally and served (`scripts/ci/check_sim_parity.py`); set `parity: true` in the manifest entry of a deterministic simulator so CI runs it. Check terminal freezing, success, episode length, rendering and resource cleanup.
+3. Run torch-disabled import guards for the server code and your native module. Document simulators that need their own torch runtime, such as RoboTwin and RoboMME.
+4. Run `lerobot-eval --env.type=<name> --env.task=<task> --eval.n_episodes=1 --policy.path=<checkpoint>` locally, and with `--env.server.endpoint` against the server. Inspect task descriptions and rendered camera views.
+5. Run the generated benchmark job on the GPU runner. Preserve the LIBERO training smoke when changing shared evaluation/training integration.
+
+`benchmarks/benchmarks.yaml` generates the matrix through `scripts/ci/benchmark_matrix.py`; `.github/workflows/benchmark_run.yml` runs each entry. Add entries to the manifest rather than copying CI jobs. CI caps episodes to check the pipeline end to end; its `metrics.json` records the checkpoint revision, simulator image tag, commit and cap, and marks these runs `smoke`: their success rates are not policy scores. Simulator images have separate pins and content tags; BuildKit caches only persist on persistent runners.
+
+## Changing a benchmark
+
+An integration's `canonical_observation()`, `conventions()` and environment wrapper decide what the policy sees and how its actions apply. A wrong image orientation, state order or control rate does not crash: the policy sees slightly wrong inputs, and its success rate drops. A change to any of them comes with:
+
+- **A regression test** comparing the old and new outputs on a recorded or synthetic observation. `test_libero_numpy_adapter_parity` in `tests/sim/integrations/test_libero.py` is the model: it shows the torch-free LIBERO adapter produces exactly what the previous LIBERO processor did.
+- **The expected effect on scores** in the pull request: none, or which scores should move and why.
+
+## Dependencies (`pyproject.toml`)
+
+Add a new optional-dependency group for local use:
+
+```toml
+mybenchmark = ["my-benchmark-pkg==1.2.3", "lerobot[scipy-dep]"]
+```
+
+Pinning rules:
+
+- **Always pin** benchmark packages to exact versions for reproducibility (e.g. `metaworld==3.0.0`).
+- **Add platform markers** when needed (e.g. `; sys_platform == 'linux'`).
+- **Pin fragile transitive deps** if known (e.g. the Meta-World image pins `mujoco==3.15.0`, since MuJoCo 3.17 breaks its mocap welds).
+- **Document constraints** in your benchmark doc page. When the dependencies conflict with LeRobot's, the served path is the supported one.
+
+## Writing a benchmark doc page
+
+Add the page to the "Benchmarks" section of `docs/source/_toctree.yml`. Each benchmark page should include:
+
+- **Title and description** — 1-2 paragraphs on what the benchmark tests and why it matters.
+- **Links** — paper, GitHub repo, project website (if available).
+- **Provenance and licenses** — source repositories, pinned code and asset revisions, and the license of each. Do not add a benchmark whose license forbids the use.
+- **Overview image or GIF.**
+- **Available tasks** — table of task suites with counts and brief descriptions.
+- **Installation** — `pip install -e ".[<benchmark>]"`, or the server command.
+- **Evaluation** — recommended `lerobot-eval` command with `n_episodes` for reproducible results.
+- **Policy inputs and outputs** — observation keys with shapes, action space description.
+- **Training** — example `lerobot-train` command.
+- **Reference results** — the published success rate of at least one pretrained checkpoint you can run, with its revision and the `lerobot-eval` command that reproduces it. An integration that does not land near it is not finished.
+
+See `docs/source/libero.mdx` and `docs/source/metaworld.mdx` for complete examples.

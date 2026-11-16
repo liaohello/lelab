@@ -66,7 +66,7 @@ def follower(tmp_path):
 
     with (
         patch(
-            "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+            "lerobot.robots.so_follower.so_follower.SerialMotorsBus",
             side_effect=_bus_side_effect,
         ),
         patch.object(SO100Follower, "configure", lambda self: None),
@@ -99,6 +99,19 @@ def test_get_observation(follower):
         assert obs[f"{motor}.pos"] == idx
 
 
+def test_observation_keys_match_features_with_mock_camera(follower):
+    # `observation_features` and `get_observation()` must use the same depth predicate:
+    # a bare mock camera is not a `DepthCamera`, so neither side may advertise `<cam>_depth`.
+    cam = MagicMock(name="CameraMock")
+    cam.height, cam.width = 480, 640
+    follower.cameras = {"wrist": cam}
+    follower.connect()
+
+    obs = follower.get_observation()
+    assert set(obs) == set(follower.observation_features)
+    assert "wrist" in obs and "wrist_depth" not in obs
+
+
 def test_get_observation_uses_read_retries(follower):
     # Feetech buses can intermittently fail a sync_read; the follower should forward the configured
     # retry count so transient failures don't abort the control loop (see #3131).
@@ -118,54 +131,6 @@ def test_send_action_uses_read_retries(follower):
     follower.send_action(action)
 
     follower.bus.sync_read.assert_called_once_with("Present_Position", num_retry=7)
-
-
-def test_send_action_combines_relative_and_startup_workspace_limits_with_one_read(follower):
-    follower.config.max_relative_target = 3.0
-    follower.config.max_position_deviation = 12.0
-    follower.connect()
-    follower.bus.sync_read.return_value = dict.fromkeys(follower.bus.motors, 10.0)
-
-    action = {f"{motor}.pos": 100.0 for motor in follower.bus.motors}
-    returned = follower.send_action(action)
-
-    follower.bus.sync_read.assert_called_once_with(
-        "Present_Position", num_retry=follower.config.num_read_retries
-    )
-    assert returned == {f"{motor}.pos": 13.0 for motor in follower.bus.motors}
-    follower.bus.sync_write.assert_called_once_with(
-        "Goal_Position", dict.fromkeys(follower.bus.motors, 13.0)
-    )
-
-
-def test_startup_workspace_origin_is_captured_once(follower):
-    follower.config.max_position_deviation = 12.0
-    follower.connect()
-    follower.bus.sync_read.return_value = dict.fromkeys(follower.bus.motors, 10.0)
-
-    first_action = {f"{motor}.pos": 100.0 for motor in follower.bus.motors}
-    second_action = {f"{motor}.pos": -100.0 for motor in follower.bus.motors}
-    assert follower.send_action(first_action) == {
-        f"{motor}.pos": 22.0 for motor in follower.bus.motors
-    }
-    assert follower.send_action(second_action) == {
-        f"{motor}.pos": -2.0 for motor in follower.bus.motors
-    }
-
-    # The fixed workspace no longer needs a serial read after its origin has
-    # been captured (unless the per-step guard is also enabled).
-    follower.bus.sync_read.assert_called_once()
-
-
-def test_startup_workspace_dict_requires_all_commanded_motor_keys(follower):
-    follower.config.max_position_deviation = {"shoulder_pan": 12.0}
-    follower.connect()
-
-    action = {f"{motor}.pos": 0.0 for motor in follower.bus.motors}
-    with pytest.raises(ValueError, match="max_position_deviation keys"):
-        follower.send_action(action)
-
-    follower.bus.sync_write.assert_not_called()
 
 
 def test_send_action(follower):

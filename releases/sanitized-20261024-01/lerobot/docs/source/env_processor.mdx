@@ -1,0 +1,59 @@
+# Environment Processors
+
+Environment processors transform an environment's observations before the policy's own processors, and the policy's actions before the environment. Each environment config returns its pair from `get_env_processors()`, and `make_env_pre_post_processors` builds them for evaluation, training-time evaluation and a sim robot.
+
+## Simulated environments need none
+
+Simulated environments reach the policy already canonical: images as `observation.images.<camera>` (or `observation.image`), the state as one flat `observation.state`, with each simulator's image orientation and state composition handled once by its `src/lerobot/sim/integrations/<simulator>.py` integration, for evaluation, rollout and recording alike, locally or served (see [Simulation: local or served](./simulation)). For LIBERO, for example, its observation adapter flips both cameras and builds the 8-D state (end-effector position, axis-angle orientation, gripper joints), so its environment processors are identity.
+
+Put a new simulator's observation mapping in its integration and its control conventions in that integration's `conventions()` rather than in an environment processor, so that a sim robot and a served environment get them too (see [Adding a benchmark](./adding_benchmarks)).
+
+## When an environment processor is still the tool
+
+- **Environments outside `lerobot.sim`.** Isaac Lab Arena runs through its repository's own `make_env`, with batched torch observations; `IsaaclabArenaProcessorStep` selects and concatenates its state keys and converts its cameras.
+- **Policy-specific environment adaptations.** `make_env_pre_post_processors` lets a policy replace the environment's pair, as XVLA and Cosmos3 do for LIBERO.
+
+Evaluation admits a checkpoint on what its environment processors produce: the observation after the preprocessor and the action after the postprocessor, both read from their `transform_features`. A step therefore declares its output there as a function of its input, the way it behaves at runtime, for example a step that builds the state only when its source key is present. Remote inference applies no environment processors, so a checkpoint served there has to take the simulator's observation and command its action itself.
+
+The processing order during evaluation is:
+
+```python
+observation = env_preprocessor(observation)   # environment-specific
+observation = preprocessor(observation)       # policy's saved preprocessing (normalization, ...)
+action = postprocessor(policy.select_action(observation))
+action = env_postprocessor(action)            # environment-specific
+```
+
+## Writing one
+
+An environment processor is an ordinary processor step, returned from the config:
+
+```python
+from dataclasses import dataclass
+
+from lerobot.envs.configs import EnvConfig
+from lerobot.processor import ObservationProcessorStep, PolicyProcessorPipeline, ProcessorStepRegistry
+
+
+@dataclass
+@ProcessorStepRegistry.register(name="myenv_processor")
+class MyEnvProcessorStep(ObservationProcessorStep):
+    def observation(self, observation):
+        processed = observation.copy()
+        processed["observation.state"] = processed.pop("observation.myenv_state")
+        return processed
+
+    def transform_features(self, features):
+        return features  # update if names or shapes change
+
+
+@EnvConfig.register_subclass("myenv")
+@dataclass
+class MyEnvConfig(EnvConfig):
+    ...
+
+    def get_env_processors(self):
+        return PolicyProcessorPipeline(steps=[MyEnvProcessorStep()]), PolicyProcessorPipeline(steps=[])
+```
+
+Keep it environment-specific (key layouts, coordinate frames) and leave normalization and model-specific transforms to the policy's processors.

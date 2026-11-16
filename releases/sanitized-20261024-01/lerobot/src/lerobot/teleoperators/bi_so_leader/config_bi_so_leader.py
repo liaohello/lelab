@@ -17,17 +17,13 @@
 from dataclasses import dataclass
 
 from ..config import TeleoperatorConfig
-from ..so_leader import SOLeaderTeleopConfig
+from ..so_leader import SOLeaderConfig
 
 
 @TeleoperatorConfig.register_subclass("bi_so_leader")
 @dataclass
 class BiSOLeaderConfig(TeleoperatorConfig):
-    """Configuration class for Bi SO Leader teleoperators.
+    """Configuration class for Bi SO Leader teleoperators."""
 
-    ``SOLeaderTeleopConfig`` children carry explicit calibration ids so a
-    bimanual teleop arm reuses the JSON of that physical device.
-    """
-
-    left_arm_config: SOLeaderTeleopConfig
-    right_arm_config: SOLeaderTeleopConfig
+    left_arm_config: SOLeaderConfig
+    right_arm_config: SOLeaderConfig

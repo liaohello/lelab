@@ -19,22 +19,16 @@ from dataclasses import dataclass, field
 from lerobot.cameras import CameraConfig
 
 from ..config import RobotConfig
-from ..so_follower import SOFollowerRobotConfig
+from ..so_follower import SOFollowerConfig
 
 
 @RobotConfig.register_subclass("bi_so_follower")
 @dataclass
 class BiSOFollowerConfig(RobotConfig):
-    """Configuration class for Bi SO Follower robots.
+    """Configuration class for Bi SO Follower robots."""
 
-    LeLab uses ``SOFollowerRobotConfig`` children so each physical arm can
-    carry its own calibration id/directory, including through the async robot
-    client CLI.  The wrapper still accepts a plain ``SOFollowerConfig`` because
-    it only reads the shared fields via getattr.
-    """
-
-    left_arm_config: SOFollowerRobotConfig
-    right_arm_config: SOFollowerRobotConfig
+    left_arm_config: SOFollowerConfig
+    right_arm_config: SOFollowerConfig
 
     # Top-level cameras not attached to a specific side. Keys are kept as-is in
     # observations (no `left_`/`right_` prefix). Per-arm cameras (declared on
