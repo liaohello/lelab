@@ -1,19 +1,19 @@
 # Jetson 作为远程 PolicyServer：实现与分阶段验收
 
-日期：2026-10-31  
-工作副本：`/home/liaozhengyan/Desktop/lelab-bimanual`（分支 `feat/local-bimanual`）  
-应用：`releases/sanitized-20261024-01/app`；LeRobot：同一快照内 `releases/sanitized-20261024-01/lerobot`  
-状态：局域网直连、真实 ACT 加载、单臂真实观测/影子、真实前端只读观测、5 分钟持续运行与断连恢复已完成；四台串口角色已确认并写入双臂记录，**双臂只读观测链路已开发但尚未实机启动，其余三台标定与实机执行未完成**。
+日期：2026-10-31
+工作副本：`<bimanual-worktree>`（分支 `feat/local-bimanual`）
+应用：`releases/sanitized-20261024-01/app`；LeRobot：同一快照内 `releases/sanitized-20261024-01/lerobot`
+状态：局域网直连、真实 ACT 加载、单臂真实观测/影子、真实前端只读观测、5 分钟持续运行与断连恢复已完成；2026-11-02 四台标定完成，双臂 URDF 实时跟踪画面和 12 维角度观测已通过；**实机执行、12 维策略契约与相机物理语义仍未完成**。
 
 ## 1. 结论先行
 
 | 项目 | 结果 | 说明 |
 | --- | --- | --- |
-| 局域网链路 | **通过** | 本地直连 `192.168.31.204:28081`，无 SSH 隧道；PolicyServer 绑定 `0.0.0.0:28081` |
+| 局域网链路 | **通过** | 本地直连 `192.0.2.20:28081`，无 SSH 隧道；PolicyServer 绑定 `0.0.0.0:28081` |
 | 真实 ACT 加载 | **通过** | Jetson 容器加载 6 维单臂 ACT（两路相机 `right`/`up`），返回 100 步动作块 |
 | 真实 ACT 影子推理 | **通过（单臂，不执行）** | 真实关节状态 + 真实相机 + Jetson 真实 ACT；本地只记录动作，`actions_dispatched=0` |
-| 真实观测（Stage B） | **单臂通过；双臂通信通过（左臂未标定）** | 单臂为已标定 degree；双臂同时返回 12 通道，左臂明确标记 `raw_steps`，两路相机和 `ACTIONS_SENT=0` 已验证 |
-| 双臂/其余三臂 | **角色已确认，标定未完成** | 四台已由拔插确认左/右 follower/leader 并写入 `left_rig`/`right_rig`；右 follower 已有标定，左 follower 和两个 leader 仍缺 |
+| 真实观测（Stage B） | **单臂与双臂通信均通过** | 四台已标定；双臂页面同时显示左右 URDF，12 个值均为 degrees，54 帧停止、`actions_sent=0` |
+| 双臂/其余三臂 | **标定完成** | 左右 follower/leader 均有独立标定；双臂只读 URDF 跟踪通过，运动中的变化尚未人工诱导验证 |
 | 单臂/双臂实机执行 | **未进行** | 无 12 维双臂策略，未获实机运动授权；没有激活 execute 门禁 |
 | π | **仅条件评估** | 未加载、未验证；Jetson 上有约 12 GB openpi 资产，但未核对契约 |
 | 合成策略 | 仅用于链路测试 | 不计入真实模型或实机验收 |
@@ -25,7 +25,7 @@
 ```text
 本地主机（设备所有者）                         Jetson Orin NX 16GB（仅推理）
   LeLab 后端/前端                                PolicyServer 容器
-  ttyACM0..3（4 个 USB 串口）                    192.168.31.204:28081
+  ttyACM0..3（4 个 USB 串口）                    192.0.2.20:28081
   /dev/video0,2,4,6（3 个相机）                  只接收观测，返回动作块
   只读状态/相机 → 观测上传
   动作接收 → 本地 TTL/契约/门禁 → 才可能执行
@@ -75,8 +75,11 @@ JSON 含序列号、设备节点、VID/PID、USB 路径、角色、备注、缺�
 角色文件只是后续标定/双臂配置的输入，不代表已标定，也不授权动作。
 
 页面保存后，“应用到双臂记录”只把左右 follower/leader 的 stable by-id 路径写入既有
-`left_rig`/`right_rig` 机器人记录，保留标定配置字段，不打开串口。新增
-`ReadOnlyBimanualFollowerSource` 和 `POST /observe/bimanual/start`：依次读左、右两台
+`left_rig`/`right_rig` 机器人记录，保留标定配置字段，不打开串口。“四臂标定工作台”也显示在
+`/hardware`：每台展示目标记录、当前串口、标定文件是否存在和完成状态；点击“开始标定/重新标定”
+后以路由状态进入现有标定页，并自动选择 `robot` 或 `teleop` 与对应端口。页面本身不写电机。
+
+新增 `ReadOnlyBimanualFollowerSource` 和 `POST /observe/bimanual/start`：依次读左、右两台
 follower 的 `Present_Position`，组合为固定 12 维
 `left_*`→`right_*`；两个总线的 write/sync_write/torque/calibration 方法均被守卫，断开时
 `disable_torque=False`，WebSocket 始终报告 `actions_sent=0`。
@@ -107,6 +110,34 @@ sha256 c12c40e7da7021d42f8c91015f815ec26b56976d432eb9b5a2e2b8baa8c35226
 
 相机设备节点有用户 ACL，可读；串口节点没有。
 
+### 相机映射工作台（代码完成，物理映射待硬件确认）
+
+`/cameras` 使用 `/dev/v4l/by-id/*-video-index0` 作为稳定设备身份，读取 sysfs 名称，
+不调用 `VideoCapture`。页面允许：
+
+- 每 2 秒刷新稳定相机节点和 USB 拔插状态；
+- 一次预览一路 MJPEG，用遮挡/指向确认物理机位；
+- 分配数据集键名（如 `front`、`left_wrist`、`right_wrist`）并验证唯一性；
+- 保存时间戳与 latest JSON；
+- `/observe` 通过“相机映射”按钮把已保存的 `key=index` 填入观测配置。
+
+后端接口：
+
+```text
+GET  /cameras/inventory
+POST /cameras/inventory/save
+GET  /cameras/inventory/latest
+```
+
+映射保存位置：
+
+```text
+<LELAB_BIMANUAL_HOME>/hf/cameras/camera-inventory-latest.json
+```
+
+本轮仅在相机断电时验证枚举接口和 UI；未保存猜测映射。开机后应先在 `/cameras` 完成物理
+验证，再开始双臂观测。
+
 ### 串口权限（已解决）
 
 初始只读打开 `/dev/ttyACM0` 被拒绝：
@@ -127,7 +158,7 @@ PermissionError: [Errno 13] Permission denied:
 | L4T/JetPack | R36.4.3（JetPack 6.2），kernel `5.15.148-tegra` |
 | 内存/磁盘 | 15 GiB RAM，7.6 GiB swap；`/` 233 GB，约 108 GB 可用 |
 | GPU 探测 | `nvidia-smi` 可用但显存/利用率显示 `N/A`（Orin）；改用 `tegrastats`、`docker stats`、`/sys/devices/gpu.0/load` |
-| 管理入口 | SSH `192.168.31.204:22`，用户 `nvidia`，任务专用密钥 `~/.ssh/lelab-jetson` |
+| 管理入口 | SSH `192.0.2.20:22`，用户 `nvidia`，任务专用密钥 `~/.ssh/lelab-jetson` |
 | 推理端口 | `28081` 启动前空闲；没有占用其他服务 |
 
 ### 环境选择（重要）
@@ -164,7 +195,7 @@ files = 513 / 513
 同步命令：
 
 ```bash
-cd /home/liaozhengyan/Desktop/lelab-bimanual
+cd <bimanual-worktree>
 ROOT=$PWD/releases/sanitized-20261024-01
 PYTHONPATH=$ROOT/app:$ROOT/lerobot/src \
   .venv/bin/python -m lelab.jetson_policy \
@@ -196,8 +227,7 @@ metadata sha256: 5d428f5ff783e20665774a737325ba19e929d27b59788346546ee842d1fe666
 本机存在一个完整的 12 维 ACT checkpoint：
 
 ```text
-/home/liaozhengyan/Desktop/embodiedIntelligenceProj/bimanual_proj/outputs/
-  multi_agent/g2_goal_20261009_1550/training/job1/official/checkpoints/002000/pretrained_model
+<local-path>  multi_agent/g2_goal_20261009_1550/training/job1/official/checkpoints/002000/pretrained_model
 ```
 
 审计结果（`checkpoint-12d-audit.json`）：
@@ -241,7 +271,7 @@ metadata sha256: 5d428f5ff783e20665774a737325ba19e929d27b59788346546ee842d1fe666
 命令：
 
 ```bash
-cd /home/liaozhengyan/Desktop/lelab-bimanual
+cd <bimanual-worktree>
 ROOT=$PWD/releases/sanitized-20261024-01
 PYTHONPATH=$ROOT/app:$ROOT/lerobot/src .venv/bin/python -m pytest \
   $ROOT/app/tests/test_jetson_policy.py -q
@@ -280,19 +310,23 @@ phase: observing -> stopped；无 fault
 
 证据：`ui-observe.md`、`ui-observe-status.json`、`ui-observe-stop.json`、`ui-observe-stopped.json`、`ui-camera-right.jpg`、`ui-camera-up.jpg`。应用已停止，18186 端口已释放。
 
-限制：观测期间机械臂保持静止，没有人工诱导关节变化；因此“实时更新、真实读数、相机帧年龄、零动作”已验证，**运动中的状态变化未验证**。此外只验证了 `5B91045575` 这一台 follower；其余三台机械臂没有已核实的角色/标定，不能冒充双腕 WebSocket 验证。
+限制：2026-10-31 的单臂观测期间机械臂保持静止；2026-11-02 双臂通信与画面也保持静止。两次均验证实时更新、角度读数、相机年龄和零动作，但**人工诱导关节运动的变化仍未验证**。`docs/evidence/jetson-policy-server-20261102/hardware-calibration-ui-check.md` 记录了四台完成后的最新状态。
 
-### 双臂只读链路（已开发，待实机启动）
+### 双臂只读链路（通信与画面通过）
 
-2026-10-31 用户已完成四台角色拔插确认并保存。`/observe` 已增加双臂模式：
+用户已完成四台标定。`/observe` 现在支持：
 
-- 左、右分别选择 stable by-id 路径和可选标定文件。
+- 左、右分别选择 stable by-id 路径和独立标定文件。
 - 后端按左→右读取两个 follower 的 `Present_Position`，形成固定 12 维顺序。
 - 两个 Feetech 总线实例的 write/sync_write/configure/torque/calibration 方法全部被拒绝。
 - 断开使用 `disable_torque=False`；页面和 WebSocket 始终显示 `actions_sent=0`。
-- 左 follower 当前没有标定文件。首次实机启动暴露出“未标定总线不能按 degree 归一化”的问题；现按每台标定状态读取：已标定返回 degree，未标定返回 `raw_steps` 并在前端明确标记，不再伪造物理单位。
+- 已标定总线返回 degrees；未标定总线返回 `raw_steps` 并只显示趋势，不驱动 URDF。
+- WebSocket 将数值表（`values`）与 URDF 弧度（`joints` / `arms`）分离，避免原始步数污染画面。
+- 单臂模式显示一个 URDF；双臂模式左右并排显示两个 URDF。
+- 每个跟踪面板同时显示数值趋势（min/max/current）、最后 WS 更新年龄、最近通道变化和停更告警。
+- 相机画面在观测未启动时显示占位提示，避免浏览器反复请求不存在的 JPEG；启动后显示实时帧及帧年龄。
 
-本轮发现并修复未标定左总线不能按 degree 归一化的问题；修复后实际启动 78 帧双臂只读观测并正常停止，两路相机约 3.7 ms，12 个 Torque_Enable 全为 0，`actions_sent=0`。左臂因尚无标定显示 `raw_steps`，因此这证明通信、12 通道和零动作，不证明左右关节物理单位已可比。双臂臂体保持静止，运动中的状态变化仍未验证。
+2026-11-02 实机验证 54 帧后正常停止：左右 12 个关节均为 degrees，两路相机、12 个 Torque_Enable、`actions_sent=0` 和租约释放均通过。
 
 ### 早期阻塞记录（已解决）
 
@@ -307,7 +341,7 @@ PermissionError: [Errno 13] Permission denied:
 
 ## 10. 阶段 C：Jetson 远程影子推理（单臂真实观测通过）
 
-服务直连 `192.168.31.204:28081`，真实 ACT，真实 follower 关节 + 两路真实相机，5 fps，100 步动作块，`actions_dispatched=0`。
+服务直连 `192.0.2.20:28081`，真实 ACT，真实 follower 关节 + 两路真实相机，5 fps，100 步动作块，`actions_dispatched=0`。
 
 短程真实观测影子（`stageC-real-summary.json`）：
 
@@ -389,7 +423,7 @@ Jetson 上存在 `~/sensor/openpi/openpi_assets`（约 12 GB）和 openpi 源码
 ### 源码同步与契约
 
 ```bash
-cd /home/liaozhengyan/Desktop/lelab-bimanual
+cd <bimanual-worktree>
 ROOT=$PWD/releases/sanitized-20261024-01
 export PYTHONPATH=$ROOT/app:$ROOT/lerobot/src
 .venv/bin/python -m lelab.jetson_policy \
@@ -407,8 +441,8 @@ export PYTHONPATH=$ROOT/app:$ROOT/lerobot/src
 ROOT=$PWD/releases/sanitized-20261024-01
 scp -i ~/.ssh/lelab-jetson \
   $ROOT/app/deploy/jetson/Dockerfile \
-  nvidia@192.168.31.204:~/jetson-policy-server-20261031/Dockerfile
-ssh -i ~/.ssh/lelab-jetson nvidia@192.168.31.204 \
+  nvidia@192.0.2.20:~/jetson-policy-server-20261031/Dockerfile
+ssh -i ~/.ssh/lelab-jetson nvidia@192.0.2.20 \
   'cd ~/jetson-policy-server-20261031 && docker build -t lelab-policy-server:20261031 .'
 ```
 
@@ -480,6 +514,7 @@ sg dialout -c "cd $PWD && PYTHONPATH=$ROOT/app:$ROOT/lerobot/src \
 - 环境/契约：`env-local.txt`、`env-jetson.txt`、`contract.json`、`source-manifest.json`
 - 硬件/模型审计：`four-arm-inventory.json`（四串口只读盘点）、`checkpoint-12d-audit.json`（12 维 ACT 未验证兼容）
 - 用户确认角色与绑定：`hardware-inventory-20261031.json`、`hardware-roles-ui-check.md`、`hardware-role-bindings-20261031.md`
+- 2026-11-02 四台标定与双臂画面：`../jetson-policy-server-20261102/calibration-manifest.json`、`hardware-calibration-ui-check.md`、`stageB2-bimanual-calibrated-stopped.json`
 - 保护测试：`pytest-jetson-policy.txt`、`pytest-observe.txt`（单臂阶段 2 项，后续双臂扩展为 5 项）、`pytest-lease.txt`（18 项）、`pytest-lease-api.txt`（9 项）、`ruff-final.txt`
 - 真实观测前端：`ui-observe.md`、`ui-observe-status.json`、`ui-observe-stop.json`、`ui-observe-stopped.json`、`ui-camera-right.jpg`、`ui-camera-up.jpg`
 - 真实观测影子：`stageC-real.jsonl`、`stageC-real-summary.json`、`stageC-real.log`
@@ -494,3 +529,5 @@ sg dialout -c "cd $PWD && PYTHONPATH=$ROOT/app:$ROOT/lerobot/src \
 - 前端构建：`frontend-build.txt`、`frontend-build-observe.txt`
 
 原始服务日志在 Jetson 容器内：`docker logs lelab-policy-server-20261031`；资源采样在 Jetson `~/jetson-policy-server-20261031/logs/`。
+
+提交说明（2026-11-16）：192.0.2.0/24 中的地址是脱敏示例，实际连接信息由本地配置提供。

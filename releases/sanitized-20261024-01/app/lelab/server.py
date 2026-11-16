@@ -72,6 +72,12 @@ from . import datasets as dataset_browser, record as _record
 # 标定：CalibrationManager 单例 + 标定请求模型
 # Import our custom calibration functionality
 from .calibrate import CalibrationRequest, calibration_manager
+from .camera_inventory import (
+    collection_binding as camera_collection_binding,
+    current_inventory_payload as current_camera_inventory_payload,
+    latest_inventory_path as latest_camera_inventory_path,
+    save_inventory as save_camera_inventory,
+)
 from .dataset_storage import (
     dataset_detail,
     dataset_disk_capacity,
@@ -103,11 +109,13 @@ from .jobs import (
 )
 from .observe import (
     BimanualObserveRequest,
+    FollowerObserveRequest,
     ObserveRequest,
     camera_frame as observe_camera_frame,
     handle_bimanual_observe_status,
     handle_observe_status,
     handle_start_bimanual_observe,
+    handle_start_follower_observe,
     handle_start_observe,
     handle_stop_observe,
     observe_active,
@@ -162,10 +170,14 @@ from .sealing import (
 )
 from .system_monitor import system_snapshot
 
+# 单臂遥操作测试的结论与就绪状态（纯文件读取，不碰串口）。
+from .teleop_test import readiness as teleop_test_readiness
+
 # 遥操作：主臂→从臂的实时跟随
 # Import our custom teleoperation functionality
 from .teleoperate import (
     TeleoperateRequest,
+    handle_confirm_teleop_test,
     handle_get_joint_positions,
     handle_start_teleoperation,
     handle_stop_teleoperation,
@@ -754,6 +766,29 @@ def teleoperation_status():
     return handle_teleoperation_status()
 
 
+class TeleopTestConfirmBody(BaseModel):
+    side: Literal["left", "right"]
+    passed: bool
+    note: str | None = None
+
+
+# 单臂遥操作测试结论由操作者判定；只写结果文件，不打开串口。
+@app.post("/teleoperation/test/confirm")
+def teleoperation_test_confirm(body: TeleopTestConfirmBody):
+    try:
+        return handle_confirm_teleop_test(
+            body.side, passed=body.passed, note=body.note
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+# 汇总左右两组的记录可用性与已保存测试结论（纯文件读取）。
+@app.get("/teleoperation/test/readiness")
+def teleoperation_test_readiness_endpoint():
+    return teleop_test_readiness()
+
+
 # 读取机器人当前关节角度（前端仪表显示用）。
 @app.get("/joint-positions")
 def get_joint_positions():
@@ -837,6 +872,29 @@ def observe_start(request: ObserveRequest, http_request: Request):
         raise HTTPException(
             status_code=result.get("status_code", 500),
             detail=result.get("message", "Failed to start observation"),
+        )
+    return result
+
+
+@app.post("/observe/follower/start")
+def observe_follower_start(request: FollowerObserveRequest, http_request: Request):
+    preview_release = _release_camera_previews()
+    if preview_release["remaining"]:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Observation blocked: camera previews did not release the devices "
+                f"(requested={preview_release['requested']}, "
+                f"remaining={preview_release['remaining']})"
+            ),
+        )
+    lease = _acquire_hardware_lease(http_request, "observe")
+    result = handle_start_follower_observe(request, manager)
+    _release_lease_if_failed(lease, result)
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=result.get("status_code", 500),
+            detail=result.get("message", "Failed to start follower observation"),
         )
     return result
 
@@ -3132,6 +3190,14 @@ class RigBindingBody(BaseModel):
     right_robot: str = DEFAULT_RIGHT_ROBOT
 
 
+# 保存相机稳定路径到数据集键名的请求体。
+class CameraInventorySaveBody(BaseModel):
+    assignments: dict[str, str] = Field(default_factory=dict)
+    notes: dict[str, str] = Field(default_factory=dict)
+    labels: dict[str, str] = Field(default_factory=dict)
+    confirmations: dict[str, bool] = Field(default_factory=dict)
+
+
 # 保存机器人标定配置名的请求体。
 class SaveRobotConfigBody(BaseModel):
     robot_type: RobotSideLiteral
@@ -3241,6 +3307,50 @@ def apply_hardware_rig_bindings(body: RigBindingBody):
     except (RuntimeError, OSError) as exc:
         logger.exception("Error applying rig role bindings")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# 只读枚举稳定相机节点及已保存的数据集键名（不打开 VideoCapture）。
+@app.get("/cameras/inventory")
+def get_camera_inventory():
+    try:
+        return current_camera_inventory_payload()
+    except Exception as exc:
+        logger.exception("Error reading camera inventory")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# 保存相机稳定路径与 left_wrist/right_wrist 等键名的映射。
+@app.post("/cameras/inventory/save")
+def save_camera_inventory_endpoint(body: CameraInventorySaveBody):
+    try:
+        return save_camera_inventory(
+            body.assignments, body.notes, body.labels, body.confirmations
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except OSError as exc:
+        logger.exception("Error saving camera inventory")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# 采集前应确认的稳定相机绑定（字段名 / 显示名 / 设备 / 是否已确认画面）。
+@app.get("/cameras/collection-binding")
+def cameras_collection_binding():
+    return camera_collection_binding()
+
+
+# 下载最近一次相机映射文件。
+@app.get("/cameras/inventory/latest")
+def download_camera_inventory():
+    path = latest_camera_inventory_path()
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="No saved camera inventory yet")
+    return FileResponse(
+        path,
+        media_type="application/json",
+        filename=path.name,
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 # 保存某类设备最近选用的标定配置名。

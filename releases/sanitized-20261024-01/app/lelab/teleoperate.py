@@ -16,7 +16,7 @@ import logging
 import math
 import threading
 import time
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, model_validator
 
@@ -25,6 +25,7 @@ from lerobot.robots.so_follower import SO101Follower, SO101FollowerConfig
 from lerobot.teleoperators import make_teleoperator_from_config
 from lerobot.teleoperators.so_leader import SO101Leader, SO101LeaderConfig
 
+from . import teleop_test
 from .rig import (
     BimanualRig,
     bimanual_snapshot_from_observation,
@@ -48,6 +49,9 @@ current_teleop = None
 # Guards the start path; the worker owns disconnect so stop() does not race.
 # _state_lock：互斥保护"启动路径"，防止并发请求同时通过 active 检查；设备断开由工作线程独占负责。
 _state_lock = threading.Lock()
+# 单臂遥操作测试的实时遥测（原始目标 / 限幅后下发 / 从臂实测）。
+_telemetry_lock = threading.Lock()
+_test_telemetry: dict[str, Any] | None = None
 
 
 class TeleoperateRequest(BaseModel):
@@ -58,6 +62,8 @@ class TeleoperateRequest(BaseModel):
       从臂（follower，被跟随执行的机械臂）串口。
     - leader_config / follower_config：两臂的标定配置名，后端据此定位/生成
       标定文件（见 utils.config.setup_calibration_files）。
+    - side：只填 left 或 right 时走“单臂遥操作测试”，四个字段由后端从该组的
+      机器人记录解析，避免前端各自拼端口。
     """
 
     leader_port: str | None = None
@@ -65,10 +71,16 @@ class TeleoperateRequest(BaseModel):
     leader_config: str | None = None
     follower_config: str | None = None
     bimanual: BimanualRig | None = None
+    # 单臂遥操作测试：只给一组（left/right），端口与标定由后端从已保存记录解析。
+    side: Literal["left", "right"] | None = None
 
     @model_validator(mode="after")
     def validate_device_mode(self) -> "TeleoperateRequest":
         legacy = [self.leader_port, self.follower_port, self.leader_config, self.follower_config]
+        if self.side is not None:
+            if self.bimanual is not None or any(value and value.strip() for value in legacy):
+                raise ValueError("A side test resolves its own ports; drop the explicit fields")
+            return self
         if self.bimanual is None and not all(value and value.strip() for value in legacy):
             raise ValueError("Select a calibrated pair or a complete bimanual rig")
         if self.bimanual is not None and any(legacy):
@@ -80,7 +92,7 @@ class TeleoperateRequest(BaseModel):
         return "bimanual" if self.bimanual is not None else "single"
 
 
-def get_joint_positions_from_robot(robot) -> dict[str, float]:
+def get_joint_positions_from_robot(robot, observation: dict | None = None) -> dict[str, float]:
     """
     Extract current joint positions from the robot and convert to URDF joint format.
 
@@ -93,6 +105,7 @@ def get_joint_positions_from_robot(robot) -> dict[str, float]:
 
     Args:
         robot: The robot instance (SO101Follower)
+        observation: a pre-read observation; the bus is only touched when it is None
 
     Returns:
         Dictionary mapping URDF joint names to radian values
@@ -113,7 +126,8 @@ def get_joint_positions_from_robot(robot) -> dict[str, float]:
     }
 
     try:
-        observation = robot.get_observation()
+        if observation is None:
+            observation = robot.get_observation()
 
         joint_positions: dict[str, float] = {}
         debug_rows = []
@@ -173,6 +187,17 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
     4. 会话状态通过模块级 teleoperation_active 暴露给 /teleoperation-status。
     """
     global teleoperation_active, teleoperation_thread, current_robot, current_teleop
+    global _test_telemetry
+
+    # 单臂遥操作测试只带一个 side：端口与标定名先由已保存记录解析，解析失败时
+    # 还没有占用会话标志，直接返回让操作者去修记录。
+    test_identity: dict[str, Any] | None = None
+    if request.side is not None:
+        try:
+            pair, test_identity = teleop_test.resolve_pair(request.side)
+        except ValueError as exc:
+            return {"success": False, "message": str(exc)}
+        request = request.model_copy(update=pair)
 
     from . import record as _record, rollout as _rollout
 
@@ -256,6 +281,12 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
 
         current_robot = robot
         current_teleop = teleop_device
+        with _telemetry_lock:
+            _test_telemetry = (
+                teleop_test.new_telemetry(test_identity)
+                if test_identity is not None
+                else None
+            )
 
         # Stream the arms in the background; the worker owns disconnect so stop()
         # does not race the serial bus from the request thread.
@@ -264,9 +295,11 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
 
             中文说明：
             - 主循环：主臂 get_action() 读取人工拖出的关节目标 → 从臂
-              send_action() 执行（max_relative_target 限幅在从臂内部生效）。
+              send_action() 执行并返回限幅后的下发目标（max_relative_target 等
+              限幅在从臂内部生效）。
             - 广播：按 20FPS 节流，把从臂关节角（URDF 弧度）打包成
               joint_update 消息，经 websocket_manager 同步广播给前端做可视化；
+              同一节流点记录单臂遥操作测试遥测（原始目标/下发/实测）。
               广播失败只记日志，不影响遥操作本身。
             - 异常处理：循环内任何异常都会结束线程；finally 中断开两臂设备、
               复位全局状态并把 teleoperation_active 置 False。
@@ -283,7 +316,7 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
                 while teleoperation_active:
                     # 核心跟随链路：读主臂当前姿态 → 作为目标下发给从臂执行
                     action = teleop_device.get_action()
-                    robot.send_action(action)
+                    sent_action = robot.send_action(action)
 
                     current_time = time.time()
                     # 按 broadcast_interval(50ms≈20FPS) 节流，把关节角广播给前端
@@ -307,12 +340,27 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
                                     "errors": errors,
                                 }
                             else:
+                                observation = robot.get_observation()
                                 joint_data = {
                                     "type": "joint_update",
                                     "mode": "single",
-                                    "joints": get_joint_positions_from_robot(robot),
+                                    "joints": get_joint_positions_from_robot(
+                                        robot, observation=observation
+                                    ),
                                     "timestamp": current_time,
                                 }
+                                if test_identity is not None:
+                                    joint_data["side"] = test_identity["side"]
+                                    measured = {
+                                        key: float(value)
+                                        for key, value in observation.items()
+                                        if key.endswith(".pos")
+                                    }
+                                    with _telemetry_lock:
+                                        if _test_telemetry is not None:
+                                            teleop_test.update_step(
+                                                _test_telemetry, action, sent_action, measured
+                                            )
                             if websocket_manager and websocket_manager.active_connections:
                                 websocket_manager.broadcast_joint_data_sync(joint_data)
                             last_broadcast_time = current_time
@@ -323,6 +371,9 @@ def handle_start_teleoperation(request: TeleoperateRequest, websocket_manager=No
                     time.sleep(0.001)
             except Exception as e:
                 logger.error(f"Error during teleoperation loop: {e}")
+                with _telemetry_lock:
+                    if _test_telemetry is not None:
+                        _test_telemetry["last_error"] = f"{type(e).__name__}: {e}"
             finally:
                 _safe_disconnect(robot)
                 _safe_disconnect(teleop_device)
@@ -391,19 +442,46 @@ def handle_teleoperation_status() -> dict[str, Any]:
 
     中文说明：/teleoperation-status 接口。直接读取模块级标志
     teleoperation_active（无锁读，布尔赋值原子），available_controls 告诉前端
-    当前是否可以点击"停止遥操作"按钮。
+    当前是否可以点击"停止遥操作"；test 字段是最近一次单臂遥操作测试的遥测快照
+    （普通遥操作或旧会话没有测试遥测时为 null），停止后仍保留供操作者确认结果。
     """
     robot = current_robot
+    with _telemetry_lock:
+        telemetry = _test_telemetry
     return {
         "teleoperation_active": teleoperation_active,
         "mode": "bimanual"
         if getattr(robot, "name", None) == "bi_so_follower"
         else "single",
+        "test": teleop_test.telemetry_snapshot(telemetry),
         "available_controls": {
             "stop_teleoperation": teleoperation_active,
         },
         "message": "Teleoperation status retrieved successfully",
     }
+
+
+def handle_confirm_teleop_test(
+    side: str, *, passed: bool, note: str | None = None
+) -> dict[str, Any]:
+    """Store the operator's verdict for one group against the tested identity."""
+
+    with _telemetry_lock:
+        telemetry = _test_telemetry
+    if telemetry is not None and telemetry["identity"]["side"] == side:
+        identity = telemetry["identity"]
+    else:
+        identity = teleop_test.build_identity(side)
+    entry = teleop_test.store_result(
+        side,
+        identity,
+        passed=passed,
+        note=note,
+        telemetry=telemetry
+        if telemetry is not None and telemetry["identity"]["side"] == side
+        else None,
+    )
+    return {"success": True, "result": entry, "test": teleop_test.evaluate(identity)}
 
 
 def handle_get_joint_positions() -> dict[str, Any]:

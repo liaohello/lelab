@@ -15,7 +15,7 @@ import math
 import threading
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import cv2
 import numpy as np
@@ -26,7 +26,7 @@ from .jetson_policy import (
     PolicyContract,
     ReadOnlyFollowerSource,
 )
-from .rig import LEFT_JOIN_NAMES, RIGHT_JOIN_NAMES
+from .rig import LEFT_JOIN_NAMES, MOTOR_TO_URDF, RIGHT_JOIN_NAMES
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,23 @@ class ObserveRequest(BaseModel):
         }
     )
     fps: float = 5.0
+
+
+FollowerSide = Literal["left", "right"]
+
+
+class FollowerObserveRequest(BaseModel):
+    side: FollowerSide = "left"
+    port: str
+    calibration: str | None = None
+    cameras: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    fps: float = 5.0
+
+    @model_validator(mode="after")
+    def _port_required(self) -> FollowerObserveRequest:
+        if not self.port.strip():
+            raise ValueError("a follower port is required")
+        return self
 
 
 class BimanualObserveRequest(BaseModel):
@@ -98,6 +115,23 @@ def _camera_specs(cameras: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     return specs
 
 
+def _urdf_from_state(
+    state: dict[str, float], *, side: str | None = None
+) -> dict[str, float]:
+    """Convert calibrated SO-101 degrees into the URDF joint's radian input."""
+
+    prefix = f"{side}_" if side else ""
+    result: dict[str, float] = {}
+    for motor, urdf_name in MOTOR_TO_URDF.items():
+        key = f"{prefix}{motor}.pos"
+        if key not in state:
+            continue
+        value = float(state[key])
+        if math.isfinite(value):
+            result[urdf_name] = math.radians(value)
+    return result
+
+
 def _session_status() -> dict[str, Any]:
     with _lock:
         if _session is None:
@@ -122,10 +156,13 @@ def _session_status() -> dict[str, Any]:
             "torque": dict(_session.get("torque") or {}),
             "actions_sent": 0,
             "mode": _session.get("mode") or "observe",
+            "selected_side": _session.get("selected_side"),
             "started_mono": _session.get("started_mono"),
         }
         if status["mode"] == "bimanual":
             status["arms"] = dict(_session.get("arms") or {})
+            status["bindings"] = dict(_session.get("arms_summary") or {})
+        elif status.get("selected_side"):
             status["bindings"] = dict(_session.get("arms_summary") or {})
         else:
             status["port"] = _session.get("port")
@@ -231,7 +268,8 @@ def handle_start_observe(request: ObserveRequest, manager: Any) -> dict[str, Any
                                 "type": "joint_update",
                                 "mode": "single",
                                 "source": "observe_only",
-                                "joints": state,
+                                "values": state,
+                                "joints": _urdf_from_state(state),
                                 "actions_sent": 0,
                                 "timestamp": time.time(),
                             }
@@ -263,6 +301,167 @@ def handle_start_observe(request: ObserveRequest, manager: Any) -> dict[str, Any
     thread.start()
     logger.info(
         "read-only observation started port=%s calibration=%s cameras=%s",
+        request.port,
+        request.calibration,
+        list(request.cameras),
+    )
+    return {"success": True, "status": _session_status()}
+
+
+def _active_hardware_check() -> dict[str, Any] | None:
+    from . import (
+        record as _record,
+        remote_inference as _remote,
+        rollout as _rollout,
+        teleoperate as _teleoperate,
+    )
+
+    for name, active in (
+        ("recording", _record.recording_active),
+        ("teleoperation", _teleoperate.teleoperation_active),
+        ("inference", _rollout.inference_active or _remote.remote_inference_active()),
+    ):
+        if active:
+            return {
+                "success": False,
+                "status_code": 409,
+                "message": f"{name} is active; stop it before observation",
+            }
+    return None
+
+
+def handle_start_follower_observe(
+    request: FollowerObserveRequest, manager: Any
+) -> dict[str, Any]:
+    global _session
+    with _lock:
+        if _session is not None and _session.get("active"):
+            return {
+                "success": False,
+                "status_code": 409,
+                "message": "Read-only observation is already active",
+            }
+    blocked = _active_hardware_check()
+    if blocked is not None:
+        return blocked
+
+    try:
+        source = ReadOnlySingleFollowerSource(
+            request.side,
+            request.port,
+            calibration=request.calibration,
+            cameras=_camera_specs(request.cameras),
+        )
+        source.start()
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("single read-only observation failed to open")
+        return {
+            "success": False,
+            "status_code": 503,
+            "message": f"Could not open read-only observation: {exc}",
+        }
+
+    stop_event = threading.Event()
+    summary = source.summary()
+    with _lock:
+        _session = {
+            "active": True,
+            "phase": "observing",
+            "mode": "observe",
+            "selected_side": request.side,
+            "fault": None,
+            "frames": 0,
+            "state": {},
+            "camera_ages_ms": {},
+            "frames_jpeg": {},
+            "torque": source.torque_state(),
+            "arms_summary": {request.side: summary},
+            "port": request.port,
+            "calibration": request.calibration,
+            "started_mono": time.monotonic(),
+            "stop": stop_event,
+            "source": source,
+        }
+
+    def worker() -> None:
+        period = 1.0 / max(float(request.fps), 0.1)
+        try:
+            while not stop_event.is_set():
+                started = time.monotonic()
+                try:
+                    observation = source.capture()
+                    state: dict[str, float] = {}
+                    for motor in _ReadOnlyFollowerArm.DEFAULT_MOTOR_IDS:
+                        key = f"{motor}.pos"
+                        if key not in observation:
+                            raise JetsonPolicyError(f"missing {key}")
+                        value = float(observation[key])
+                        if not math.isfinite(value):
+                            raise JetsonPolicyError(f"{key} is not finite")
+                        state[key] = value
+                    camera_names = [
+                        name for name in observation if not name.endswith(".pos")
+                    ]
+                    frames_jpeg: dict[str, bytes] = {}
+                    for key in camera_names:
+                        ok, buffer = cv2.imencode(
+                            ".jpg",
+                            np.asarray(observation[key]),
+                            [cv2.IMWRITE_JPEG_QUALITY, 80],
+                        )
+                        if ok:
+                            frames_jpeg[key] = buffer.tobytes()
+                    with _lock:
+                        if _session is None:
+                            return
+                        _session["frames"] += 1
+                        _session["state"] = state
+                        _session["camera_ages_ms"] = source.camera_ages_ms()
+                        _session["frames_jpeg"] = frames_jpeg
+                    if manager is not None:
+                        manager.broadcast_joint_data_sync(
+                            {
+                                "type": "joint_update",
+                                "mode": "single",
+                                "side": request.side,
+                                "source": "observe_only",
+                                "values": state,
+                                "joints": _urdf_from_state(state)
+                                if summary.get("calibrated")
+                                else {},
+                                "arms": source.urdf_arms(state),
+                                "actions_sent": 0,
+                                "timestamp": time.time(),
+                            }
+                        )
+                except Exception as exc:  # noqa: BLE001
+                    logger.exception("single read-only observation loop failed")
+                    with _lock:
+                        if _session is not None:
+                            _session["fault"] = f"{type(exc).__name__}: {exc}"
+                            _session["phase"] = "fault"
+                            _session["active"] = False
+                    stop_event.set()
+                    return
+                time.sleep(max(0.0, period - (time.monotonic() - started)))
+        finally:
+            with _lock:
+                if _session is not None and _session.get("source") is source:
+                    _session["active"] = False
+                    if _session.get("phase") != "fault":
+                        _session["phase"] = "stopped"
+            source.close()
+
+    thread = threading.Thread(
+        target=worker, name="read-only-single-observer", daemon=True
+    )
+    with _lock:
+        if _session is not None:
+            _session["thread"] = thread
+    thread.start()
+    logger.info(
+        "single read-only observation started side=%s port=%s calibration=%s cameras=%s",
+        request.side,
         request.port,
         request.calibration,
         list(request.cameras),
@@ -352,8 +551,16 @@ class _ReadOnlyFollowerArm:
         self._lock = threading.Lock()
 
     @property
+    def port_connected(self) -> bool:
+        return Path(self.port).exists()
+
+    @property
+    def calibration_file_exists(self) -> bool:
+        return bool(self.calibration_path and self.calibration_path.is_file())
+
+    @property
     def calibrated(self) -> bool:
-        return self.calibration_path is not None
+        return self.calibration_file_exists
 
     def _build_bus(self) -> Any:
         if self._bus_factory is not None:
@@ -363,7 +570,7 @@ class _ReadOnlyFollowerArm:
             from lerobot.motors.feetech import FeetechMotorsBus
 
             raw: dict[str, Any] = {}
-            if self.calibration_path is not None:
+            if self.calibration_file_exists:
                 raw = json.loads(self.calibration_path.read_text(encoding="utf-8"))
                 missing = [
                     name for name in self.DEFAULT_MOTOR_IDS if name not in raw
@@ -459,10 +666,107 @@ class _ReadOnlyFollowerArm:
     def summary(self) -> dict[str, Any]:
         return {
             "port": self.port,
+            "port_connected": self.port_connected,
             "calibration": str(self.calibration_path) if self.calibration_path else None,
+            "calibration_file_exists": self.calibration_file_exists,
             "calibrated": self.calibrated,
             "unit": "degrees" if self.calibrated else "raw_steps",
         }
+
+
+def _build_camera_with_factory(
+    spec: dict[str, Any], camera_factory: Any | None
+) -> Any:
+    if camera_factory is not None:
+        return camera_factory(spec)
+    import cv2
+
+    capture = cv2.VideoCapture(int(spec["index"]))
+    capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, int(spec.get("width", 640)))
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, int(spec.get("height", 480)))
+    capture.set(cv2.CAP_PROP_FPS, int(spec.get("fps", 30)))
+    capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    if not capture.isOpened():
+        raise JetsonPolicyError(
+            f"camera {spec.get('key')} index {spec.get('index')} did not open"
+        )
+    return capture
+
+
+class ReadOnlySingleFollowerSource:
+    """Read one follower bus and optional cameras without writing motors."""
+
+    def __init__(
+        self,
+        side: str,
+        port: str,
+        *,
+        calibration: str | None = None,
+        cameras: list[dict[str, Any]] | None = None,
+        bus_factory: Any | None = None,
+        camera_factory: Any | None = None,
+    ):
+        self.side = side
+        self.arm = _ReadOnlyFollowerArm(port, calibration, bus_factory=bus_factory)
+        self.cameras = cameras or []
+        self._camera_factory = camera_factory
+        self._captures: dict[str, Any] = {}
+        self._capture_mono: dict[str, float] = {}
+
+    def start(self) -> None:
+        self.arm.start()
+        try:
+            for spec in self.cameras:
+                key = str(spec["key"])
+                self._captures[key] = _build_camera_with_factory(
+                    spec, self._camera_factory
+                )
+                for _ in range(5):
+                    self._captures[key].read()
+        except Exception:
+            self.close()
+            raise
+
+    def capture(self) -> dict[str, Any]:
+        observation: dict[str, Any] = {
+            f"{motor}.pos": value for motor, value in self.arm.read().items()
+        }
+        now = time.monotonic()
+        for key, capture in self._captures.items():
+            ok, frame = capture.read()
+            if not ok or frame is None:
+                raise JetsonPolicyError(f"camera {key!r} produced no frame")
+            observation[key] = frame
+            self._capture_mono[key] = now
+        return observation
+
+    def camera_ages_ms(self) -> dict[str, float]:
+        now = time.monotonic()
+        return {
+            key: (now - stamp) * 1000.0 for key, stamp in self._capture_mono.items()
+        }
+
+    def torque_state(self) -> dict[str, int]:
+        return self.arm.torque_state()
+
+    def summary(self) -> dict[str, Any]:
+        return {"side": self.side, **self.arm.summary()}
+
+    def urdf_arms(self, state: dict[str, float]) -> dict[str, dict[str, float]]:
+        """Expose the one measured arm under its side key, like the bimanual loop."""
+
+        urdf = _urdf_from_state(state) if self.arm.calibrated else {}
+        return {self.side: urdf}
+
+    def close(self) -> None:
+        for capture in self._captures.values():
+            try:
+                capture.release()
+            except Exception:  # noqa: BLE001
+                logger.debug("failed to release single observation camera")
+        self._captures.clear()
+        self.arm.close()
 
 
 class ReadOnlyBimanualFollowerSource:
@@ -517,21 +821,7 @@ class ReadOnlyBimanualFollowerSource:
             raise
 
     def _build_camera(self, spec: dict[str, Any]) -> Any:
-        if self._camera_factory is not None:
-            return self._camera_factory(spec)
-        import cv2
-
-        capture = cv2.VideoCapture(int(spec["index"]))
-        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-        capture.set(cv2.CAP_PROP_FRAME_WIDTH, int(spec.get("width", 640)))
-        capture.set(cv2.CAP_PROP_FRAME_HEIGHT, int(spec.get("height", 480)))
-        capture.set(cv2.CAP_PROP_FPS, int(spec.get("fps", 30)))
-        capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-        if not capture.isOpened():
-            raise JetsonPolicyError(
-                f"camera {spec.get('key')} index {spec.get('index')} did not open"
-            )
-        return capture
+        return _build_camera_with_factory(spec, self._camera_factory)
 
     def capture(self) -> dict[str, Any]:
         observation: dict[str, Any] = {}
@@ -696,14 +986,26 @@ def handle_start_bimanual_observe(
                         _session["arms"] = _split_bimanual_state(state)
                         _session["camera_ages_ms"] = source.camera_ages_ms()
                         _session["frames_jpeg"] = frames_jpeg
+                    urdf_arms: dict[str, dict[str, float]] = {}
+                    joint_values: dict[str, float] = {}
+                    arm_status = source.arms_summary()
+                    for side in ("left", "right"):
+                        urdf = (
+                            _urdf_from_state(state, side=side)
+                            if arm_status.get(side, {}).get("calibrated")
+                            else {}
+                        )
+                        urdf_arms[side] = urdf
+                        joint_values.update(urdf)
                     if manager is not None:
                         manager.broadcast_joint_data_sync(
                             {
                                 "type": "joint_update",
                                 "mode": "bimanual",
                                 "source": "observe_only",
-                                "joints": state,
-                                "arms": _split_bimanual_state(state),
+                                "values": state,
+                                "joints": joint_values,
+                                "arms": urdf_arms,
                                 "actions_sent": 0,
                                 "timestamp": time.time(),
                             }

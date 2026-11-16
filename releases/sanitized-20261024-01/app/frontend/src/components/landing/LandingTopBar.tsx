@@ -1,5 +1,5 @@
 import React from "react";
-import { Activity, Usb } from "lucide-react";
+import { Activity, Camera, Usb } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import HfAuthChip from "./HfAuthChip";
@@ -28,6 +28,17 @@ const LandingTopBar: React.FC = () => {
             <Link to="/bimanual">
               <Activity className="h-4 w-4" />
               <span className="hidden sm:inline">双臂采集</span>
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="text-gray-300 hover:bg-gray-800 hover:text-white"
+          >
+            <Link to="/cameras">
+              <Camera className="h-4 w-4" />
+              <span className="hidden sm:inline">相机</span>
             </Link>
           </Button>
           <Button

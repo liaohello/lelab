@@ -48,3 +48,5 @@ improved on the earlier pilot, and still did not meet the original A gate.
 These records do not establish simulation task success or physical robot
 safety. Model weights, datasets and private runtime configuration are not
 included.
+
+阶段代码 review：[2026-11-16 分支、功能与验证说明](docs/reviews/2026-11-16-stage-review.md)。

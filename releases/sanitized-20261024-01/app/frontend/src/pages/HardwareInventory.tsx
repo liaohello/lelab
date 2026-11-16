@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Download, Link2, RefreshCw, Save, Usb } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  Link2,
+  RefreshCw,
+  Save,
+  Usb,
+  Wrench,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useApi } from "@/contexts/ApiContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,6 +69,11 @@ interface RigPortBinding {
   proposed: string | null;
 }
 
+interface CalibrationCheck {
+  exists?: boolean;
+  path?: string;
+}
+
 interface RigBinding {
   side: "left" | "right";
   robot_name: string;
@@ -71,6 +85,10 @@ interface RigBinding {
     complete: boolean;
     issues: { code: string; message: string }[];
     warnings?: { code: string; message: string }[];
+    checks?: {
+      leader_calibration?: CalibrationCheck;
+      follower_calibration?: CalibrationCheck;
+    };
   } | null;
   changes: Record<string, string>;
   status: string;
@@ -123,6 +141,7 @@ const bindingStatusLabel = (status: string): string =>
   BINDING_STATUS_LABELS[status] ?? status;
 
 const HardwareInventory: React.FC = () => {
+  const navigate = useNavigate();
   const { baseUrl, fetchWithHeaders } = useApi();
   const [ports, setPorts] = useState<Port[]>([]);
   const [roles, setRoles] = useState<Record<string, Role>>({});
@@ -299,6 +318,30 @@ const HardwareInventory: React.FC = () => {
   const missingRoles = REQUIRED_ROLES.filter((role) => !assignedRequired.includes(role));
   const complete = missingRoles.length === 0 && presentCount > 0;
 
+  const calibrationItems = useMemo(() => {
+    if (!rigBindings) return [];
+    return rigBindings.bindings.flatMap((binding) =>
+      (["follower", "leader"] as const).map((kind) => {
+        const portInfo =
+          kind === "follower" ? binding.follower_port : binding.leader_port;
+        const check = binding.calibration?.checks?.[
+          kind === "follower" ? "follower_calibration" : "leader_calibration"
+        ];
+        return {
+          key: `${binding.robot_name}-${kind}`,
+          role: portInfo.role,
+          robot_name: binding.robot_name,
+          device_type: kind === "follower" ? "robot" : "teleop",
+          serial: portInfo.serial,
+          port: portInfo.proposed || portInfo.current || null,
+          calibrated: Boolean(check?.exists),
+          calibration_path: check?.path ?? "",
+          record_exists: binding.record_exists,
+        };
+      })
+    );
+  }, [rigBindings]);
+
   const changeRole = (port: Port, role: Role) => {
     setError(null);
     setMessage(null);
@@ -397,6 +440,18 @@ const HardwareInventory: React.FC = () => {
     }
   };
 
+  const openCalibration = (item: (typeof calibrationItems)[number]) => {
+    if (!item.port || !item.record_exists) return;
+    navigate("/calibration", {
+      state: {
+        robot_name: item.robot_name,
+        device_type: item.device_type,
+        port: item.port,
+        hardware_role: item.role,
+      },
+    });
+  };
+
   const download = async () => {
     setDownloading(true);
     setError(null);
@@ -425,18 +480,25 @@ const HardwareInventory: React.FC = () => {
   return (
     <div className="min-h-screen bg-black p-6 text-gray-100">
       <div className="mx-auto max-w-7xl space-y-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="flex items-center gap-2 text-2xl font-semibold">
-              <Usb className="h-6 w-6 text-blue-400" />
-              硬件角色确认
-            </h1>
-            <p className="mt-1 max-w-3xl text-sm text-gray-400">
-              只读枚举 <span className="font-mono">/dev/serial/by-id</span> 与 sysfs，
-              不打开串口、不写标定、不改变力矩。用于在四台机械臂之间确认左右
-              follower / leader。
-            </p>
-          </div>
+        <div>
+          <Button asChild variant="ghost" size="sm" className="mb-2 px-2 text-gray-400 hover:bg-gray-900 hover:text-white">
+            <Link to="/">
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              返回主界面
+            </Link>
+          </Button>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h1 className="flex items-center gap-2 text-2xl font-semibold">
+                <Usb className="h-6 w-6 text-blue-400" />
+                硬件角色确认
+              </h1>
+              <p className="mt-1 max-w-3xl text-sm text-gray-400">
+                只读枚举 <span className="font-mono">/dev/serial/by-id</span> 与 sysfs，
+                不打开串口、不写标定、不改变力矩。用于在四台机械臂之间确认左右
+                follower / leader。
+              </p>
+            </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => void refresh()} disabled={loading}>
               <RefreshCw className={`mr-1 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -455,6 +517,7 @@ const HardwareInventory: React.FC = () => {
               下载 JSON
             </Button>
           </div>
+        </div>
         </div>
 
         <div className="rounded-lg border border-gray-800 bg-gray-950 p-4">
@@ -634,6 +697,92 @@ const HardwareInventory: React.FC = () => {
               拔掉的串口会留在列表中，方便先选角色再插回。本页不会自动标定或下发动作。
             </div>
           </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-800 bg-gray-950 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="flex items-center gap-2 text-lg font-medium">
+                <Wrench className="h-5 w-5 text-emerald-400" />
+                四臂标定工作台
+              </h2>
+              <p className="mt-1 text-sm text-gray-400">
+                按硬件角色直接进入现有标定流程。本页不会自行写电机；点击后由标定页面取得硬件租约并逐步操作。
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => void loadBindings()}
+              disabled={bindingsLoading}
+            >
+              <RefreshCw className={`mr-1 h-4 w-4 ${bindingsLoading ? "animate-spin" : ""}`} />
+              刷新标定状态
+            </Button>
+          </div>
+
+          {calibrationItems.length ? (
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[720px] text-sm">
+                <thead className="border-b border-gray-800 text-left text-xs uppercase text-gray-500">
+                  <tr>
+                    <th className="py-2 pr-3">目标设备</th>
+                    <th className="py-2 pr-3">串口</th>
+                    <th className="py-2 pr-3">标定记录</th>
+                    <th className="py-2 pr-3">状态</th>
+                    <th className="py-2">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {calibrationItems.map((item) => (
+                    <tr key={item.key} className="border-b border-gray-900">
+                      <td className="py-2 pr-3">
+                        <div className="text-gray-100">{roleLabel(item.role)}</div>
+                        <div className="font-mono text-xs text-gray-500">
+                          {item.serial || "未连接"}
+                        </div>
+                      </td>
+                      <td className="max-w-[280px] break-all py-2 pr-3 font-mono text-xs text-gray-400">
+                        {item.port || "缺少角色绑定"}
+                      </td>
+                      <td className="py-2 pr-3">
+                        <div className="font-mono text-xs">
+                          {item.robot_name} · {item.device_type}
+                        </div>
+                        {item.calibration_path ? (
+                          <div className="mt-1 max-w-[260px] break-all text-xs text-gray-600">
+                            {item.calibration_path}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="py-2 pr-3">
+                        {item.calibrated ? (
+                          <Badge className="bg-emerald-950 text-emerald-300">已标定</Badge>
+                        ) : item.port ? (
+                          <Badge className="bg-amber-950 text-amber-300">待标定</Badge>
+                        ) : (
+                          <Badge className="bg-red-950 text-red-300">端口缺失</Badge>
+                        )}
+                      </td>
+                      <td className="py-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openCalibration(item)}
+                          disabled={!item.port || !item.record_exists}
+                        >
+                          {item.calibrated ? "重新标定" : "开始标定"}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="mt-4 text-sm text-gray-500">
+              {bindingsLoading ? "正在读取标定状态…" : "请先保存硬件角色。"}
+            </div>
+          )}
         </div>
 
         <div className="rounded-lg border border-gray-800 bg-gray-950 p-4">
