@@ -19,15 +19,15 @@
 
 ## 2. 验证范围
 
-- 应用完整测试：`589 passed / 0 failed / 1 skipped`。唯一 skip 是 `test_jetson_policy.py`
+- 应用完整测试：`591 passed / 0 failed / 1 skipped`。唯一 skip 是 `test_jetson_policy.py`
   模块级 gRPC/async_inference 依赖缺失；替代守卫用例在 `test_inference_070_jetson.py` 实际执行 4 项。
 - 库本地定制：`54 passed`（follower 三层限幅、sampler、monitor overrides）。
 - 0.7 策略与 parity：`48 passed / 1 failed / 3 skipped`。失败为 VAE 空构建在 4 GiB
   `RLIMIT_AS` 下 CPU allocator 失败，单测复现；CUDA 专用项 skip 不计通过。
 - 0.7 远程推理：`161 passed / 2 skipped`；三个显式回环/断连/取消用例单独执行均 PASSED。
-- ROS 应用：`812 passed / 10 failed`（详见日志）。其中 1 项是旧 CLI 断言，已按 0.7
-  契约修正并单独复验 9/9 通过；其余 9 项为 avcodec 内存、线程上限、缺历史证据文件、
-  estop 409 和 homing 断言，按失败记录，不写成通过。
+- ROS 应用：`818 passed / 9 failed`（详见日志）。远程分发请求已补齐 0.7 的
+  deployment/semantics/dims 契约，最终全量套件覆盖该项；剩余 9 项为 5 个 libsvtav1
+  内存失败、2 个 TestClient 线程创建失败、1 个缺失历史证据文件和 1 个 estop 409，按失败记录，不写成通过。
 - 前端：本机 tsc 通过；本机 Vite 因 undici Wasm 在 4 GiB 地址空间限制下无法启动，
   改在 g128（node v24，无该限制）以同一份源码和依赖构建，exit 0，产物已回传并确认包含新表单字段。
 - 候选包：1678 文件；解包、逐文件哈希、篡改拒绝、恢复后复验全部通过。原工作区与原 `current` 未改动。

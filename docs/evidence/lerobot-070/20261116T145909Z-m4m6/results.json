@@ -28,7 +28,7 @@
       "scope": "app",
       "cwd": "<worktree>/releases/sanitized-20261024-01/app",
       "command": ".venv/bin/python -m pytest tests -q -ra",
-      "counts": {"passed": 589, "failed": 0, "skipped": 1},
+      "counts": {"passed": 591, "failed": 0, "skipped": 1},
       "note": "after the two contracts below were updated; final rerun recorded in app-suite.txt"
     },
     {
@@ -65,9 +65,9 @@
     },
     {
       "scope": "app_ros_mobile",
-      "command": "pytest tests -q -ra",
-      "counts": {"passed": 812, "failed": 10, "skipped": 0},
-      "classification": "1 remote-inference contract failure fixed and re-verified (9 passed targeted); 4 libsvtav1 OOM, 1 thread creation failure, 1 missing historical evidence fixture, 1 estop 409, 1 homing assertion remain environmental/pre-existing and are listed as failures, not passes"
+      "command": "pytest tests -q -ra --maxfail=50",
+      "counts": {"passed": 818, "failed": 9, "skipped": 0},
+      "classification": "remote-inference contract fixed and covered by the final suite; 5 libsvtav1 OOM, 2 TestClient thread-creation failures, 1 missing historical evidence fixture and 1 estop 409 remain recorded failures, not passes"
     },
     {
       "scope": "frontend",
@@ -125,7 +125,7 @@
   },
   "known_failures": [
     "FastWAM VAE shape test fails under 4 GiB RLIMIT_AS (CPU allocator)",
-    "app_ros_mobile: 9 failures remain (4 avcodec OOM, 1 thread limit, 1 missing historical evidence file, 1 estop 409, 1 homing assertion)",
+    "app_ros_mobile: 9 failures remain (5 libsvtav1 OOM, 2 TestClient thread-creation failures, 1 missing historical evidence file, 1 estop 409)",
     "test_jetson_policy.py module is skipped: grpc and retired async_inference helpers absent; replacement guard tests passed in test_inference_070_jetson.py"
   ]
 }

@@ -268,7 +268,7 @@ tests/test_hybrid_home_plan.py::test_refuses_stale_or_untrusted_feedback[valid-F
 tests/test_hybrid_home_plan.py::test_rejects_outside_limits_and_does_not_confuse_gripper_units PASSED [ 30%]
 tests/test_hybrid_home_plan.py::test_plan_does_not_modify_feedback_or_saved_calibration PASSED [ 30%]
 tests/test_hybrid_stream_hardware.py::test_existing_session_drives_complete_frames_and_release_stops PASSED [ 31%]
-tests/test_hybrid_stream_hardware.py::test_homing_walks_nonzero_axes_to_requested_raw_one_at_a_time FAILED [ 31%]
+tests/test_hybrid_stream_hardware.py::test_homing_walks_nonzero_axes_to_requested_raw_one_at_a_time PASSED [ 31%]
 tests/test_hybrid_stream_hardware.py::test_homing_cancel_stops_without_waiting_for_a_stall PASSED [ 31%]
 tests/test_hybrid_stream_hardware.py::test_single_axis_homing_moves_only_joint1 PASSED [ 31%]
 tests/test_hybrid_stream_hardware.py::test_factory_requires_explicit_supported_transport PASSED [ 31%]
@@ -397,7 +397,7 @@ tests/test_record.py::test_build_camera_configs_invalid_backend_raises PASSED [ 
 tests/test_record.py::test_build_camera_configs_skips_non_opencv_type PASSED [ 46%]
 tests/test_record.py::test_recording_writes_the_calibration_only_after_the_identity_check PASSED [ 46%]
 tests/test_record.py::test_recording_refuses_a_calibration_measured_on_the_other_arm PASSED [ 46%]
-tests/test_remote_inference.py::test_client_command_targets_the_tunnel FAILED [ 46%]
+tests/test_remote_inference.py::test_client_command_targets_the_tunnel PASSED [ 46%]
 tests/test_remote_inference.py::test_client_command_omits_empty_task PASSED [ 46%]
 tests/test_remote_inference.py::test_remote_env_carries_mirror_proxy_and_token PASSED [ 47%]
 tests/test_remote_inference.py::test_stage_policy_parses_the_remote_path PASSED [ 47%]
@@ -833,87 +833,13 @@ tests/test_utils_system.py::test_nvidia_gpu_present_false_when_smi_absent PASSED
 tests/test_utils_system.py::test_warn_if_cuda_mismatch_logs_on_mismatch PASSED [ 99%]
 tests/test_utils_system.py::test_warn_if_cuda_mismatch_silent_when_ok PASSED [ 99%]
 tests/test_utils_system.py::test_cuda_status_endpoint_returns_expected_shape FAILED [ 99%]
+tests/test_utils_system.py::test_policy_extra_maps_policies_to_install_targets PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_core_policy_needs_nothing PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_available_reflects_find_spec PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_install_is_noop_for_core_policy PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_route_known_and_core FAILED [100%]
 
 =================================== FAILURES ===================================
-________ test_homing_walks_nonzero_axes_to_requested_raw_one_at_a_time _________
-
-rig = (<lelab.hybrid_stream_hardware.FrameStreamHardwareFacade object at 0x72c511f5f170>, {'active': True, 'session': {'sess...col_version': 1, 'frame_seq': 6, 'stream_epoch': 1, 'session_id': '2cab1fd5393146ebbac492a7c2882f6c', ...}, ...], ...})
-
-    def test_homing_walks_nonzero_axes_to_requested_raw_one_at_a_time(rig):
-        facade, state = rig
-        state["raw"].update({"joint1": 520, "joint2": 480, "joint3": 500,
-                             "joint4": 500, "joint5": 500, "r_joint": 440})
-        state["sample_seq"] = 20
-        acquired = facade.acquire_session({"owner": "homing-test"})
-        identity = {"session_id": acquired["session_id"],
-                    "session_epoch": acquired["session_epoch"],
-                    "calibration_bundle_hash": acquired["calibration_bundle_hash"]}
-        state["homing_sim"] = True
-        facade.start_home({**identity, "action": "start"})
-        deadline = time.monotonic() + 8
-        while time.monotonic() < deadline:
-            task = facade.status().get("homing") or {}
-            if task.get("state") in {"complete", "fault"}:
-                break
-            time.sleep(0.05)
-        task = facade.status()
-        assert task["homing"]["state"] == "complete", {
-            "homing": task["homing"], "last_error": task.get("last_error"),
-            "raw": state["raw"], "transitions": state["home_transitions"][:4]}
-        assert all(abs(state["raw"][name] - target) <= 5
-                   for name, target in HOME_RAW.items())
-        assert all(abs(task["homing"]["observed_raw"][name] - target) <= 5
-                   for name, target in HOME_RAW.items())
-        assert task["homing"]["outputs_enabled"] is False
-        assert task["outputs_enabled"] is False
-        assert task["state"] == "ready"
-        assert state["home_transitions"]
->       assert all(len(item["changed"]) == 1 for item in state["home_transitions"])
-E       assert False
-E        +  where False = all(<generator object test_homing_walks_nonzero_axes_to_requested_raw_one_at_a_time.<locals>.<genexpr> at 0x72c511f68c80>)
-
-tests/test_hybrid_stream_hardware.py:242: AssertionError
-____________________ test_client_command_targets_the_tunnel ____________________
-
-monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72c511d3f8f0>
-
-    def test_client_command_targets_the_tunnel(monkeypatch) -> None:
-        monkeypatch.setenv("LELAB_MAX_RELATIVE_TARGET", "5")
-        monkeypatch.setenv("LELAB_MAX_POSITION_DEVIATION", "off")
-        request = InferenceRequest(
-            follower_port="/dev/serial/by-id/usb-follower",
-            follower_config="follower_a",
-            policy_ref="/remote/checkpoints/000050/pretrained_model",
-            task="pick the red block",
-            cameras={"wrist": {"type": "opencv", "camera_index": 0, "width": 640, "height": 480, "fps": 30}},
-            duration_s=30,
-            target="remote",
-            policy_type="act",
-            actions_per_chunk=25,
-        )
-    
-        cmd = _build_client_command(
-            request,
-            follower_id="follower_a",
-            local_port=28081,
-            remote_policy_path="/home/trainer/Desktop/lelab_server/models/pretrained/act_so101",
-        )
-        joined = " ".join(cmd)
-    
-        assert "lerobot.async_inference.robot_client" in joined
-        assert "--server_address=127.0.0.1:28081" in joined
-        assert "--robot.port=/dev/serial/by-id/usb-follower" in joined
-        assert "--robot.id=follower_a" in joined
-        assert "--policy_type=act" in joined
-        assert "--actions_per_chunk=25" in joined
-        assert "--task=pick the red block" in joined
-        # Local safety limits travel with the robot config, cloud or not.
-        assert "--robot.max_relative_target=5.0" in joined
-        assert "--robot.max_position_deviation" not in joined
->       assert "wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}" in joined
-E       AssertionError: assert 'wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}' in '/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python -m lerobot.async_inference.robot_client --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-follower --robot.id=follower_a --robot.max_relative_target=5.0 --robot.calibration_range_margin=0.0 --server_address=127.0.0.1:28081 --policy_type=act --pretrained_name_or_path=/home/trainer/Desktop/lelab_server/models/pretrained/act_so101 --policy_device=cuda --client_device=cpu --actions_per_chunk=25 --fps=30 --chunk_size_threshold=0.5 --task=pick the red block --robot.cameras={wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30, backend: 200, fourcc: MJPG}}'
-
-tests/test_remote_inference.py:55: AssertionError
 ____ test_calibration_strict_policy_rejects_examples_mismatch_and_over_age _____
 
     def test_calibration_strict_policy_rejects_examples_mismatch_and_over_age():
@@ -948,8 +874,8 @@ E       FileNotFoundError: [Errno 2] No such file or directory: '/home/liaozheng
 /usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
 _______ test_two_short_episodes_export_and_read_back_as_nine_dimensions ________
 
-tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-731/test_two_short_episodes_export0')
-monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72c511c7af90>
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-734/test_two_short_episodes_export0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x740ca45e6bd0>
 
     def test_two_short_episodes_export_and_read_back_as_nine_dimensions(tmp_path, monkeypatch):
         built = _prepare(tmp_path, monkeypatch, episodes=2, seconds=1.5)
@@ -997,7 +923,7 @@ E   av.error.MemoryError: [Errno 12] Cannot allocate memory: 'avcodec_open2(libs
 
 av/error.pyx:424: MemoryError
 ----------------------------- Captured stderr call -----------------------------
-WARNING 2026-11-16 07:28:37 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
+WARNING 2026-11-16 07:37:41 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
              versions 4, 5, 6, 7, and 8, and we attempt to load libtorchcodec
              for each of those versions. Errors for versions not installed on
@@ -1104,9 +1030,9 @@ Traceback (most recent call last):
 OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
 [end of libtorchcodec loading traceback].
 'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
-INFO 2026-11-16 07:28:37 gs/video.py:193 Using video codec: libsvtav1
-INFO 2026-11-16 07:28:37 gs/video.py:193 Using video codec: hevc
-Map:   0%|          | 0/15 [00:00<?, ? examples/s]Map: 100%|██████████| 15/15 [00:00<00:00, 1756.95 examples/s]
+INFO 2026-11-16 07:37:41 gs/video.py:193 Using video codec: libsvtav1
+INFO 2026-11-16 07:37:41 gs/video.py:193 Using video codec: hevc
+Map:   0%|          | 0/15 [00:00<?, ? examples/s]Map: 100%|██████████| 15/15 [00:00<00:00, 1798.38 examples/s]
 Svt[info]: -------------------------------------------
 Svt[info]: SVT [version]:	SVT-AV1 Encoder Lib v3.0.0
 Svt[info]: SVT [build]  :	GCC 14.2.1 20250110 (Red Hat 14.2.1-7)	 64 bit
@@ -1132,7 +1058,7 @@ Svt[info]: SVT [config]: sharpness / luminance-based QP bias 			: 0 / 0
 Svt[info]: Svt[info]: -------------------------------------------
 Svt[error]: Failed to create thread: Resource temporarily unavailable
 SvtMalloc[fatal]: allocate memory failed, at /project/build/libsvtav1/Source/Lib/Globals/enc_handle.c:2254
-[libsvtav1 @ 0x1adfc540] Error initializing encoder: insufficient resources (0x80001000)
+[libsvtav1 @ 0x4dbab340] Error initializing encoder: insufficient resources (0x80001000)
 ------------------------------ Captured log call -------------------------------
 WARNING  lerobot.utils.import_utils:import_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
@@ -1279,8 +1205,8 @@ DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IHDR' 16 13
 DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IDAT' 41 147
 ____________ test_zero_base_covariance_is_kept_as_declared_evidence ____________
 
-tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-731/test_zero_base_covariance_is_k0')
-monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72c511f24350>
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-734/test_zero_base_covariance_is_k0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x740ca4321850>
 
     def test_zero_base_covariance_is_kept_as_declared_evidence(tmp_path, monkeypatch):
         """A zero variance is finite and non-negative, so it is recorded, not "fixed"."""
@@ -1325,7 +1251,7 @@ E   av.error.MemoryError: [Errno 12] Cannot allocate memory: 'avcodec_open2(libs
 
 av/error.pyx:424: MemoryError
 ----------------------------- Captured stderr call -----------------------------
-WARNING 2026-11-16 07:28:38 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
+WARNING 2026-11-16 07:37:43 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
              versions 4, 5, 6, 7, and 8, and we attempt to load libtorchcodec
              for each of those versions. Errors for versions not installed on
@@ -1432,9 +1358,9 @@ Traceback (most recent call last):
 OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
 [end of libtorchcodec loading traceback].
 'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
-INFO 2026-11-16 07:28:38 gs/video.py:193 Using video codec: libsvtav1
-INFO 2026-11-16 07:28:38 gs/video.py:193 Using video codec: hevc
-Map:   0%|          | 0/15 [00:00<?, ? examples/s]Map: 100%|██████████| 15/15 [00:00<00:00, 1845.27 examples/s]
+INFO 2026-11-16 07:37:43 gs/video.py:193 Using video codec: libsvtav1
+INFO 2026-11-16 07:37:43 gs/video.py:193 Using video codec: hevc
+Map:   0%|          | 0/15 [00:00<?, ? examples/s]Map: 100%|██████████| 15/15 [00:00<00:00, 1874.52 examples/s]
 Svt[info]: -------------------------------------------
 Svt[info]: SVT [version]:	SVT-AV1 Encoder Lib v3.0.0
 Svt[info]: SVT [build]  :	GCC 14.2.1 20250110 (Red Hat 14.2.1-7)	 64 bit
@@ -1460,7 +1386,7 @@ Svt[info]: SVT [config]: sharpness / luminance-based QP bias 			: 0 / 0
 Svt[info]: Svt[info]: -------------------------------------------
 Svt[error]: Failed to create thread: Resource temporarily unavailable
 SvtMalloc[fatal]: allocate memory failed, at /project/build/libsvtav1/Source/Lib/Globals/enc_handle.c:2254
-[libsvtav1 @ 0x14397900] Error initializing encoder: insufficient resources (0x80001000)
+[libsvtav1 @ 0x4daf17c0] Error initializing encoder: insufficient resources (0x80001000)
 ------------------------------ Captured log call -------------------------------
 WARNING  lerobot.utils.import_utils:import_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
@@ -1607,8 +1533,8 @@ DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IHDR' 16 13
 DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IDAT' 41 147
 _____ test_an_unlabelled_episode_stays_exportable_and_a_failure_is_dropped _____
 
-tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-731/test_an_unlabelled_episode_sta0')
-monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72c5120e0590>
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-734/test_an_unlabelled_episode_sta0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x740ca4670290>
 
     def test_an_unlabelled_episode_stays_exportable_and_a_failure_is_dropped(tmp_path, monkeypatch):
         meta = fx.hybrid_metadata()
@@ -1663,7 +1589,7 @@ E   av.error.MemoryError: [Errno 12] Cannot allocate memory: 'avcodec_open2(libs
 
 av/error.pyx:424: MemoryError
 ----------------------------- Captured stderr call -----------------------------
-WARNING 2026-11-16 07:28:39 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
+WARNING 2026-11-16 07:37:44 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
              versions 4, 5, 6, 7, and 8, and we attempt to load libtorchcodec
              for each of those versions. Errors for versions not installed on
@@ -1770,9 +1696,9 @@ Traceback (most recent call last):
 OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
 [end of libtorchcodec loading traceback].
 'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
-INFO 2026-11-16 07:28:39 gs/video.py:193 Using video codec: libsvtav1
-INFO 2026-11-16 07:28:39 gs/video.py:193 Using video codec: hevc
-Map:   0%|          | 0/15 [00:00<?, ? examples/s]Map: 100%|██████████| 15/15 [00:00<00:00, 1993.93 examples/s]
+INFO 2026-11-16 07:37:44 gs/video.py:193 Using video codec: libsvtav1
+INFO 2026-11-16 07:37:44 gs/video.py:193 Using video codec: hevc
+Map:   0%|          | 0/15 [00:00<?, ? examples/s]Map: 100%|██████████| 15/15 [00:00<00:00, 1941.63 examples/s]
 Svt[info]: -------------------------------------------
 Svt[info]: SVT [version]:	SVT-AV1 Encoder Lib v3.0.0
 Svt[info]: SVT [build]  :	GCC 14.2.1 20250110 (Red Hat 14.2.1-7)	 64 bit
@@ -1798,7 +1724,7 @@ Svt[info]: SVT [config]: sharpness / luminance-based QP bias 			: 0 / 0
 Svt[info]: Svt[info]: -------------------------------------------
 Svt[error]: Failed to create thread: Resource temporarily unavailable
 SvtMalloc[fatal]: allocate memory failed, at /project/build/libsvtav1/Source/Lib/Globals/enc_handle.c:2254
-[libsvtav1 @ 0x135f0000] Error initializing encoder: insufficient resources (0x80001000)
+[libsvtav1 @ 0x4db19640] Error initializing encoder: insufficient resources (0x80001000)
 ------------------------------ Captured log call -------------------------------
 WARNING  lerobot.utils.import_utils:import_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
@@ -1945,8 +1871,8 @@ DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IHDR' 16 13
 DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IDAT' 41 147
 _____ test_explicit_simulation_identity_exports_without_claiming_hardware ______
 
-tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-731/test_explicit_simulation_ident0')
-monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72c511bb71d0>
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-734/test_explicit_simulation_ident0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x740ca4695af0>
 
     def test_explicit_simulation_identity_exports_without_claiming_hardware(tmp_path, monkeypatch):
         provenance = {
@@ -2015,7 +1941,7 @@ E   av.error.MemoryError: [Errno 12] Cannot allocate memory: 'avcodec_open2(libs
 
 av/error.pyx:424: MemoryError
 ----------------------------- Captured stderr call -----------------------------
-WARNING 2026-11-16 07:28:40 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
+WARNING 2026-11-16 07:37:45 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
              versions 4, 5, 6, 7, and 8, and we attempt to load libtorchcodec
              for each of those versions. Errors for versions not installed on
@@ -2122,9 +2048,9 @@ Traceback (most recent call last):
 OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
 [end of libtorchcodec loading traceback].
 'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
-INFO 2026-11-16 07:28:40 gs/video.py:193 Using video codec: libsvtav1
-INFO 2026-11-16 07:28:40 gs/video.py:193 Using video codec: hevc
-Map:   0%|          | 0/15 [00:00<?, ? examples/s]Map: 100%|██████████| 15/15 [00:00<00:00, 1963.69 examples/s]
+INFO 2026-11-16 07:37:45 gs/video.py:193 Using video codec: libsvtav1
+INFO 2026-11-16 07:37:45 gs/video.py:193 Using video codec: hevc
+Map:   0%|          | 0/15 [00:00<?, ? examples/s]Map: 100%|██████████| 15/15 [00:00<00:00, 1988.39 examples/s]
 Svt[info]: -------------------------------------------
 Svt[info]: SVT [version]:	SVT-AV1 Encoder Lib v3.0.0
 Svt[info]: SVT [build]  :	GCC 14.2.1 20250110 (Red Hat 14.2.1-7)	 64 bit
@@ -2150,7 +2076,7 @@ Svt[info]: SVT [config]: sharpness / luminance-based QP bias 			: 0 / 0
 Svt[info]: Svt[info]: -------------------------------------------
 Svt[error]: Failed to create thread: Resource temporarily unavailable
 SvtMalloc[fatal]: allocate memory failed, at /project/build/libsvtav1/Source/Lib/Globals/enc_handle.c:2254
-[libsvtav1 @ 0x17579d80] Error initializing encoder: insufficient resources (0x80001000)
+[libsvtav1 @ 0x4e35b940] Error initializing encoder: insufficient resources (0x80001000)
 ------------------------------ Captured log call -------------------------------
 WARNING  lerobot.utils.import_utils:import_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
@@ -2297,7 +2223,7 @@ DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IHDR' 16 13
 DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IDAT' 41 147
 _____________ test_estop_returns_without_waiting_for_the_car_save ______________
 
-monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72c512016f90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x740ca46b7a40>
 
     def test_estop_returns_without_waiting_for_the_car_save(monkeypatch):
         sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -2325,8 +2251,8 @@ DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
 DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
 ___________ test_real_sqlite_sync_export_sdk_and_viewer_two_episodes ___________
 
-tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-731/test_real_sqlite_sync_export_s0')
-monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72c5121d75f0>
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-734/test_real_sqlite_sync_export_s0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x740ca4619340>
 
     def test_real_sqlite_sync_export_sdk_and_viewer_two_episodes(tmp_path, monkeypatch):
         manifest, archive = _package(tmp_path)
@@ -2377,7 +2303,7 @@ E   av.error.MemoryError: [Errno 12] Cannot allocate memory: 'avcodec_open2(libs
 
 av/error.pyx:424: MemoryError
 ----------------------------- Captured stderr call -----------------------------
-WARNING 2026-11-16 07:28:40 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
+WARNING 2026-11-16 07:37:45 rt_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
              versions 4, 5, 6, 7, and 8, and we attempt to load libtorchcodec
              for each of those versions. Errors for versions not installed on
@@ -2484,9 +2410,9 @@ Traceback (most recent call last):
 OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
 [end of libtorchcodec loading traceback].
 'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
-INFO 2026-11-16 07:28:40 gs/video.py:193 Using video codec: libsvtav1
-INFO 2026-11-16 07:28:40 gs/video.py:193 Using video codec: hevc
-Map:   0%|          | 0/6 [00:00<?, ? examples/s]Map: 100%|██████████| 6/6 [00:00<00:00, 1200.49 examples/s]
+INFO 2026-11-16 07:37:45 gs/video.py:193 Using video codec: libsvtav1
+INFO 2026-11-16 07:37:45 gs/video.py:193 Using video codec: hevc
+Map:   0%|          | 0/6 [00:00<?, ? examples/s]Map: 100%|██████████| 6/6 [00:00<00:00, 1342.32 examples/s]
 Svt[info]: -------------------------------------------
 Svt[info]: SVT [version]:	SVT-AV1 Encoder Lib v3.0.0
 Svt[info]: SVT [build]  :	GCC 14.2.1 20250110 (Red Hat 14.2.1-7)	 64 bit
@@ -2512,7 +2438,7 @@ Svt[info]: SVT [config]: sharpness / luminance-based QP bias 			: 0 / 0
 Svt[info]: Svt[info]: -------------------------------------------
 Svt[error]: Failed to create thread: Resource temporarily unavailable
 SvtMalloc[fatal]: allocate memory failed, at /project/build/libsvtav1/Source/Lib/Globals/enc_handle.c:2254
-[libsvtav1 @ 0x12135680] Error initializing encoder: insufficient resources (0x80001000)
+[libsvtav1 @ 0x44535600] Error initializing encoder: insufficient resources (0x80001000)
 ------------------------------ Captured log call -------------------------------
 WARNING  lerobot.utils.import_utils:import_utils.py:102 Could not load libtorchcodec. Likely causes:
           1. FFmpeg is not properly installed in your environment. We support
@@ -2641,7 +2567,7 @@ DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IHDR' 16 13
 DEBUG    PIL.PngImagePlugin:PngImagePlugin.py:204 STREAM b'IDAT' 41 140
 _______________ test_cuda_status_endpoint_returns_expected_shape _______________
 
-client = <starlette.testclient.TestClient object at 0x72c51204e2d0>
+client = <starlette.testclient.TestClient object at 0x740ca4764680>
 
     def test_cuda_status_endpoint_returns_expected_shape(client) -> None:
 >       response = client.get("/system/cuda-status")
@@ -2765,8 +2691,139 @@ E           RuntimeError: can't start new thread
 ------------------------------ Captured log setup ------------------------------
 DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
 --------------------------- Captured stderr teardown ---------------------------
-INFO 2026-11-16 07:28:43 /server.py:3222 🔄 FastAPI shutting down, cleaning up...
-INFO 2026-11-16 07:28:43 /server.py:3242 ✅ Cleanup completed
+INFO 2026-11-16 07:37:48 /server.py:3222 🔄 FastAPI shutting down, cleaning up...
+INFO 2026-11-16 07:37:48 /server.py:3242 ✅ Cleanup completed
+---------------------------- Captured log teardown -----------------------------
+INFO     lelab.server:server.py:3222 🔄 FastAPI shutting down, cleaning up...
+INFO     lelab.server:server.py:3242 ✅ Cleanup completed
+____________________ test_policy_extra_route_known_and_core ____________________
+
+client = <starlette.testclient.TestClient object at 0x740ca47a3f80>
+
+    def test_policy_extra_route_known_and_core(client) -> None:
+>       smol = client.get("/system/policy-extra/smolvla").json()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_utils_system.py:177: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../.venv/lib/python3.12/site-packages/httpx2/_client.py:1107: in get
+    return self.request(
+../.venv/lib/python3.12/site-packages/starlette/testclient.py:518: in request
+    return super().request(
+../.venv/lib/python3.12/site-packages/httpx2/_client.py:791: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.venv/lib/python3.12/site-packages/httpx2/_client.py:988: in send
+    raise exc
+../.venv/lib/python3.12/site-packages/httpx2/_client.py:982: in send
+    response.read()
+../.venv/lib/python3.12/site-packages/httpx2/_models.py:890: in read
+    self._content = b"".join(self.iter_bytes())
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.venv/lib/python3.12/site-packages/httpx2/_models.py:906: in iter_bytes
+    for raw_bytes in self.iter_raw():
+../.venv/lib/python3.12/site-packages/httpx2/_models.py:961: in iter_raw
+    for raw_stream_bytes in self.stream:
+../.venv/lib/python3.12/site-packages/httpx2/_client.py:138: in __iter__
+    yield from self._stream
+../.venv/lib/python3.12/site-packages/starlette/testclient.py:384: in iter_body
+    exit_stack.close()
+/usr/lib/python3.12/contextlib.py:618: in close
+    self.__exit__(None, None, None)
+/usr/lib/python3.12/contextlib.py:610: in __exit__
+    raise exc_details[1]
+/usr/lib/python3.12/contextlib.py:595: in __exit__
+    if cb(*exc_details):
+       ^^^^^^^^^^^^^^^^
+../.venv/lib/python3.12/site-packages/starlette/testclient.py:399: in close_app
+    raise exception
+../.venv/lib/python3.12/site-packages/anyio/from_thread.py:272: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+../.venv/lib/python3.12/site-packages/starlette/testclient.py:366: in run_app
+    await self.app(scope, receive, send)
+../.venv/lib/python3.12/site-packages/fastapi/applications.py:1194: in __call__
+    await super().__call__(scope, receive, send)
+../.venv/lib/python3.12/site-packages/starlette/applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+../.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+../.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+../.venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py:151: in __call__
+    await self.app(scope, receive, send)
+../.venv/lib/python3.12/site-packages/starlette/middleware/cors.py:91: in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+../.venv/lib/python3.12/site-packages/starlette/middleware/cors.py:149: in simple_response
+    await self.app(scope, receive, send)
+../.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+../.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+../.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+../.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+../.venv/lib/python3.12/site-packages/starlette/routing.py:683: in __call__
+    await self.middleware_stack(scope, receive, send)
+../.venv/lib/python3.12/site-packages/fastapi/routing.py:2811: in app
+    await route.handle(scope, receive, send)
+../.venv/lib/python3.12/site-packages/fastapi/routing.py:1330: in handle
+    await super().handle(scope, receive, send)
+../.venv/lib/python3.12/site-packages/starlette/routing.py:289: in handle
+    await self.app(scope, receive, send)
+../.venv/lib/python3.12/site-packages/fastapi/routing.py:166: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+../.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+../.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+../.venv/lib/python3.12/site-packages/fastapi/routing.py:152: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+../.venv/lib/python3.12/site-packages/fastapi/routing.py:745: in app
+    raw_response = await run_endpoint_function(
+../.venv/lib/python3.12/site-packages/fastapi/routing.py:374: in run_endpoint_function
+    return await run_in_threadpool(
+../.venv/lib/python3.12/site-packages/starlette/concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.venv/lib/python3.12/site-packages/anyio/to_thread.py:65: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+../.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2749: in run_sync_in_worker_thread
+    worker.start()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <WorkerThread(AnyIO worker thread, initial daemon)>
+
+    def start(self):
+        """Start the thread's activity.
+    
+        It must be called at most once per thread object. It arranges for the
+        object's run() method to be invoked in a separate thread of control.
+    
+        This method will raise a RuntimeError if called more than once on the
+        same thread object.
+    
+        """
+        if not self._initialized:
+            raise RuntimeError("thread.__init__() not called")
+    
+        if self._started.is_set():
+            raise RuntimeError("threads can only be started once")
+    
+        with _active_limbo_lock:
+            _limbo[self] = self
+        try:
+>           _start_new_thread(self._bootstrap, ())
+E           RuntimeError: can't start new thread
+
+/usr/lib/python3.12/threading.py:992: RuntimeError
+------------------------------ Captured log setup ------------------------------
+DEBUG    asyncio:selector_events.py:64 Using selector: EpollSelector
+--------------------------- Captured stderr teardown ---------------------------
+INFO 2026-11-16 07:37:48 /server.py:3222 🔄 FastAPI shutting down, cleaning up...
+INFO 2026-11-16 07:37:48 /server.py:3242 ✅ Cleanup completed
 ---------------------------- Captured log teardown -----------------------------
 INFO     lelab.server:server.py:3222 🔄 FastAPI shutting down, cleaning up...
 INFO     lelab.server:server.py:3242 ✅ Cleanup completed
@@ -2805,8 +2862,6 @@ tests/test_mobile_leader_bus_api.py::test_build_bus_uses_the_installed_lerobot_a
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-FAILED tests/test_hybrid_stream_hardware.py::test_homing_walks_nonzero_axes_to_requested_raw_one_at_a_time
-FAILED tests/test_remote_inference.py::test_client_command_targets_the_tunnel
 FAILED tests/test_t3_wave_a.py::test_calibration_strict_policy_rejects_examples_mismatch_and_over_age
 FAILED tests/test_t4_hybrid_9d_export.py::test_two_short_episodes_export_and_read_back_as_nine_dimensions
 FAILED tests/test_t4_hybrid_9d_export.py::test_zero_base_covariance_is_kept_as_declared_evidence
@@ -2815,5 +2870,5 @@ FAILED tests/test_t4_hybrid_9d_export.py::test_explicit_simulation_identity_expo
 FAILED tests/test_t4_hybrid_recording.py::test_estop_returns_without_waiting_for_the_car_save
 FAILED tests/test_t4_hybrid_recording.py::test_real_sqlite_sync_export_sdk_and_viewer_two_episodes
 FAILED tests/test_utils_system.py::test_cuda_status_endpoint_returns_expected_shape
-!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 10 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
-============ 10 failed, 812 passed, 5 warnings in 113.49s (0:01:53) ============
+FAILED tests/test_utils_system.py::test_policy_extra_route_known_and_core - R...
+============ 9 failed, 818 passed, 5 warnings in 114.96s (0:01:54) =============

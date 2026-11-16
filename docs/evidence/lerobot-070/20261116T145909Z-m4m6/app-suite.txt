@@ -484,4 +484,171 @@ tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_0
 tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[smolvla] PASSED [ 79%]
 tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[fastwam] PASSED [ 79%]
 tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[fineart_vla] PASSED [ 80%]
-tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[pi05] 
+tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[pi05] PASSED [ 80%]
+tests/test_train_cli_contract_070.py::test_tracking_maps_to_trackio_instead_of_wandb PASSED [ 80%]
+tests/test_train_cli_contract_070.py::test_disabled_tracking_emits_no_tracking_flags_at_all PASSED [ 80%]
+tests/test_train_cli_contract_070.py::test_optimizer_override_survives_the_policy_preset PASSED [ 80%]
+tests/test_train_cli_contract_070.py::test_resume_takes_precedence_over_preset_overrides PASSED [ 80%]
+tests/test_train_cli_contract_070.py::test_optimizer_override_rejects_unknown_field PASSED [ 81%]
+tests/test_train_cli_contract_070.py::test_fastwam_requires_explicit_dimensions PASSED [ 81%]
+tests/test_train_cli_contract_070.py::test_policy_dimensions_do_not_leak_to_other_policies PASSED [ 81%]
+tests/test_train_cli_contract_070.py::test_fastwam_dimensions_reach_the_parsed_config PASSED [ 81%]
+tests/test_train_cli_contract_070.py::test_fastwam_rejects_a_dataset_width_that_differs_from_its_own_declaration PASSED [ 81%]
+tests/test_train_cli_contract_070.py::test_policy_extra_map_covers_the_new_policies[fastwam-diffusers-lerobot[fastwam]] PASSED [ 81%]
+tests/test_train_cli_contract_070.py::test_policy_extra_map_covers_the_new_policies[fineart_vla-transformers-lerobot[fineart_vla]] PASSED [ 82%]
+tests/test_train_cli_contract_070.py::test_policy_extra_map_covers_the_new_policies[smolvla-transformers-lerobot[smolvla]] PASSED [ 82%]
+tests/test_train_cli_contract_070.py::test_language_conditioned_policies_require_a_task[fastwam] PASSED [ 82%]
+tests/test_train_cli_contract_070.py::test_language_conditioned_policies_require_a_task[fineart_vla] PASSED [ 82%]
+tests/test_train_cli_contract_070.py::test_monitor_only_flags_are_emitted_once_the_library_declares_them PASSED [ 82%]
+tests/test_train_cli_contract_070.py::test_explicit_eval_episodes_parse_and_reach_the_dirsplit PASSED [ 82%]
+tests/test_train_cli_contract_070.py::test_weights_file_parses_into_the_dataset_config PASSED [ 83%]
+tests/test_train_cli_contract_070.py::test_parsed_split_and_weights_actually_shape_the_sampler PASSED [ 83%]
+tests/test_train_monitor_options.py::test_optimizer_lr_is_sent_as_post_preset_override PASSED [ 83%]
+tests/test_train_monitor_options.py::test_optimizer_flags_still_used_without_preset PASSED [ 83%]
+tests/test_train_monitor_options.py::test_scheduler_and_validation_mapping PASSED [ 83%]
+tests/test_train_monitor_options.py::test_scheduler_type_conflicts_with_the_policy_preset PASSED [ 83%]
+tests/test_train_monitor_options.py::test_monitor_only_flags_are_emitted_when_the_library_declares_them PASSED [ 84%]
+tests/test_train_monitor_options.py::test_resume_command_is_minimal_and_checkpoint_authoritative PASSED [ 84%]
+tests/test_train_monitor_options.py::test_eval_requires_explicit_split PASSED [ 84%]
+tests/test_train_monitor_options.py::test_unknown_scheduler_type_is_rejected PASSED [ 84%]
+tests/test_train_monitor_options.py::test_hf_cloud_still_omits_output_dir_and_resume_path_is_ignored PASSED [ 84%]
+tests/test_train_multi_dataset.py::test_single_dataset_request_keeps_legacy_shape PASSED [ 84%]
+tests/test_train_multi_dataset.py::test_multi_dataset_request_needs_a_composite PASSED [ 85%]
+tests/test_train_multi_dataset.py::test_multi_dataset_request_uses_the_composite_repo_id PASSED [ 85%]
+tests/test_train_multi_dataset.py::test_duplicate_members_are_rejected PASSED [ 85%]
+tests/test_train_multi_dataset.py::test_equal_weights_need_at_least_two_datasets PASSED [ 85%]
+tests/test_train_multi_dataset.py::test_custom_weights_must_match_member_count PASSED [ 85%]
+tests/test_train_multi_dataset.py::test_weight_modes_emit_the_sampler_file_flag PASSED [ 85%]
+tests/test_train_multi_dataset.py::test_weight_modes_require_a_weights_file PASSED [ 86%]
+tests/test_train_multi_dataset.py::test_resolver_rejects_local_runner PASSED [ 86%]
+tests/test_train_multi_dataset.py::test_resolver_returns_ready_composite_with_episode_weights PASSED [ 86%]
+tests/test_train_multi_dataset.py::test_resolver_blocks_unbuilt_composite PASSED [ 86%]
+tests/test_train_multi_dataset.py::test_resolver_reports_blockers PASSED [ 86%]
+tests/test_train_multi_dataset.py::test_job_id_marks_multi_dataset_runs PASSED [ 86%]
+tests/test_train_server.py::test_parse_status_maps_everything PASSED     [ 87%]
+tests/test_train_server.py::test_parse_status_tolerates_missing_sections PASSED [ 87%]
+tests/test_train_server.py::test_status_cache_reuses_and_invalidates PASSED [ 87%]
+tests/test_train_server.py::test_status_reports_ssh_failure PASSED       [ 87%]
+tests/test_train_server.py::test_instance_id_defaults_to_role PASSED     [ 87%]
+tests/test_train_server.py::test_status_endpoint_is_registered PASSED    [ 87%]
+tests/test_train_server.py::test_marker_json_is_serialisable_in_payload PASSED [ 88%]
+tests/test_train_server.py::test_prune_plan_keeps_newest_and_skips_foreign PASSED [ 88%]
+tests/test_train_server.py::test_prune_plan_can_filter_jobs PASSED       [ 88%]
+tests/test_train_server.py::test_default_keep_checkpoints_is_configurable PASSED [ 88%]
+tests/test_training_metrics_store.py::test_structured_events_keep_their_own_step_and_attempt PASSED [ 88%]
+tests/test_training_metrics_store.py::test_worker_marker_suppresses_legacy_text_lines PASSED [ 89%]
+tests/test_training_metrics_store.py::test_legacy_log_fallback_uses_line_step PASSED [ 89%]
+tests/test_training_metrics_store.py::test_sidecar_reload_is_idempotent PASSED [ 89%]
+tests/test_training_metrics_store.py::test_corrupt_trailing_line_keeps_earlier_history PASSED [ 89%]
+tests/test_training_metrics_store.py::test_cursor_pagination PASSED      [ 89%]
+tests/test_training_metrics_store.py::test_kind_filter_and_latest_values PASSED [ 89%]
+tests/test_training_metrics_store.py::test_log_scan_rebuilds_from_log_jsonl PASSED [ 90%]
+tests/test_training_metrics_store.py::test_legacy_job_without_markers_scans_text PASSED [ 90%]
+tests/test_update.py::test_parse_github_repo[https://github.com/huggingface/leLab.git-expected0] PASSED [ 90%]
+tests/test_update.py::test_parse_github_repo[https://github.com/huggingface/leLab-expected1] PASSED [ 90%]
+tests/test_update.py::test_parse_github_repo[git+https://github.com/huggingface/leLab.git-expected2] PASSED [ 90%]
+tests/test_update.py::test_parse_github_repo[git@github.com:huggingface/leLab.git-expected3] PASSED [ 90%]
+tests/test_update.py::test_parse_github_repo[https://gitlab.com/foo/bar.git-None] PASSED [ 91%]
+tests/test_update.py::test_parse_github_repo[file:///home/me/leLab-None] PASSED [ 91%]
+tests/test_update.py::test_parse_github_repo[-None] PASSED               [ 91%]
+tests/test_update.py::test_installed_source_from_vcs PASSED              [ 91%]
+tests/test_update.py::test_installed_source_editable_returns_none PASSED [ 91%]
+tests/test_update.py::test_installed_source_no_direct_url_returns_none PASSED [ 91%]
+tests/test_update.py::test_check_no_source_means_no_update PASSED        [ 92%]
+tests/test_update.py::test_check_up_to_date PASSED                       [ 92%]
+tests/test_update.py::test_check_update_available PASSED                 [ 92%]
+tests/test_update.py::test_check_diverged_does_not_nag PASSED            [ 92%]
+tests/test_update.py::test_check_install_ahead_of_remote_does_not_nag PASSED [ 92%]
+tests/test_update.py::test_check_compare_unavailable_does_not_nag PASSED [ 92%]
+tests/test_update.py::test_check_github_unreachable_is_silent PASSED     [ 93%]
+tests/test_update.py::test_run_update_no_source PASSED                   [ 93%]
+tests/test_update.py::test_update_command_for_uv_tool_install PASSED     [ 93%]
+tests/test_update.py::test_update_command_for_pip_env PASSED             [ 93%]
+tests/test_utils_config.py::test_port_persistence_round_trips PASSED     [ 93%]
+tests/test_utils_config.py::test_get_saved_robot_port_returns_none_when_unset PASSED [ 93%]
+tests/test_utils_config.py::test_find_available_ports_prefers_linux_by_id PASSED [ 94%]
+tests/test_utils_config.py::test_saved_robot_config_round_trips PASSED   [ 94%]
+tests/test_utils_config.py::test_get_default_robot_config_falls_back_to_first_available PASSED [ 94%]
+tests/test_utils_config.py::test_is_valid_robot_name_accepts_simple_names PASSED [ 94%]
+tests/test_utils_config.py::test_is_valid_robot_name_rejects_empty_and_path_separators PASSED [ 94%]
+tests/test_utils_config.py::test_is_valid_robot_name_rejects_leading_trailing_whitespace PASSED [ 94%]
+tests/test_utils_config.py::test_robot_record_save_get_delete_round_trip PASSED [ 95%]
+tests/test_utils_config.py::test_robot_record_allow_create_false_is_noop PASSED [ 95%]
+tests/test_utils_config.py::test_robot_record_save_rejects_invalid_name PASSED [ 95%]
+tests/test_utils_config.py::test_robot_record_merges_fields PASSED       [ 95%]
+tests/test_utils_config.py::test_robot_record_diagnostics_lists_missing_calibration_files PASSED [ 95%]
+tests/test_utils_config.py::test_robot_record_diagnostics_is_complete_when_calibrations_exist PASSED [ 95%]
+tests/test_utils_config.py::test_setup_calibration_files_copies_configs PASSED [ 96%]
+tests/test_utils_config.py::test_with_lelab_tag_appends_to_existing_tags PASSED [ 96%]
+tests/test_utils_config.py::test_with_lelab_tag_handles_none_and_empty PASSED [ 96%]
+tests/test_utils_config.py::test_with_lelab_tag_dedupes PASSED           [ 96%]
+tests/test_utils_hf_auth.py::test_invalidate_whoami_cache_clears_cached_value PASSED [ 96%]
+tests/test_utils_hf_auth.py::test_handle_hf_auth_status_returns_dict PASSED [ 96%]
+tests/test_utils_hf_auth.py::test_status_without_token_reports_absent_token PASSED [ 97%]
+tests/test_utils_hf_auth.py::test_status_with_network_failure_keeps_the_token PASSED [ 97%]
+tests/test_utils_hf_auth.py::test_status_with_rejected_token_is_marked_rejected PASSED [ 97%]
+tests/test_utils_system.py::test_build_install_cmd_contains_pip_and_package PASSED [ 97%]
+tests/test_utils_system.py::test_build_install_cmd_uses_current_python_when_no_uv PASSED [ 97%]
+tests/test_utils_system.py::test_install_manager_initial_state_is_idle PASSED [ 97%]
+tests/test_utils_system.py::test_detect_cuda_status_flags_mismatch_when_gpu_but_cpu_torch PASSED [ 98%]
+tests/test_utils_system.py::test_detect_cuda_status_no_mismatch_when_cuda_available PASSED [ 98%]
+tests/test_utils_system.py::test_detect_cuda_status_no_mismatch_without_gpu PASSED [ 98%]
+tests/test_utils_system.py::test_nvidia_gpu_present_false_when_smi_absent PASSED [ 98%]
+tests/test_utils_system.py::test_warn_if_cuda_mismatch_logs_on_mismatch PASSED [ 98%]
+tests/test_utils_system.py::test_warn_if_cuda_mismatch_silent_when_ok PASSED [ 98%]
+tests/test_utils_system.py::test_cuda_status_endpoint_returns_expected_shape PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_maps_policies_to_install_targets PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_core_policy_needs_nothing PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_available_reflects_find_spec PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_install_is_noop_for_core_policy PASSED [ 99%]
+tests/test_utils_system.py::test_policy_extra_route_known_and_core PASSED [100%]
+
+=============================== warnings summary ===============================
+lelab/server.py:3541
+  /home/liaozhengyan/Desktop/lelab-lerobot070/releases/sanitized-20261024-01/app/lelab/server.py:3541: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../../../.venv/lib/python3.12/site-packages/fastapi/applications.py:4723
+../../../.venv/lib/python3.12/site-packages/fastapi/applications.py:4723
+  /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/fastapi/applications.py:4723: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)  # ty: ignore[deprecated]
+
+lelab/server.py:3553
+  /home/liaozhengyan/Desktop/lelab-lerobot070/releases/sanitized-20261024-01/app/lelab/server.py:3553: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+tests/test_bimanual_recording.py::test_two_real_episodes_plus_partial_last_with_three_videos
+  /usr/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=3062311) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+tests/test_calibrate.py::test_homing_step_passes_the_vendor_sign_and_lands_on_the_half_turn
+  /home/liaozhengyan/Desktop/lelab-lerobot070/releases/sanitized-20261024-01/app/tests/test_calibrate.py:180: DeprecationWarning: `FeetechMotorsBus` is deprecated and will be removed in a future release: use `SerialMotorsBus` from `lerobot.motors`, which finds each motor's family from its model.
+    real_bus = FeetechMotorsBus(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_jetson_policy.py:26: async inference dependencies unavailable: No module named 'grpc'
+============ 591 passed, 1 skipped, 14 warnings in 98.06s (0:01:38) ============
