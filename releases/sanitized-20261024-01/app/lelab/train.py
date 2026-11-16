@@ -152,6 +152,14 @@ class TrainingRequest(BaseModel):
     wandb_mode: str | None = "online"
     wandb_disable_artifact: bool = False
 
+    # FastWAM declares its own action/state width. LeRobot's defaults (7 / 8)
+    # describe a different body, so a 6-DOF SO-101 or a 12-dim bimanual dataset
+    # would silently train against the wrong shape. The app therefore requires
+    # both values explicitly for `fastwam` and never forwards them to a policy
+    # whose config has no such field.
+    policy_action_dim: int | None = None
+    policy_proprio_dim: int | None = None
+
     # Environment / evaluation
     env_type: str | None = None
     env_task: str | None = None
@@ -310,6 +318,70 @@ class TrainingRequest(BaseModel):
         return list(self.dataset_repo_ids or [self.dataset_repo_id])
 
 
+_UNMAPPED_TRACKING_FIELDS: tuple[str, ...] = (
+    "wandb_entity",
+    "wandb_notes",
+    "wandb_run_id",
+    "wandb_mode",
+)
+
+# Request fields that only exist when the local monitor patch is present in the
+# installed LeRobot. `request_attr` is the TrainingRequest field that decides
+# whether the user actually asked for the feature.
+_MONITOR_ONLY_FLAGS: tuple[tuple[str, str], ...] = (
+    ("weight_norm_freq", "weight_norm_freq"),
+    ("action_loss_groups", "action_loss_groups"),
+)
+
+
+def _training_config_field_names() -> frozenset[str]:
+    """Field names of the installed ``TrainPipelineConfig`` (empty if unavailable).
+
+    Probed per call rather than cached at import so a venv switch inside the
+    same process — or a partially imported lerobot — cannot pin a stale answer.
+    """
+    try:
+        import dataclasses
+
+        from lerobot.configs.train import TrainPipelineConfig
+    except Exception:  # pragma: no cover - lerobot missing is a broken install
+        return frozenset()
+    return frozenset(field.name for field in dataclasses.fields(TrainPipelineConfig))
+
+
+def unsupported_training_fields(request: TrainingRequest) -> list[str]:
+    """Monitoring flags the request asked for but the installed LeRobot cannot take.
+
+    LeRobot 0.7.0 dropped ``weight_norm_freq`` / ``action_loss_groups``; emitting
+    them makes the trainer abort on an unknown option, so they are omitted and
+    surfaced here for the API/UI to explain the degraded monitoring.
+    """
+    fields = _training_config_field_names()
+    missing: list[str] = []
+    for flag, attr in _MONITOR_ONLY_FLAGS:
+        if flag in fields:
+            continue
+        value = getattr(request, attr, None)
+        # weight_norm_freq has a non-zero default, so only a changed value counts
+        # as "asked for"; the list flag is None when unset.
+        if attr == "weight_norm_freq" and value in (None, 0, 250):
+            continue
+        if value:
+            missing.append(flag)
+    return missing
+
+
+def unmapped_tracking_fields(request: TrainingRequest) -> list[str]:
+    """Request fields that have no faithful LeRobot 0.7 Trackio counterpart.
+
+    They are accepted so older clients keep working, but forwarding them would
+    either abort the run (unknown draccus flag) or silently mean something else
+    (a Space repo is not an entity, a display name is not a run id). Callers
+    surface this list in the API response / UI instead.
+    """
+    return [name for name in _UNMAPPED_TRACKING_FIELDS if getattr(request, name, None)]
+
+
 def build_training_command(
     request: TrainingRequest,
     output_dir: str,
@@ -446,6 +518,33 @@ def build_training_command(
         if request.policy_use_bf16 is not None:
             cmd.extend(["--policy.use_bf16", "true" if request.policy_use_bf16 else "false"])
 
+    # FastWAM-specific policy flags. `action_dim`/`proprio_dim` exist only on the
+    # fastwam config, and its defaults (7 action / 8 state) describe a different
+    # robot body. For an SO-101 arm (6) or a bimanual pair (12) inheriting those
+    # defaults would train the wrong shape without any error, so both must be
+    # stated explicitly and are never forwarded to another policy type.
+    if request.policy_type == "fastwam":
+        missing = [
+            name
+            for name, value in (
+                ("policy_action_dim", request.policy_action_dim),
+                ("policy_proprio_dim", request.policy_proprio_dim),
+            )
+            if value is None
+        ]
+        if missing:
+            raise ValueError(
+                "fastwam requires explicit dimensions so the 7-action/8-state defaults "
+                f"are not applied to a 6- or 12-channel dataset; missing: {missing}"
+            )
+        cmd.extend(["--policy.action_dim", str(request.policy_action_dim)])
+        cmd.extend(["--policy.proprio_dim", str(request.policy_proprio_dim)])
+    elif request.policy_action_dim is not None or request.policy_proprio_dim is not None:
+        raise ValueError(
+            "policy_action_dim/policy_proprio_dim only apply to fastwam; "
+            f"policy_type={request.policy_type!r} has no such config field"
+        )
+
     # Logging / checkpointing
     cmd.extend(["--log_freq", str(request.log_freq)])
     cmd.extend(["--save_freq", str(request.save_freq)])
@@ -462,20 +561,22 @@ def build_training_command(
     if request.job_name:
         cmd.extend(["--job_name", request.job_name])
 
-    # W&B
-    cmd.extend(["--wandb.enable", "true" if request.wandb_enable else "false"])
+    # Tracking. LeRobot 0.7.0 dropped the `wandb` config section in favour of
+    # `trackio` (local SQLite run store, optional HF Space sync). draccus rejects
+    # unknown flags, so `--wandb.*` is never emitted — not even a disabled one —
+    # and only the trackio options with a real counterpart are forwarded.
+    # `entity`, `notes`, `run_id` and `mode` are W&B-only concepts: Trackio's
+    # `space_id` is a Space repo, `run_name` is a display name and there is no
+    # online/offline switch, so mapping them would silently change meaning.
+    # They stay accepted by the API for backward compatibility and are reported
+    # by `unmapped_tracking_fields()` instead.
     if request.wandb_enable:
+        cmd.extend(["--trackio.enable", "true"])
         if request.wandb_project:
-            cmd.extend(["--wandb.project", request.wandb_project])
-        if request.wandb_entity:
-            cmd.extend(["--wandb.entity", request.wandb_entity])
-        if request.wandb_notes:
-            cmd.extend(["--wandb.notes", request.wandb_notes])
-        if request.wandb_run_id:
-            cmd.extend(["--wandb.run_id", request.wandb_run_id])
-        if request.wandb_mode:
-            cmd.extend(["--wandb.mode", request.wandb_mode])
-        cmd.extend(["--wandb.disable_artifact", "true" if request.wandb_disable_artifact else "false"])
+            cmd.extend(["--trackio.project", request.wandb_project])
+        cmd.extend(
+            ["--trackio.disable_artifact", "true" if request.wandb_disable_artifact else "false"]
+        )
 
     # Env
     if request.env_type:
@@ -491,9 +592,15 @@ def build_training_command(
     cmd.extend(["--eval_steps", str(request.eval_steps)])
     cmd.extend(["--max_eval_samples", str(request.max_eval_samples)])
 
-    # Monitoring instrumentation.
-    cmd.extend(["--weight_norm_freq", str(request.weight_norm_freq)])
-    if request.action_loss_groups:
+    # Monitoring instrumentation. These two flags belong to the local training
+    # monitor patch. LeRobot 0.7.0 no longer declares them, and draccus aborts on
+    # unknown options, so each is emitted only when the installed library really
+    # has the field. Otherwise the request is reported by
+    # `unsupported_training_fields()` instead of being silently dropped.
+    supported_fields = _training_config_field_names()
+    if "weight_norm_freq" in supported_fields:
+        cmd.extend(["--weight_norm_freq", str(request.weight_norm_freq)])
+    if "action_loss_groups" in supported_fields and request.action_loss_groups:
         cmd.extend(["--action_loss_groups", json.dumps(request.action_loss_groups)])
 
     # Optimizer. With the policy preset active, plain `--optimizer.lr` is
@@ -521,9 +628,15 @@ def build_training_command(
             cmd.extend(["--optimizer.grad_clip_norm", str(request.optimizer_grad_clip_norm)])
 
     # Scheduler overrides are applied after the preset for the same reason.
+    # Only *field* overrides are legal: the preset's scheduler type belongs to the
+    # policy recipe, so asking for a different type while keeping the preset is a
+    # contradiction that LeRobot 0.7 rejects. Refuse it here, before a job exists.
     scheduler_overrides: dict[str, object] = {}
-    if request.scheduler_type:
-        scheduler_overrides["type"] = request.scheduler_type
+    if request.scheduler_type and request.use_policy_training_preset and not request.resume:
+        raise ValueError(
+            "scheduler_type cannot be combined with use_policy_training_preset: "
+            "disable the preset to choose a scheduler type"
+        )
     if request.scheduler_warmup_steps is not None:
         scheduler_overrides["num_warmup_steps"] = int(request.scheduler_warmup_steps)
     if request.scheduler_decay_steps is not None:

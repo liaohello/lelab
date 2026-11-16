@@ -74,12 +74,13 @@ def test_pretrained_policy_uses_path_without_conflicting_type() -> None:
     assert "--policy.type" not in cmd
 
 
-def test_wandb_block_only_serialized_when_enabled() -> None:
+def test_tracking_maps_to_trackio_and_never_emits_wandb() -> None:
+    """LeRobot 0.7 replaced W&B with Trackio; draccus aborts on unknown flags."""
     from lelab.train import TrainingRequest, build_training_command
 
     off = build_training_command(TrainingRequest(dataset_repo_id="x", wandb_enable=False), "/tmp/out")
-    assert _arg_value(off, "--wandb.enable") == "false"
-    assert "--wandb.project" not in off
+    assert not [token for token in off if token.startswith("--wandb")]
+    assert not [token for token in off if token.startswith("--trackio")]
 
     on = build_training_command(
         TrainingRequest(
@@ -91,10 +92,12 @@ def test_wandb_block_only_serialized_when_enabled() -> None:
         ),
         "/tmp/out",
     )
-    assert _arg_value(on, "--wandb.enable") == "true"
-    assert _arg_value(on, "--wandb.project") == "proj"
-    assert _arg_value(on, "--wandb.entity") == "me"
-    assert _arg_value(on, "--wandb.run_id") == "abc"
+    assert not [token for token in on if token.startswith("--wandb")]
+    assert _arg_value(on, "--trackio.enable") == "true"
+    assert _arg_value(on, "--trackio.project") == "proj"
+    # W&B-only concepts are reported, not renamed onto a Trackio field.
+    assert "--trackio.space_id" not in on
+    assert "--trackio.run_name" not in on
 
 
 def test_push_to_hub_emits_repo_id_only_when_enabled() -> None:

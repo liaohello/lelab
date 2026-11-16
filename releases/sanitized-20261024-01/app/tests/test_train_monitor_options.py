@@ -45,35 +45,57 @@ def test_optimizer_flags_still_used_without_preset() -> None:
 
 
 def test_scheduler_and_validation_mapping() -> None:
+    """Scheduler *fields* ride post-preset; the type is not interchangeable."""
     cmd = _argv(
         TrainingRequest(
             dataset_repo_id="a/b",
             eval_steps=250,
             dataset_eval_episodes=[0, 1, 2],
             max_eval_samples=12,
-            weight_norm_freq=100,
-            scheduler_type="cosine_decay_with_warmup",
             scheduler_warmup_steps=500,
             scheduler_decay_steps=15000,
             scheduler_peak_lr=1e-4,
             scheduler_floor_lr=1e-5,
-            action_loss_groups={"joints": [0, 1], "grippers": [2]},
         )
     )
     assert cmd[cmd.index("--dataset.eval_episodes") + 1] == "[0, 1, 2]"
     assert cmd[cmd.index("--eval_steps") + 1] == "250"
     assert cmd[cmd.index("--max_eval_samples") + 1] == "12"
-    assert cmd[cmd.index("--weight_norm_freq") + 1] == "100"
     scheduler = json.loads(cmd[cmd.index("--scheduler_overrides") + 1])
     assert scheduler == {
-        "type": "cosine_decay_with_warmup",
         "num_warmup_steps": 500,
         "num_decay_steps": 15000,
         "peak_lr": 1e-4,
         "decay_lr": 1e-5,
     }
-    groups = json.loads(cmd[cmd.index("--action_loss_groups") + 1])
-    assert groups == {"joints": [0, 1], "grippers": [2]}
+    # The type belongs to the policy recipe and is never smuggled through an override.
+    assert "type" not in scheduler
+
+
+def test_scheduler_type_conflicts_with_the_policy_preset() -> None:
+    with pytest.raises(ValueError, match="cannot be combined with use_policy_training_preset"):
+        _argv(
+            TrainingRequest(
+                dataset_repo_id="a/b",
+                scheduler_type="cosine_decay_with_warmup",
+            )
+        )
+
+
+def test_monitor_only_flags_are_reported_not_emitted() -> None:
+    """0.7.0 dropped the monitor patch's instrumentation flags."""
+    from lelab.train import unsupported_training_fields
+
+    request = TrainingRequest(
+        dataset_repo_id="a/b",
+        weight_norm_freq=100,
+        action_loss_groups={"joints": [0, 1], "grippers": [2]},
+    )
+    cmd = _argv(request)
+
+    assert "--weight_norm_freq" not in cmd
+    assert "--action_loss_groups" not in cmd
+    assert unsupported_training_fields(request) == ["weight_norm_freq", "action_loss_groups"]
 
 
 def test_resume_command_is_minimal_and_checkpoint_authoritative() -> None:

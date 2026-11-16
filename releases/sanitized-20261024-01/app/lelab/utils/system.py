@@ -203,6 +203,14 @@ POLICY_EXTRAS: dict[str, tuple[str, str]] = {
     # groot pulls in peft (LoRA), diffusers, timm, dm-tree and decord; peft is a
     # reliable, cross-platform stand-in for "the lerobot[groot] extra is present".
     "groot": ("peft", "lerobot[groot]"),
+    # FastWAM needs the video/action DiT stack: transformers>=5.22 and
+    # diffusers>=0.38, both pulled by the 0.7.0 `fastwam` extra. diffusers is the
+    # probe because it is the package the modeling code imports unconditionally
+    # and it is not installed by lerobot[training].
+    "fastwam": ("diffusers", "lerobot[fastwam]"),
+    # FineART-VLA builds on the PI05 recipe; the extra is a thin alias for
+    # lerobot[pi], so transformers is the same reliable probe as pi0.
+    "fineart_vla": ("transformers", "lerobot[fineart_vla]"),
 }
 
 # One install manager per install target (lerobot[smolvla] / lerobot[pi] / …),

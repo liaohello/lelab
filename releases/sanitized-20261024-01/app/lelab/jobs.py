@@ -1234,7 +1234,17 @@ def _list_imported_hub(api, repo_id: str) -> list[JobCheckpoint]:
     return []
 
 
-_LANGUAGE_CONDITIONED_POLICY_TYPES = {"smolvla", "pi0", "pi0_fast", "pi05"}
+_LANGUAGE_CONDITIONED_POLICY_TYPES = {
+    "smolvla",
+    "pi0",
+    "pi0_fast",
+    "pi05",
+    # 0.7.0 policies that read the task string. FastWAM composes the video prompt
+    # from `{task}`, and FineART-VLA is a PI05-based language recipe, so both
+    # reject an empty task the same way SmolVLA does.
+    "fastwam",
+    "fineart_vla",
+}
 
 
 _HUB_CKPT_REF_RE = re.compile(r"^(?P<repo>[^@]+)@checkpoints/(?P<step_dir>\d+)$")

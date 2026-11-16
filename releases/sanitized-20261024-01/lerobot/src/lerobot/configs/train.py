@@ -175,6 +175,17 @@ class TrainPipelineConfig(HubMixin):
     use_policy_training_preset: bool = True
     optimizer: OptimizerConfig | None = None
     scheduler: LRSchedulerConfig | None = None
+    # LeLab local customization: explicit optimizer field overrides applied *after* the
+    # policy preset, so the UI can tune lr / weight_decay / grad_clip_norm without
+    # turning the preset off (which would also require naming a scheduler). Unknown
+    # keys are rejected instead of ignored. Not applied when resuming, because the
+    # checkpoint's optimizer state is authoritative there.
+    optimizer_overrides: dict[str, float] | None = None
+    # LeLab local customization: same idea for the scheduler preset. Only fields
+    # that already exist on the preset scheduler can be overridden; changing the
+    # scheduler *type* is refused because the preset's type is part of the
+    # policy's recipe (disable the preset and pass --scheduler.type instead).
+    scheduler_overrides: dict[str, object] | None = None
     # Process topology: dp_replicate / dp_shard (HSDP) and context-parallel degree placeholders.
     parallelism: ParallelismConfig = field(default_factory=ParallelismConfig)
     # Execution runtime handed to the Accelerator: mixed precision, gradient accumulation,
@@ -349,6 +360,41 @@ class TrainPipelineConfig(HubMixin):
         elif self.use_policy_training_preset and not self.resume:
             self.optimizer = active_cfg.get_optimizer_preset()
             self.scheduler = active_cfg.get_scheduler_preset()
+
+        if self.optimizer_overrides:
+            if self.resume:
+                raise ValueError(
+                    "optimizer_overrides cannot be combined with resume: the checkpoint's optimizer "
+                    "state is authoritative when continuing a run."
+                )
+            if self.optimizer is None:
+                raise ValueError("optimizer_overrides requires an optimizer (enable the policy preset).")
+            unknown = sorted(set(self.optimizer_overrides) - {"lr", "weight_decay", "grad_clip_norm"})
+            if unknown:
+                raise ValueError(f"optimizer_overrides only supports lr/weight_decay/grad_clip_norm, got {unknown}")
+            for key, value in self.optimizer_overrides.items():
+                setattr(self.optimizer, key, float(value))
+
+        if self.scheduler_overrides:
+            if self.resume:
+                raise ValueError(
+                    "scheduler_overrides cannot be combined with resume: the checkpoint's scheduler "
+                    "state is authoritative when continuing a run."
+                )
+            if "type" in self.scheduler_overrides:
+                raise ValueError(
+                    "scheduler_overrides cannot change the scheduler type; disable "
+                    "use_policy_training_preset and pass --scheduler.type instead."
+                )
+            if self.scheduler is None:
+                raise ValueError("scheduler_overrides requires a scheduler (enable the policy preset).")
+            unknown = sorted(key for key in self.scheduler_overrides if not hasattr(self.scheduler, key))
+            if unknown:
+                raise ValueError(
+                    f"scheduler_overrides received fields the preset scheduler does not have: {unknown}"
+                )
+            for key, value in self.scheduler_overrides.items():
+                setattr(self.scheduler, key, value)
 
         image_transforms = self.dataset.image_transforms
         if image_transforms.enable and image_transforms.backend == "gpu" and active_cfg.device == "cpu":
