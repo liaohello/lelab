@@ -548,7 +548,7 @@ export default function LanderpiSetup() {
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="border-b border-slate-800 bg-slate-950/90">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-4">
-          <Link to="/ros-mobile" className="rounded-lg p-2 text-slate-400 hover:bg-slate-900 hover:text-white">
+          <Link to="/landerpi" className="rounded-lg p-2 text-slate-400 hover:bg-slate-900 hover:text-white">
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300">
@@ -605,7 +605,7 @@ export default function LanderpiSetup() {
             </button>
           ))}
           <Link
-            to="/ros-mobile"
+            to="/landerpi/diagnostics"
             className="mt-4 flex items-center justify-between rounded-xl border border-slate-800 px-3 py-2 text-xs text-slate-500 hover:text-slate-300"
           >
             完整诊断与原始数据 <ChevronRight className="h-3 w-3" />

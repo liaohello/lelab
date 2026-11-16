@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# Isolated R1/R2 DDS offline runtime: starts only its own processes on ROS domain 94.
+#
+# It never stops or reconfigures the existing domain-93 offline stack.  The
+# container is shared, but every process here has its own state directory,
+# pidfile, licence socket, stream port and agent port.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+REPO="$(cd "$HERE/../../.." && pwd)"
+CONTAINER="${LROS_DDS_CONTAINER:-lelab-humble-dev}"
+DOMAIN="${LROS_DDS_DOMAIN:-94}"
+AGENT_PORT="${LROS_DDS_AGENT_PORT:-18140}"
+STREAM_PORT="${LROS_DDS_STREAM_PORT:-18132}"
+HOST_ROOT="$REPO/work/ros2_collection/dds_r1"
+HOST_STATE="$HOST_ROOT/run"
+HOST_KEY="$HOST_ROOT/command.key"
+HOST_EVID="$REPO/docs/evidence/landerpi-ros2-native-r1-20261107"
+C_STATE=/work/out/dds_r1/run
+C_KEY=/work/out/dds_r1/command.key
+C_PROFILE=/work/lelab/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d-dds.json
+C_OPS=/work/lelab/tools/ros2_collection/local_ros2/offline/container_ops.py
+C_OFF=/work/lelab/tools/ros2_collection/local_ros2/offline
+C_VERIFY=/work/out/dds_r1/ws/install/setup.bash
+C_INIT="source /opt/ros/humble/setup.bash; source /work/out/local_humble/docker/ws/install/setup.bash; [ -f $C_VERIFY ] && source $C_VERIFY; export PYTHONPATH=/work/lelab/ros2_ws/src/lelab_mobile_agent:/work/lelab/tools/ros2_collection:/work/lelab/app_ros_mobile:\${PYTHONPATH:-} ROS_DOMAIN_ID=$DOMAIN ROS_LOCALHOST_ONLY=1 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+PY="$REPO/app_ros_mobile/.venv/bin/python"
+DRIVER="$REPO/tools/ros2_collection/local_ros2/offline/hybrid_session.py"
+BUNDLE="$($PY - <<'PY'
+import json
+from pathlib import Path
+profile = json.loads(Path("ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d-dds.json").read_text())
+print(profile["runtime"]["feedback_provenance"]["calibration_bundle_hash"])
+PY
+)"
+
+dexec() { docker exec "$CONTAINER" bash -lc "$*"; }
+
+prepare() {
+  mkdir -p "$HOST_STATE" "$HOST_EVID"
+  chmod 700 "$HOST_ROOT" "$HOST_STATE"
+  if [ ! -s "$HOST_KEY" ]; then
+    "$PY" -c 'import secrets; print(secrets.token_hex(32))' > "$HOST_KEY"
+  fi
+  chmod 600 "$HOST_KEY"
+}
+
+up() {
+  command -v docker >/dev/null || { echo "docker is not available" >&2; return 2; }
+  docker ps --format '{{.Names}}' | grep -qx "$CONTAINER" || {
+    echo "container $CONTAINER is not running; start the offline stack first" >&2; return 2; }
+  prepare
+  echo "[dds_r1] bundle=$BUNDLE domain=$DOMAIN stream=$STREAM_PORT agent=$AGENT_PORT"
+  dexec "$C_INIT; python3 $C_OPS stop-bridge --state-dir $C_STATE" >/dev/null 2>&1 || true
+  dexec "$C_INIT; python3 $C_OPS stop-agent --state-dir $C_STATE" >/dev/null 2>&1 || true
+  dexec "$C_INIT; python3 $C_OPS stop-control --state-dir $C_STATE" >/dev/null 2>&1 || true
+  dexec "$C_INIT; python3 $C_OPS stop-camera --state-dir $C_STATE" >/dev/null 2>&1 || true
+  dexec "$C_INIT; python3 $C_OPS stop-board --state-dir $C_STATE" >/dev/null 2>&1 || true
+  dexec "$C_INIT; python3 $C_OPS start-board --state-dir $C_STATE --script $C_OFF/sim_board_owner.py --arg=--state-path --arg=$C_STATE/sim_board_owner.json"
+  dexec "$C_INIT; python3 $C_OPS start-camera --state-dir $C_STATE --script $C_OFF/sim_camera.py --arg=--rate-hz --arg=15"
+  dexec "$C_INIT; python3 $C_OPS start-control --state-dir $C_STATE --module lelab_mobile_agent.car_control_process --arg=--profile --arg=$C_PROFILE --arg=--stream-port --arg=$STREAM_PORT --arg=--licence-socket --arg=$C_STATE/licence.sock --arg=--status-path --arg=$C_STATE/car_control_status.json --arg=--control-hz --arg=10 --arg=--window-ms --arg=250 --arg=--bundle-hash --arg=$BUNDLE --arg=--dds-command-key-file --arg=$C_KEY --arg=--data-identity --arg=simulated_offline"
+  sleep 1
+  dexec "$C_INIT; python3 $C_OPS start-agent --state-dir $C_STATE --module lelab_mobile_agent.agent --arg=--ros-args --arg=-p --arg=profile_path:=$C_PROFILE --arg=-p --arg=car_root:=/work/out/dds_r1 --arg=-p --arg=host:=127.0.0.1 --arg=-p --arg=port:=$AGENT_PORT --arg=-p --arg=licence_socket:=$C_STATE/licence.sock --arg=-p --arg=control_status_path:=$C_STATE/car_control_status.json"
+  sleep 3
+  dexec "$C_INIT; python3 $C_OPS start-bridge --state-dir $C_STATE --module lelab_mobile_agent.upper_dds_bridge --arg=--socket --arg=$C_STATE/bridge.sock --arg=--command-key-file --arg=$C_KEY --arg=--simulated --arg=--no-services --arg=--socket-uid --arg=1000 --arg=--socket-gid --arg=1000"
+  for _ in $(seq 1 40); do
+    [ -S "$HOST_STATE/bridge.sock" ] && break
+    sleep 0.25
+  done
+  [ -S "$HOST_STATE/bridge.sock" ] || { echo "bridge socket did not appear" >&2; return 1; }
+  dexec "curl -fsS -m 5 http://127.0.0.1:$AGENT_PORT/health >/dev/null && echo agent_health_ok"
+  echo "[dds_r1] up"
+}
+
+verify() {
+  prepare
+  echo '{}' > "$HOST_STATE/marker.json"
+  chmod 600 "$HOST_STATE/marker.json"
+  "$PY" "$DRIVER" \
+    --agent-url "http://127.0.0.1:$AGENT_PORT" --stream-port "$STREAM_PORT" \
+    --marker "$HOST_STATE/marker.json" --control-status "$HOST_STATE/car_control_status.json" \
+    --bundle "$BUNDLE" --client-id dds-offline --frame-session-id dds-offline-frames \
+    --profile-name hardware_hybrid_manual_v1_offline6d_dds \
+    --transport dds_v1 --dds-socket "$HOST_STATE/bridge.sock" \
+    --dds-key-file "$HOST_KEY" --dds-sender-id dds-offline-upper \
+    --episodes 1 --observe-s 8 --grasp-s 8 --hz 5 \
+    --archive-to "$HOST_EVID/agent-session-archive.tar.gz" \
+    --report "$HOST_EVID/dds-session.json"
+  sid="$(python3 -c "import json; print(json.load(open('$HOST_EVID/dds-session.json'))['recording_session_id'])")"
+  [ -n "$sid" ] || { echo "no recording session id" >&2; return 1; }
+  mkdir -p "$HOST_ROOT/evidence"
+  cp -f "$HOST_EVID/agent-session-archive.tar.gz" "$HOST_ROOT/evidence/agent-session-archive.tar.gz" 2>/dev/null || true
+  dexec "$C_INIT; cd /work/lelab && python3 $C_OFF/verify_bag.py --session-dir /work/out/dds_r1/sessions/$sid --manifest /work/out/dds_r1/sessions/$sid/manifest.json --archive /work/out/dds_r1/evidence/agent-session-archive.tar.gz --report /work/out/dds_r1/evidence/bag-verify.json" | tail -24
+  cp -f "$HOST_ROOT/evidence/bag-verify.json" "$HOST_EVID/bag-verify.json" 2>/dev/null || true
+  echo "[dds_r1] session $sid"
+}
+
+down() {
+  dexec "$C_INIT; python3 $C_OPS stop-bridge --state-dir $C_STATE" || true
+  dexec "$C_INIT; python3 $C_OPS stop-agent --state-dir $C_STATE" || true
+  dexec "$C_INIT; python3 $C_OPS stop-control --state-dir $C_STATE" || true
+  dexec "$C_INIT; python3 $C_OPS stop-camera --state-dir $C_STATE" || true
+  dexec "$C_INIT; python3 $C_OPS stop-board --state-dir $C_STATE" || true
+  echo "[dds_r1] down (only this instance's recorded pids were signalled)"
+}
+
+case "${1:-all}" in
+  up) up ;;
+  verify) verify ;;
+  down) down ;;
+  all) up; verify; down ;;
+  *) echo "usage: $0 up|verify|down|all" >&2; exit 2 ;;
+esac

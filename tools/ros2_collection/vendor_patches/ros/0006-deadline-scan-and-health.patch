@@ -1,0 +1,441 @@
+--- a/ros_robot_controller_node.py
++++ b/ros_robot_controller_node.py
+@@ -4,6 +4,7 @@
+ # @Date: 2023/08/28
+ # stm32 ros2 package
+ 
++import json
+ import os
+ import math
+ import time
+@@ -15,8 +16,12 @@
+ from rclpy.node import Node
+ from std_srvs.srv import Trigger
+ from sensor_msgs.msg import Imu, Joy
+-from std_msgs.msg import UInt16, Bool, Int32MultiArray
++from std_msgs.msg import UInt16, Bool, Int32MultiArray, String
+ from ros_robot_controller.ros_robot_controller_sdk import Board, PacketReportKeyEvents
++from ros_robot_controller.servo_scan_support import (
++    DeadlineSchedule, ScanFailure, TransactionBudget, new_scan_health,
++    validate_budget, validate_period, validate_quiet, SERVO_ID_ORDER,
++)
+ from ros_robot_controller_msgs.srv import GetBusServoState, GetPWMServoState
+ from ros_robot_controller_msgs.msg import (
+     ButtonState, BuzzerState, MotorsState, BusServoState, LedState,
+@@ -56,6 +61,13 @@
+ 
+         self.declare_parameter('imu_frame', 'imu_link')
+         self.declare_parameter('init_finish', False)
++        # Scan scheduling and diagnostics. The defaults preserve the deployed
++        # 0.2 s cadence; a faster readback rate is an explicit, measured choice.
++        self.declare_parameter('servo_readback_period_s', 0.2)
++        self.declare_parameter('servo_readback_quiet_s', 0.2)
++        self.declare_parameter('servo_readback_budget_s', 0.3)
++        self.declare_parameter('servo_readback_lock_timeout_s', 0.1)
++        self.declare_parameter('servo_readback_stale_after_s', 1.0)
+         self.IMU_FRAME = self.get_parameter('imu_frame').value
+ 
+         self.imu_pub = self.create_publisher(Imu, '~/imu_raw', 1)
+@@ -95,12 +107,32 @@
+ 
+         self.servo_readback_pub = self.create_publisher(
+             Int32MultiArray, '/lelab/ros_robot_controller/servo_readback', 10)
++        self.servo_readback_health_pub = self.create_publisher(
++            String, '/lelab/ros_robot_controller/driver_health', 10)
+         # Software owner instance: drawn once per process start so consumers can tell
+         # a restarted publisher (sequence reset) from a replay. This is NOT an MCU boot
+         # ID; the board protocol has no transaction or boot identifier.
+         self.servo_readback_owner = secrets.randbits(31) | 1
+         self.servo_readback_seq = 0
+         self.servo_readback_failures = 0
++        self._servo_recovery_lock = threading.Lock()
++        self.servo_readback_period_s = validate_period(
++            self.get_parameter('servo_readback_period_s').value)
++        self.servo_readback_quiet_s = validate_quiet(
++            self.get_parameter('servo_readback_quiet_s').value)
++        self.servo_readback_budget_s = validate_budget(
++            self.get_parameter('servo_readback_budget_s').value)
++        self.servo_readback_lock_timeout_s = float(
++            self.get_parameter('servo_readback_lock_timeout_s').value)
++        if not 0.01 <= self.servo_readback_lock_timeout_s <= 0.2:
++            raise ValueError('servo_readback_lock_timeout_s must be in [0.01, 0.2]')
++        self.servo_readback_health = new_scan_health(
++            owner_instance=self.servo_readback_owner,
++            period_s=self.servo_readback_period_s,
++            quiet_s=self.servo_readback_quiet_s,
++            budget_s=self.servo_readback_budget_s,
++            stale_after_s=float(
++                self.get_parameter('servo_readback_stale_after_s').value))
+         self.servo_readback_stop = threading.Event()
+         self.servo_readback_thread = threading.Thread(
+             target=self.servo_readback_loop, daemon=True)
+@@ -260,8 +292,8 @@
+         for i in msg.position:
+             data.extend([[i.id, i.position]])
+         if data:
+-            with self.board.servo_read_lock:
+-                self.board.bus_servo_set_position(msg.duration, data)
++            self._bounded_bus_write(
++                self.board.bus_servo_set_position, msg.duration, data)
+ 
+     def set_bus_servo_state(self, msg):
+         data = []
+@@ -316,70 +348,167 @@
+                     if i.stop[0] == 1:
+                         servo_id.append(i.present_id[1])
+         if data != []:
+-            with self.board.servo_read_lock:
+-                self.board.bus_servo_set_position(msg.duration, data)
++            self._bounded_bus_write(
++                self.board.bus_servo_set_position, msg.duration, data)
+         if servo_id != []:
+-            with self.board.servo_read_lock:
+-                self.board.bus_servo_stop(servo_id)
++            self._bounded_bus_write(self.board.bus_servo_stop, servo_id)
++
++    def _bounded_bus_write(self, writer, *args):
++        # All bus writes share the read lock, with a bounded wait and a record.
++        if not self.board.servo_read_lock.acquire(
++                timeout=self.servo_readback_lock_timeout_s):
++            self.servo_readback_health.record_write_failure('bus_lock_timeout')
++            self.get_logger().warning('bus write dropped: bus lock timeout')
++            return False
++        try:
++            writer(*args)
++            return True
++        except IOError as error:
++            self.servo_readback_health.record_write_failure(str(error))
++            self.get_logger().warning(f'bus write dropped: {error}')
++            return False
++        finally:
++            self.board.servo_read_lock.release()
++
++    def _publish_driver_health(self, now_s=None):
++        message = String()
++        message.data = json.dumps(self.servo_readback_health.snapshot(now_s),
++                                  sort_keys=True)
++        self.servo_readback_health_pub.publish(message)
++
++    @staticmethod
++    def _scan_failure(servo_id, reason, stats, recovery_phase, last_success_seq,
++                      scan_interval_s, started_s):
++        return ScanFailure(
++            servo_id=servo_id,
++            command='bus_servo_read_position',
++            reason=reason,
++            lock_wait_ms=float((stats or {}).get('lock_wait_ms') or 0.0),
++            duration_ms=float((stats or {}).get('duration_ms')
++                              or (time.monotonic() - started_s) * 1000.0),
++            recovery_phase=recovery_phase,
++            last_success_seq=last_success_seq,
++            scan_interval_s=scan_interval_s,
++            at_mono_ns=time.monotonic_ns())
+ 
+     def servo_readback_loop(self):
+-        """Publish one complete measured frame without opening a second UART."""
+-        while not self.servo_readback_stop.wait(0.2):
++        """Publish one complete measured frame on a fixed deadline grid.
++
++        A scan that overruns its period drops the slots it missed; the next scan
++        starts at the next grid point instead of replaying a backlog.  Every
++        failure keeps the id, command, reason, lock wait, duration, recovery
++        phase, last successful sequence and scan interval in the health document.
++        """
++        schedule = DeadlineSchedule(self.servo_readback_period_s)
++        health = self.servo_readback_health
++        while not self.servo_readback_stop.is_set():
++            if self.servo_readback_stop.wait(schedule.wait_s()):
++                break
+             started = time.monotonic()
++            interval_s = schedule.begin(started)
++            health.record_scan_start(interval_s=interval_s)
++            budget = TransactionBudget(started, self.servo_readback_budget_s)
+             values = []
+-            failed_id = None
+-            for servo_id in (1, 2, 3, 4, 5, 10):
+-                state = self.board.bus_servo_read_position(servo_id)
++            failure = None
++            for servo_id in SERVO_ID_ORDER:
++                remaining = budget.remaining_s()
++                if remaining <= 0:
++                    failure = self._scan_failure(
++                        servo_id, 'scan_budget_exhausted', None,
++                        'pending_quiet_wait', health.last_success_seq,
++                        interval_s, started)
++                    break
++                timeout_s = min(self.servo_readback_lock_timeout_s, remaining)
++                state = self.board.bus_servo_read_position(servo_id, timeout=timeout_s)
++                stats = self.board.last_read_stats or {}
+                 if (not isinstance(state, (list, tuple)) or len(state) != 1
+                         or type(state[0]) is not int
+                         or not -32768 <= state[0] <= 32767):
+-                    failed_id = servo_id
++                    failure = self._scan_failure(
++                        servo_id, stats.get('reason') or 'invalid_position',
++                        stats, 'pending_quiet_wait', health.last_success_seq,
++                        interval_s, started)
+                     break
+                 values.extend([servo_id, state[0]])
+-            if failed_id is not None:
++            if failure is not None:
++                health.record_failure(failure)
+                 self.servo_readback_failures += 1
+                 if self.servo_readback_failures == 1 or self.servo_readback_failures % 25 == 0:
+                     self.get_logger().warning(
+-                        f'measured readback failed at servo {failed_id}; '
++                        f'measured readback failed at servo {failure.servo_id}; '
++                        f'reason={failure.reason}; '
+                         f'failures={self.servo_readback_failures}')
+-                self.recover_bus_servo_reads()
++                self._publish_driver_health()
++                recovery_started = time.monotonic()
++                recovered = self.recover_bus_servo_reads(
++                    quiet_s=self.servo_readback_quiet_s)
++                health.record_recovery(
++                    phase='quiet_wait', ok=recovered,
++                    quiet_s=self.servo_readback_quiet_s,
++                    duration_ms=(time.monotonic() - recovery_started) * 1000.0,
++                    at_mono_s=time.monotonic())
++                self._publish_driver_health()
++                schedule.complete(time.monotonic())
+                 continue
+-            scan_us = max(0, min(2147483647, int((time.monotonic() - started) * 1e6)))
++            finished = time.monotonic()
++            scan_us = max(0, min(2147483647, int((finished - started) * 1e6)))
+             message = Int32MultiArray()
+-            message.data = [2, self.servo_readback_owner, self.servo_readback_seq, scan_us, *values]
++            message.data = [2, self.servo_readback_owner, self.servo_readback_seq,
++                            scan_us, *values]
+             self.servo_readback_pub.publish(message)
++            health.record_success(seq=self.servo_readback_seq,
++                                  completed_mono_s=finished, span_us=scan_us)
+             self.servo_readback_seq += 1
++            self._publish_driver_health()
++            schedule.complete(time.monotonic())
+ 
+     def recover_bus_servo_reads(self, quiet_s=0.2):
+-        """Clear the read latch only after the serialized bus is quiet."""
+-        board = self.board
+-        if not board.servo_read_lock.acquire(timeout=quiet_s):
++        """Isolate late replies for a full quiet window, then clear the latch.
++
++        The window is validated and never shortened.  It is not spent holding the
++        read lock, so position and stop writes stay possible while reads are
++        latched.  Any serial-servo report that arrives during the window keeps the
++        latch closed instead of being mistaken for a reply to the next read.
++        """
++        quiet_s = validate_quiet(quiet_s)
++        if not self._servo_recovery_lock.acquire(blocking=False):
+             return False
++        board = self.board
+         try:
+             with board.bus_reply_lock:
++                board.bus_reply_active = False
++                board.bus_reply_fault = True
++                reports_before = board.bus_reply_reports
+                 while True:
+                     try:
+                         board.bus_servo_queue.get_nowait()
+                     except Exception:
+                         break
+-                board.bus_reply_active = False
+-                board.bus_reply_fault = False
+             time.sleep(quiet_s)
+-            with board.bus_reply_lock:
+-                if board.bus_reply_fault or not board.bus_servo_queue.empty():
++            if not board.servo_read_lock.acquire(
++                    timeout=self.servo_readback_lock_timeout_s):
++                self.get_logger().warning(
++                    'recovery could not acquire the bus read lock; reads stay latched')
++                return False
++            try:
++                with board.bus_reply_lock:
++                    late_traffic = board.bus_reply_reports != reports_before
++                    pending_reply = not board.bus_servo_queue.empty()
+                     while True:
+                         try:
+                             board.bus_servo_queue.get_nowait()
+                         except Exception:
+                             break
+                     board.bus_reply_active = False
+-                    board.bus_reply_fault = True
+-                    return False
+-                board.bus_reply_active = False
+-                board.bus_reply_fault = False
+-                return True
++                    if late_traffic or pending_reply:
++                        board.bus_reply_fault = True
++                        return False
++                    board.bus_reply_fault = False
++                    return True
++            finally:
++                board.servo_read_lock.release()
+         finally:
+-            board.servo_read_lock.release()
++            self._servo_recovery_lock.release()
+ 
+     def get_bus_servo_state(self, request, response):
+         states = []
+@@ -427,7 +556,8 @@
+             states.append(data)
+         response.state = states
+         if not all_succeeded:
+-            recovered = self.recover_bus_servo_reads()
++            recovered = self.recover_bus_servo_reads(
++                quiet_s=self.servo_readback_quiet_s)
+             self.get_logger().warning(
+                 f"bus servo read failed; recovery_after_quiet={recovered}")
+         response.success = all_succeeded
+--- a/ros_robot_controller_sdk.py
++++ b/ros_robot_controller_sdk.py
+@@ -115,8 +115,12 @@
+         self.port.open()
+ 
+         self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
+-        self.servo_read_lock = threading.Lock()
++        # One reentrant bus lock: reads hold it for their whole transaction and
++        # writes take it from buf_write.  RLock lets a read issue its own request.
++        self.servo_read_lock = threading.RLock()
+         self.pwm_servo_read_lock = threading.Lock()
++        self.bus_reply_reports = 0
++        self._read_stats = threading.local()
+ 
+         # 队列用来存储数据(use queue to store data)
+         self.sys_queue = queue.Queue(maxsize=1)
+@@ -167,6 +171,7 @@
+ 
+     def packet_report_serial_servo(self, data):
+         with self.bus_reply_lock:
++            self.bus_reply_reports += 1
+             if not self.bus_reply_active or self.bus_reply_fault:
+                 self.bus_reply_fault = True
+                 return
+@@ -329,23 +334,25 @@
+ 
+     def buf_write(self, func, data):
+         buf = [0xAA, 0x55, int(func)]
+-        # print('func',func)
+-        # for i in data:
+-            # print('data',i)
+         buf.append(len(data))
+         buf.extend(data)
+         buf.append(checksum_crc8(bytes(buf[2:])))
+         buf = bytes(buf)
+-        if not self.port_write_lock.acquire(timeout=self.servo_read_timeout):
+-            raise IOError("serial writer busy")
++        # One bus lock for both directions.  A read already holds it reentrantly;
++        # a write from another thread waits boundedly instead of interleaving
++        # inside a read transaction.
++        if not self.servo_read_lock.acquire(timeout=self.servo_read_timeout):
++            raise IOError("serial bus busy")
+         try:
+-            if self.port.write(buf) != len(buf):
+-                raise IOError("short serial write")
++            if not self.port_write_lock.acquire(timeout=self.servo_read_timeout):
++                raise IOError("serial writer busy")
++            try:
++                if self.port.write(buf) != len(buf):
++                    raise IOError("short serial write")
++            finally:
++                self.port_write_lock.release()
+         finally:
+-            self.port_write_lock.release()
+-        # for i in buf: 
+-            # print(i)
+-        # print('''''''')
++            self.servo_read_lock.release()
+ 
+     def set_led(self, on_time, off_time, repeat=1, led_id=1):
+         on_time = int(on_time*1000)
+@@ -490,22 +497,50 @@
+             data.extend(struct.pack("<BH", i[0], i[1]))
+         self.buf_write(PacketFunction.PACKET_FUNC_BUS_SERVO, data)
+ 
+-    def bus_servo_read_and_unpack(self, servo_id, cmd, unpack):
++    @property
++    def last_read_stats(self):
++        return getattr(self._read_stats, "data", None)
++
++    def _record_read_stats(self, **values):
++        self._read_stats.data = values
++
++    def bus_servo_read_and_unpack(self, servo_id, cmd, unpack, timeout=None):
+         # Broadcast reads cannot be attributed to one servo. The legacy protocol
+         # has no transaction id, so any anomaly latches reads until recovery.
++        started = time.monotonic()
++        wait_s = self.servo_read_timeout
++        if timeout is not None:
++            try:
++                wait_s = max(0.01, min(float(timeout), self.servo_read_timeout))
++            except (TypeError, ValueError):
++                wait_s = self.servo_read_timeout
++
++        def done(reason, lock_wait_ms=0.0):
++            self._record_read_stats(
++                servo_id=servo_id, command=hex(cmd), reason=reason,
++                lock_wait_ms=round(lock_wait_ms, 3),
++                duration_ms=round((time.monotonic() - started) * 1000.0, 3),
++                timeout_ms=round(wait_s * 1000.0, 3))
++
+         if not isinstance(servo_id, int) or isinstance(servo_id, bool) or not 0 <= servo_id <= 253:
++            done("invalid_servo_id")
+             return None
+         if unpack not in ("<BBbh", "<BBbB", "<BBbb", "<BBbH", "<BBb2H"):
++            done("invalid_unpack_format")
+             return None
+-        if not self.servo_read_lock.acquire(timeout=self.servo_read_timeout):
++        lock_started = time.monotonic()
++        if not self.servo_read_lock.acquire(timeout=wait_s):
++            done("lock_timeout", (time.monotonic() - lock_started) * 1000.0)
+             return None
++        lock_wait_ms = (time.monotonic() - lock_started) * 1000.0
+         try:
+             with self.bus_reply_lock:
+                 if self.bus_reply_fault or not self.bus_servo_queue.empty():
+                     self.bus_reply_fault = True
++                    done("reply_latch_busy", lock_wait_ms)
+                     return None
+                 self.bus_reply_active = True
+-            deadline = time.monotonic() + self.servo_read_timeout
++            deadline = time.monotonic() + wait_s
+             try:
+                 self.buf_write(PacketFunction.PACKET_FUNC_BUS_SERVO, [cmd, servo_id])
+                 remaining = deadline - time.monotonic()
+@@ -521,11 +556,25 @@
+                     if self.bus_reply_fault or not self.bus_servo_queue.empty():
+                         raise ValueError("duplicate or unsolicited response")
+                     self.bus_reply_active = False
++                done(None, lock_wait_ms)
+                 return info
+-            except (queue.Empty, ValueError, struct.error, OSError, serial.SerialException):
++            except queue.Empty:
++                with self.bus_reply_lock:
++                    self.bus_reply_active = False
++                    self.bus_reply_fault = True
++                done("read_timeout", lock_wait_ms)
++                return None
++            except ValueError as error:
++                with self.bus_reply_lock:
++                    self.bus_reply_active = False
++                    self.bus_reply_fault = True
++                done(str(error), lock_wait_ms)
++                return None
++            except (struct.error, OSError, serial.SerialException) as error:
+                 with self.bus_reply_lock:
+                     self.bus_reply_active = False
+                     self.bus_reply_fault = True
++                done(type(error).__name__, lock_wait_ms)
+                 return None
+         finally:
+             self.servo_read_lock.release()
+@@ -536,8 +585,8 @@
+     def bus_servo_read_offset(self, servo_id):
+         return self.bus_servo_read_and_unpack(servo_id, 0x22, "<BBbb")
+     
+-    def bus_servo_read_position(self, servo_id):
+-        return self.bus_servo_read_and_unpack(servo_id, 0x05, "<BBbh")
++    def bus_servo_read_position(self, servo_id, timeout=None):
++        return self.bus_servo_read_and_unpack(servo_id, 0x05, "<BBbh", timeout=timeout)
+ 
+     def bus_servo_read_vin(self, servo_id):
+         return self.bus_servo_read_and_unpack(servo_id, 0x07, "<BBbH")

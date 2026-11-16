@@ -265,6 +265,12 @@ docs/evidence/**/*.mp4
 !/releases/*/app/deploy/env/
 !/app_ros_mobile/frontend/src/lib/
 !/app_ros_mobile/frontend/src/lib/**
+!/app_ros_mobile/frontend/dist/
+!/app_ros_mobile/frontend/dist/**
+!/tools/ros2_collection/local_ros2/lib/
+!/tools/ros2_collection/local_ros2/lib/common.sh
+!/tools/ros2_collection/local_ros2/lib/enter.sh
+!/tools/ros2_collection/local_ros2/lib/stage_vendor.py
 
 # Historical transfer checksums describe the original bytes, before Git's
 # line-ending normalization. Generate a fresh manifest for deployment exports.

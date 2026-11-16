@@ -56,3 +56,5 @@ attempts at the 30k checkpoint, 1 of 3 at 20k, 0 of 3 at 10k, single scene,
 red scenes only), while SmolVLA has not been trained long enough and has no
 closed-loop evaluation at all, so it currently has no success record rather
 than a measured low success rate. Both are simulation-only results.
+
+阶段代码 review：[2026-11-16 分支、功能与验证说明](docs/reviews/2026-11-16-stage-review.md)。

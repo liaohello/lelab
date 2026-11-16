@@ -535,9 +535,107 @@ SIMULATED_6D_CONTRACT = "simulated_offline_6d_v1"
 # Docker/Humble rig can exercise the real parse-export-readback chain, and the safest way
 # to keep it from being reached by an accidentally-similar recording is to require the
 # profile that declares it.
-SIMULATED_6D_PROFILES = frozenset({"hardware_hybrid_manual_v1_offline6d"})
+SIMULATED_6D_PROFILES = frozenset({
+    "hardware_hybrid_manual_v1_offline6d",
+    "hardware_hybrid_manual_v1_offline6d_dds"})
 SIMULATED_6D_RUNTIME_MODES = frozenset({"simulated_hybrid_manual", "hybrid_manual_sim"})
 SIMULATED_6D_ROW_TOPIC_SUFFIX = "/recording/teleop"
+HARDWARE_DATA_SOURCE = "hardware"
+HARDWARE_6D_CONTRACT = "hardware_6d_v1"
+HARDWARE_6D_PROFILES = frozenset({
+    "hardware_hybrid_follow_v1_dds", "hardware_hybrid_manual_v1"})
+HARDWARE_6D_RUNTIME_MODES = frozenset({
+    "hardware_hybrid_manual", "hardware_hybrid_follow"})
+
+
+def hardware_6d_identity(meta: dict[str, Any]) -> dict[str, Any]:
+    """Fail closed unless this is a real hardware hybrid frame session.
+
+    The action/state come from the control process's teleop_frame rows (sent target
+    and measured readback). This never re-labels simulated data as hardware and never
+    routes around training_export: the profile must explicitly enable it.
+    """
+    def reject(reason: str, detail: str) -> None:
+        raise SampleRejected(reason, detail)
+
+    if meta.get("simulated") is True:
+        reject("hardware_6d_rejects_simulation", "runtime declares simulated=True")
+    if meta.get("data_identity") != HARDWARE_DATA_SOURCE:
+        reject("hardware_6d_identity_missing",
+               f"session data_identity={meta.get('data_identity')!r}, expected 'hardware'")
+    if meta.get("profile") not in HARDWARE_6D_PROFILES:
+        reject("hardware_6d_profile", f"profile={meta.get('profile')!r}")
+    if meta.get("runtime_mode") not in HARDWARE_6D_RUNTIME_MODES:
+        reject("hardware_6d_runtime_mode", f"runtime_mode={meta.get('runtime_mode')!r}")
+    if meta.get("export_schema") != SCHEMA_ARM_GRIPPER_6DOF:
+        reject("hardware_6d_schema", f"export_schema={meta.get('export_schema')!r}")
+    if meta.get("training_export") is not True:
+        reject("hardware_6d_training_switch",
+               f"training_export={meta.get('training_export')!r}; hardware export must be enabled")
+    provenance = meta.get("feedback_provenance") or {}
+    if provenance.get("hardware_measurement") is not True:
+        reject("hardware_6d_not_measured", "feedback_provenance.hardware_measurement is not True")
+    if not meta.get("clock_domain") or not meta.get("clock_epoch"):
+        reject("hardware_6d_clock_identity", "missing clock_domain/clock_epoch")
+    calibration_bundle_hash = (
+        meta.get("calibration_bundle_hash")
+        or meta.get("requested_calibration_bundle_hash")
+    )
+    if not calibration_bundle_hash:
+        reject("hardware_6d_calibration_missing", "missing calibration_bundle_hash")
+    provenance_calibration = provenance.get("calibration_hash")
+    if provenance_calibration and provenance_calibration != calibration_bundle_hash:
+        reject(
+            "hardware_6d_calibration_mismatch",
+            "session calibration_bundle_hash differs from feedback_provenance.calibration_hash",
+        )
+    feedback_limits = meta.get("feedback_limits")
+    if not isinstance(feedback_limits, dict):
+        reject("hardware_6d_feedback_limits_missing",
+               "session metadata has no feedback-limit contract")
+    if feedback_limits.get("binding_status") != "device_bound" or \
+            not isinstance(feedback_limits.get("device_identity"), dict):
+        reject("hardware_6d_feedback_limits_binding",
+               "feedback limits are not bound to a device identity")
+    version = feedback_limits.get("version")
+    digest = feedback_limits.get("sha256")
+    if not isinstance(version, str) or not version or \
+            not isinstance(digest, str) or len(digest) != 64:
+        reject("hardware_6d_feedback_limits_identity",
+               "feedback-limit version/sha256 is missing or malformed")
+    ranges = feedback_limits.get("ranges")
+    if not isinstance(ranges, dict) or set(ranges) != {
+            "joint1", "joint2", "joint3", "joint4", "joint5", "r_joint"}:
+        reject("hardware_6d_feedback_limits_ranges",
+               "feedback-limit ranges do not cover all six joints")
+    max_state_age = provenance.get("max_state_age_s")
+    if isinstance(max_state_age, bool) or not isinstance(max_state_age, (int, float)) \
+            or not 0 < float(max_state_age) <= 0.5:
+        reject("hardware_6d_state_age_unbounded",
+               f"feedback_provenance.max_state_age_s={max_state_age!r}; must be in (0, 0.5]")
+    return {
+        "max_state_age_s": float(max_state_age),
+        "contract": HARDWARE_6D_CONTRACT,
+        "data_identity": HARDWARE_DATA_SOURCE,
+        "training_eligible": True,
+        "evidence_kind": "hardware_teleop",
+        "action_source": "car_side_sent_target_recorded_by_the_control_process",
+        "state_source": "measured_servo_readback_recorded_by_the_control_process",
+        "sampling": "event_paced_teleop_rows",
+        "clock_domain": meta.get("clock_domain"),
+        "clock_epoch": meta.get("clock_epoch"),
+        "profile": meta.get("profile"),
+        "calibration_bundle_hash": calibration_bundle_hash,
+        "feedback_limits": {
+            "version": version,
+            "sha256": digest,
+            "device_identity": feedback_limits.get("device_identity"),
+            "ranges": ranges,
+        },
+        "row_topic_suffix": SIMULATED_6D_ROW_TOPIC_SUFFIX,
+    }
+
+
 
 
 def simulated_6d_identity(meta: dict[str, Any]) -> dict[str, Any]:

@@ -198,6 +198,12 @@ class LicenceMirror:
                 self._handle(conn)
             except OSError as exc:
                 self.last_error = f"io_error:{exc.errno}"
+            except Exception as exc:  # noqa: BLE001 - one bad publisher must not kill the mirror
+                # The mirror is the only source of output permission.  A malformed
+                # or internally rejected message must fail one connection closed,
+                # not terminate the licence thread and leave every future update
+                # without an owner.
+                self.last_error = f"protocol_error:{type(exc).__name__}:{exc}"
             finally:
                 # The publisher going away is itself a revocation: no agent, no control.
                 # The recording context goes with it, because a row stamped into an
@@ -237,6 +243,10 @@ class LicenceMirror:
                 except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                     self.counters["refused"] += 1
                     self.last_error = f"malformed:{type(exc).__name__}"
+                except Exception as exc:  # noqa: BLE001 - reject one message, keep the mirror alive
+                    self.counters["refused"] += 1
+                    reason = getattr(exc, "reason", type(exc).__name__)
+                    self.last_error = f"refused:{reason}"
 
     # -- state ------------------------------------------------------------
     def apply(self, message: dict[str, Any]) -> dict[str, Any]:
@@ -298,8 +308,13 @@ class LicenceMirror:
                 elif context["context_seq"] == self._last_context_seq:
                     # The same sequence number may only repeat the same facts: that is a
                     # refresh before the TTL.  A different episode under an already-seen
-                    # number is a replay, and would silently re-stamp new rows.
-                    if any(self._context.get(key) != context.get(key) for key in
+                    # number is a replay, and would silently re-stamp new rows.  An IPC
+                    # reconnect clears the context but deliberately retains the sequence;
+                    # the first refresh after that reconnect must not dereference the
+                    # absent previous value or kill the licence thread.
+                    previous_context = self._context
+                    if previous_context is not None and any(
+                            previous_context.get(key) != context.get(key) for key in
                            ("session_id", "session_epoch", "episode_id", "phase",
                             "clock_epoch", "calibration_bundle_hash")):
                         self.counters["refused"] += 1

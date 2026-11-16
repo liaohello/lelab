@@ -14,6 +14,7 @@
   <exec_depend>trajectory_msgs</exec_depend>
   <exec_depend>control_msgs</exec_depend>
   <exec_depend>ros_gz_interfaces</exec_depend>
+  <exec_depend>lelab_mobile_interfaces</exec_depend>
   <exec_depend>rosbag2_py</exec_depend>
   <exec_depend>python3-pillow</exec_depend>
   <export><build_type>ament_python</build_type></export>

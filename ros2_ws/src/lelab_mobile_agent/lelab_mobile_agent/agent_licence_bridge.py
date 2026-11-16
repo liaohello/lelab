@@ -324,6 +324,7 @@ class AgentLicenceBridge:
             "frames_emitted": (document.get("counters") or {}).get("frames_emitted"),
             "frames_refused": (document.get("counters") or {}).get("frames_refused"),
             "last_refusal": document.get("last_refusal"),
+            "feedback_raw_limits": document.get("feedback_raw_limits"),
             "paused": document.get("paused"),
             "outputs_enabled": document.get("outputs_enabled"),
             # The emitter's own stop state. The agent's latch says nobody may grant
@@ -334,6 +335,7 @@ class AgentLicenceBridge:
             "reengage_required": document.get("reengage_required"),
             "last_clear": document.get("last_clear"),
             "queue_depth": (document.get("admission") or {}).get("queue_depth", 0),
+            "recording_publisher": document.get("recording_publisher"),
             "context": {key: context.get(key) for key in
                         ("session_id", "session_epoch", "episode_id", "phase", "clock_epoch",
                          "calibration_bundle_hash", "context_seq", "agent_boot")},

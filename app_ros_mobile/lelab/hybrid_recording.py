@@ -187,6 +187,24 @@ class HybridRecordingController:
         self.episodes: list[dict[str, Any]] = []
         self._pending_estop_save: threading.Thread | None = None
 
+    def _archive_invalid_run(self) -> None:
+        """Keep the evidence of a failed run before clearing it for a new session."""
+        if self.status_value != INVALID:
+            return
+        summary = {
+            "status": self.status_value, "last_error": self.last_error,
+            "error_detail": self.error_detail, "session_id": self.session_id,
+            "session_epoch": self.session_epoch, "episode_id": self.episode_id,
+            "car_recording_id": self.car_recording_id,
+            "event_count": len(self.events),
+            "episodes": copy.deepcopy(self.episodes),
+            "archived_wall_ns": self.wall_ns(),
+        }
+        if not hasattr(self, "archived_runs"):
+            self.archived_runs: list[dict[str, Any]] = []
+        self.archived_runs.append(summary)
+        del self.archived_runs[:-8]
+
     def _fail(self, reason: str, detail: str = "", *, invalid: bool = True) -> None:
         if self.last_error is None:
             self.last_error = reason
@@ -289,6 +307,7 @@ class HybridRecordingController:
                     # A previous recording belongs to an older control epoch.  It
                     # remains on the car for audit, but this controller starts a new
                     # local session instead of reusing the old state.
+                    self._archive_invalid_run()
                     self._reset()
             if self.status_value == INVALID and action in ("start_episode", "set_phase"):
                 # A failed run keeps its evidence; only an explicit new session clears it.
@@ -306,32 +325,64 @@ class HybridRecordingController:
             self._assert_payload_identity(payload, status)
             if (self.session_id is not None and
                     (self.session_id != session_id or self.session_epoch != epoch)):
+                self._archive_invalid_run()
                 self._reset()
             elif self.status_value == STOPPED:
+                self._reset()
+            elif self.status_value == INVALID and self.session_id is None:
+                # An estop with no recording session left the controller invalid but
+                # there is no car session to protect; keep the evidence and allow a
+                # new dataset instead of wedging until process restart.
+                self._archive_invalid_run()
                 self._reset()
             if self.status_value == INVALID:
                 raise RecordingError("recording_invalid",
                                      f"previous session is invalid: {self.last_error}; "
                                      "start a new control session to clear it")
-            profile = str(payload.get("profile") or
-                          ("hardware_hybrid_manual_v1_offline6d" if self.offline_6d else None) or status.get("profile")
-                          or "hardware_hybrid_manual_v1")
-            if self.offline_6d and (status.get("simulated") is not True or
-                                    profile != "hardware_hybrid_manual_v1_offline6d"):
-                raise RecordingError("offline_6d_identity_mismatch")
+            # The car agent is the authority for its loaded profile and export schema;
+            # the upper facade's active profile name is not the car profile name.
+            car_status = {}
+            observer = getattr(self.facade, "observer", None)
+            if observer is not None and callable(getattr(observer, "car_snapshot", None)):
+                try:
+                    car_status = observer.car_snapshot()[0] or {}
+                except Exception:  # noqa: BLE001 - fall back to the payload/default
+                    car_status = {}
+            car_profile = str(car_status.get("profile") or "")
+            offline_profiles = ("hardware_hybrid_manual_v1_offline6d",
+                                "hardware_hybrid_manual_v1_offline6d_dds")
+            if self.offline_6d:
+                # Prefer the car's own loaded profile; fall back to the canonical
+                # offline literal when the snapshot carries none (adapter-free core
+                # use and fixtures). The car itself still rejects a real mismatch.
+                profile = str(payload.get("profile") or car_profile
+                              or "hardware_hybrid_manual_v1_offline6d")
+                if status.get("simulated") is not True or profile not in offline_profiles:
+                    raise RecordingError("offline_6d_identity_mismatch",
+                                         f"profile={profile!r}, simulated={status.get('simulated')!r}")
+            else:
+                profile = str(payload.get("profile") or car_profile
+                              or status.get("profile") or "hardware_hybrid_manual_v1")
             runtime_mode = ("simulated_hybrid_manual" if status.get("simulated") is True
                             else "hardware_hybrid_manual")
+            export_schema = ("arm_gripper_6dof_phase1" if self.offline_6d
+                             else str(car_status.get("export_schema") or ""))
             body = {
                 "task": str(payload.get("task") or ""),
                 "source": "manual_hybrid",
-                "export_schema": ("arm_gripper_6dof_phase1" if self.offline_6d
-                                  else "mobile_hybrid_manual_9d_v1"),
                 "runtime_mode": runtime_mode,
                 "profile": profile,
                 "session_id": session_id,
                 "session_epoch": epoch,
                 "calibration_bundle_hash": bundle,
             }
+            # The car agent is the authority for its loaded export schema. It does not
+            # expose that schema in /status, so when the car snapshot has none we must
+            # omit the field and let the car use its own loaded schema rather than send
+            # a wrong hardware default (e.g. mobile_hybrid_manual_9d_v1) that the car
+            # rejects with export_schema_mismatch.
+            if export_schema:
+                body["export_schema"] = export_schema
             out = self.car.post("/recording/start_session", body)
             self.session_id = session_id
             self.session_epoch = epoch
@@ -729,6 +780,7 @@ class HybridRecordingController:
                 "last_error": self.last_error,
                 "error_detail": self.error_detail,
                 "event_count": len(self.events),
+                "archived_runs": copy.deepcopy(getattr(self, "archived_runs", [])),
                 "estop_save_pending": bool(self._pending_estop_save
                                            and self._pending_estop_save.is_alive()),
             }

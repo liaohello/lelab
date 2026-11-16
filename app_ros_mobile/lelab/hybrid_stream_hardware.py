@@ -7,14 +7,21 @@ This module does not open a device at import.
 from __future__ import annotations
 
 import copy
+import math
 import os
 import threading
 import time
+import uuid
 from typing import Any
 
 from .hybrid_calibration import HybridCalibrationStore
 from .hybrid_channel import TrustedFeedbackGate
+from .hybrid_dds_feedback import (
+    ClockMapping, DdsFeedbackClient, compare_sources, feedback_from_snapshot,
+)
+from .hybrid_dds_transport import DdsFrameLink
 from .hybrid_frame_link import FrameLink
+from .teleop_frame_v1 import FrameError, load_auth_key
 from .hybrid_home_plan import HOME_RAW, plan_home_step, raw_to_rad
 from .hybrid_hardware import (
     ARM_JOINTS, CarControlLease, CarHttpOutputDriver, HardwareCompositionError,
@@ -32,6 +39,8 @@ class StreamHardwareObserver(HardwareObserver):
                  simulated_source: bool = False, trial_max_step_rad_s: float | None = None,
                  filter_alpha_override: float | None = None,
                  deadband_rad_override: float | None = None,
+                 feedback_source: str = "http",
+                 dds_socket: str | None = None,
                  **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.poll_period_s = max(0.05, float(poll_period_s))
@@ -39,6 +48,21 @@ class StreamHardwareObserver(HardwareObserver):
         self.trial_max_step_rad_s = trial_max_step_rad_s
         self.filter_alpha_override = filter_alpha_override
         self.deadband_rad_override = deadband_rad_override
+        if feedback_source not in ("http", "dds", "compare"):
+            raise HardwareCompositionError(f"unknown_feedback_source:{feedback_source}")
+        self.feedback_source = feedback_source
+        self.feedback_max_age_s = float(os.environ.get(
+            "LELAB_HYBRID_FEEDBACK_MAX_AGE_S", str(self.FEEDBACK_MAX_AGE_S)))
+        self.dds_transport_bound_s = float(os.environ.get(
+            "LELAB_DDS_TRANSPORT_BOUND_S", "0.15"))
+        if not (0 < self.feedback_max_age_s <= 5.0 and 0 < self.dds_transport_bound_s <= 1.0):
+            raise HardwareCompositionError("invalid_feedback_age_or_transport_bound")
+        self.clock_mapping = ClockMapping()
+        self.dds_client = (DdsFeedbackClient(dds_socket or "/tmp/lelab_dds_feedback.sock")
+                           if feedback_source in ("dds", "compare") else None)
+        self.dds_snapshot: dict[str, Any] | None = None
+        self.dds_feedback: dict[str, Any] | None = None
+        self.dds_comparison: dict[str, Any] | None = None
         self._cache_lock = threading.Lock()
         self._poll_lock = threading.Lock()
         self._cached_facts: dict[str, Any] | None = None
@@ -87,8 +111,31 @@ class StreamHardwareObserver(HardwareObserver):
             car = _http_json(self.agent_url, "/status", timeout=request_timeout)
             if bool(car.get("simulated")) != self.simulated_source:
                 raise HardwareCompositionError("frame_simulation_identity_mismatch")
-            facts = super().snapshot(car_status=car, network_elapsed_s=time.monotonic() - started,
+            http_feedback = ((car.get("control") or {}).get("follower_feedback")
+                             if isinstance(car.get("control"), dict) else None) or {}
+            feedback_elapsed = time.monotonic() - started
+            if self.feedback_source in ("dds", "compare"):
+                self.dds_snapshot = self.dds_client.read() if self.dds_client else None
+                readiness = self.calibration_readiness() or {}
+                dds_feedback = feedback_from_snapshot(
+                    self.dds_snapshot or {}, self.clock_mapping,
+                    expected_calibration_hash=str(readiness.get("bundle_hash") or ""),
+                    stale_after_s=self.feedback_max_age_s,
+                    transport_bound_s=self.dds_transport_bound_s)
+                self.dds_feedback = dds_feedback
+                if self.feedback_source == "dds":
+                    car = copy.deepcopy(car)
+                    car.setdefault("control", {})["follower_feedback"] = dds_feedback
+                    # The DDS age is already measured on the upper clock by the
+                    # mapping; adding the HTTP poll duration would double-count it.
+                    feedback_elapsed = 0.0
+                else:
+                    self.dds_comparison = compare_sources(
+                        http_feedback, dds_feedback, self.dds_snapshot or {})
+            facts = super().snapshot(car_status=car,
+                                     network_elapsed_s=feedback_elapsed,
                                      advance_preview=False)
+            facts["feedback_source"] = self.feedback_source
             if self.simulated_source:
                 facts["simulated"] = True
                 for device in facts.get("devices", {}).values():
@@ -137,6 +184,9 @@ class StreamHardwareObserver(HardwareObserver):
         self._preview_value = None
         self._aligned_layers = None
         self._display_mapper = None
+        if self.dds_client is not None:
+            self.dds_client.close()
+        self.dds_snapshot = self.dds_feedback = self.dds_comparison = None
 
     def car_snapshot(self) -> tuple[dict[str, Any] | None, float | None]:
         with self._cache_lock:
@@ -158,7 +208,17 @@ class StreamHardwareObserver(HardwareObserver):
                     "cache_age_s": (round(max(0.0, time.monotonic() - started), 3)
                                     if started is not None else None),
                     "last_poll_duration_s": self.last_poll_duration_s,
-                    "last_error": self.poll_error}
+                    "last_error": self.poll_error,
+                    "feedback_source": self.feedback_source,
+                    "clock_mapping": (None if self.feedback_source == "http"
+                                      else self.clock_mapping.state()),
+                    "dds": (None if self.dds_client is None
+                            else self.dds_client.state()),
+                    "dds_feedback_reason": (None if not self.dds_feedback
+                                            else self.dds_feedback.get("reason")),
+                    "dds_age_bound_s": (None if not self.dds_feedback
+                                        else self.dds_feedback.get("age_bound_s")),
+                    "comparison": copy.deepcopy(self.dds_comparison)}
 
     def snapshot(self, **kwargs: Any) -> dict[str, Any]:
         if self._poll_thread is None:
@@ -177,8 +237,13 @@ class StreamHardwareObserver(HardwareObserver):
             facts["leader_healthy"] = False
         else:
             leader["age_s"] = float(age) + elapsed
-        if elapsed > self.FEEDBACK_MAX_AGE_S:
-            facts["feedback_valid"] = False
+        if elapsed > self.feedback_max_age_s:
+            # In explicit DDS mode the feedback age is measured by the clock
+            # mapping, not by this HTTP cache. The control/licence cache still
+            # expires here, so output authorization is lost with it.
+            if not (self.feedback_source == "dds"
+                    and facts.get("feedback_source") == "dds"):
+                facts["feedback_valid"] = False
             facts["exclusive_control"] = False
         if self._preview_value is not None:
             facts["preview"] = copy.deepcopy(self._preview_value)
@@ -264,18 +329,24 @@ class FrameCarControlLease(CarControlLease):
 
     observer: StreamHardwareObserver | None = None
     # The freshness window the observation cache is allowed to drift, and the shortest
-    # gap between direct ``/status`` probes. Both are the same 0.5 s the snapshot gate
+    # gap between direct ``/status`` probes. Both are the same 1.0 s the snapshot gate
     # already uses; neither is a safety budget and neither is widened here.
     CACHE_MAX_AGE_S = 1.0
     PROBE_MIN_INTERVAL_S = 0.5
     PROBE_TIMEOUT_S = 1.0
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, expected_transport: str = "frame_stream",
+                 **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+        self.expected_transport = expected_transport
         self._probe_lock = threading.Lock()
         self._last_probe_mono: float | None = None
         self._last_probe_ok = False
         self.last_probe_source: str | None = None
+
+    def _transport_reason(self) -> str:
+        return ("car_dds_transport_missing" if self.expected_transport == "dds_v1"
+                else "car_frame_transport_missing")
 
     def _assess(self, car: dict[str, Any], session: dict[str, Any], source: str) -> bool:
         control = car.get("control") or {}
@@ -283,8 +354,8 @@ class FrameCarControlLease(CarControlLease):
         licence = car.get("licence") or {}
         if control.get("active") is not True:
             self.last_reason = "car_control_inactive"
-        elif licence.get("output_transport") != "frame_stream":
-            self.last_reason = "car_frame_transport_missing"
+        elif licence.get("output_transport") != self.expected_transport:
+            self.last_reason = self._transport_reason()
         elif hybrid.get("session_id") != session.get("session_id"):
             self.last_reason = "car_session_mismatch"
         elif str(hybrid.get("session_epoch")) != str(session.get("session_epoch")):
@@ -343,7 +414,7 @@ class FrameCarControlLease(CarControlLease):
         # bind it to its gateway until begin_epoch. Verify the declared channel
         # and sample identities here; the normal acquire path then requires the
         # bound driver and fully trusted, calibrated feedback before returning.
-        if (status.get("licence") or {}).get("output_transport") != "frame_stream":
+        if (status.get("licence") or {}).get("output_transport") != self.expected_transport:
             return False
         feedback = (status.get("control") or {}).get("follower_feedback") or {}
         samples = feedback.get("joint_samples") or {}
@@ -353,14 +424,18 @@ class FrameCarControlLease(CarControlLease):
                    and samples[name].get("source_kind") == "servo_position_readback"
                    and isinstance(samples[name].get("age_s"), (int, float))
                    and not isinstance(samples[name].get("age_s"), bool)
-                   and 0 <= samples[name]["age_s"] <= StreamHardwareObserver.FEEDBACK_MAX_AGE_S
+                   and 0 <= samples[name]["age_s"] <= getattr(
+                       self.observer, "feedback_max_age_s",
+                       StreamHardwareObserver.FEEDBACK_MAX_AGE_S)
                    for name, servo_id in ids.items())
 
     def acquire(self, request: dict) -> str:
         status = _http_json(self.agent_url, "/status", timeout=self.timeout_s)
         licence = status.get("licence") or {}
-        if licence.get("output_transport") != "frame_stream":
-            raise HardwareCompositionError("frame_transport_not_available")
+        if licence.get("output_transport") != self.expected_transport:
+            raise HardwareCompositionError(
+                "dds_transport_not_available" if self.expected_transport == "dds_v1"
+                else "frame_transport_not_available")
         return super().acquire(request)
 
 
@@ -413,6 +488,7 @@ class FrameStreamDriver(CarHttpOutputDriver):
                          session_epoch=session["session_epoch"],
                          bundle_hash=session["calibration_bundle_hash"], lease_token=token)
         try:
+            self._preflight_emitter_feedback()
             link.attach_lease(token)
             welcome = link.engage()
             if welcome.get("frame_protocol_version") != 1:
@@ -431,6 +507,34 @@ class FrameStreamDriver(CarHttpOutputDriver):
             except Exception:
                 pass
             raise
+
+    def _preflight_emitter_feedback(self) -> None:
+        """Reject the emitter's raw-position domain before requesting output.
+
+        Observation limits are versioned car configuration, distinct from the
+        unsigned actuator command domain and the calibration's target limits.
+        """
+        status = _http_json(self.agent_url, "/status", timeout=self.timeout_s)
+        feedback = (status.get("control") or {}).get("follower_feedback") or {}
+        samples = feedback.get("joint_samples") or {}
+        limits = ((status.get("control") or {}).get("feedback_raw_limits") or {})
+        configured = limits.get("ranges") or {}
+        if (limits.get("binding_status") != "device_bound"
+                or not isinstance(limits.get("device_identity"), dict)
+                or not isinstance(limits.get("version"), str)
+                or not limits.get("version")
+                or set(configured) != {
+                    "joint1", "joint2", "joint3", "joint4", "joint5", "r_joint"}):
+            raise HardwareCompositionError(
+                "frame_emitter_feedback_limits_unbound_or_incomplete")
+        for name in ("joint1", "joint2", "joint3", "joint4", "joint5", "r_joint"):
+            sample = samples.get(name) or {}
+            raw = sample.get("raw_position")
+            low, high = configured[name]
+            if (isinstance(raw, bool) or not isinstance(raw, (int, float))
+                    or not math.isfinite(raw) or not low <= raw <= high):
+                raise HardwareCompositionError(
+                    f"frame_emitter_feedback_out_of_range:{name}:raw={raw}:allowed={low}..{high}")
 
     def _await_emitter_ready(self) -> None:
         """The agent's flag is permission; the emitter still has to report enabled.
@@ -451,18 +555,24 @@ class FrameStreamDriver(CarHttpOutputDriver):
             process = ((((status.get("licence") or {}).get("bridge") or {})
                         .get("frame_process")) or {})
             last = dict(process)
+            if process.get("homing_torque_state") == "failed":
+                raise HardwareCompositionError(
+                    "frame_emitter_enable_failed:homing_torque_unverified:" +
+                    str(process.get("homing_torque_error")))
             if process.get("outputs_enabled") is True:
                 if (process.get("homing_motion") is None
                         or process.get("homing_torque_state") == "verified"):
                     return
-                if process.get("homing_torque_state") == "failed":
-                    raise HardwareCompositionError(
-                        "frame_emitter_enable_failed:homing_torque_unverified:" +
-                        str(process.get("homing_torque_error")))
             time.sleep(0.1)
+        refusal = last.get("last_refusal") or {}
+        # Last refusal is diagnostic history, not proof that it belongs to this
+        # enable attempt. Keep the timeout classification instead of treating an
+        # old rejection as a new failure or accepting it as an acknowledgement.
+        detail = str(last.get("homing_torque_state") or last.get("reason") or "unknown")
+        if isinstance(refusal, dict) and refusal.get("reason"):
+            detail += ";car_last_refusal=" + str(refusal["reason"])
         raise HardwareCompositionError(
-            "frame_emitter_enable_timeout:" +
-            str(last.get("homing_torque_state") or last.get("reason") or "unknown"))
+            "frame_emitter_enable_timeout:" + detail)
 
     def submit(self, command: dict[str, Any]) -> dict[str, Any]:
         raise HardwareCompositionError("single_channel_submit_forbidden_in_frame_mode")
@@ -483,6 +593,92 @@ class FrameStreamDriver(CarHttpOutputDriver):
             finally:
                 link.client.close()
         return super().stop(reason)
+
+
+class DdsFrameDriver(FrameStreamDriver):
+    """Enable through the agent, then submit complete frames over authenticated DDS.
+
+    The socket goes to the upper Humble bridge, which publishes typed messages.
+    The car's own FrameAdmission remains the gate; this class never publishes a
+    servo topic and never falls back to FrameLink after a DDS failure.
+    """
+
+    def __init__(self, *args: Any, dds_socket: str, key_file: str,
+                 sender_id: str, **kwargs: Any) -> None:
+        super().__init__(*args, host="", port=0, **kwargs)
+        self.dds_socket = dds_socket
+        self.key_file = key_file
+        self.sender_id = sender_id
+        self.transport_epoch: str | None = None
+
+    def capabilities(self) -> dict[str, Any]:
+        return {**super().capabilities(), "driver": "dds_v1",
+                "transport": "dds_v1"}
+
+    def enable(self, session: dict[str, Any] | None = None) -> dict[str, Any]:
+        token = self.lease.token
+        if not token or not isinstance(session, dict):
+            raise HardwareCompositionError("car_control_lease_missing")
+        try:
+            key = load_auth_key(self.key_file)
+        except (OSError, FrameError) as error:
+            raise HardwareCompositionError(f"dds_command_key_unavailable:{error}")
+        self.transport_epoch = f"dds-{uuid.uuid4().hex}"
+        if self._needs_rebind:
+            rebound = _http_json(self.agent_url, "/hybrid/begin_epoch", method="POST",
+                body={**session, "channels": ["arm", "gripper"]}, token=token,
+                timeout=self.timeout_s)
+            if (rebound.get("driver_bound") is not True or
+                    rebound.get("session_id") != session.get("session_id") or
+                    str(rebound.get("session_epoch")) != str(session.get("session_epoch")) or
+                    rebound.get("calibration_bundle_hash") != session.get("calibration_bundle_hash")):
+                raise HardwareCompositionError("dds_epoch_rebind_not_confirmed")
+            deadline = time.monotonic() + 1.5
+            while True:
+                status = _http_json(self.agent_url, "/status", timeout=self.timeout_s)
+                feedback = (status.get("control") or {}).get("follower_feedback") or {}
+                if feedback.get("available") is True and self.lease._driver_available_before_epoch(status):
+                    break
+                if time.monotonic() >= deadline:
+                    raise HardwareCompositionError("dds_rebind_feedback_timeout")
+                time.sleep(0.05)
+            self._needs_rebind = False
+        link = DdsFrameLink.build(
+            socket_path=self.dds_socket, sender_id=self.sender_id,
+            transport_epoch=self.transport_epoch, auth_key=key,
+            session=session)
+        try:
+            self._preflight_emitter_feedback()
+            link.attach_lease(token)
+            welcome = link.engage()
+            if welcome.get("frame_protocol_version") != 1:
+                raise HardwareCompositionError("frame_protocol_version_mismatch")
+            result = CarHttpOutputDriver.enable(self, session)
+            if result.get("emitter") != "car_control_process":
+                raise HardwareCompositionError("frame_emitter_not_confirmed")
+            self._await_emitter_ready()
+            self.link = link
+            return result
+        except BaseException:
+            try:
+                link.client.close()
+            finally:
+                self.enabled = False
+                try:
+                    self.lease.stop("dds_enable_rollback")
+                except Exception:
+                    pass
+            raise
+
+    def stop(self, reason: str) -> dict[str, Any]:
+        link, self.link = self.link, None
+        self._needs_rebind = True
+        if link is not None:
+            try:
+                link.disengage(reason)
+            finally:
+                link.client.close()
+        return CarHttpOutputDriver.stop(self, reason)
 
 
 class FrameStreamHardwareFacade(HardwarePreviewFacade):
@@ -599,7 +795,7 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
     def _home_enable(self, session: dict[str, Any]) -> None:
         driver = self.driver
         router = self.router
-        if not isinstance(driver, FrameStreamDriver) or router is None:
+        if not isinstance(driver, (FrameStreamDriver, DdsFrameDriver)) or router is None:
             raise HardwareCompositionError("home_frame_driver_unavailable")
         driver.enable(session)
         router.enable_outputs()
@@ -1379,15 +1575,14 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
                            else None),
         }
 
-    @classmethod
-    def _feedback_gate_for(cls, facts: dict[str, Any], calibration_hash: str,
+    def _feedback_gate_for(self, facts: dict[str, Any], calibration_hash: str,
                            now_ns: int) -> dict[str, Any]:
         return TrustedFeedbackGate.gate(
             facts.get("feedback"), calibration_hash=calibration_hash,
-            now_ns=now_ns, max_age_ns=int(cls.FEEDBACK_MAX_AGE_S * 1_000_000_000))
+            now_ns=now_ns, max_age_ns=int(getattr(
+                self.observer, "feedback_max_age_s", self.FEEDBACK_MAX_AGE_S) * 1_000_000_000))
 
-    @staticmethod
-    def _transient_feedback_gap(facts: dict[str, Any],
+    def _transient_feedback_gap(self, facts: dict[str, Any],
                                 gate: dict[str, Any]) -> bool:
         reasons = gate.get("reasons") or []
         if not reasons:
@@ -1403,7 +1598,8 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
             age = sample.get("age_s")
             if ("sample_stale" not in error and "feedback_stale" not in error
                     and not (isinstance(age, (int, float))
-                             and age >= self.FEEDBACK_MAX_AGE_S)):
+                             and age >= getattr(self.observer, "feedback_max_age_s",
+                                                self.FEEDBACK_MAX_AGE_S))):
                 return False
         return True
 
@@ -1462,7 +1658,8 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
                     if not all(permits.get(name) for name in ("arm", "gripper")):
                         raise HardwareCompositionError("frame_channel_not_permitted")
                     driver = self.driver
-                    if not isinstance(driver, FrameStreamDriver) or not driver.enabled or driver.link is None:
+                    if (not isinstance(driver, (FrameStreamDriver, DdsFrameDriver))
+                            or not driver.enabled or driver.link is None):
                         raise HardwareCompositionError("frame_driver_not_enabled")
                     link = driver.link
                 facts = self.observer.fresh_snapshot()
@@ -1477,9 +1674,16 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
                     raise HardwareCompositionError("leader_unhealthy_or_stale")
                 receipts = link.collect()
                 if link.last_error:
-                    raise HardwareCompositionError("frame_stream_error:" + link.last_error)
+                    raise HardwareCompositionError(
+                        ("dds_error:" if getattr(link, "transport_name", "") == "dds_v1"
+                         else "frame_stream_error:") + link.last_error)
                 for receipt in receipts:
-                    if receipt.get("state") == "admitted":
+                    # An emitted receipt is strictly stronger evidence than the
+                    # intermediate admission receipt.  Both must refresh the
+                    # liveness clock; otherwise a stream that is emitting normally
+                    # can be declared timed out as soon as its admissions are
+                    # represented by the later emitted state.
+                    if receipt.get("state") in ("admitted", "emitted"):
                         last_admission = time.monotonic()
                         admitted_once = True
                     elif receipt.get("state") == "refused":
@@ -1540,8 +1744,18 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
         if isinstance(follow_runtime, dict):
             follow_runtime["rate_hz"] = self.FOLLOW_HZ
         driver = self.driver
-        out["transport"] = "frame_stream_v1"
-        out["frame_link"] = driver.link.state() if isinstance(driver, FrameStreamDriver) and driver.link else None
+        driver_capabilities = driver.capabilities() if driver is not None else {}
+        out["transport"] = driver_capabilities.get("transport", "frame_stream_v1")
+        out["frame_link"] = (driver.link.state()
+                             if isinstance(driver, (FrameStreamDriver, DdsFrameDriver))
+                             and driver.link else None)
+        cache = self.observer.cache_state()
+        out["feedback_source"] = cache.get("feedback_source")
+        out["clock_mapping"] = cache.get("clock_mapping")
+        out["dds_feedback"] = {"reason": cache.get("dds_feedback_reason"),
+                               "age_bound_s": cache.get("dds_age_bound_s"),
+                               "client": cache.get("dds")}
+        out["source_comparison"] = cache.get("comparison")
         out["stop_stage"] = getattr(self, "_stop_stage", None)
         out["car_clear"] = getattr(self, "_car_clear_last", None)
         homing = self.home_status()
@@ -1568,7 +1782,10 @@ def build_stream_hardware_facade(agent_url: str) -> FrameStreamHardwareFacade:
     }
     upper = UpperLeaderLease(agent_url=agent_url, store=store, leader_identity=identities["leader"])
     expected_profile = os.environ.get("LELAB_HYBRID_CAR_PROFILE", "hardware_hybrid_manual_v1")
-    car = FrameCarControlLease(agent_url, expected_profile=expected_profile)
+    transport = os.environ.get("LELAB_HYBRID_TRANSPORT", "frame_stream_v1")
+    expected_transport = "dds_v1" if transport == "dds_v1" else "frame_stream"
+    car = FrameCarControlLease(agent_url, expected_profile=expected_profile,
+                               expected_transport=expected_transport)
     runtime_step_cap = (
         0.10 if expected_profile in {
             "hardware_hybrid_arm_trial_v1", "hardware_hybrid_arm2_trial_v1",
@@ -1591,10 +1808,21 @@ def build_stream_hardware_facade(agent_url: str) -> FrameStreamHardwareFacade:
         mapping_identity=identities["mapping"],
         trial_max_step_rad_s=runtime_step_cap,
         filter_alpha_override=filter_alpha_override,
-        deadband_rad_override=deadband_rad_override)
+        deadband_rad_override=deadband_rad_override,
+        poll_period_s=float(os.environ.get("LELAB_HYBRID_POLL_PERIOD_S", "0.10")),
+        feedback_source=os.environ.get("LELAB_HYBRID_FEEDBACK_SOURCE", "http"),
+        dds_socket=os.environ.get("LELAB_DDS_FEEDBACK_SOCKET") or None)
     car.observer = observer
     facade = FrameStreamHardwareFacade(upper=upper, car=car, observer=observer, calibration_store=store)
-    facade.bind_driver(FrameStreamDriver(car, observer, agent_url, host="127.0.0.1",
-        port=int(os.environ.get("LELAB_HYBRID_FRAME_PORT", "18122"))))
+    if transport == "dds_v1":
+        facade.bind_driver(DdsFrameDriver(
+            car, observer, agent_url,
+            dds_socket=os.environ.get("LELAB_DDS_BRIDGE_SOCKET",
+                                      "/tmp/lelab_dds_bridge.sock"),
+            key_file=os.environ.get("LELAB_DDS_COMMAND_KEY_FILE", ""),
+            sender_id=os.environ.get("LELAB_DDS_SENDER_ID", "lelab-upper")))
+    else:
+        facade.bind_driver(FrameStreamDriver(car, observer, agent_url, host="127.0.0.1",
+            port=int(os.environ.get("LELAB_HYBRID_FRAME_PORT", "18122"))))
     facade.hardware_identities = identities
     return facade

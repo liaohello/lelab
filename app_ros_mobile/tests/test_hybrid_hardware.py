@@ -3,6 +3,8 @@ from __future__ import annotations
 import time
 from types import SimpleNamespace
 
+import pytest
+
 from lelab import hybrid_hardware
 from lelab.hybrid_calibration import HybridCalibrationStore
 from lelab.hybrid_fixtures import calibration_assets_fixture
@@ -186,3 +188,120 @@ def test_readiness_rejects_mapping_bound_to_another_leader(tmp_path):
 
     assert readiness["ready"] is False
     assert any("mapping binds leader" in reason for reason in readiness["reasons"])
+
+
+def test_mapping_anchor_editor_saves_a_new_version_without_a_session(tmp_path):
+    store, identities = _layers(tmp_path)
+    observer = hybrid_hardware.HardwareObserver(
+        upper=SimpleNamespace(reader=Reader()),
+        agent_url="http://car.invalid",
+        store=store,
+        leader_identity=identities["leader"],
+        follower_identity=identities["follower"],
+        mapping_identity=identities["mapping"],
+    )
+    facade = hybrid_hardware.HardwarePreviewFacade(
+        upper=SimpleNamespace(), car=object(), observer=observer,
+        calibration_store=store,
+    )
+    before = facade.mapping_directions()
+
+    saved = facade.save_mapping_anchors({
+        "anchors": {
+            "joint2": {
+                "mode": "absolute_raw_linear",
+                "leader_low_raw": 865,
+                "leader_high_raw": 3250,
+                "follower_at_leader_low_raw": 900,
+                "follower_at_leader_high_raw": 50,
+            },
+        },
+    })
+
+    assert saved["saved"] is True
+    assert saved["version"] != before["version"]
+    assert saved["action_required"] == "reacquire_preview_align_before_enable"
+    current = facade.mapping_directions()
+    joint2 = next(row for row in current["joints"] if row["follower"] == "joint2")
+    assert joint2["mapping_mode"] == "absolute_raw_linear"
+    assert joint2["absolute_raw"] == {
+        "leader_low_raw": 865,
+        "leader_high_raw": 3250,
+        "follower_at_leader_low_raw": 900,
+        "follower_at_leader_high_raw": 50,
+    }
+    assert joint2["direction"] == -1
+
+
+def test_mapping_anchor_editor_rejects_out_of_range_values(tmp_path):
+    store, identities = _layers(tmp_path)
+    observer = hybrid_hardware.HardwareObserver(
+        upper=SimpleNamespace(reader=Reader()),
+        agent_url="http://car.invalid",
+        store=store,
+        leader_identity=identities["leader"],
+        follower_identity=identities["follower"],
+        mapping_identity=identities["mapping"],
+    )
+    facade = hybrid_hardware.HardwarePreviewFacade(
+        upper=SimpleNamespace(), car=object(), observer=observer,
+        calibration_store=store,
+    )
+
+    with pytest.raises(hybrid_hardware.HybridSessionError,
+                       match="follower_anchor_out_of_range"):
+        facade.save_mapping_anchors({
+            "anchors": {
+                "joint2": {
+                    "mode": "absolute_raw_linear",
+                    "leader_low_raw": 865,
+                    "leader_high_raw": 3250,
+                    "follower_at_leader_low_raw": 1200,
+                    "follower_at_leader_high_raw": 50,
+                },
+            },
+        })
+
+
+def test_engage_allows_only_absolute_axes_to_enter_controlled_approach():
+    feedback = {
+        "joint1": 0.1,
+        "joint2": -1.914277,
+        "joint3": 2.056696,
+        "joint4": 0.167552,
+        "joint5": -0.24295,
+    }
+    targets = [
+        {"joint": "joint1", "target_rad": 0.100531,
+         "mapping_mode": "relative_delta", "clipped": False},
+        {"joint": "joint2", "target_rad": 0.993279,
+         "mapping_mode": "absolute_raw_linear", "clipped": False},
+        {"joint": "joint3", "target_rad": 2.052507,
+         "mapping_mode": "relative_delta", "clipped": True},
+        {"joint": "joint4", "target_rad": 0.165931,
+         "mapping_mode": "relative_delta", "clipped": False},
+        {"joint": "joint5", "target_rad": -0.243877,
+         "mapping_mode": "relative_delta", "clipped": False},
+    ]
+
+    errors, approach = hybrid_hardware.HardwarePreviewFacade._engage_target_plan(
+        targets, feedback)
+
+    assert errors == []
+    assert approach == ["joint2"]
+
+
+def test_engage_still_rejects_relative_jump_and_large_clipped_absolute_target():
+    feedback = {"joint1": 0.0, "joint2": -1.9}
+    targets = [
+        {"joint": "joint1", "target_rad": 0.5,
+         "mapping_mode": "relative_delta", "clipped": False},
+        {"joint": "joint2", "target_rad": 1.9,
+         "mapping_mode": "absolute_raw_linear", "clipped": True},
+    ]
+
+    errors, approach = hybrid_hardware.HardwarePreviewFacade._engage_target_plan(
+        targets, feedback)
+
+    assert errors == ["arm:joint1", "arm:joint2"]
+    assert approach == []

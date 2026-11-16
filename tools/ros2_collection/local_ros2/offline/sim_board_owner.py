@@ -41,7 +41,7 @@ from pathlib import Path
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Int32MultiArray, String
 
 from ros_robot_controller_msgs.msg import (
     BusServoState, ServoPosition, ServosPosition, SetBusServoState,
@@ -86,12 +86,19 @@ class SimBoardOwner(Node):
         self.last_command_mono: float | None = None
         self.last_command: dict[str, object] | None = None
         self.started = time.monotonic()
+        self.scans_ok = 0
+        self.scans_failed = 0
+        self.first_failure: dict[str, object] | None = None
+        self.last_failure: dict[str, object] | None = None
+        self.last_scan_start: float | None = None
+        self.max_scan_interval_s: float | None = None
         qos = QoSProfile(reliability=QoSReliabilityPolicy.RELIABLE,
                         history=QoSHistoryPolicy.KEEP_LAST, depth=1)
         self.create_subscription(ServosPosition, args.output_topic, self._on_command, qos)
         self.create_subscription(SetBusServoState, args.state_topic, self._on_state, 10)
         self.create_service(GetBusServoState, args.state_service, self._get_state)
         self.readback = self.create_publisher(Int32MultiArray, args.readback_topic, qos)
+        self.health = self.create_publisher(String, args.health_topic, 10)
         self.create_timer(args.scan_period_s, self._scan)
         self.create_timer(0.2, self._write_state)
 
@@ -154,8 +161,37 @@ class SimBoardOwner(Node):
 
     def _scan(self) -> None:
         with self.lock:
-            elapsed = time.monotonic() - self.started
+            started = time.monotonic()
+            if self.last_scan_start is not None:
+                interval = max(0.0, started - self.last_scan_start)
+                self.max_scan_interval_s = (
+                    interval if self.max_scan_interval_s is None
+                    else max(self.max_scan_interval_s, interval))
+            self.last_scan_start = started
+            elapsed = started - self.started
+            if self.args.scan_gap_ms:
+                time.sleep(max(0.0, float(self.args.scan_gap_ms)) / 1000.0)
             if self.args.stall_after_s and elapsed > self.args.stall_after_s:
+                return
+            if (self.args.fail_scan_every
+                    and self.sequence > 0
+                    and self.sequence % int(self.args.fail_scan_every) == 0):
+                self.scans_failed += 1
+                sample = {
+                    "servo_id": 1,
+                    "command": "bus_servo_read_position",
+                    "reason": "simulated_owner_read_failure",
+                    "lock_wait_ms": 0.0,
+                    "duration_ms": round((time.monotonic() - started) * 1000.0, 3),
+                    "recovery_phase": "quiet_wait",
+                    "last_success_seq": self.sequence - 1,
+                    "scan_interval_s": None,
+                    "at_mono_ns": time.monotonic_ns(),
+                }
+                if self.first_failure is None:
+                    self.first_failure = dict(sample)
+                self.last_failure = sample
+                self._publish_health(failed=True)
                 return
             if (self.args.owner_restart_after_s
                     and elapsed > self.args.owner_restart_after_s
@@ -175,12 +211,48 @@ class SimBoardOwner(Node):
                 delta = self.target[servo_id] - self.raw[servo_id]
                 self.raw[servo_id] += max(-step, min(step, delta))
             self.sequence += 1
+            self.scans_ok += 1
             payload = [READBACK_FORMAT_V2, self.owner_instance, self.sequence, span_us]
             for servo_id in ids:
                 payload.extend([servo_id, int(self.raw.get(servo_id, 0))])
         message = Int32MultiArray()
         message.data = [int(value) for value in payload]
         self.readback.publish(message)
+        self._publish_health(failed=False)
+
+    def _publish_health(self, *, failed: bool) -> None:
+        document = {
+            "schema": "lelab.servo_driver_health.v1",
+            "owner_instance": self.owner_instance,
+            "owner_identity_kind": "software_owner_instance",
+            "data_identity": DATA_IDENTITY,
+            "period_s": self.args.scan_period_s,
+            "transaction_budget_s": None,
+            "quiet_s": 0.2,
+            "stale_after_s": 1.0,
+            "scans_started": self.scans_ok + self.scans_failed,
+            "scans_ok": self.scans_ok,
+            "scans_failed": self.scans_failed,
+            "consecutive_failures": 1 if failed else 0,
+            "last_success_seq": (self.sequence if self.scans_ok and not failed else
+                                 (self.sequence - 1 if self.scans_ok else None)),
+            "last_success_age_s": 0.0 if not failed else None,
+            "last_success_span_us": int(self.args.scan_period_s * 1_000_000),
+            "last_scan_interval_s": None,
+            "max_scan_interval_s": self.max_scan_interval_s,
+            "stale": bool(failed),
+            "first_failure": self.first_failure,
+            "last_failure": self.last_failure,
+            "last_recovery": None,
+            "recovery_attempts": 0,
+            "write_failures": 0,
+            "last_write_failure": None,
+            "failure_history": [] if self.last_failure is None else [self.last_failure],
+            "consumer_note": "simulated owner health; not hardware evidence",
+        }
+        message = String()
+        message.data = json.dumps(document, sort_keys=True)
+        self.health.publish(message)
 
     def _write_state(self) -> None:
         path = Path(os.environ.get("LROS_SIM_STATE", "")) if os.environ.get("LROS_SIM_STATE") \
@@ -201,6 +273,10 @@ class SimBoardOwner(Node):
                 "torque_writes_rejected": self.torque_writes_rejected,
                 "torque": {NAMES[servo_id]: self.torque[servo_id] for servo_id in SERVO_IDS},
                 "readback_sequence": self.sequence,
+                "scans_ok": self.scans_ok,
+                "scans_failed": self.scans_failed,
+                "owner_first_failure": self.first_failure,
+                "max_scan_interval_s": self.max_scan_interval_s,
                 "scan_period_s": self.args.scan_period_s,
                 "raw": {NAMES[servo_id]: self.raw[servo_id] for servo_id in SERVO_IDS
                         if servo_id in self.raw},
@@ -225,7 +301,10 @@ def main() -> int:
     parser.add_argument("--state-topic", default="/lelab_offline/ros_robot_controller/bus_servo/set_state")
     parser.add_argument("--state-service", default="/lelab_offline/ros_robot_controller/bus_servo/get_state")
     parser.add_argument("--readback-topic", default="/lelab_offline/lelab/ros_robot_controller/servo_readback")
+    parser.add_argument("--health-topic", default="/lelab_offline/lelab/ros_robot_controller/driver_health")
     parser.add_argument("--scan-period-s", type=float, default=0.2)
+    parser.add_argument("--scan-gap-ms", type=float, default=0.0)
+    parser.add_argument("--fail-scan-every", type=int, default=0)
     parser.add_argument("--stall-after-s", type=float, default=0.0)
     parser.add_argument("--reject-commands", action="store_true")
     parser.add_argument("--extra-servo-id", type=int, default=0)

@@ -196,6 +196,12 @@ class SO101LeaderReader:
         self.last_wall: float | None = None
         self.positions_deg: dict[str, float] = {}
         self.gripper_percent: float | None = None
+        # The UI needs the actual Feetech encoder ticks as well as the calibrated
+        # engineering units. Keep the auxiliary raw poll bounded so the primary
+        # 30 Hz position stream remains the authoritative health signal.
+        self.raw_positions: dict[str, int] = {}
+        self.raw_wall: float | None = None
+        self.raw_error: str | None = None
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
 
@@ -264,6 +270,9 @@ class SO101LeaderReader:
             self.connected = False
             self.positions_deg.clear()
             self.gripper_percent = None
+            self.raw_positions.clear()
+            self.raw_wall = None
+            self.raw_error = None
             self.last_wall = None
         return {"closed": True, "reason": "user"}
 
@@ -300,6 +309,22 @@ class SO101LeaderReader:
         current = {name: value for name in LEADER_JOINTS
                    if (value := finite_value(name)) is not None}
         gripper = finite_value(LEADER_GRIPPER)
+        raw_current: dict[str, int] = {}
+        raw_error = None
+        # Read raw encoder ticks at about 10 Hz. This is intentionally an auxiliary
+        # read: a raw-format mismatch must not hide the calibrated health stream.
+        if self.reads % 3 == 0:
+            try:
+                raw_values = self._bus.sync_read(
+                    "Present_Position", list(self.config.ids),
+                    num_retry=self.config.num_read_retries, normalize=False)
+                for name in (*LEADER_JOINTS, LEADER_GRIPPER):
+                    value = raw_values.get(name)
+                    if (isinstance(value, (int, float)) and not isinstance(value, bool)
+                            and math.isfinite(float(value))):
+                        raw_current[name] = int(round(float(value)))
+            except Exception as exc:  # noqa: BLE001 - auxiliary diagnostic is fail-visible
+                raw_error = f"{type(exc).__name__}: {exc}"
         with self.lock:
             self.reads += 1
             self.consecutive_failures = 0
@@ -307,6 +332,12 @@ class SO101LeaderReader:
             self.last_wall = now
             self.positions_deg = current
             self.gripper_percent = gripper
+            if raw_current:
+                self.raw_positions = raw_current
+                self.raw_wall = now
+                self.raw_error = None
+            elif raw_error:
+                self.raw_error = raw_error
         return self.status()
 
     # ------------------------------------------------------------------ reporting
@@ -318,6 +349,14 @@ class SO101LeaderReader:
             missing = [j for j in LEADER_JOINTS if j not in self.positions_deg]
             if self.gripper_percent is None:
                 missing.append(LEADER_GRIPPER)
+            raw_age = None if self.raw_wall is None else round(now - self.raw_wall, 4)
+            raw_available = (
+                self.connected
+                and bool(self.raw_positions)
+                and raw_age is not None
+                and raw_age <= self.config.stale_after_s
+                and self.raw_error is None
+            )
             return {
                 "connected": self.connected,
                 "port_claim": self.port_claim,
@@ -326,6 +365,10 @@ class SO101LeaderReader:
                 "positions_deg": dict(self.positions_deg),
                 "positions_rad": {k: round(v * DEG_TO_RAD, 6) for k, v in self.positions_deg.items()},
                 "gripper_percent": self.gripper_percent,
+                "raw_positions": dict(self.raw_positions),
+                "raw_age_s": raw_age,
+                "raw_available": raw_available,
+                "raw_error": self.raw_error,
                 "age_s": age,
                 "reads": self.reads,
                 "failures": self.failures,
@@ -333,6 +376,7 @@ class SO101LeaderReader:
                 "last_error": self.last_error,
                 "source": f"leader:{os.path.basename(self.config.port)}",
                 "units": {"joints": "deg→rad (deg from Feetech bus with use_degrees)",
+                          "raw": "raw Feetech encoder ticks",
                           "gripper": "0-100 opening percent, not an angle"},
                 "expected_joints": LEADER_JOINTS + [LEADER_GRIPPER],
                 "missing_joints": missing,

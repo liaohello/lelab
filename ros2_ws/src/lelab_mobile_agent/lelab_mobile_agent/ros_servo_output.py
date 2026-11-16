@@ -7,6 +7,7 @@ import time
 from typing import Any, Callable
 
 from .follower_feedback import RADIANS_PER_ENCODER_TICK as RADIANS_PER_TICK
+from . import servo_feedback_limits
 
 JOINTS = ("joint1", "joint2", "joint3", "joint4", "joint5")
 GRIPPER = "r_joint"
@@ -95,6 +96,8 @@ class RosServoOutputDriver:
         set_bus_servo_state_type: Any | None = None,
         torque_readback: Any | None = None,
         position_pid: dict[str, Any] | None = None,
+        feedback_limits_path: Any = None,
+        feedback_limits_profile: str = "",
     ) -> None:
         if not limits_rad:
             raise ValueError("calibrated limits are required")
@@ -141,6 +144,10 @@ class RosServoOutputDriver:
         self.set_bus_servo_state_type = set_bus_servo_state_type
         self.torque_readback = torque_readback
         self.position_pid = _normalize_position_pid(position_pid)
+        self.feedback_limits_path = feedback_limits_path
+        self.feedback_limits_profile = feedback_limits_profile
+        self.feedback_limits = servo_feedback_limits.load(
+            feedback_limits_path, feedback_limits_profile)
         self._pid_integral: dict[str, float] = {}
         self._pid_last_error: dict[str, float] = {}
         self._pid_last_time: dict[str, float] = {}
@@ -226,6 +233,7 @@ class RosServoOutputDriver:
                 "last_step_clamp": self.last_step_clamp,
                 "last_error": self.last_error,
                 "position_pid": dict(self.position_pid),
+                "feedback_raw_limits": self.feedback_limits,
             }
 
     def read_snapshot(self) -> dict[str, Any]:
@@ -236,6 +244,9 @@ class RosServoOutputDriver:
         return bool(snapshot.get("available") and not snapshot.get("last_error"))
 
     def enable(self) -> None:
+        if not self.outputs_enabled:
+            self.feedback_limits = servo_feedback_limits.load(
+                self.feedback_limits_path, self.feedback_limits_profile)
         snapshot = self.readback.read_snapshot()
         if not snapshot.get("available") or snapshot.get("last_error"):
             raise RuntimeError("trusted_feedback_unavailable")
@@ -506,7 +517,11 @@ class RosServoOutputDriver:
             if not self.outputs_enabled:
                 raise RuntimeError("outputs_disabled")
             if not self._feedback_ok():
-                self._stop_locked("feedback_lost")
+                # A single missing scan must not permanently park the emitter. Keep
+                # the servo holding its previous target, skip this frame, and allow
+                # the next fresh frame to proceed. The independent output watchdog
+                # still stops the driver if feedback does not recover in time.
+                self.last_error = "trusted_feedback_unavailable"
                 raise RuntimeError("trusted_feedback_unavailable")
             channel = command.get("channel")
             target = command.get("target")
@@ -561,7 +576,7 @@ class RosServoOutputDriver:
             if not self.outputs_enabled:
                 raise RuntimeError("outputs_disabled")
             if not self._feedback_ok():
-                self._stop_locked("feedback_lost")
+                self.last_error = "trusted_feedback_unavailable"
                 raise RuntimeError("trusted_feedback_unavailable")
             now = self.clock()
             checked: list[tuple[str, float]] = []
@@ -626,15 +641,15 @@ class RosServoOutputDriver:
                 "execution_observed": "unavailable",
             }
 
-    @staticmethod
-    def _measured_positions(snapshot: dict[str, Any]) -> dict[str, float]:
+    def _measured_positions(self, snapshot: dict[str, Any]) -> dict[str, float]:
         samples = snapshot.get("joint_samples") or {}
         measured = {}
         for name in (*JOINTS, GRIPPER):
             sample = samples.get(name) or {}
             raw = sample.get("raw_position")
+            low, high = self.feedback_limits["ranges"][name]
             if (isinstance(raw, bool) or not isinstance(raw, (int, float))
-                    or not math.isfinite(raw) or not 0 <= raw <= 1000):
+                    or not math.isfinite(raw) or not low <= raw <= high):
                 raise RuntimeError(f"trial_feedback_invalid:{name}")
             measured[name] = (float(raw) - 500.0) * RADIANS_PER_TICK * DIRECTIONS[name]
         return measured
@@ -711,7 +726,10 @@ class RosServoOutputDriver:
         for name in (*JOINTS, GRIPPER):
             sample = samples.get(name)
             raw = sample.get("raw_position") if isinstance(sample, dict) else None
-            if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+            if (isinstance(raw, bool) or not isinstance(raw, (int, float))
+                    or not math.isfinite(raw) or not 0 <= raw <= 1000):
+                # Observation tolerance does not make a negative pulse encodable.
+                # Never send an unsigned-wrapped hold packet or claim it was held.
                 return False
         # Publish measured raw directly rather than reconstructing it through rad.
         message = self.servos_position_type()

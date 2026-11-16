@@ -119,3 +119,11 @@ preview 4/4（板卡输出 0→0）；follow 8/8（118/119 准入、109 次发�
 
 仍未闭合：6D 导出/LeRobot SDK/页面读回（需要生产 `agent.py` 在容器内提供归档 HTTP 接口）、
 三链路基准、arm64 与真机项。
+
+## 追加：DDS 原生离线接通（2026-11-07）
+
+`bin/dds_r1 up|verify|down|all` 在 domain 94、端口 18132/18140、独立状态目录
+`work/ros2_collection/dds_r1` 中启动模拟板卡/相机、生产 agent、DDS profile 控制进程和
+`upper_dds_bridge`，再跑生产 `SessionRecorder` + DDS 命令/反馈的贯通验证。它只停止自己
+记录的 pid，不触碰既有 domain 93 实例。详细结果与门禁见
+`docs/evidence/landerpi-ros2-native-r1-20261107/README.md`。

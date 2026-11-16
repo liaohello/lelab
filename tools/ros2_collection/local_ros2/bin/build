@@ -14,13 +14,18 @@ mkdir -p "$WS/src"
 lros_log "staging $VENDOR_MSGS_SRC -> $STAGED with a per-file manifest"
 humble_enter "python3 $TOOL_INSIDE --source /vendor --dest /out/ws/src/ros_robot_controller_msgs --manifest /out/evidence/vendor-msgs-manifest.json"
 
-lros_log "building ros_robot_controller_msgs with colcon (Humble, amd64)"
+lros_log "staging lelab_mobile_interfaces from the read-only repo"
+humble_enter "rm -rf /out/ws/src/lelab_mobile_interfaces && cp -r /repo/ros2_ws/src/lelab_mobile_interfaces /out/ws/src/lelab_mobile_interfaces"
+
+lros_log "building vendor messages and lelab_mobile_interfaces with colcon (Humble, amd64)"
 humble_ros 'cd /out/ws && colcon --log-base /out/ws/log build --base-paths src \
-  --packages-select ros_robot_controller_msgs \
+  --packages-select ros_robot_controller_msgs lelab_mobile_interfaces \
   --install-base /out/ws/install --build-base /out/ws/build 2>&1 | tail -8'
 
 lros_log "verifying the generated interfaces are importable and described correctly"
 humble_ros 'ros2 interface show ros_robot_controller_msgs/msg/ServosPosition' | tee "$EVIDENCE_DIR/servos-position-interface.txt"
+humble_ros 'ros2 interface show lelab_mobile_interfaces/msg/MeasuredServoFrame' | tee "$EVIDENCE_DIR/measured-servo-frame-interface.txt"
+humble_ros 'ros2 interface show lelab_mobile_interfaces/msg/TeleopFrame' | tee "$EVIDENCE_DIR/teleop-frame-interface.txt"
 humble_ros 'python3 - <<PY
 from ros_robot_controller_msgs.msg import ServoPosition, ServosPosition
 from ros_robot_controller_msgs.srv import GetBusServoState, GetPWMServoState

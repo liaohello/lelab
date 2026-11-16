@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { UrdfProvider } from "@/contexts/UrdfContext";
@@ -22,6 +22,10 @@ import RosHardware from "@/pages/RosHardware";
 import So101Workbench from "@/pages/So101Workbench";
 import LanderpiSetup from "@/pages/LanderpiSetup";
 import LanderpiTeleop from "@/pages/LanderpiTeleop";
+import LanderpiWorkspace from "@/pages/LanderpiWorkspace";
+import LanderpiCalibration from "@/pages/LanderpiCalibration";
+import LanderpiData from "@/pages/LanderpiData";
+import LanderpiDiagnostics from "@/pages/LanderpiDiagnostics";
 
 import NotFound from "@/pages/NotFound";
 import SingleTabGuard from "@/components/SingleTabGuard";
@@ -33,6 +37,11 @@ import { ApiProvider } from "./contexts/ApiContext";
 import { HfAuthProvider } from "./contexts/HfAuthContext";
 
 const queryClient = new QueryClient();
+
+function GlobalHardwareBanner() {
+  const { pathname } = useLocation();
+  return pathname.startsWith("/landerpi") ? null : <HardwareLeaseBanner />;
+}
 
 function App() {
   return (
@@ -47,7 +56,7 @@ function App() {
                     <SingleTabGuard>
                       <TeleopStopNotice />
                       <UpdateNotice />
-                      <HardwareLeaseBanner />
+                      <GlobalHardwareBanner />
                       <Routes>
                         <Route path="/" element={<Landing />} />
                         <Route path="/teleoperation" element={<Teleoperation />} />
@@ -66,8 +75,12 @@ function App() {
                         <Route path="/ros-mobile" element={<RosMobile />} />
                         <Route path="/ros-hardware" element={<RosHardware />} />
                         <Route path="/so101" element={<So101Workbench />} />
-                        <Route path="/landerpi" element={<LanderpiSetup />} />
-                        <Route path="/landerpi/teleop" element={<LanderpiTeleop />} />
+                        <Route path="/landerpi" element={<LanderpiWorkspace />} />
+                        <Route path="/landerpi/teleop" element={<LanderpiWorkspace />} />
+                        <Route path="/landerpi/calibration" element={<LanderpiCalibration />} />
+                        <Route path="/landerpi/data" element={<LanderpiData />} />
+                        <Route path="/landerpi/diagnostics" element={<LanderpiDiagnostics />} />
+                        <Route path="/landerpi/legacy-teleop" element={<LanderpiTeleop />} />
 
                         <Route path="*" element={<NotFound />} />
                       </Routes>

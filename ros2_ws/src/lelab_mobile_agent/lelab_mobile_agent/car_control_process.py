@@ -23,6 +23,7 @@ import argparse
 import collections
 import json
 import os
+import queue
 import signal
 import sys
 import threading
@@ -64,6 +65,72 @@ def percentiles(values: list[float]) -> dict[str, Any]:
             "p99_ms": at(0.99), "max_ms": ordered[-1]}
 
 
+class BoundedRecordingPublisher:
+    """Record rows through a bounded queue so a slow subscriber cannot stall a tick.
+
+    The ROS publisher call itself is usually cheap, but a blocked DDS writer or a
+    broken recorder must never turn the control tick into a recording wait.  A
+    full queue drops the oldest row and counts it; the recorder's own required
+    topic gate still decides whether the episode is usable.
+    """
+
+    def __init__(self, publisher: Any, *, maxlen: int = 256) -> None:
+        self.publisher = publisher
+        self.queue: queue.Queue = queue.Queue(maxsize=max(1, int(maxlen)))
+        self.stop_event = threading.Event()
+        self.dropped = 0
+        self.published = 0
+        self.last_error: str | None = None
+        self.thread = threading.Thread(target=self._run, name="teleop-recording-publisher",
+                                       daemon=True)
+        self.thread.start()
+
+    def publish(self, message: Any) -> None:
+        try:
+            self.queue.put_nowait(message)
+            return
+        except queue.Full:
+            pass
+        try:
+            self.queue.get_nowait()
+            self.dropped += 1
+        except queue.Empty:
+            pass
+        try:
+            self.queue.put_nowait(message)
+        except queue.Full:
+            self.dropped += 1
+
+    def _run(self) -> None:
+        while not self.stop_event.is_set():
+            try:
+                message = self.queue.get(timeout=0.1)
+            except queue.Empty:
+                continue
+            try:
+                self.publisher.publish(message)
+                self.published += 1
+            except Exception as error:  # noqa: BLE001 - recording is not the control path
+                self.last_error = f"{type(error).__name__}:{error}"
+
+    def stop(self, timeout_s: float = 1.0) -> None:
+        """Stop promptly; rows still queued are counted rather than flushed forever."""
+        self.stop_event.set()
+        if self.thread is not threading.current_thread():
+            self.thread.join(timeout=max(0.05, timeout_s))
+        while True:
+            try:
+                self.queue.get_nowait()
+                self.dropped += 1
+            except queue.Empty:
+                break
+
+    def state(self) -> dict[str, Any]:
+        return {"queued": self.queue.qsize(), "published": self.published,
+                "dropped": self.dropped, "last_error": self.last_error,
+                "stopped": not self.thread.is_alive()}
+
+
 class CarControlRuntime:
     """Tick-driven control: admit newest frame, re-check life, emit one six-axis write."""
 
@@ -71,7 +138,8 @@ class CarControlRuntime:
                  window_ms: int, licence: LicenceMirror, readback: RosServoFeedbackTopicDriver,
                  driver: RosServoOutputDriver, data_identity: str, status_path: Path,
                  bundle_hash: str = "", max_ttl_ms: int = 200,
-                 recording_publisher=None):
+                 recording_publisher=None, typed_control=None,
+                 typed_feedback=None):
         self.node = node
         self.profile = profile
         self.control_hz = control_hz
@@ -82,6 +150,9 @@ class CarControlRuntime:
         self.data_identity = data_identity
         self.status_path = status_path
         self.bundle_hash = bundle_hash
+        self.launch_bundle_hash = bundle_hash
+        self.bundle_hash_source = "launch_argument"
+        self.last_bundle_adoption: dict[str, Any] | None = None
         self.max_ttl_ms = max_ttl_ms
         # Two clocks, named: the recorded stamp has to match what the recorder and the bag
         # use, and the control loop's own deadlines are measured on this process' monotonic
@@ -91,6 +162,21 @@ class CarControlRuntime:
         self.control_clock_domain = str(runtime.get("control_clock_domain")
                                        or "car_process_monotonic")
         self.recording_publisher = recording_publisher
+        self.typed_control = typed_control
+        self.typed_feedback = typed_feedback
+        self.transport = str(runtime.get("output_transport") or "frame_stream")
+        self.transport_label = ("dds_v1" if self.transport in ("dds", "dds_v1")
+                                else "frame_stream_v1")
+        configured = runtime.get("allowed_transports")
+        if configured is None:
+            self.allowed_transports = [self.transport_label]
+        else:
+            self.allowed_transports = [self._normalize_transport(value)
+                                       for value in configured]
+        self.active_transport: str | None = None
+        self.dds_peer: str | None = None
+        self.dds_transport_epoch: str | None = None
+        self.dds_receiver = None
         self.windows = FreshnessWindow()
         self.stream_epoch = self.windows.new_stream_epoch("start")
         self.admission: FrameAdmission | None = None
@@ -124,6 +210,14 @@ class CarControlRuntime:
         node.create_timer(0.5, self._write_status)
 
     # -- session wiring ----------------------------------------------------
+    @staticmethod
+    def _normalize_transport(value: Any) -> str:
+        return {"frame_stream": "frame_stream_v1",
+                "frame_stream_v1": "frame_stream_v1",
+                "dds": "dds_v1", "dds_v1": "dds_v1",
+                "legacy": "legacy_http",
+                "legacy_http": "legacy_http"}.get(str(value), str(value))
+
     def open_epoch(self, *, session_id, session_epoch: str, bundle_hash: str,
                    max_ttl_ms: int) -> FrameAdmission:
         """One admission per control epoch, bound to the connection generation."""
@@ -158,8 +252,65 @@ class CarControlRuntime:
         with self.control_lock:
             self._tick_locked()
 
+    def _adopt_licensed_bundle_locked(self) -> bool:
+        """Adopt a new authenticated mapping bundle while outputs are closed.
+
+        The upper host can save a new mapping version without restarting either
+        process. The car still needs the same bundle identity for measured
+        feedback and for every command frame. Adoption is allowed only from the
+        agent-authenticated licence after output permission is explicitly off,
+        and it always parks the old target state for an explicit re-engage.
+        """
+        licence = self.licence.current()
+        if licence is None:
+            return True
+        candidate = licence.get("calibration_bundle_hash")
+        if (not isinstance(candidate, str) or not candidate
+                or candidate == "unbound" or candidate == self.bundle_hash):
+            return True
+        if licence.get("outputs_enabled") is not False:
+            self._require_explicit_reengage(
+                "licence_bundle_changed_with_outputs_enabled")
+            return False
+        setter = getattr(self.readback, "set_calibration_hash", None)
+        if not callable(setter):
+            self._require_explicit_reengage(
+                "readback_bundle_adoption_unavailable")
+            return False
+        previous = self.bundle_hash
+        if self.admission is not None:
+            self.admission.clear("licence_bundle_changed")
+        if self.driver.outputs_enabled:
+            self.driver.stop("licence_bundle_changed")
+            self.counters["hold_frames"] += 1
+        self._driver_was_enabled = False
+        self.active_transport = None
+        self.dds_peer = None
+        self.dds_transport_epoch = None
+        self.admission = None
+        self.stream_epoch = self.windows.new_stream_epoch("bundle_changed")
+        self.bundle_hash = candidate
+        self.bundle_hash_source = "authenticated_licence"
+        setter(candidate)
+        if self.typed_feedback is not None:
+            self.typed_feedback.calibration_hash = candidate
+        self.reengage_required = True
+        self.counters["bundle_adoptions"] = (
+            self.counters.get("bundle_adoptions", 0) + 1)
+        self.last_bundle_adoption = {
+            "previous": previous,
+            "current": candidate,
+            "source": self.bundle_hash_source,
+            "action_required": "explicit_hello_and_reengage",
+        }
+        self._write_status()
+        return True
+
     def _tick_locked(self) -> None:
         self.counters["ticks"] += 1
+        if not self._adopt_licensed_bundle_locked():
+            self.counters["empty_ticks"] += 1
+            return
         window = self.windows.issue(duration_ms=self.window_ms)
         self.counters["window_issues"] += 1
         if self.stream is not None:
@@ -167,6 +318,18 @@ class CarControlRuntime:
                                      "stream_epoch": window["stream_epoch"],
                                      "duration_ms": window["duration_ms"],
                                      "window_remaining_ms": round(self.windows.remaining_ms(), 1)})
+        typed_control = getattr(self, "typed_control", None)
+        if typed_control is not None:
+            admission = self.admission
+            ready = (admission is not None and not self.latched_fault
+                     and not self.reengage_required and not self.paused)
+            typed_control.publish_window(
+                session_id=None if admission is None else admission.session_id,
+                session_epoch=None if admission is None else admission.session_epoch,
+                stream_epoch=self.stream_epoch, window=window,
+                remaining_ms=self.windows.remaining_ms(),
+                command_transport_ready=ready,
+                reason="ready" if ready else "gate_closed")
         # A stop is lifted only by an explicit clearance from the agent.  A renew, a
         # reconnect, a re-published licence or any higher generation does not count:
         # those are the paths by which motion could resume with nobody having decided
@@ -235,7 +398,8 @@ class CarControlRuntime:
         # estop, a rebind, another owner taking over - and a hello-time check alone would
         # still emit the stale target. Nothing leaves this process without matching the
         # permission that is live right now.
-        still_valid, why = self._emission_identity_ok(pending["frame"])
+        still_valid, why = self._emission_identity_ok(
+            pending["frame"], pending.get("transport"))
         if not still_valid:
             self.counters["frames_dropped_before_emit"] = \
                 self.counters.get("frames_dropped_before_emit", 0) + 1
@@ -250,6 +414,17 @@ class CarControlRuntime:
             self.counters["frames_refused"] += 1
             self.last_refusal = {"frame_seq": str(pending["frame"]["frame_seq"]),
                                  "reason": str(error)}
+            if str(error) == "trusted_feedback_unavailable":
+                # The admitted target is dropped; it is never replayed. Keep the
+                # output watchdog armed and wait for the next fresh frame. If the
+                # feedback outage persists, _watchdog() stops the driver and the next
+                # tick still requires an explicit re-engage.
+                self.counters["frames_deferred_feedback"] = (
+                    self.counters.get("frames_deferred_feedback", 0) + 1)
+                if admission is not None:
+                    admission.clear("transient_feedback_requires_fresh_frame")
+                self._write_status()
+                return
             self._require_explicit_reengage(str(error), pending["frame"]["frame_seq"])
             return
         now_mono = time.monotonic()
@@ -257,10 +432,17 @@ class CarControlRuntime:
             self.emit_intervals_ms.append(round((now_mono - self.last_emit_mono) * 1000, 2))
         self.counters["frames_emitted"] += 1
         self.last_emit_mono = now_mono
+        self.last_refusal = None
         self._record_frame(pending)
+        self._publish_receipt(pending["frame"], state="emitted", admitted=True,
+                              emitted=True, accepted=pending)
 
-    def _emission_identity_ok(self, frame: dict[str, Any]) -> tuple[bool, str]:
+    def _emission_identity_ok(self, frame: dict[str, Any],
+                              transport: str | None = None) -> tuple[bool, str]:
         """Compare one admitted frame against the licence and generation live right now."""
+        if (transport is not None and self.active_transport is not None
+                and transport != self.active_transport):
+            return False, "transport_changed_before_emit"
         licence = self.licence.current()
         if licence is None:
             return False, "licence_lost_before_emit"
@@ -313,6 +495,7 @@ class CarControlRuntime:
             "sample_seq": frame["sample_seq"],
             "channel_seq": {name: detail["seq"] for name, detail in accepted["decoded"].items()},
             "calibration_bundle_hash": frame["calibration_bundle_hash"],
+            "feedback_limits_version": (getattr(self.driver, "feedback_limits", {}) or {}).get("version"),
             # The recorder's identity, mirrored by the agent: rows with no episode here
             # belong to no episode, and no export stage may guess one for them.
             "recording_session_id": context.get("session_id"),
@@ -337,6 +520,16 @@ class CarControlRuntime:
             "state_source": "servo_position_readback" if snapshot.get("available") else None,
             "feedback_age_s": snapshot.get("oldest_age_s"),
             "feedback_scan_span_s": snapshot.get("scan_span_s"),
+            "feedback_owner_instance": snapshot.get("publisher_instance"),
+            "feedback_scan_sequence": snapshot.get("scan_sequence"),
+            "feedback_consumer": snapshot.get("consumer"),
+            "feedback_owner_health": {
+                key: (snapshot.get("owner_health") or {}).get(key)
+                for key in ("owner_instance", "scans_ok", "scans_failed",
+                            "consecutive_failures", "last_success_seq",
+                            "max_scan_interval_s", "first_failure", "last_failure",
+                            "last_recovery", "write_failures")
+            } if snapshot.get("owner_health") else None,
             "confirmation": "driver_sent",
             "controller_acknowledged": "unavailable",
             "execution_observed": "unavailable",
@@ -363,6 +556,7 @@ class CarControlRuntime:
             self.counters["hold_frames"] += 1
         self._driver_was_enabled = False
         self.paused = self.paused or reason == "paused_by_request"
+        self._publish_receipt(None, state="stopped", reason=reason)
 
     def _require_explicit_reengage(self, reason: str, frame_seq: Any = None) -> None:
         """Park on an emitter failure; a still-live permission cannot restart motion."""
@@ -405,6 +599,18 @@ class CarControlRuntime:
             return self._on_hello_locked(session_id, session_epoch, lease_token)
 
     def _on_hello_locked(self, session_id, session_epoch, lease_token: str):
+        if "frame_stream_v1" not in self.allowed_transports:
+            return False, "transport_not_enabled_in_profile:frame_stream_v1"
+        if self.active_transport == "dds_v1":
+            current = self.licence.current() or {}
+            admission = self.admission
+            same = (admission is not None
+                    and str(current.get("session_id")) == str(admission.session_id)
+                    and str(current.get("session_epoch")) == str(admission.session_epoch))
+            if same:
+                return False, "transport_already_active:dds_v1"
+            if current.get("outputs_enabled") is not False:
+                return False, "transport_switch_requires_output_revocation"
         digest = self.licence.token_digest()
         if digest is None:
             return False, "no_licence_from_agent"
@@ -427,6 +633,9 @@ class CarControlRuntime:
         self.open_epoch(session_id=session_id, session_epoch=session_epoch,
                         bundle_hash=self.bundle_hash, max_ttl_ms=self.max_ttl_ms)
         self.paused = False
+        self.active_transport = "frame_stream_v1"
+        self.dds_peer = None
+        self.dds_transport_epoch = None
         # The very first window has to be in the welcome: rotation above cleared it,
         # and a client that starts sending before the next tick would have no
         # generation to name.
@@ -437,23 +646,123 @@ class CarControlRuntime:
         self._write_status()
         return True, {"frame_protocol": 1}
 
-    def on_frame(self, frame: dict[str, Any]) -> dict[str, Any]:
+    def _publish_receipt(self, frame: Any, *, state: str, reason: str = "",
+                         detail: str = "", admitted: bool = False,
+                         emitted: bool = False, accepted: dict[str, Any] | None = None,
+                         transport: str | None = None) -> None:
+        typed_control = getattr(self, "typed_control", None)
+        if typed_control is None:
+            return
+        payload = frame if isinstance(frame, dict) else {}
+        typed_control.publish_receipt(
+            transport=(transport or self.active_transport or self.transport_label),
+            session_id=payload.get("session_id"),
+            session_epoch=payload.get("session_epoch"),
+            stream_epoch=payload.get("stream_epoch", self.stream_epoch),
+            frame_seq=payload.get("frame_seq"),
+            sample_seq=payload.get("sample_seq"),
+            state=state, reason=reason, detail=detail, admitted=admitted,
+            publisher_sent=True, emitted=emitted,
+            received_mono_ns=(None if accepted is None else accepted.get("received_ns")),
+            deadline_mono_ns=(None if accepted is None else accepted.get("deadline_ns")),
+            window_remaining_ms=(None if accepted is None
+                                 else accepted.get("window_remaining_ms")),
+            window_age_ms=(None if accepted is None else accepted.get("window_age_ms")))
+
+    def on_dds_hello(self, *, session_id, session_epoch, bundle_hash: str,
+                     sender_id: str, transport_epoch: str):
+        """Open a DDS epoch after the receiver authenticated the hello ticket.
+
+        The raw lease token is not presented: the agent's licence mirror is the
+        authority and the HMAC ticket proves the bridge identity. The one-session
+        one-transport rule is enforced here, not only in the upper selector.
+        """
+        with self.control_lock:
+            return self._on_dds_hello_locked(
+                session_id=session_id, session_epoch=session_epoch,
+                bundle_hash=bundle_hash, sender_id=sender_id,
+                transport_epoch=transport_epoch)
+
+    def _on_dds_hello_locked(self, *, session_id, session_epoch, bundle_hash: str,
+                             sender_id: str, transport_epoch: str):
+        if "dds_v1" not in self.allowed_transports:
+            return False, "transport_not_enabled_in_profile:dds_v1"
+        current = self.licence.current()
+        if current is None:
+            return False, "no_licence_from_agent"
+        if bundle_hash != self.bundle_hash or not self.licence.matches(
+                session_id=session_id, session_epoch=session_epoch,
+                bundle_hash=self.bundle_hash):
+            return False, "epoch_or_bundle_not_licensed"
+        if self.latched_fault:
+            return False, f"fault_latched:{self.latched_fault}"
+        admission = self.admission
+        if (self.active_transport == "dds_v1" and admission is not None
+                and str(admission.session_id) == str(session_id)
+                and str(admission.session_epoch) == str(session_epoch)
+                and self.dds_peer == sender_id
+                and self.dds_transport_epoch == transport_epoch):
+            # A repeated hello from the same authenticated peer is idempotent:
+            # rotating the epoch here would discard a live sequence for no reason.
+            self.windows.issue(duration_ms=self.window_ms)
+            self._write_status()
+            return True, {"frame_protocol": 1, "stream_epoch": self.stream_epoch,
+                          "idempotent": True}
+        if self.active_transport == "frame_stream_v1" and admission is not None:
+            same = (str(admission.session_id) == str(session_id)
+                    and str(admission.session_epoch) == str(session_epoch))
+            if same:
+                return False, "transport_already_active:frame_stream_v1"
+            if current.get("outputs_enabled") is not False:
+                return False, "transport_switch_requires_output_revocation"
+        if self.reengage_required and current.get("outputs_enabled") is not False:
+            return False, "reengage_requires_output_revocation"
+        self.reengage_required = False
+        self.stream_epoch = self.windows.new_stream_epoch("dds_hello")
+        self.open_epoch(session_id=session_id, session_epoch=session_epoch,
+                        bundle_hash=self.bundle_hash, max_ttl_ms=self.max_ttl_ms)
+        self.paused = False
+        self.active_transport = "dds_v1"
+        self.dds_peer = str(sender_id)
+        self.dds_transport_epoch = str(transport_epoch)
+        self.windows.issue(duration_ms=self.window_ms)
+        self._write_status()
+        return True, {"frame_protocol": 1, "stream_epoch": self.stream_epoch}
+
+    def on_frame(self, frame: dict[str, Any],
+                 transport: str = "frame_stream_v1") -> dict[str, Any]:
         self.counters["frames_received"] += 1
         with self.control_lock:
-            return self._on_frame_locked(frame)
+            return self._on_frame_locked(frame, transport)
 
-    def _on_frame_locked(self, frame: dict[str, Any]) -> dict[str, Any]:
+    def _on_frame_locked(self, frame: dict[str, Any],
+                         transport: str = "frame_stream_v1") -> dict[str, Any]:
+        if self.active_transport is not None and transport != self.active_transport:
+            self.counters["frames_refused"] += 1
+            self.last_refusal = {"frame_seq": str(frame.get("frame_seq")),
+                                 "reason": "transport_mismatch"}
+            self._publish_receipt(frame, state="refused", reason="transport_mismatch",
+                                  detail=f"active={self.active_transport}",
+                                  transport=transport)
+            return {"type": "receipt", "state": "refused",
+                    "reason": "transport_mismatch",
+                    "frame_seq": frame.get("frame_seq")}
         if self.latched_fault:
             # After an emergency stop nothing is admitted either, so a sequence number
             # cannot be consumed by a frame that will never be emitted.
+            self._publish_receipt(
+                frame, state="refused", reason=f"fault_latched:{self.latched_fault}")
             return {"type": "receipt", "state": "refused",
                     "reason": f"fault_latched:{self.latched_fault}",
                     "frame_seq": frame.get("frame_seq")}
         if self.reengage_required or self.paused:
+            self._publish_receipt(
+                frame, state="refused", reason="reengage_required")
             return {"type": "receipt", "state": "refused", "reason": "reengage_required",
                     "frame_seq": frame.get("frame_seq")}
         admission = self.admission
         if admission is None:
+            self._publish_receipt(frame, state="refused", reason="not_engaged")
             return {"type": "receipt", "state": "refused", "reason": "not_engaged",
                     "frame_seq": frame.get("frame_seq")}
         licence = self.licence.current()
@@ -464,6 +773,8 @@ class CarControlRuntime:
             self.counters["frames_refused"] += 1
             self.last_refusal = {"frame_seq": str(frame.get("frame_seq")),
                                  "reason": "no_live_licence"}
+            self._publish_receipt(frame, state="refused", reason="no_live_licence",
+                                  detail="licence missing")
             return {"type": "receipt", "state": "refused", "reason": "no_live_licence",
                     "detail": str(self.licence.revoked_by() if hasattr(self.licence, "revoked_by")
                                   else "licence missing"),
@@ -478,8 +789,13 @@ class CarControlRuntime:
                 (time.monotonic_ns() - live.get("issued_ns", time.monotonic_ns()))
                 / MS_TO_NS, 1))
             self.counters["frames_refused"] += 1
+            self._publish_receipt(frame, state="refused", reason=error.reason,
+                                  detail=error.detail)
             return {"type": "receipt", "state": "refused", "reason": error.reason,
                     "detail": error.detail, "frame_seq": frame.get("frame_seq")}
+        self._publish_receipt(frame, state="admitted", admitted=True, accepted=accepted,
+                              transport=transport)
+        accepted["transport"] = transport
         return {"type": "receipt", "state": "admitted",
                 "frame_seq": accepted["frame_seq"], "sample_seq": accepted["sample_seq"],
                 "window_remaining_ms": round(accepted["window_remaining_ms"], 1),
@@ -523,6 +839,9 @@ class CarControlRuntime:
             return {"type": "receipt", "state": "refused", "reason": "unknown_preempt",
                     "action": str(action)}
         self.counters["hold_frames"] += 1
+        self._publish_receipt(
+            None, state="stopped", reason=reason_text,
+            detail=f"action={action};latched={self.latched_fault}")
         return {"type": "receipt", "state": "stopped", "action": str(action),
                 "reason": reason_text, "latched": self.latched_fault,
                 "hold_published": bool(receipt.get("hold_published")),
@@ -532,6 +851,11 @@ class CarControlRuntime:
     def clear_fault(self) -> None:
         self.latched_fault = None
 
+    def stop(self) -> None:
+        publisher = self.recording_publisher
+        if publisher is not None and hasattr(publisher, "stop"):
+            publisher.stop(timeout_s=1.0)
+
     # -- reporting ---------------------------------------------------------
     def state(self) -> dict[str, Any]:
         admission = self.admission.state() if self.admission else {}
@@ -539,6 +863,9 @@ class CarControlRuntime:
         return {
             "data_identity": self.data_identity,
             "configured_bundle_hash": self.bundle_hash,
+            "launch_bundle_hash": self.launch_bundle_hash,
+            "bundle_hash_source": self.bundle_hash_source,
+            "last_bundle_adoption": self.last_bundle_adoption,
             # Nothing produced by this offline runtime is training eligible.
             "training_eligible": False,
             "uptime_s": round(time.monotonic() - self.started, 2),
@@ -577,6 +904,7 @@ class CarControlRuntime:
             "last_step_clamp": getattr(self.driver, "last_step_clamp", None),
             "position_pid": getattr(self.driver, "position_pid", None),
             "last_pid": getattr(self.driver, "last_pid", None),
+            "feedback_raw_limits": getattr(self.driver, "feedback_limits", None),
             "emit_intervals": percentiles(list(self.emit_intervals_ms)),
             "stop_count": self.driver.stop_count,
             "counters": dict(self.counters),
@@ -584,6 +912,21 @@ class CarControlRuntime:
                                         / max(0.001, time.monotonic() - self.started), 2)),
             "admission": admission,
             "last_refusal": self.last_refusal,
+            "transport": self.transport_label,
+            "allowed_transports": list(self.allowed_transports),
+            "active_transport": self.active_transport,
+            "dds_peer": self.dds_peer,
+            "dds_transport_epoch": self.dds_transport_epoch,
+            "dds_command": (None if self.dds_receiver is None
+                            else self.dds_receiver.state()),
+            "recording_publisher": (None if self.recording_publisher is None
+                                    else (self.recording_publisher.state()
+                                          if hasattr(self.recording_publisher, "state")
+                                          else {"kind": "ros_publisher"})),
+            "typed_feedback": (None if self.typed_feedback is None
+                               else self.typed_feedback.state()),
+            "typed_control": (None if self.typed_control is None
+                              else self.typed_control.state()),
             "licence": self.licence.state(),
             # The store already measures age on this clock; re-deriving it here from
             # a sample field that is not a timestamp produced a nonsense number.
@@ -605,6 +948,16 @@ class CarControlRuntime:
                 "publisher_instance": snapshot.get("publisher_instance"),
                 "publisher_generation": snapshot.get("publisher_generation"),
                 "publisher_identity_kind": snapshot.get("publisher_identity_kind"),
+                # Owner acquisition health and this consumer's receipt counters are
+                # deliberately separate: consumer failed_scans=0 does not mean the
+                # board owner never failed a scan.
+                "owner_health": snapshot.get("owner_health"),
+                "owner_health_age_s": snapshot.get("owner_health_age_s"),
+                "owner_health_rejects": snapshot.get("owner_health_rejects"),
+                "owner_health_last_error": snapshot.get("owner_health_last_error"),
+                "consumer": snapshot.get("consumer"),
+                "first_failure": snapshot.get("first_failure"),
+                "frame_callback_errors": snapshot.get("frame_callback_errors"),
             },
         }
 
@@ -631,12 +984,41 @@ def build(profile: dict[str, Any], args: argparse.Namespace) -> tuple[Node, CarC
         calibration_hash=args.bundle_hash or None,
         stale_after_s=float(feedback["stale_after_s"]),
         max_scan_span_s=float(feedback["max_scan_span_s"]),
-        scan_period_s=float(feedback["scan_period_s"]))
+        scan_period_s=float(feedback["scan_period_s"]),
+        health_topic=args.health_topic,
+        health_message_type=String)
     publisher = node.create_publisher(ServosPosition, args.output_topic, qos)
     state_publisher = node.create_publisher(
         SetBusServoState, args.state_topic, 10)
     torque_readback = TorqueStateReadback(node, GetBusServoState, service=args.state_service)
     recording = node.create_publisher(String, args.recording_topic, 10) if args.recording_topic else None
+    if recording is not None:
+        recording = BoundedRecordingPublisher(recording)
+    typed_feedback = typed_control = None
+    if args.typed_feedback:
+        try:
+            from .ros_feedback_mapping import clock_epoch as make_clock_epoch
+            from .ros_typed_feedback import (
+                TypedControlPublisher, TypedFeedbackPublisher,
+            )
+        except ImportError as error:
+            raise RuntimeError(
+                "typed feedback was requested but lelab_mobile_interfaces is not "
+                f"available: {error}") from error
+        boot_path = Path("/proc/sys/kernel/random/boot_id")
+        boot_id = boot_path.read_text(encoding="utf-8").strip() if boot_path.exists() else "unknown"
+        epoch = make_clock_epoch(boot_id, time.monotonic_ns())
+        runtime_config = profile.get("runtime") or {}
+        typed_control = TypedControlPublisher(
+            node, data_identity=args.data_identity, clock_epoch=epoch,
+            clock_domain=str(runtime_config.get("clock_domain") or "car_system_time"),
+            window_topic=args.typed_window_topic,
+            receipt_topic=args.typed_receipt_topic)
+        typed_feedback = TypedFeedbackPublisher(
+            node, readback, calibration_hash=args.bundle_hash,
+            data_identity=args.data_identity, clock_epoch=epoch,
+            frame_topic=args.typed_feedback_topic,
+            health_topic=args.typed_health_topic)
     limits = {name: tuple(values) for name, values in
               profile["limits"]["joint_positions_rad"].items()}
     teleop = profile["teleop"]
@@ -655,7 +1037,9 @@ def build(profile: dict[str, Any], args: argparse.Namespace) -> tuple[Node, CarC
         bus_servo_state_type=BusServoState,
         set_bus_servo_state_type=SetBusServoState,
         torque_readback=torque_readback,
-        position_pid=teleop.get("position_pid"))
+        position_pid=teleop.get("position_pid"),
+        feedback_limits_path=Path(args.status_path).with_name("feedback-raw-limits.json"),
+        feedback_limits_profile=profile["profile"])
     licence = LicenceMirror(Path(args.licence_socket))
     licence.start()
     runtime = CarControlRuntime(
@@ -663,8 +1047,16 @@ def build(profile: dict[str, Any], args: argparse.Namespace) -> tuple[Node, CarC
         licence=licence, readback=readback, driver=driver,
         data_identity=args.data_identity, status_path=Path(args.status_path),
         bundle_hash=args.bundle_hash, max_ttl_ms=args.max_ttl_ms,
-        recording_publisher=recording)
+        recording_publisher=recording, typed_control=typed_control,
+        typed_feedback=typed_feedback)
     readback.on_owner_changed = runtime._on_feedback_owner_changed
+    if args.dds_command and typed_control is not None:
+        from .dds_command_receiver import DdsCommandReceiver
+        runtime.dds_receiver = DdsCommandReceiver(
+            node, runtime, key_file=args.dds_command_key_file or None,
+            hello_topic=args.dds_hello_topic,
+            command_topic=args.dds_frame_topic,
+            preempt_topic=args.dds_preempt_topic)
     server = StreamServer({
         "on_hello": runtime.on_hello,
         "on_frame": runtime.on_frame,
@@ -679,6 +1071,43 @@ def build(profile: dict[str, Any], args: argparse.Namespace) -> tuple[Node, CarC
 def validate_hardware_trial(profile: dict[str, Any], args: argparse.Namespace) -> None:
     """Fail closed if this real single-axis candidate is launched with wrong wiring."""
     profile_name = profile.get("profile")
+    if profile_name == "hardware_hybrid_manual_v1_offline6d_dds":
+        runtime = profile.get("runtime") or {}
+        if (runtime.get("mode") != "offline_humble_simulated_board"
+                or runtime.get("simulated") is not True
+                or runtime.get("output_transport") != "dds_v1"
+                or runtime.get("allowed_transports") != ["dds_v1"]
+                or runtime.get("data_source") != "simulated"
+                or args.data_identity != "simulated_offline"
+                or args.stream_host not in ("127.0.0.1", "localhost")):
+            raise ValueError("offline_dds_profile_configuration_mismatch")
+        return
+    if profile_name == "hardware_hybrid_follow_v1_dds":
+        runtime = profile.get("runtime") or {}
+        teleop = profile.get("teleop") or {}
+        safety = profile.get("safety") or {}
+        if (runtime.get("mode") != "hardware_hybrid_follow"
+                or runtime.get("output_transport") != "dds_v1"
+                or runtime.get("allowed_transports") != ["dds_v1"]
+                or runtime.get("actuator_outputs") is not True
+                or runtime.get("data_source") != "hardware"
+                or teleop.get("chassis_locked") is not True
+                or teleop.get("trial_motion") is not None
+                or teleop.get("homing_motion") is not None
+                or float(teleop.get("max_step_rad_s", 0)) > 0.15
+                or not 0 < float(teleop.get("max_step_rad_s", 0))
+                or args.data_identity != "hardware"
+                or args.stream_host not in ("127.0.0.1", "localhost")
+                or args.output_topic != "/ros_robot_controller/bus_servo/set_position"
+                or args.readback_topic != "/lelab/ros_robot_controller/servo_readback"
+                or args.state_topic != "/ros_robot_controller/bus_servo/set_state"
+                or args.state_service != "/ros_robot_controller/bus_servo/get_state"
+                or not args.bundle_hash
+                or args.bundle_hash != safety.get("calibration_bundle_hash")
+                or not args.dds_command_key_file
+                or not Path(args.dds_command_key_file).is_file()):
+            raise ValueError("hardware_follow_dds_configuration_mismatch")
+        return
     if profile_name == "hardware_hybrid_follow_v1":
         runtime = profile.get("runtime") or {}
         teleop = profile.get("teleop") or {}
@@ -774,12 +1203,25 @@ def main() -> int:
     parser.add_argument("--status-path", default="/out/state/car_control_status.json")
     parser.add_argument("--output-topic", default="/lelab_offline/ros_robot_controller/bus_servo/set_position")
     parser.add_argument("--readback-topic", default="/lelab_offline/lelab/ros_robot_controller/servo_readback")
+    parser.add_argument("--health-topic", default="/lelab_offline/lelab/ros_robot_controller/driver_health")
     parser.add_argument("--state-topic", default="/lelab_offline/ros_robot_controller/bus_servo/set_state")
     parser.add_argument("--state-service", default="/lelab_offline/ros_robot_controller/bus_servo/get_state")
     parser.add_argument("--control-hz", type=float, default=10.0)
     parser.add_argument("--window-ms", type=int, default=150)
     parser.add_argument("--max-ttl-ms", type=int, default=200)
     parser.add_argument("--recording-topic", default="/lelab_offline/recording/teleop")
+    parser.add_argument("--typed-feedback-topic", default="/lelab_ros/feedback/measured")
+    parser.add_argument("--typed-health-topic", default="/lelab_ros/feedback/health")
+    parser.add_argument("--typed-window-topic", default="/lelab_ros/control/window")
+    parser.add_argument("--typed-receipt-topic", default="/lelab_ros/control/receipt")
+    parser.add_argument("--no-typed-feedback", dest="typed_feedback", action="store_false")
+    parser.add_argument("--dds-command-key-file", default="")
+    parser.add_argument("--dds-hello-topic", default="/lelab_ros/command/hello")
+    parser.add_argument("--dds-frame-topic", default="/lelab_ros/command/frame")
+    parser.add_argument("--dds-preempt-topic", default="/lelab_ros/command/preempt")
+    parser.add_argument("--no-dds-command", dest="dds_command", action="store_false")
+    parser.set_defaults(typed_feedback=True)
+    parser.set_defaults(dds_command=True)
     parser.add_argument("--bundle-hash", default="")
     parser.add_argument("--data-identity", default="simulated_offline")
     args = parser.parse_args()
@@ -812,6 +1254,9 @@ def main() -> int:
     except (KeyboardInterrupt, RuntimeError):
         pass
     finally:
+        stop_runtime = getattr(runtime, "stop", None)
+        if callable(stop_runtime):
+            stop_runtime()
         server.stop()
         licence.stop()
         node.destroy_node()

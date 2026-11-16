@@ -239,6 +239,56 @@ class TeleopMapperTests(unittest.TestCase):
         self.assertAlmostEqual(blocked["target_rad"], 0.45, places=6,
                                msg="the first post-alignment step may not jump")
 
+    def test_joint2_absolute_raw_linear_anchors(self):
+        mapping = json.loads(json.dumps(MAPPING))
+        mapping["joints"][1].update({
+            "mapping_mode": "absolute_raw_linear",
+            "leader_low_raw": 865,
+            "leader_high_raw": 3250,
+            "follower_at_leader_low_raw": 900,
+            "follower_at_leader_high_raw": 50,
+        })
+        m = TeleopMapper(
+            mapping,
+            LIMITS,
+            follower_raw_to_rad={
+                "joint2": {
+                    "zero_tick": 500,
+                    "direction": 1,
+                    "radians_per_tick": mobile_teleop.RADIANS_PER_PULSE,
+                },
+            },
+        )
+        low = m.joint_target(
+            "joint2", leader_rad=0.0, leader_ref_rad=0.0,
+            follower_ref_rad=0.0, now=10.0, leader_raw=865)
+        self.assertEqual(low["mapping_mode"], "absolute_raw_linear")
+        self.assertAlmostEqual(low["follower_target_raw"], 900.0, places=6)
+        self.assertAlmostEqual(
+            low["pre_clip_rad"],
+            (900 - 500) * mobile_teleop.RADIANS_PER_PULSE, places=6)
+
+        middle = m.joint_target(
+            "joint2", leader_rad=0.0, leader_ref_rad=0.0,
+            follower_ref_rad=0.0, now=10.1, leader_raw=(865 + 3250) / 2)
+        self.assertAlmostEqual(middle["follower_target_raw"], 475.0, places=6)
+
+        high = m.joint_target(
+            "joint2", leader_rad=0.0, leader_ref_rad=0.0,
+            follower_ref_rad=0.0, now=10.2, leader_raw=3250)
+        self.assertAlmostEqual(high["follower_target_raw"], 50.0, places=6)
+
+        clipped = m.joint_target(
+            "joint2", leader_rad=0.0, leader_ref_rad=0.0,
+            follower_ref_rad=0.0, now=10.3, leader_raw=4095)
+        self.assertTrue(clipped["clipped"])
+        self.assertAlmostEqual(clipped["follower_target_raw"], 50.0, places=6)
+
+        with self.assertRaisesRegex(ValueError, "requires leader raw"):
+            m.joint_target(
+                "joint2", leader_rad=0.0, leader_ref_rad=0.0,
+                follower_ref_rad=0.0, now=10.4)
+
     def test_reset_forces_realignment(self):
         m = self.mapper()
         m.joint_target("joint4", 0.3, 0.0, 0.0, now=10.0)

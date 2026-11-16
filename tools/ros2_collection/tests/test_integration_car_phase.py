@@ -527,7 +527,10 @@ def test_metadata_attaches_adapter_provenance_and_keeps_export_disabled(tmp_path
     node.profile_path = PROFILE_PATHS[0]
     node.profile = json.loads(PROFILE_PATHS[0].read_text(encoding="utf-8"))
     node.read_only = False
-    node.runtime = node.profile["runtime"]
+    # This fixture includes measured base estimates and exercises the original
+    # 9D provenance contract; the locked-chassis 6D path has separate coverage.
+    node.runtime = {**node.profile["runtime"],
+                    "export_schema": contract.SCHEMA_MOBILE_HYBRID_9D}
     node.clock_domain = "hardware_system_time"
     node.actuator_outputs = False
     node.session_id = "car-session"
@@ -559,6 +562,8 @@ def test_metadata_attaches_adapter_provenance_and_keeps_export_disabled(tmp_path
     assert metadata["data_source"] == "hardware"
     assert metadata["session_epoch"] == 4242
     assert metadata["clock_epoch"] == "clock-fixture"
+    assert metadata["calibration_bundle_hash"] == "sha256:fixture-calibration"
+    assert metadata["requested_calibration_bundle_hash"] == "sha256:fixture-calibration"
     assert metadata["feedback_provenance"]["trusted"] is True
     assert metadata["feedback_provenance"]["joint_source_kind"] == "servo_position_readback"
 

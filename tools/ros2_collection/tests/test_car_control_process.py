@@ -59,11 +59,22 @@ class FakeNode:
 
 
 class FakeReadback:
+    def __init__(self):
+        self.calibration_hash = BUNDLE
+        self.calibration_updates = []
+        self.available = True
+        self.last_error = None
+
+    def set_calibration_hash(self, calibration_hash):
+        self.calibration_hash = calibration_hash
+        self.calibration_updates.append(calibration_hash)
+
     def read_snapshot(self):
-        return {"available": True,
+        return {"available": self.available,
+                "last_error": self.last_error,
                 "positions_rad": {name: 0.0 for name in JOINTS + ["r_joint"]},
                 "servo_pulses": [500, 500, 500, 500, 500, 500],
-                "oldest_age_s": 0.05, "scan_span_s": 0.2, "last_error": None}
+                "oldest_age_s": 0.05, "scan_span_s": 0.2}
 
 
 class FakeDriver:
@@ -75,6 +86,7 @@ class FakeDriver:
         self.stop_count = 0
         self.submitted = []
         self.torque_invalidations = 0
+        self.feedback_unavailable = False
 
     def enable(self):
         self.outputs_enabled = True
@@ -90,6 +102,8 @@ class FakeDriver:
     def submit_frame(self, targets):
         if not self.outputs_enabled:
             raise RuntimeError("outputs_disabled")
+        if self.feedback_unavailable:
+            raise RuntimeError("trusted_feedback_unavailable")
         self.submitted.append(list(targets))
         self.publish_count += 1
 
@@ -272,10 +286,10 @@ class Fixture(unittest.TestCase):
 
     # -- helpers -----------------------------------------------------------
     def licence(self, generation=1, outputs=True, session_id="sess-1", session_epoch=77,
-                token=TOKEN):
+                token=TOKEN, bundle=BUNDLE):
         self.mirror.apply(licence_record(
             control_generation=generation, session_id=session_id,
-            session_epoch=session_epoch, calibration_bundle_hash=BUNDLE,
+            session_epoch=session_epoch, calibration_bundle_hash=bundle,
             permits={"arm": True, "gripper": True}, outputs_enabled=outputs,
             token_sha256=token_digest(token), ttl_ms=300))
 
@@ -324,6 +338,36 @@ class Fixture(unittest.TestCase):
 
 
 class ContextedRows(Fixture):
+    def test_authenticated_mapping_bundle_is_adopted_only_with_outputs_closed(self):
+        replacement = "d" * 64
+        self.licence(outputs=False, bundle=replacement)
+
+        self.runtime._tick_locked()
+
+        self.assertEqual(self.runtime.bundle_hash, replacement)
+        self.assertEqual(self.runtime.bundle_hash_source, "authenticated_licence")
+        self.assertEqual(self.readback.calibration_hash, replacement)
+        self.assertEqual(self.readback.calibration_updates, [replacement])
+        self.assertTrue(self.runtime.reengage_required)
+        self.assertEqual(
+            self.runtime.last_bundle_adoption["action_required"],
+            "explicit_hello_and_reengage")
+
+    def test_mapping_bundle_cannot_change_while_output_permission_is_live(self):
+        self.licence(outputs=True)
+        self.hello()
+        before = self.runtime.bundle_hash
+        self.licence(generation=2, outputs=True, bundle="d" * 64)
+
+        self.runtime._tick_locked()
+
+        self.assertEqual(self.runtime.bundle_hash, before)
+        self.assertTrue(self.runtime.reengage_required)
+        self.assertEqual(self.readback.calibration_updates, [])
+        self.assertEqual(
+            self.runtime.last_refusal["reason"],
+            "licence_bundle_changed_with_outputs_enabled")
+
     def test_a_recorded_row_names_the_episode_the_agent_published(self):
         self.licence()
         self.context(episode="ep-7", phase="grasp", clock_epoch="epoch-xyz")
@@ -520,6 +564,34 @@ class LatchRules(Fixture):
 
 
 class LicenceLoss(Fixture):
+    def test_single_feedback_gap_drops_one_frame_without_latching_reengage(self):
+        self.licence()
+        self.hello()
+        self.readback.available = False
+        self.readback.last_error = "readback_sequence_invalid"
+        self.driver.feedback_unavailable = True
+
+        first = self.emit_one(frame_seq=1)
+
+        self.assertEqual(first["state"], "admitted")
+        self.assertTrue(self.driver.outputs_enabled,
+                        "a transient scan gap must leave the watchdog armed")
+        self.assertFalse(self.runtime.reengage_required)
+        self.assertEqual(self.runtime.counters["frames_deferred_feedback"], 1)
+        self.assertEqual(self.runtime.counters["frames_emitted"], 0)
+        self.assertEqual(self.runtime.last_refusal["reason"],
+                         "trusted_feedback_unavailable")
+
+        self.readback.available = True
+        self.readback.last_error = None
+        self.driver.feedback_unavailable = False
+        second = self.emit_one(frame_seq=2)
+
+        self.assertEqual(second["state"], "admitted")
+        self.assertEqual(self.runtime.counters["frames_emitted"], 1)
+        self.assertIsNone(self.runtime.last_refusal)
+        self.assertFalse(self.runtime.reengage_required)
+
     def test_losing_the_licence_mid_follow_stops_emission(self):
         self.licence()
         self.hello()

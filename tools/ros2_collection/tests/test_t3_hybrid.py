@@ -562,3 +562,33 @@ def test_an_adapter_without_a_lease_report_still_shares_only_what_it_knows():
     status = h.status()
     assert status["leases"]["car"]["held"] is False
     assert "lease_lost:car=not_held" in status["last_error"]
+
+
+def test_dds_transport_is_selected_once_per_session_and_released(monkeypatch):
+    monkeypatch.setenv("LELAB_HYBRID_TRANSPORT", "dds_v1")
+    h, _, _, _, _, _ = make_session()
+    status = h.acquire_session({"owner": "operator"})
+    assert status["transport"] == "dds_v1"
+    assert status["transport_selector"]["transport"] == "dds_v1"
+    assert status["legacy_apply_enabled"] is False
+    h.release_session("operator")
+    released = h.status()
+    assert released["transport"] is None
+    assert released["transport_selector"] is None
+    assert released["legacy_apply_enabled"] is True
+
+
+def test_an_explicit_session_transport_overrides_the_process_default(monkeypatch):
+    monkeypatch.setenv("LELAB_HYBRID_TRANSPORT", "dds_v1")
+    h, _, _, _, _, _ = make_session()
+    status = h.acquire_session({"owner": "operator", "transport": "frame_stream_v1"})
+    assert status["transport"] == "frame_stream"
+    assert status["transport_selector"]["transport"] == "frame_stream"
+
+
+def test_an_unknown_transport_is_refused_before_any_lease_is_taken(monkeypatch):
+    monkeypatch.setenv("LELAB_HYBRID_TRANSPORT", "carrier_pigeon")
+    h, _, _, _, _, log = make_session()
+    with pytest.raises(ValueError, match="unknown_transport"):
+        h.acquire_session({"owner": "operator"})
+    assert log == []

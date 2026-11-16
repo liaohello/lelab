@@ -83,11 +83,13 @@ class Readback:
     def __init__(self, raw):
         self.raw = dict(raw)
         self.last_success_mono = time.monotonic()
+        self.available = True
+        self.last_error = None
 
     def read_snapshot(self):
         return {
-            "available": True,
-            "last_error": None,
+            "available": self.available,
+            "last_error": self.last_error,
             "last_success_mono": time.monotonic(),
             "joint_samples": {
                 name: {"raw_position": value} for name, value in self.raw.items()
@@ -173,6 +175,63 @@ def test_watchdog_arms_at_the_first_frame_not_at_enable():
     driver.clock.now += 2.0
     driver._watchdog()
     assert driver.outputs_enabled is False
+
+
+def test_single_missing_feedback_scan_skips_one_frame_without_parking_driver():
+    publisher = Publisher()
+    readback = Readback(RAW)
+    driver = RosServoOutputDriver(
+        Node(), publisher, servos_position_type=Positions,
+        servo_position_type=Position, readback=readback, limits_rad=LIMITS,
+        max_step_rad_s=0.5, max_silence_s=0.6, clock=Clock())
+    driver.enable()
+    targets = [
+        (name, (RAW[name] - 500.0) * RADIANS_PER_ENCODER_TICK *
+         (-1 if name == "r_joint" else 1))
+        for name in ("joint1", "joint2", "joint3", "joint4", "joint5", "r_joint")
+    ]
+    readback.available = False
+    readback.last_error = "readback_sequence_invalid"
+
+    with pytest.raises(RuntimeError, match="trusted_feedback_unavailable"):
+        driver.submit_frame(targets)
+
+    assert driver.outputs_enabled is True
+    assert driver.stop_count == 0
+    assert not publisher.messages
+
+    readback.available = True
+    readback.last_error = None
+    result = driver.submit_frame(targets)
+    assert result["driver_sent"] is True
+    assert len(publisher.messages) == 1
+
+
+def test_persistent_feedback_gap_still_trips_the_output_watchdog():
+    readback = Readback(RAW)
+    clock = Clock()
+    driver = RosServoOutputDriver(
+        Node(), Publisher(), servos_position_type=Positions,
+        servo_position_type=Position, readback=readback, limits_rad=LIMITS,
+        max_step_rad_s=0.5, max_silence_s=0.6, clock=clock)
+    driver.enable()
+    targets = [
+        (name, (RAW[name] - 500.0) * RADIANS_PER_ENCODER_TICK *
+         (-1 if name == "r_joint" else 1))
+        for name in ("joint1", "joint2", "joint3", "joint4", "joint5", "r_joint")
+    ]
+    driver.submit_frame(targets)
+    readback.available = False
+    readback.last_error = "readback_sequence_invalid"
+    with pytest.raises(RuntimeError, match="trusted_feedback_unavailable"):
+        driver.submit_frame(targets)
+    assert driver.outputs_enabled is True
+
+    clock.now += 1.0
+    driver._watchdog()
+
+    assert driver.outputs_enabled is False
+    assert driver.stop_count == 1
 
 
 def test_output_driver_publishes_integer_uint16_and_hold_frame():

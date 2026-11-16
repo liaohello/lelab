@@ -36,7 +36,9 @@ STATE = RUNTIME / "docker/state"
 def car_status():
     with urllib.request.urlopen(AGENT + "/status", timeout=3) as response:
         status = json.load(response)
-    if status.get("profile") != "hardware_hybrid_manual_v1_offline6d" or status.get("simulated") is not True:
+    if status.get("profile") not in ("hardware_hybrid_manual_v1_offline6d",
+                                      "hardware_hybrid_manual_v1_offline6d_dds") \
+            or status.get("simulated") is not True:
         raise RuntimeError("refusing_non_simulated_agent")
     return status
 

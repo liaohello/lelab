@@ -21,7 +21,8 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "app_ros_mobile"), str(ROOT / "ros2_ws" / "src" / "lelab_mobile_agent")]
 
 from lelab_mobile_agent.licence_ipc import (  # noqa: E402
-    LicenceError, LicenceMirror, LicencePublisher, licence_record)
+    LicenceError, LicenceMirror, LicencePublisher, licence_record,
+    recording_context_record)
 from lelab_mobile_agent.teleop_stream import token_digest  # noqa: E402
 
 BUNDLE = "b" * 64
@@ -150,6 +151,17 @@ class MirrorRules(unittest.TestCase):
                                "control_generation": 3, "reason": "stale"})
         self.assertEqual(ctx.exception.reason, "generation_replayed")
 
+    def test_same_context_sequence_after_disconnect_refreshes_without_crashing(self):
+        context = recording_context_record(
+            session_id="rec-1", session_epoch=9, episode_id="ep-1", phase="observe",
+            clock_epoch="clock-a", calibration_bundle_hash=BUNDLE, context_seq=4,
+            agent_boot="boot-1")
+        self.mirror.apply(context)
+        with self.mirror._lock:
+            self.mirror._context = None
+        self.mirror.apply(context)
+        self.assertEqual(self.mirror.context()["episode_id"], "ep-1")
+        self.assertEqual(self.mirror.counters["contexts"], 2)
 
 class SocketRoundTrip(unittest.TestCase):
     """Publisher to mirror over a real unix socket, with the socket's own permissions."""
@@ -192,6 +204,20 @@ class SocketRoundTrip(unittest.TestCase):
         publisher.publish(**record(generation=1, outputs=True))
         time.sleep(0.2)
         self.assertNotEqual(self.mirror.token_digest(), token_digest("not-the-lease-token"))
+        publisher.close()
+
+    def test_a_rejected_message_does_not_kill_the_socket_thread(self):
+        publisher = LicencePublisher(self.path)
+        self.assertTrue(publisher.connect())
+        self.assertTrue(publisher.send({"schema_version": 999}))
+        time.sleep(0.1)
+        self.assertTrue(publisher.publish(**record(generation=1, outputs=True)))
+        deadline = time.monotonic() + 3.0
+        while self.mirror.current() is None and time.monotonic() < deadline:
+            time.sleep(0.02)
+        self.assertIsNotNone(self.mirror.current())
+        self.assertTrue(self.mirror.current()["outputs_enabled"])
+        self.assertEqual(self.mirror.counters["refused"], 1)
         publisher.close()
 
 

@@ -8,6 +8,7 @@ No adapter is installed by default. Methods return JSON-serializable dictionarie
 from __future__ import annotations
 
 import copy
+import os
 import threading
 import time
 import uuid
@@ -15,6 +16,7 @@ from typing import Any
 
 from .hybrid_calibration import KINDS, ROLES, validate_asset, validate_bundle
 from .hybrid_gamepad import GamepadIntent
+from .teleop_frame_v1 import FrameError, TransportSelector
 
 
 def adapter_unavailable(detail: str) -> Exception:
@@ -74,6 +76,8 @@ class HybridSession:
                         if gamepad_deadzone is not None else None)
         self.session_id = self.session_epoch = self.bundle_hash = None
         self.upper_token = self.car_token = None
+        self.transport_selector = TransportSelector()
+        self.transport: str | None = None
         self.state = "disconnected"
         self.arm_state = "idle"
         self.base_enabled = False
@@ -112,6 +116,24 @@ class HybridSession:
     def _is_simulated(self) -> bool:
         context = getattr(self, "simulated_context", None)
         return isinstance(context, dict) and context.get("simulated") is True
+
+    @staticmethod
+    def _normalize_transport_name(value: Any) -> str:
+        return {"frame_stream": "frame_stream",
+                "frame_stream_v1": "frame_stream",
+                "dds": "dds_v1", "dds_v1": "dds_v1"}.get(str(value), str(value))
+
+    def _requested_transport(self, request: Any) -> str | None:
+        """One framed transport per session; legacy HTTP is not negotiated here."""
+        raw = request.get("transport") if isinstance(request, dict) else None
+        if raw is None:
+            raw = os.environ.get("LELAB_HYBRID_TRANSPORT")
+        if raw in (None, "", "legacy_http"):
+            return None
+        normalized = self._normalize_transport_name(raw)
+        if normalized not in ("frame_stream", "dds_v1"):
+            raise ValueError(f"unknown_transport:{raw}")
+        return normalized
 
     def _active_profile(self) -> str:
         return "simulated_hybrid_manual_v1" if self._is_simulated() else "hardware_hybrid_manual_v1"
@@ -342,6 +364,9 @@ class HybridSession:
                 # later reads only report the preserved fault and stop result.
                 if self.state not in ("fault", "estop"):
                     self._stop(primary)
+                    if (self._last_stop or {}).get("state") == "failed":
+                        self.last_error = (f"{self._primary_error or primary};"
+                                           f"{(self._last_stop or {}).get('error')}")
                     self._set_state(
                         "estop" if self.estop_latched else "fault",
                         self._primary_error or primary)
@@ -355,6 +380,9 @@ class HybridSession:
                 self.last_error = self._primary_error
             if self.state not in ("fault", "estop"):
                 self._stop(primary)
+                if (self._last_stop or {}).get("state") == "failed":
+                    self.last_error = (f"{self._primary_error or primary};"
+                                       f"{(self._last_stop or {}).get('error')}")
                 self._set_state(
                     "estop" if self.estop_latched else "fault",
                     self._primary_error or primary)
@@ -420,6 +448,12 @@ class HybridSession:
                     "last_stop": copy.deepcopy(self._last_stop),
                     "missing_for_following": missing,
                     "outputs_enabled": False,
+                    "transport": self.transport,
+                    "transport_selector": self.transport_selector.active(),
+                    "legacy_apply_enabled": (
+                        True if self.session_id is None
+                        else self.transport_selector.allows_legacy_apply(
+                            session_id=self.session_id, session_epoch=self.session_epoch)),
                     "control_semantics": ("simulated_intent_only" if self._is_simulated()
                                           else "offline_intent_only"),
                     "phase": self.phase})
@@ -453,8 +487,19 @@ class HybridSession:
             # both endpoints bind exactly the same session and calibration bundle.
             session_id = uuid.uuid4().hex
             session_epoch = uuid.uuid4().int & ((1 << 52) - 1)
+            requested_transport = self._requested_transport(request)
             context = {**request, "session_id": session_id, "session_epoch": session_epoch,
                        "calibration_bundle_hash": ready["bundle_hash"]}
+            if requested_transport is not None:
+                try:
+                    negotiation = self.transport_selector.negotiate(
+                        session_id=session_id, session_epoch=session_epoch,
+                        transport=requested_transport)
+                except FrameError as error:
+                    raise RuntimeError(f"transport_{error.reason}:{error.detail}")
+                context["transport"] = negotiation["transport"]
+            else:
+                negotiation = None
             upper = car = None
             try:
                 upper = self.upper.acquire(dict(context))
@@ -494,10 +539,16 @@ class HybridSession:
                         callback(*args)
                     except Exception as exc:
                         errors.append(type(exc).__name__)
+                if negotiation is not None:
+                    self.transport_selector.release(
+                        session_id=session_id, session_epoch=session_epoch,
+                        reason="acquire_rollback")
                 if errors:
                     self.last_error = "acquire_rollback_failed:" + ",".join(errors)
                 raise
             self.upper_token, self.car_token = upper, car
+            self.transport = (None if negotiation is None
+                              else negotiation["transport"])
             # The epoch is an integer exactly representable in JavaScript, compatible
             # with the car supervisor. The session ID is independently random.
             self.session_id, self.session_epoch = session_id, session_epoch
@@ -573,6 +624,7 @@ class HybridSession:
             if session_id is not None or session_epoch is not None:
                 self.validate_session_request({"session_id": session_id,
                                                "session_epoch": session_epoch})
+            active_id, active_epoch = self.session_id, self.session_epoch
             self._stop(str(reason or "released"))
             errors = []
             for adapter, token in ((self.car, self.car_token), (self.upper, self.upper_token)):
@@ -583,6 +635,11 @@ class HybridSession:
                         errors.append(f"{type(exc).__name__}:{exc}")
             self.upper_token = self.car_token = None
             self._lease_valid = {"upper": False, "car": False}
+            if active_id is not None and active_epoch is not None:
+                self.transport_selector.release(
+                    session_id=active_id, session_epoch=active_epoch,
+                    reason=str(reason or "released"))
+            self.transport = None
             self.session_id = self.session_epoch = self.bundle_hash = None
             self._set_state("estop" if self.estop_latched else "disconnected",
                             str(reason or "released"))

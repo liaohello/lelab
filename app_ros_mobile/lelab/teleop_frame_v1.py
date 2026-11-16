@@ -28,8 +28,12 @@ Two rules the rest of the design depends on
 from __future__ import annotations
 
 import copy
+import hashlib
+import hmac
+import json
 import math
 import time
+from pathlib import Path
 from typing import Any, Callable
 
 FRAME_PROTOCOL_VERSION = 1
@@ -52,7 +56,9 @@ COMMAND_FIELDS = frozenset({"arm", "gripper"})
 # A frame never carries a base (chassis) target: this phase is arm + gripper only.
 FRAME_CHANNELS = ("arm", "gripper")
 
-TRANSPORTS = ("legacy_apply", "frame_http", "frame_stream")
+TRANSPORTS = ("legacy_apply", "frame_http", "frame_stream", "dds_v1")
+AUTH_VERSION = 1
+MIN_AUTH_KEY_BYTES = 32
 
 MS_TO_NS = 1_000_000
 
@@ -83,6 +89,104 @@ def _identity(value: Any, name: str):
 def monotonic_ns() -> int:
     """This process' own clock.  Never compared against another host's value."""
     return time.monotonic_ns()
+
+
+# --------------------------------------------------------------------------
+# authenticated DDS command identity
+# --------------------------------------------------------------------------
+def load_auth_key(path: str | Path) -> bytes:
+    """Load a pre-shared command key and refuse a world/group readable file."""
+    key_path = Path(path)
+    data = key_path.read_bytes().strip()
+    if len(data) < MIN_AUTH_KEY_BYTES:
+        raise FrameError("auth_key_too_short",
+                         f"the command key must be at least {MIN_AUTH_KEY_BYTES} bytes")
+    mode = key_path.stat().st_mode
+    if mode & 0o077:
+        raise FrameError("auth_key_permissions",
+                         "the command key file must not be group or world readable")
+    return data
+
+
+def auth_key_id(key: bytes) -> str:
+    return hashlib.sha256(key).hexdigest()[:16]
+
+
+def _auth_digest(key: bytes, material: dict[str, Any]) -> str:
+    if not isinstance(key, bytes) or len(key) < MIN_AUTH_KEY_BYTES:
+        raise FrameError("auth_key_invalid", "a pre-shared key is required")
+    payload = json.dumps({"auth_version": AUTH_VERSION, **material},
+                         sort_keys=True, separators=(",", ":"),
+                         ensure_ascii=True).encode()
+    return hmac.new(key, payload, hashlib.sha256).hexdigest()
+
+
+def frame_auth_material(frame: dict[str, Any], *, sender_id: str,
+                        transport_epoch: str) -> dict[str, Any]:
+    return {"kind": "teleop_frame", "sender_id": str(sender_id),
+            "transport_epoch": str(transport_epoch), "frame": frame}
+
+
+def frame_auth_ticket(key: bytes, frame: dict[str, Any], *, sender_id: str,
+                      transport_epoch: str) -> str:
+    return _auth_digest(key, frame_auth_material(
+        frame, sender_id=sender_id, transport_epoch=transport_epoch))
+
+
+def verify_frame_auth_ticket(key: bytes, ticket: str, frame: dict[str, Any], *,
+                             sender_id: str, transport_epoch: str) -> bool:
+    if not isinstance(ticket, str) or not ticket:
+        return False
+    expected = frame_auth_ticket(key, frame, sender_id=sender_id,
+                                 transport_epoch=transport_epoch)
+    return hmac.compare_digest(expected, ticket.lower())
+
+
+def hello_auth_ticket(key: bytes, *, transport: str, session_id: Any,
+                      session_epoch: Any, calibration_bundle_hash: str,
+                      sender_id: str, transport_epoch: str) -> str:
+    return _auth_digest(key, {
+        "kind": "transport_hello", "transport": str(transport),
+        "session_id": str(session_id), "session_epoch": int(session_epoch),
+        "calibration_bundle_hash": str(calibration_bundle_hash),
+        "sender_id": str(sender_id), "transport_epoch": str(transport_epoch),
+    })
+
+
+def verify_hello_auth_ticket(key: bytes, ticket: str, *, transport: str,
+                             session_id: Any, session_epoch: Any,
+                             calibration_bundle_hash: str, sender_id: str,
+                             transport_epoch: str) -> bool:
+    if not isinstance(ticket, str) or not ticket:
+        return False
+    expected = hello_auth_ticket(
+        key, transport=transport, session_id=session_id,
+        session_epoch=session_epoch,
+        calibration_bundle_hash=calibration_bundle_hash,
+        sender_id=sender_id, transport_epoch=transport_epoch)
+    return hmac.compare_digest(expected, ticket.lower())
+
+
+def preempt_auth_ticket(key: bytes, *, action: str, reason: str, session_id: Any,
+                        session_epoch: Any, stream_epoch: Any,
+                        sender_id: str) -> str:
+    return _auth_digest(key, {
+        "kind": "preempt", "action": str(action), "reason": str(reason),
+        "session_id": str(session_id), "session_epoch": int(session_epoch),
+        "stream_epoch": str(stream_epoch), "sender_id": str(sender_id),
+    })
+
+
+def verify_preempt_auth_ticket(key: bytes, ticket: str, *, action: str,
+                               reason: str, session_id: Any, session_epoch: Any,
+                               stream_epoch: Any, sender_id: str) -> bool:
+    if not isinstance(ticket, str) or not ticket:
+        return False
+    expected = preempt_auth_ticket(
+        key, action=action, reason=reason, session_id=session_id,
+        session_epoch=session_epoch, stream_epoch=stream_epoch,
+        sender_id=sender_id)
+    return hmac.compare_digest(expected, ticket.lower())
 
 
 # --------------------------------------------------------------------------
@@ -230,7 +334,7 @@ class TransportSelector:
                   supported: tuple[str, ...] = TRANSPORTS) -> dict[str, Any]:
         if transport not in supported:
             raise FrameError("transport_unsupported", f"{transport!r} is not offered")
-        if transport not in ("frame_http", "frame_stream"):
+        if transport not in ("frame_http", "frame_stream", "dds_v1"):
             raise FrameError("transport_not_framed",
                              "only the framed transports may be negotiated for a control epoch")
         candidate = {"session_id": session_id, "session_epoch": session_epoch,

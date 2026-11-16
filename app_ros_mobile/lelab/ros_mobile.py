@@ -321,8 +321,10 @@ def preview():
 
 PREVIEW_FRAME_SEQ_HEADER = "X-LeLab-Frame-Seq"
 PREVIEW_SOURCE_STAMP_HEADER = "X-LeLab-Source-Stamp-Ns"
+PREVIEW_VIEWER_HEADER = "X-LeLab-Viewer"
 _PREVIEW_FRAME_LOCK = threading.Lock()
-_PREVIEW_FRAME_STATE = {"frame_seq": None, "source_stamp_ns": None}
+_PREVIEW_VIEWER_STATE: dict[str, dict[str, int | float | None]] = {}
+_PREVIEW_VIEWER_TTL_S = 60.0
 
 
 class PreviewFrameError(RuntimeError):
@@ -333,10 +335,13 @@ class PreviewFrameError(RuntimeError):
         self.status_code = status_code
 
 
-def reset_preview_frame_state() -> None:
+def reset_preview_frame_state(viewer: str | None = None) -> None:
     """Forget process-local frame monotonicity (tests and explicit recovery only)."""
     with _PREVIEW_FRAME_LOCK:
-        _PREVIEW_FRAME_STATE.update(frame_seq=None, source_stamp_ns=None)
+        if viewer is None:
+            _PREVIEW_VIEWER_STATE.clear()
+        else:
+            _PREVIEW_VIEWER_STATE.pop(viewer, None)
 
 
 def fetch_preview_frame(timeout: float = 4.0,
@@ -400,13 +405,13 @@ def _current_video_frame_seq() -> int | None:
 
 
 def validate_preview_frame_headers(headers: dict[str, str], *,
-                                   expected_frame_seq: int | None = None) -> tuple[int, int]:
-    """Validate and advance the shared JPEG/status frame identity.
+                                   expected_frame_seq: int | None = None,
+                                   viewer: str = "default") -> tuple[int, int]:
+    """Validate and advance one viewer's JPEG/status frame identity.
 
     A repeated frame sequence is stale even if its bytes or source stamp changed.
-    New sequences must advance the source stamp.  This gate is process-wide so a
-    cached JPEG cannot be presented as a new frame merely because it was fetched
-    again.
+    New sequences must advance the source stamp. Each browser viewer keeps separate
+    progress, so one page cannot consume another page's next frame.
     """
     frame_seq = _nonnegative_header_int(headers, PREVIEW_FRAME_SEQ_HEADER)
     source_stamp_ns = _nonnegative_header_int(headers, PREVIEW_SOURCE_STAMP_HEADER)
@@ -415,9 +420,19 @@ def validate_preview_frame_headers(headers: dict[str, str], *,
             "frame_seq_mismatch",
             f"JPEG frame_seq={frame_seq}, status/request frame_seq={expected_frame_seq}",
         )
+    viewer = str(viewer or "default")
     with _PREVIEW_FRAME_LOCK:
-        last_seq = _PREVIEW_FRAME_STATE["frame_seq"]
-        last_stamp = _PREVIEW_FRAME_STATE["source_stamp_ns"]
+        now = time.monotonic()
+        for stale_viewer, stale_state in list(_PREVIEW_VIEWER_STATE.items()):
+            updated = stale_state.get("updated_mono_s")
+            if isinstance(updated, (int, float)) and now - float(updated) > _PREVIEW_VIEWER_TTL_S:
+                _PREVIEW_VIEWER_STATE.pop(stale_viewer, None)
+        state = _PREVIEW_VIEWER_STATE.setdefault(
+            viewer,
+            {"frame_seq": None, "source_stamp_ns": None, "updated_mono_s": now},
+        )
+        last_seq = state["frame_seq"]
+        last_stamp = state["source_stamp_ns"]
         if last_seq is not None and frame_seq < last_seq:
             # A restarted car agent begins a new sequence at zero.  Accept that
             # rollover only when the measured source stamp proves the pixels are
@@ -427,8 +442,11 @@ def validate_preview_frame_headers(headers: dict[str, str], *,
                     "stale_frame_seq",
                     f"{frame_seq} < {last_seq} without a newer source stamp",
                 )
-            _PREVIEW_FRAME_STATE.update(
-                frame_seq=frame_seq, source_stamp_ns=source_stamp_ns)
+            state.update(
+                frame_seq=frame_seq,
+                source_stamp_ns=source_stamp_ns,
+                updated_mono_s=now,
+            )
             return frame_seq, source_stamp_ns
         if last_seq is not None and frame_seq == last_seq:
             if source_stamp_ns != last_stamp:
@@ -442,21 +460,41 @@ def validate_preview_frame_headers(headers: dict[str, str], *,
                 "frame_header_inconsistent",
                 f"source stamp {source_stamp_ns} did not advance past {last_stamp}",
             )
-        _PREVIEW_FRAME_STATE.update(frame_seq=frame_seq, source_stamp_ns=source_stamp_ns)
+        state.update(
+            frame_seq=frame_seq,
+            source_stamp_ns=source_stamp_ns,
+            updated_mono_s=now,
+        )
         return frame_seq, source_stamp_ns
 
 
 @router.get("/preview.jpg")
-def preview_jpg(frame_seq: int | None = None):
+def preview_jpg(request: Request, frame_seq: int | None = None, fresh: bool = False):
+    explicit_viewer = (request.headers.get(PREVIEW_VIEWER_HEADER) or "").strip()[:128]
+    if fresh and frame_seq is None and not explicit_viewer:
+        # Fresh polling advances per-viewer progress; without a viewer identity two
+        # pages would consume one shared sequence and keep 409-ing each other.
+        raise HTTPException(
+            status_code=400,
+            detail="preview frame rejected: viewer_required: send X-LeLab-Viewer for fresh=true",
+        )
+    viewer = (
+        explicit_viewer
+        or request.headers.get("X-LeLab-Client")
+        or "default"
+    ).strip()[:128] or "default"
     try:
         if frame_seq is None:
             # Legacy preview URLs carry no exact-frame contract.  Fetching them
             # must not advance the monotonic state used by the hybrid panel, or
             # a concurrent thumbnail can make the panel's exact frame look stale.
             data, headers = fetch_preview_frame()
+            if fresh:
+                validate_preview_frame_headers(headers, viewer=viewer)
         else:
             data, headers = fetch_preview_frame(frame_seq=frame_seq)
-            validate_preview_frame_headers(headers, expected_frame_seq=frame_seq)
+            validate_preview_frame_headers(
+                headers, expected_frame_seq=frame_seq, viewer=viewer)
     except PreviewFrameError as exc:
         raise HTTPException(
             status_code=exc.status_code,
@@ -1115,7 +1153,9 @@ def get_hybrid_recording() -> HybridRecordingController:
                     raise HTTPException(status_code=503, detail="offline_agent_not_loopback")
                 status = _http("GET", "/status", timeout=2.0)
                 if (status.get("simulated") is not True or
-                        status.get("profile") != "hardware_hybrid_manual_v1_offline6d"):
+                        status.get("profile") not in (
+                            "hardware_hybrid_manual_v1_offline6d",
+                            "hardware_hybrid_manual_v1_offline6d_dds")):
                     raise HTTPException(status_code=503, detail="offline_agent_identity_mismatch")
             if simulated and not offline_agent:
                 car = InMemoryRecordingCarClient(clock_ns=facade.clock_ns, simulated=True)
@@ -1264,6 +1304,49 @@ def hybrid_home(body: dict):
     return _hybrid_guard(lambda: method(dict(body)))
 
 
+@router.get("/hybrid/feedback-limits")
+def hybrid_feedback_limits():
+    facade = get_hybrid_facade()
+    contract = getattr(facade, "feedback_limit_contract", None)
+    if callable(contract):
+        return _hybrid_guard(contract)
+    return _hybrid_guard(lambda: _http("GET", "/hybrid/feedback-limits", timeout=3))
+
+
+@router.post("/hybrid/feedback-limits")
+def hybrid_save_feedback_limits(body: dict, request: Request):
+    facade = get_hybrid_facade()
+
+    def save():
+        with facade.lock:
+            if facade.session_id is not None:
+                raise HTTPException(status_code=409, detail="feedback_limits_require_released_session")
+            token = _http("POST", "/control/acquire", {
+                "client_id": "feedback-limits:" + _owner(request), "ttl_s": 15}, timeout=3)["token"]
+            try:
+                saved = _http("POST", "/hybrid/feedback-limits", body, token, timeout=3)
+            finally:
+                _http("POST", "/control/release", {}, token, timeout=3)
+        contract = getattr(facade, "feedback_limit_contract", None)
+        if callable(contract):
+            current = contract()
+            if current.get("sha256") != saved.get("sha256"):
+                raise HTTPException(
+                    status_code=409,
+                    detail="feedback_limits_readback_mismatch_after_save")
+            return {
+                **current,
+                **saved,
+                "readback": {
+                    "confirmed": True,
+                    "sha256": current.get("sha256"),
+                    "version": current.get("version"),
+                },
+            }
+        return saved
+    return _hybrid_guard(save)
+
+
 @router.get("/hybrid/mapping")
 def hybrid_mapping():
     facade = get_hybrid_facade()
@@ -1279,6 +1362,15 @@ def hybrid_mapping_directions(body: dict):
     setter = getattr(facade, "save_mapping_directions", None)
     if not callable(setter):
         raise HTTPException(status_code=503, detail="mapping editor unavailable")
+    return _hybrid_guard(lambda: setter(dict(body)))
+
+
+@router.post("/hybrid/mapping/anchors")
+def hybrid_mapping_anchors(body: dict):
+    facade = get_hybrid_facade()
+    setter = getattr(facade, "save_mapping_anchors", None)
+    if not callable(setter):
+        raise HTTPException(status_code=503, detail="mapping anchor editor unavailable")
     return _hybrid_guard(lambda: setter(dict(body)))
 
 
@@ -1310,6 +1402,55 @@ def hybrid_recording(body: dict):
 def hybrid_recording_status():
     controller = get_hybrid_recording()
     return _hybrid_guard(lambda: describe_recording(controller))
+
+
+_HYBRID_CAPTURE = None
+_HYBRID_CAPTURE_LOCK = threading.Lock()
+
+
+def _capture_dataset_meta(repo_id: str) -> dict:
+    from lerobot.datasets.lerobot_dataset import LeRobotDatasetMetadata
+
+    root = lerobot_dataset_root() / repo_id
+    if not root.is_dir():
+        raise FileNotFoundError(f"dataset root missing: {root}")
+    meta = LeRobotDatasetMetadata(repo_id, root)
+    identity_path = root / "meta" / "lelab_export_identity.json"
+    data_identity = None
+    if identity_path.is_file():
+        try:
+            data_identity = json.loads(identity_path.read_text()).get("data_identity")
+        except Exception:  # noqa: BLE001 - absence is reported, never guessed
+            data_identity = None
+    return {"robot_type": meta.robot_type, "fps": meta.fps,
+            "features": meta.features, "total_episodes": meta.total_episodes,
+            "data_identity": data_identity}
+
+
+def get_hybrid_capture():
+    """One orchestrator over the same facade/recording singletons (no second lease)."""
+    global _HYBRID_CAPTURE
+    with _HYBRID_CAPTURE_LOCK:
+        if _HYBRID_CAPTURE is None:
+            from .hybrid_capture import CaptureOrchestrator
+
+            facade = get_hybrid_facade()
+            recording = get_hybrid_recording()
+            _HYBRID_CAPTURE = CaptureOrchestrator(
+                facade, recording, collection_root=COLLECTION_ROOT,
+                sync_fn=sync_session, export_spawn=_spawn_export_job,
+                export_status=export_status, dataset_meta=_capture_dataset_meta)
+        return _HYBRID_CAPTURE
+
+
+@router.get("/hybrid/capture/status")
+def hybrid_capture_status():
+    return _hybrid_guard(lambda: get_hybrid_capture().status())
+
+
+@router.post("/hybrid/capture/{action}")
+def hybrid_capture_action(action: str, body: dict):
+    return _hybrid_guard(lambda: get_hybrid_capture().handle(action, dict(body or {})))
 
 
 @router.post("/hybrid/probe-leader")
@@ -1906,6 +2047,8 @@ def _read_frames(bag_dir: Path, topic: str, start_ns: int, end_ns: int,
     frames.sort(key=lambda row: int(row.get("stamp_ns", 0)))
     accepted: list[dict] = []
     seen_identity: set[tuple] = set()
+    expected_feedback_limits = (
+        identity.get("feedback_limits") or {}).get("version")
     for row in frames:
         stamp = int(row.get("stamp_ns", 0))
         if not start_ns <= stamp <= end_ns:
@@ -1921,9 +2064,14 @@ def _read_frames(bag_dir: Path, topic: str, start_ns: int, end_ns: int,
         if row.get("clock_epoch") != identity["clock_epoch"]:
             raise ExportRejected(f"episode {episode['episode_id']} row clock_epoch "
                                  f"{row.get('clock_epoch')!r} is not the session's")
-        if row.get("data_identity") != hybrid_schema.SIMULATED_DATA_SOURCE:
+        if row.get("data_identity") != identity.get("data_identity", hybrid_schema.SIMULATED_DATA_SOURCE):
             raise ExportRejected(f"episode {episode['episode_id']} row data_identity "
                                  f"{row.get('data_identity')!r}")
+        if expected_feedback_limits and row.get("feedback_limits_version") != expected_feedback_limits:
+            raise ExportRejected(
+                f"episode {episode['episode_id']} row feedback_limits_version "
+                f"{row.get('feedback_limits_version')!r} differs from session "
+                f"{expected_feedback_limits!r}")
         key = (row.get("stream_epoch"), row.get("frame_seq"))
         if key in seen_identity:
             raise ExportRejected(f"episode {episode['episode_id']} repeats (stream_epoch, "
@@ -1976,10 +2124,14 @@ def _frame_streams(rows: list[dict], episode: dict, schema: dict,
                 f"episode {episode['episode_id']} row frame_seq={row.get('frame_seq')} lacks "
                 f"{missing_action or missing_state}; refusing to zero-fill an axis")
         marker = {"_time_ns": stamp, "_received_ns": stamp,
-                  "contract": "simulated_offline_6d_v1",
+                  "contract": identity.get("contract", "simulated_offline_6d_v1"),
                   "state_feedback_age_s": round(float(age), 4),
                   "state_scan_span_s": row.get("feedback_scan_span_s"),
                   "frame_seq": row.get("frame_seq"), "sample_seq": row.get("sample_seq"),
+                  "feedback_limits_version": row.get("feedback_limits_version"),
+                  "calibration_version": (
+                      row.get("calibration_bundle_hash")
+                      or identity.get("calibration_bundle_hash")),
                   "stream_epoch": row.get("stream_epoch"), "phase": row.get("phase"),
                   "episode_id": episode["episode_id"]}
         arm_values = [float(action[name]) for name in names[:-1]]
@@ -2421,6 +2573,16 @@ def _check_exportable(session_id: str, simulated_offline: bool = False) -> tuple
                 f"session does not qualify for the offline simulated 6D contract: "
                 f"{exc.reason}: {exc.detail}")) from exc
         meta["_simulated_6d"] = identity
+    if (identity is None and teleop
+            and meta.get("data_identity") == hybrid_schema.HARDWARE_DATA_SOURCE
+            and meta.get("runtime_mode") in hybrid_schema.HARDWARE_6D_RUNTIME_MODES):
+        try:
+            identity = hybrid_schema.hardware_6d_identity(meta)
+        except hybrid_schema.SampleRejected as exc:
+            raise HTTPException(status_code=409, detail=(
+                "session does not qualify for the hardware 6D contract: "
+                f"{exc.reason}: {exc.detail}")) from exc
+        meta["_hardware_6d"] = identity
     if hybrid:
         allowed_runtime = (
             {"hardware_hybrid_manual"} if meta.get("source") != hybrid_schema.SIMULATED_DATA_SOURCE
@@ -2445,13 +2607,74 @@ def _check_exportable(session_id: str, simulated_offline: bool = False) -> tuple
     return session_dir, manifest, meta
 
 
+def _load_capture_review(session_id: str) -> dict | None:
+    """Upper-side operator review for a capture task, if one wrote it.
+
+    The car raw manifest stays untouched: ``saved`` there means the raw window
+    closed normally.  Whether an attempt enters the training dataset is the
+    operator's later save/discard/rerecord decision, recorded here.  When this
+    file exists, only attempts explicitly saved pass the episode gate.
+    """
+    path = UPPER_EXPORTS / session_id / "capture_review.json"
+    if not path.is_file():
+        return None
+    review = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(review, dict) or review.get("schema_version") != 1:
+        raise HTTPException(status_code=409, detail="capture_review.json is not a v1 review document")
+    return review
+
+
+def _check_append_target(staging: Path, repo_id: str, features: dict, fps: int,
+                         schema: dict, data_identity: str) -> int:
+    """Re-verify compatibility against the actual dataset copy before appending.
+
+    The comparison uses the exact feature names this export would generate, so a
+    joint-order, unit or camera rename on either side is caught here, before any
+    frame is written into the existing dataset.
+    """
+    from lerobot.datasets.lerobot_dataset import LeRobotDatasetMetadata
+
+    meta = LeRobotDatasetMetadata(repo_id, staging)
+    reasons: list[str] = []
+    if meta.robot_type != schema["robot_type"]:
+        reasons.append(f"robot_type={meta.robot_type!r} != {schema['robot_type']!r}")
+    if int(meta.fps) != int(fps):
+        reasons.append(f"fps={meta.fps} != {fps}")
+    for key, feature in features.items():
+        existing = (meta.features or {}).get(key)
+        if not isinstance(existing, dict):
+            reasons.append(f"missing feature {key}")
+            continue
+        if existing.get("dtype") != feature["dtype"] or list(existing.get("shape") or []) != list(feature["shape"]):
+            reasons.append(f"{key} shape/dtype mismatch "
+                           f"({existing.get('shape')}/{existing.get('dtype')} vs "
+                           f"{feature['shape']}/{feature['dtype']})")
+        if list(existing.get("names") or []) != list(feature.get("names") or []):
+            reasons.append(f"{key}.names mismatch "
+                           f"({existing.get('names')} vs {feature.get('names')})")
+        existing_units = (existing.get("info") or {}).get("units")
+        new_units = (feature.get("info") or {}).get("units")
+        if new_units is not None and list(existing_units or []) != list(new_units):
+            reasons.append(f"{key}.info.units mismatch ({existing_units} vs {new_units})")
+    identity_path = staging / "meta" / "lelab_export_identity.json"
+    if identity_path.is_file():
+        existing_identity = json.loads(identity_path.read_text(encoding="utf-8"))
+        if existing_identity.get("data_identity") != data_identity:
+            reasons.append(
+                f"data_identity={existing_identity.get('data_identity')!r} != {data_identity!r}")
+    if reasons:
+        raise HTTPException(status_code=409,
+                            detail=f"append target {repo_id} incompatible: {'; '.join(reasons)}")
+    return int(meta.total_episodes)
+
+
 def export_session(session_id: str, include_failed: bool = False,
                    simulated_offline: bool = False) -> dict:
     from lerobot.datasets import LeRobotDataset
     import numpy as np
 
     session_dir, manifest, meta = _check_exportable(session_id, simulated_offline=simulated_offline)
-    identity = meta.get("_simulated_6d")
+    identity = meta.get("_simulated_6d") or meta.get("_hardware_6d")
     schema = _export_schema(meta)
     teleop = schema["kind"] == ARM_GRIPPER_SCHEMA
     hybrid = schema["kind"] == HYBRID_SCHEMA
@@ -2474,9 +2697,18 @@ def export_session(session_id: str, include_failed: bool = False,
             episodes = [e for e in episodes if (e.get("evaluation") or {}).get("success") not in (False, "failure")]
         else:
             episodes = [e for e in episodes if (e.get("evaluation") or {}).get("success") is True]
+    review = _load_capture_review(session_id)
+    if review is not None:
+        dispositions = review.get("dispositions") or {}
+        # With an operator review on file, only explicitly saved attempts enter the
+        # dataset; discarded/rerecorded/interrupted raw stays on disk as evidence.
+        episodes = [e for e in episodes if dispositions.get(e.get("episode_id")) == "saved"]
     if not episodes:
         raise HTTPException(status_code=409,
-                            detail="no accepted episodes in this session (teleop episodes may be unknown-labelled)"
+                            detail=("no accepted episodes in this session: the operator review saved none "
+                                    "(discarded/rerecorded/interrupted attempts stay raw-only)"
+                                    if review is not None else
+                                    "no accepted episodes in this session (teleop episodes may be unknown-labelled)")
                             if (teleop or hybrid) else "no accepted successful episodes in this session")
     if hybrid:
         for episode in episodes:
@@ -2498,13 +2730,25 @@ def export_session(session_id: str, include_failed: bool = False,
         raise HTTPException(status_code=409, detail="raw bag directory missing")
 
     repo_short = session_id.replace("ros_", "").replace("_", "-").lower()
-    repo_id = f"lelab/ros-mobile-{repo_short}"
-    final_root = lerobot_dataset_root() / repo_id
-    if final_root.exists():
-        raise HTTPException(status_code=409, detail=f"dataset already exists: {final_root}")
+    append_repo = str((review or {}).get("append_to") or "") or None
+    if append_repo:
+        repo_id = append_repo
+        final_root = lerobot_dataset_root() / repo_id
+        if not final_root.is_dir():
+            raise HTTPException(status_code=409,
+                                detail=f"append target dataset missing: {final_root}")
+    else:
+        repo_id = f"lelab/ros-mobile-{repo_short}"
+        final_root = lerobot_dataset_root() / repo_id
+        if final_root.exists():
+            raise HTTPException(status_code=409, detail=f"dataset already exists: {final_root}")
     export_dir = UPPER_EXPORTS / session_id
     export_dir.mkdir(parents=True, exist_ok=True)
     staging = export_dir / f"staging-{int(time.time())}"
+    if append_repo:
+        # Append into a private copy; the live dataset is only swapped after the
+        # staged copy validates, and the previous version is kept as a backup.
+        shutil.copytree(final_root, staging)
     # LeRobotDataset.create owns the root and requires it not to exist.
     height, width, encoding = _first_image_geometry(bag_dir, image_topic)
     if encoding not in ("rgb8", "bgr8"):
@@ -2574,9 +2818,11 @@ def export_session(session_id: str, include_failed: bool = False,
         "success_labeling": ("manual_or_unknown_no_simulator_ground_truth" if (teleop or hybrid)
                              else "gazebo_physics_success_gate"),
         "data_identity": (
-            "simulated_offline" if (simulation or identity) else "hardware_or_legacy_export"
+            identity.get("data_identity") if identity is not None
+            else ("simulated_offline" if simulation else "hardware_or_legacy_export")
         ),
-        "training_eligible": False if (simulation or identity) else True,
+        "training_eligible": (bool(identity.get("training_eligible", False))
+                              if identity is not None else (False if simulation else True)),
         "warnings": ([] if not schema["include_base"] or hybrid or base_source == "gazebo_model_odometry"
                      else ["legacy session uses wheel odometry; body velocity may not match the model"])
         + ([] if camera_profile != "legacy_unlabeled" else ["legacy session has no camera profile/extrinsics label"])
@@ -2585,12 +2831,21 @@ def export_session(session_id: str, include_failed: bool = False,
             "action is the post-clamp target the gateway sent; the leader reading is recorded separately and is not the action",
             "state is the measured follower joint feedback; mechanical execution is inferred from later feedback, not observed",
         ])
-        + ([] if not (teleop and identity is not None) else [
+        + ([] if not (teleop and identity is not None
+                      and identity.get("data_identity") == hybrid_schema.SIMULATED_DATA_SOURCE) else [
             "phase 1 export is arm+gripper only: the locked chassis is excluded rather than zero-filled",
             "action is the target the control process recorded sending; the leader reading and the "
             "pre-clamp value are recorded next to it and are not the action",
             "state is the servo readback the control process recorded at that instant; the board "
             "behind it is simulated, so nothing here is a hardware measurement",
+        ])
+        + ([] if not (teleop and identity is not None
+                      and identity.get("data_identity") == hybrid_schema.HARDWARE_DATA_SOURCE) else [
+            "phase 1 export is arm+gripper only: the locked chassis is excluded rather than zero-filled",
+            "action is the target the control process recorded sending; the leader reading and the "
+            "pre-clamp value are recorded next to it and are not the action",
+            "state is the measured servo readback the control process recorded at that instant; "
+            "mechanical execution is inferred from later feedback, not observed",
         ])
         + ([] if not hybrid else [
             "9D action is three base velocity commands plus five post-clamp joint targets plus one gripper target",
@@ -2609,31 +2864,48 @@ def export_session(session_id: str, include_failed: bool = False,
         report["simulation_identity"] = simulation
     if identity is not None:
         report["export_contract"] = identity["contract"]
-        report["simulated_offline_identity"] = identity
         report["sampling"] = identity["sampling"]
-        report["warnings"].extend([
-            "offline simulated 6D evidence: the action is the target the car's control process "
-            "recorded sending, and the state is the servo readback it saw at that instant - "
-            "neither is a hardware measurement",
-            "one dataset frame per recorded teleop row, so the dataset rate is the measured "
-            f"row rate ({fps} Hz), not the declared camera rate",
-            "the dataset is not training-eligible and must not be mixed with hardware sessions",
-        ])
+        if identity.get("data_identity") == hybrid_schema.HARDWARE_DATA_SOURCE:
+            report["hardware_6d_identity"] = identity
+            report["warnings"].extend([
+                "hardware 6D evidence: the action is the sent target and the state is the measured "
+                "servo readback recorded by the car's control process",
+                "one dataset frame per recorded teleop row, so the dataset rate is the measured "
+                f"row rate ({fps} Hz), not the declared camera rate",
+                "success is the operator's manual label or unknown; no simulator ground truth is applied",
+            ])
+        else:
+            report["simulated_offline_identity"] = identity
+            report["warnings"].extend([
+                "offline simulated 6D evidence: the action is the target the car's control process "
+                "recorded sending, and the state is the servo readback it saw at that instant - "
+                "neither is a hardware measurement",
+                "one dataset frame per recorded teleop row, so the dataset rate is the measured "
+                f"row rate ({fps} Hz), not the declared camera rate",
+                "the dataset is not training-eligible and must not be mixed with hardware sessions",
+            ])
     if fps != declared_fps:
         report["warnings"].append(
             f"dataset sampled at {fps} Hz because the video encoder requires a whole-number rate; "
             f"the profile declared {declared_fps} Hz")
     dataset = None
+    existing_episodes = 0
     try:
-        dataset = LeRobotDataset.create(
-            repo_id=repo_id,
-            fps=fps,
-            features=features,
-            root=staging,
-            robot_type=schema["robot_type"],
-            use_videos=True,
-            batch_encoding_size=1,
-        )
+        if append_repo:
+            existing_episodes = _check_append_target(
+                staging, repo_id, features, fps, schema, report["data_identity"])
+            dataset = LeRobotDataset.resume(
+                repo_id=repo_id, root=staging, batch_encoding_size=1)
+        else:
+            dataset = LeRobotDataset.create(
+                repo_id=repo_id,
+                fps=fps,
+                features=features,
+                root=staging,
+                robot_type=schema["robot_type"],
+                use_videos=True,
+                batch_encoding_size=1,
+            )
         for episode in episodes:
             start = int(episode.get("started_time_ns", episode.get("started_sim_ns")))
             end = int(episode.get("ended_time_ns") or episode.get("ended_sim_ns") or start)
@@ -2840,6 +3112,7 @@ def export_session(session_id: str, include_failed: bool = False,
                         f"{exc.reason}: {exc.detail}") from exc
             report["episodes"].append({
                 "episode_id": episode["episode_id"],
+                "episode_index": existing_episodes + len(report["episodes"]),
                 "source": episode.get("source"),
                 "success": episode.get("evaluation", {}).get("success"),
                 "frames": count,
@@ -2861,8 +3134,9 @@ def export_session(session_id: str, include_failed: bool = False,
         image_key = schema["image_name"]
         image_shape = tuple(sample[image_key].shape) if image_key in sample else None
         verify = None
-        if total_episodes != len(report["episodes"]):
-            raise RuntimeError(f"episode count mismatch: {total_episodes} != {len(report['episodes'])}")
+        if total_episodes != existing_episodes + len(report["episodes"]):
+            raise RuntimeError(f"episode count mismatch: {total_episodes} != "
+                               f"{existing_episodes + len(report['episodes'])}")
         report.update({
             "status": "validated",
             "total_frames": total_frames,
@@ -2872,7 +3146,7 @@ def export_session(session_id: str, include_failed: bool = False,
             "validated_wall": time.time(),
         })
         report["dataset_root"] = str(final_root)
-        if identity is not None:
+        if identity is not None and not append_repo:
             # Written next to the dataset, not only in the report: whoever opens the dataset
             # later must be able to see that it is offline simulated evidence without
             # trusting the file that described the export run.
@@ -2880,15 +3154,50 @@ def export_session(session_id: str, include_failed: bool = False,
                 **identity, "session_id": session_id, "repo_id": repo_id,
                 "written_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             }, indent=2), encoding="utf-8")
-        (staging / "meta" / "lelab_phase_index.json").write_text(json.dumps({
+        phase_index_path = staging / "meta" / "lelab_phase_index.json"
+        previous_phase_episodes: list[dict] = []
+        if append_repo and phase_index_path.is_file():
+            previous_phase_episodes = json.loads(
+                phase_index_path.read_text(encoding="utf-8")).get("episodes", [])
+        phase_index_path.write_text(json.dumps({
             "version": 1, "session_id": session_id, "clock_domain": meta.get("clock_domain"),
-            "episodes": [{"episode_index": i, "episode_id": e["episode_id"],
-                          "phases": e["phases"]} for i, e in enumerate(report["episodes"])],
+            "episodes": previous_phase_episodes + [
+                {"episode_index": e["episode_index"], "episode_id": e["episode_id"],
+                 "phases": e["phases"]} for e in report["episodes"]],
         }, indent=2), encoding="utf-8")
+        if review is not None:
+            report["capture_review"] = {
+                "task_id": review.get("task_id"), "name": review.get("name"),
+                "dispositions": review.get("dispositions"),
+            }
+        if append_repo:
+            report["append"] = {"repo_id": repo_id, "existing_episodes": existing_episodes,
+                                "appended_episodes": len(report["episodes"])}
+            history_path = staging / "meta" / "lelab_append_history.json"
+            history = (json.loads(history_path.read_text(encoding="utf-8"))
+                       if history_path.is_file() else {"appends": []})
+            history["appends"].append({
+                "session_id": session_id, "task_id": (review or {}).get("task_id"),
+                "episode_ids": [e["episode_id"] for e in report["episodes"]],
+                "first_episode_index": existing_episodes,
+                "written_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            })
+            history_path.write_text(json.dumps(history, indent=2), encoding="utf-8")
         final_root.parent.mkdir(parents=True, exist_ok=True)
         temp_final = final_root.parent / f".{final_root.name}.publishing-{int(time.time())}"
-        shutil.move(str(staging), str(temp_final))
-        os.rename(temp_final, final_root)
+        if append_repo:
+            backup = final_root.parent / f".{final_root.name}.backup-{int(time.time())}"
+            os.rename(final_root, backup)
+            try:
+                shutil.move(str(staging), str(temp_final))
+                os.rename(temp_final, final_root)
+            except Exception:
+                os.rename(backup, final_root)
+                raise
+            report["append"]["backup_root"] = str(backup)
+        else:
+            shutil.move(str(staging), str(temp_final))
+            os.rename(temp_final, final_root)
         (export_dir / "export_report.json").write_text(json.dumps(report, indent=2))
         (export_dir / "READY").write_text(json.dumps({"repo_id": repo_id, "root": str(final_root), "total_frames": total_frames}))
         return report

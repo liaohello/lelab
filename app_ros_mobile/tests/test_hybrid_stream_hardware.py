@@ -26,7 +26,16 @@ def _car_status(raw=None, sample_seq=3, publisher_instance=4242, publisher_gener
                        "source_kind": "servo_position_readback", "sample_seq": sample_seq,
                        "age_s": 0.02, "received_mono_ns": 1, "sample_time_ns": 2,
                        "valid": True, "error": None} for name, value in raw.items()}
-    return {"control": {"active": True, "follower_feedback": {
+    return {"control": {"active": True, "feedback_raw_limits": {
+                "version": "limits-test",
+                "sha256": "a" * 64,
+                "binding_status": "device_bound",
+                "device_identity": {"host_serial": "test-host"},
+                "ranges": {
+                    name: [-50 if name == "joint3" else 0, 1000]
+                    for name in ids
+                },
+            }, "follower_feedback": {
                 "available": True, "reason": "ok", "joint_samples": samples,
                 "scan_span_s": 0.04, "stale_after_s": 0.5,
                 "publisher_instance": publisher_instance,
@@ -363,6 +372,56 @@ def test_engage_rebases_after_leader_reposition_and_rejects_stale_identity(rig):
     facade.set_arm_state({"action": "engage", **identity})
     assert facade.observer.reference["leader_rad"]["joint1"] == pytest.approx(
         old_reference["joint1"] + 0.3)
+    deadline = time.monotonic() + 2
+    while not state["frames"] and time.monotonic() < deadline:
+        time.sleep(0.02)
+    assert state["frames"]
+    facade.set_arm_state({"action": "release_clutch", **identity})
+
+
+def test_absolute_mapping_engages_through_bounded_controlled_approach(rig):
+    facade, state = rig
+    observer = facade.observer
+    mapping = observer.store.load("mapping", observer.identities["mapping"]).data
+    joint2 = next(row for row in mapping["joints"] if row["follower"] == "joint2")
+    joint2.update({
+        "mapping_mode": "absolute_raw_linear",
+        "leader_low_raw": 865,
+        "leader_high_raw": 3250,
+        "follower_at_leader_low_raw": 900,
+        "follower_at_leader_high_raw": 50,
+    })
+    observer.store.save("mapping", observer.identities["mapping"], mapping)
+
+    base_snapshot = facade.upper.reader.snapshot
+
+    def snapshot_with_raw():
+        sample = base_snapshot()
+        sample["raw_positions"] = {
+            "shoulder_pan": 2000,
+            "shoulder_lift": 865,
+            "elbow_flex": 2400,
+            "wrist_flex": 2600,
+            "wrist_roll": 2000,
+            "gripper": 1500,
+        }
+        return sample
+
+    facade.upper.reader.snapshot = snapshot_with_raw
+    acquired = facade.acquire_session({"owner": "offline-test"})
+    identity = {
+        "session_id": acquired["session_id"],
+        "session_epoch": acquired["session_epoch"],
+    }
+    facade.preview(identity)
+    for action in ("align", "arm", "engage"):
+        facade.set_arm_state({"action": action, **identity})
+
+    assert facade.arm_state == "following"
+    approach = facade.status()["follow_runtime"]["controlled_approach"]
+    assert approach["active"] is True
+    assert approach["axes"] == ["joint2"]
+    assert approach["step_limit_owner"] == "car_output_driver"
     deadline = time.monotonic() + 2
     while not state["frames"] and time.monotonic() < deadline:
         time.sleep(0.02)

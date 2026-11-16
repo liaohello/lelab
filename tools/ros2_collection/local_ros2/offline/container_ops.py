@@ -160,7 +160,8 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="command", required=True)
 
-    for name in ("stop-board", "stop-control", "stop-licence", "stop-agent", "stop-camera"):
+    for name in ("stop-board", "stop-control", "stop-licence", "stop-agent",
+                 "stop-camera", "stop-bridge"):
         p = sub.add_parser(name)
         p.add_argument("--state-dir", required=True)
         p.add_argument("--timeout-s", type=float, default=10.0)
@@ -175,7 +176,8 @@ def main() -> int:
     p.add_argument("--session-id", default="offline-session")
     p.add_argument("--session-epoch", default="1")
 
-    for name in ("start-board", "start-control", "start-agent", "start-camera"):
+    for name in ("start-board", "start-control", "start-agent", "start-camera",
+                 "start-bridge"):
         p = sub.add_parser(name)
         p.add_argument("--state-dir", required=True)
         # a module for the production-shaped package entry, a script for the fixtures
@@ -207,7 +209,8 @@ def main() -> int:
     expect = {"stop-board": "sim_board_owner.py", "stop-control": "car_control_process",
               "stop-licence": "licence_agent.py",
               "stop-agent": "lelab_mobile_agent.agent",
-              "stop-camera": "sim_camera.py"}.get(args.command)
+              "stop-camera": "sim_camera.py",
+              "stop-bridge": "upper_dds_bridge"}.get(args.command)
     if expect:
         result = stop_recorded(state.parent / f"{args.command.replace('stop-', '')}.pid",
                                expect, args.timeout_s, state=state)
@@ -216,7 +219,7 @@ def main() -> int:
 
     if args.command == "status":
         out = {}
-        for kind in ("board", "control", "licence", "agent", "camera"):
+        for kind in ("board", "control", "licence", "agent", "camera", "bridge"):
             pid_file = state.parent / f"{kind}.pid"
             pid = read_pid_file(pid_file)
             out[kind] = {"pid": pid, "alive": bool(pid and proc_cmdline(pid)),
@@ -237,13 +240,14 @@ def main() -> int:
 
     if args.command == "start-board" and not args.script:
         parser.error("start-board needs --script")
-    if args.command in ("start-control", "start-agent") and not args.module:
+    if args.command in ("start-control", "start-agent", "start-bridge") and not args.module:
         parser.error(f"{args.command} needs --module")
     if args.command == "start-camera" and not args.script:
         parser.error("start-camera needs --script")
 
     kind = {"start-board": "board", "start-control": "control",
-            "start-agent": "agent", "start-camera": "camera"}[args.command]
+            "start-agent": "agent", "start-camera": "camera",
+            "start-bridge": "bridge"}[args.command]
     launch = [args.script] if args.command in ("start-board", "start-camera") else []
     print(json.dumps(start_detached(
         launch + list(args.arg),

@@ -1,0 +1,14 @@
+# Thin wrapper over the existing hybrid session; the agent remains the single
+# lease authority. response_json is the existing status document.
+string action                  # status | acquire | renew | release | clear_estop
+string session_id
+uint64 session_epoch
+string owner
+float64 ttl_s
+string reason
+string request_json
+---
+bool success
+string state
+string detail
+string response_json

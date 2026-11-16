@@ -458,7 +458,8 @@ class HardwareObserver:
         mapper = TeleopMapper(
             mapping, follower_asset.get("limits_rad") or {},
             leader_travel_rad=travel,
-            gripper_mapping_mode="absolute_normalized")
+            gripper_mapping_mode="absolute_normalized",
+            follower_raw_to_rad=follower_asset.get("raw_to_rad") or {})
         mapper.align(
             {name: positions[name] for name in ARM_JOINTS},
             now=time.monotonic(),
@@ -506,6 +507,8 @@ class HardwareObserver:
                     "motion_commands_sent": 0}
         now = time.monotonic()
         requests = []
+        leader_raw = leader.get("raw_positions")
+        leader_raw = leader_raw if isinstance(leader_raw, dict) else {}
         for cfg in mapping.get("joints", []):
             name = cfg.get("follower")
             leader_name = cfg.get("leader")
@@ -516,6 +519,11 @@ class HardwareObserver:
                 "leader_rad": float(leader["positions_rad"][leader_name]),
                 "leader_ref_rad": float(reference["leader_rad"][name]),
                 "follower_ref_rad": float(reference["follower_rad"][name]),
+                "leader_raw": (
+                    float(leader_raw[leader_name])
+                    if isinstance(leader_raw.get(leader_name), (int, float))
+                    and not isinstance(leader_raw.get(leader_name), bool)
+                    else None),
             })
         targets = mapper.frame(requests, now)
         gripper_pct = leader.get("gripper_percent")
@@ -531,6 +539,7 @@ class HardwareObserver:
             "available": len(targets) == len(ARM_JOINTS) and gripper is not None,
             "reason": "preview_only_no_execution_output",
             "leader_rad": dict(leader.get("positions_rad") or {}),
+            "leader_raw": dict(leader_raw),
             "follower_rad": dict(follower),
             "reference": reference,
             "targets": targets,
@@ -867,6 +876,7 @@ class CarHttpOutputDriver:
 class HardwarePreviewFacade(HybridPublicFacade):
     """Expose preview capability while keeping hardware output and verification false."""
 
+    ENGAGE_CONTINUITY_RAD = 0.02
     PREVIEW_ACTIONS = (
         "preview", "align", "arm", "engage", "release_clutch", "pause_all",
         "estop", "clear_estop",
@@ -880,6 +890,7 @@ class HardwarePreviewFacade(HybridPublicFacade):
         self._follow_thread: threading.Thread | None = None
         self._follow_commands = 0
         self._follow_error: str | None = None
+        self._controlled_approach: dict[str, Any] = {}
 
     def _stop_follow_worker(self) -> None:
         self._follow_stop.set()
@@ -991,11 +1002,18 @@ class HardwarePreviewFacade(HybridPublicFacade):
 
     def status(self) -> dict[str, Any]:
         out = super().status()
+        follow_active = bool(
+            self._follow_thread is not None and self._follow_thread.is_alive())
+        controlled_approach = copy.deepcopy(self._controlled_approach)
+        if controlled_approach and (
+                not follow_active or self.arm_state != "following"):
+            controlled_approach["active"] = False
+            controlled_approach["stopped"] = True
         out["follow_runtime"] = {
-            "active": bool(
-                self._follow_thread is not None and self._follow_thread.is_alive()),
+            "active": follow_active,
             "commands_sent": self._follow_commands,
             "last_error": self._follow_error,
+            "controlled_approach": controlled_approach,
         }
         if self._is_simulated() or not isinstance(self.observer, HardwareObserver):
             return out
@@ -1028,8 +1046,49 @@ class HardwarePreviewFacade(HybridPublicFacade):
         }
         return out
 
+    @classmethod
+    def _engage_target_plan(
+            cls, targets: list[dict[str, Any]], feedback: dict[str, float]
+    ) -> tuple[list[str], list[str]]:
+        """Validate engage without defeating the controlled-approach path.
+
+        Relative axes must remain continuous. An absolute axis may intentionally
+        start far from its mapped target because the operator selected that mapping;
+        the car-side output driver still limits every emitted step. A small soft-limit
+        clip is accepted when the resulting target is already within continuity
+        tolerance of the measured axis.
+        """
+        errors: list[str] = []
+        approach: list[str] = []
+        for target in targets:
+            name = target.get("joint")
+            value = target.get("target_rad")
+            if (name not in feedback or not isinstance(value, (int, float))
+                    or isinstance(value, bool) or not math.isfinite(float(value))):
+                errors.append(f"arm:{name}")
+                continue
+            absolute = target.get("mapping_mode") == "absolute_raw_linear"
+            clipped = target.get("clipped") is True
+            pre_clip = target.get("pre_clip_rad")
+            intended = (
+                float(pre_clip)
+                if not clipped and isinstance(pre_clip, (int, float))
+                and not isinstance(pre_clip, bool) and math.isfinite(float(pre_clip))
+                else float(value)
+            )
+            difference = abs(intended - float(feedback[name]))
+            if difference > cls.ENGAGE_CONTINUITY_RAD:
+                if clipped:
+                    errors.append(f"arm:{name}")
+                elif absolute:
+                    approach.append(str(name))
+                else:
+                    errors.append(f"arm:{name}")
+        return errors, approach
+
     def set_arm_state(self, event: Any) -> dict[str, Any]:
         action = event.get("action") if isinstance(event, dict) else event
+        approach_axes: list[str] = []
         if action in ("align", "engage") and isinstance(self.observer, HardwareObserver):
             # Validate before touching the reference: stale or out-of-order requests
             # must not alter the active mapper. Rebase at the explicit engage, too,
@@ -1053,13 +1112,9 @@ class HardwarePreviewFacade(HybridPublicFacade):
                         errors.append("reference_invalid")
                     if preview.get("available") is not True or len(targets) != len(ARM_JOINTS):
                         errors.append("preview_incomplete")
-                    for target in targets:
-                        name = target.get("joint")
-                        value = target.get("target_rad")
-                        if (target.get("clipped") or name not in feedback or
-                                not isinstance(value, (int, float)) or not math.isfinite(value) or
-                                abs(value - float(feedback[name])) > 0.02):
-                            errors.append(f"arm:{name}")
+                    target_errors, approach_axes = self._engage_target_plan(
+                        targets, feedback)
+                    errors.extend(target_errors)
                     grip_value = gripper.get("target_rad")
                     gripper_absolute = gripper.get("mapping_mode") == "absolute_normalized"
                     if (gripper.get("clipped") or "r_joint" not in feedback or
@@ -1074,8 +1129,15 @@ class HardwarePreviewFacade(HybridPublicFacade):
         if action in ("pause_all", "release_clutch", "lock_base", "estop",
                       "clear_estop", "reconnect", "fault"):
             self._stop_follow_worker()
+            self._controlled_approach = {}
         out = super().set_arm_state(event)
         if action == "engage" and self.arm_state == "following":
+            self._controlled_approach = {
+                "active": bool(approach_axes),
+                "axes": approach_axes,
+                "mode": "bounded_absolute_target_approach" if approach_axes else None,
+                "step_limit_owner": "car_output_driver",
+            }
             self._start_follow_worker()
         return out
 
@@ -1125,22 +1187,41 @@ class HardwarePreviewFacade(HybridPublicFacade):
         return report
 
     def mapping_directions(self) -> dict[str, Any]:
-        if self.session_id is not None:
-            raise HybridSessionError("release_session_before_mapping_change")
         if not isinstance(self.observer, HardwareObserver):
             raise HardwareCompositionError("mapping_observer_unavailable")
         record = self.calibration_store.load(
             "mapping", self.observer.identities["mapping"])
+        follower = self.calibration_store.load(
+            "follower", self.observer.identities["follower"]).data
         mapping = record.data
+        follower_joints = follower.get("joints") or {}
         return {
             "identity": record.identity,
             "version": record.version,
             "sha256": record.sha256,
+            "supports_absolute_raw_linear": True,
             "joints": [
                 {
                     "follower": item.get("follower"),
                     "leader": item.get("leader"),
                     "direction": int(item.get("direction", 1)),
+                    "mapping_mode": (
+                        "absolute_raw_linear"
+                        if item.get("mapping_mode") == "absolute_raw_linear"
+                        else "relative_delta"),
+                    "absolute_raw": (
+                        {
+                            "leader_low_raw": item.get("leader_low_raw"),
+                            "leader_high_raw": item.get("leader_high_raw"),
+                            "follower_at_leader_low_raw":
+                                item.get("follower_at_leader_low_raw"),
+                            "follower_at_leader_high_raw":
+                                item.get("follower_at_leader_high_raw"),
+                        }
+                        if item.get("mapping_mode") == "absolute_raw_linear"
+                        else None),
+                    "follower_raw_range": self._follower_raw_range(
+                        follower_joints, str(item.get("follower"))),
                 }
                 for item in mapping.get("joints", [])
                 if isinstance(item, dict)
@@ -1151,6 +1232,228 @@ class HardwarePreviewFacade(HybridPublicFacade):
                 "direction": int(
                     (mapping.get("gripper") or {}).get("direction", 1)),
             },
+        }
+
+    def feedback_limit_contract(self) -> dict[str, Any]:
+        """Return the single observation/target/command range contract.
+
+        Feedback limits come from the car's versioned persistent document. Target
+        soft limits are computed from the loaded B-layer follower calibration and
+        mapping soft limits, then intersected with the unsigned command domain.
+        """
+        if not isinstance(self.observer, HardwareObserver):
+            raise HardwareCompositionError("feedback_limits_observer_unavailable")
+        feedback = _http_json(
+            self.observer.agent_url, "/hybrid/feedback-limits",
+            timeout=self.observer.timeout_s)
+        follower = self.calibration_store.load(
+            "follower", self.observer.identities["follower"]).data
+        mapping = self.calibration_store.load(
+            "mapping", self.observer.identities["mapping"]).data
+        transforms = follower.get("raw_to_rad") or {}
+        hard_limits = follower.get("limits_rad") or {}
+        target: dict[str, list[int]] = {}
+        for item in mapping.get("joints", []):
+            name = item.get("follower")
+            if name not in ARM_JOINTS:
+                continue
+            low, high = hard_limits.get(name, [0.0, 0.0])
+            low = max(float(low), float(item.get("soft_min_rad", low)))
+            high = min(float(high), float(item.get("soft_max_rad", high)))
+            transform = transforms.get(name) or {}
+            target[name] = self._rad_limits_to_command_raw(
+                low, high, transform)
+        gripper = mapping.get("gripper") or {}
+        low, high = hard_limits.get(
+            "r_joint", [float(gripper.get("soft_min_rad", 0.0)),
+                        float(gripper.get("soft_max_rad", 0.0))])
+        low = max(float(low), float(gripper.get("soft_min_rad", low)))
+        high = min(float(high), float(gripper.get("soft_max_rad", high)))
+        grip_raw = self._rad_limits_to_command_raw(
+            low, high, transforms.get("r_joint") or {})
+        grip_raw[0] = max(
+            grip_raw[0], math.ceil(float(gripper.get("pulse_min", 0))))
+        grip_raw[1] = min(
+            grip_raw[1], math.floor(float(gripper.get("pulse_max", 1000))))
+        if grip_raw[0] > grip_raw[1]:
+            raise HardwareCompositionError(
+                "target_soft_limit_outside_command_domain")
+        target["r_joint"] = grip_raw
+        readiness = self.observer.calibration_readiness()
+        binding_status = (
+            "device_bound"
+            if isinstance(feedback.get("device_identity"), dict)
+            and feedback["device_identity"]
+            else "legacy_profile_only_upgrade_on_save"
+        )
+        return {
+            **feedback,
+            "target_soft_ranges_raw": target,
+            "target_soft_source": (
+                "follower B limits_rad intersect mapping soft limits "
+                "intersect command raw 0..1000"),
+            "target_soft_units": "raw",
+            "calibration_bundle_hash": readiness.get("bundle_hash"),
+            "feedback_settings_sha256": feedback.get("sha256"),
+            "binding_status": binding_status,
+            "feedback_binding_status": binding_status,
+        }
+
+    @staticmethod
+    def _rad_limits_to_command_raw(low: float, high: float,
+                                   transform: dict[str, Any]) -> list[int]:
+        zero = float(transform.get("zero_tick", transform.get("centre_raw", 500)))
+        direction = float(transform.get("direction", 1))
+        scale = float(transform.get(
+            "radians_per_tick", RADIANS_PER_PULSE)) * direction
+        if low > high or not math.isfinite(low) or not math.isfinite(high) \
+                or scale == 0 or not math.isfinite(scale):
+            raise HardwareCompositionError("target_soft_limit_invalid")
+        a = zero + low / scale
+        b = zero + high / scale
+        raw_low = max(0, math.ceil(min(a, b)))
+        raw_high = min(1000, math.floor(max(a, b)))
+        if raw_low > raw_high:
+            raise HardwareCompositionError("target_soft_limit_outside_command_domain")
+        return [raw_low, raw_high]
+
+    @staticmethod
+    def _follower_raw_range(
+            follower_joints: dict[str, Any], follower: str
+    ) -> list[int] | None:
+        item = follower_joints.get(follower)
+        if not isinstance(item, dict):
+            return None
+        low = item.get("observed_min_raw")
+        high = item.get("observed_max_raw")
+        if (type(low) is not int or type(high) is not int or high <= low):
+            return None
+        return [low, high]
+
+    @staticmethod
+    def _validated_absolute_raw_anchor(
+            follower: str, item: dict[str, Any], raw_range: list[int] | None
+    ) -> dict[str, Any]:
+        mode = item.get("mode")
+        if mode == "relative":
+            if set(item) != {"mode"}:
+                raise HybridSessionError(f"invalid_mapping_anchor_fields:{follower}")
+            return {"mode": "relative"}
+        if mode != "absolute_raw_linear":
+            raise HybridSessionError(f"invalid_mapping_mode:{follower}")
+        fields = {
+            "mode",
+            "leader_low_raw",
+            "leader_high_raw",
+            "follower_at_leader_low_raw",
+            "follower_at_leader_high_raw",
+        }
+        if set(item) != fields:
+            raise HybridSessionError(f"invalid_mapping_anchor_fields:{follower}")
+        values: dict[str, int] = {}
+        for field in fields - {"mode"}:
+            value = item.get(field)
+            if type(value) is not int:
+                raise HybridSessionError(f"mapping_anchor_not_integer:{follower}:{field}")
+            values[field] = value
+        leader_low = values["leader_low_raw"]
+        leader_high = values["leader_high_raw"]
+        follower_low = values["follower_at_leader_low_raw"]
+        follower_high = values["follower_at_leader_high_raw"]
+        if not (0 <= leader_low <= 4095 and 0 <= leader_high <= 4095):
+            raise HybridSessionError(f"leader_anchor_out_of_range:{follower}")
+        if leader_low == leader_high:
+            raise HybridSessionError(f"leader_anchors_equal:{follower}")
+        if not (0 <= follower_low <= 1000 and 0 <= follower_high <= 1000):
+            raise HybridSessionError(f"follower_anchor_out_of_range:{follower}")
+        if follower_low == follower_high:
+            raise HybridSessionError(f"follower_anchors_equal:{follower}")
+        if raw_range is not None and not (
+                raw_range[0] <= follower_low <= raw_range[1]
+                and raw_range[0] <= follower_high <= raw_range[1]):
+            raise HybridSessionError(
+                f"follower_anchor_outside_calibrated_range:{follower}"
+                f":{raw_range[0]}..{raw_range[1]}")
+        return {"mode": mode, **values}
+
+    def save_mapping_anchors(self, body: dict[str, Any]) -> dict[str, Any]:
+        if self.session_id is not None:
+            raise HybridSessionError("release_session_before_mapping_change")
+        if not isinstance(self.observer, HardwareObserver):
+            raise HardwareCompositionError("mapping_observer_unavailable")
+        if set(body) != {"anchors"} or not isinstance(body.get("anchors"), dict):
+            raise HybridSessionError("mapping_anchors_required")
+        requested = body["anchors"]
+        if not requested or not set(requested).issubset(set(ARM_JOINTS)):
+            raise HybridSessionError("mapping_anchors_must_select_arm_joints")
+        record = self.calibration_store.load(
+            "mapping", self.observer.identities["mapping"])
+        follower = self.calibration_store.load(
+            "follower", self.observer.identities["follower"]).data
+        follower_joints = follower.get("joints") or {}
+        mapping = dict(record.data)
+        saved_anchors: dict[str, dict[str, Any]] = {}
+        for name, raw_anchor in requested.items():
+            if not isinstance(raw_anchor, dict):
+                raise HybridSessionError(f"mapping_anchor_not_object:{name}")
+            anchor = self._validated_absolute_raw_anchor(
+                name, raw_anchor, self._follower_raw_range(follower_joints, name))
+            saved_anchors[name] = anchor
+        joints = []
+        seen = set()
+        for item in mapping.get("joints", []):
+            updated = dict(item)
+            follower_name = updated.get("follower")
+            anchor = saved_anchors.get(str(follower_name))
+            if anchor is not None:
+                seen.add(str(follower_name))
+                if anchor["mode"] == "relative":
+                    for field in (
+                            "leader_low_raw", "leader_high_raw",
+                            "follower_at_leader_low_raw",
+                            "follower_at_leader_high_raw"):
+                        updated.pop(field, None)
+                    updated["mapping_mode"] = "relative_delta"
+                else:
+                    updated["mapping_mode"] = "absolute_raw_linear"
+                    for field in (
+                            "leader_low_raw", "leader_high_raw",
+                            "follower_at_leader_low_raw",
+                            "follower_at_leader_high_raw"):
+                        updated[field] = int(anchor[field])
+                    # This is display metadata only for absolute mode. The raw
+                    # interpolation itself uses the two ordered anchor pairs.
+                    leader_delta = (
+                        int(anchor["leader_high_raw"])
+                        - int(anchor["leader_low_raw"]))
+                    follower_delta = (
+                        int(anchor["follower_at_leader_high_raw"])
+                        - int(anchor["follower_at_leader_low_raw"]))
+                    updated["direction"] = (
+                        1 if leader_delta * follower_delta >= 0 else -1)
+            joints.append(updated)
+        if seen != set(requested):
+            raise HybridSessionError("mapping_anchor_joint_unknown")
+        mapping["joints"] = joints
+        mapping["follow_law"] = (
+            "per-axis relative delta or absolute leader-raw to follower-raw "
+            "linear anchors; clamp, EMA and rate limit remain active")
+        mapping["motion_profile"] = (
+            "operator_adjusted_absolute_raw_anchors_pending_no_output_preview")
+        provenance = list(mapping.get("provenance") or [])
+        provenance.append(
+            "operator saved absolute raw anchors while no control session was active; "
+            "reacquire, preview and align before enabling output")
+        mapping["provenance"] = provenance
+        saved = self.calibration_store.save(
+            "mapping", self.observer.identities["mapping"], mapping)
+        return {
+            "saved": True,
+            "identity": saved.identity,
+            "version": saved.version,
+            "sha256": saved.sha256,
+            "anchors": saved_anchors,
+            "action_required": "reacquire_preview_align_before_enable",
         }
 
     def save_mapping_directions(self, body: dict[str, Any]) -> dict[str, Any]:
@@ -1223,7 +1526,7 @@ def build_hardware_facade(agent_url: str | None = None) -> HardwarePreviewFacade
     """Build inert real adapters; hardware is contacted only after an explicit request."""
     agent_url = (agent_url or os.environ.get("LELAB_ROS_AGENT_URL", "http://127.0.0.1:8110")).rstrip("/")
     transport = os.environ.get("LELAB_HYBRID_TRANSPORT", "legacy_http")
-    if transport == "frame_stream_v1":
+    if transport in ("frame_stream_v1", "dds_v1"):
         from .hybrid_stream_hardware import build_stream_hardware_facade
         return build_stream_hardware_facade(agent_url)
     if transport != "legacy_http":

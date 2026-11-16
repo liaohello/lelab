@@ -44,6 +44,8 @@ PY="$REPO_ROOT/app_ros_mobile/.venv/bin/python"
 C_WS=/work/out/local_humble/docker/ws
 C_STATE=/work/out/local_humble/docker/state
 C_EVID=/work/out/local_humble/docker/evidence
+C_DDS_WS=/work/out/dds_r1/ws
+C_DDS_STATE=/work/out/dds_r1/state
 C_OPS=/work/lelab/tools/ros2_collection/local_ros2/offline/container_ops.py
 C_OFF=/work/lelab/tools/ros2_collection/local_ros2/offline
 C_PROFILE="${LROS_DOCKER_PROFILE:-/work/lelab/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d.json}"
@@ -52,7 +54,7 @@ H_STATE="$WORK_DIR/docker/state"
 H_EVID="$WORK_DIR/docker/evidence"
 BUNDLE="${LROS_DOCKER_BUNDLE:-$(printf 'a%.0s' {1..64})}"
 # Sourcing preamble for anything that needs rclpy inside the container.
-C_INIT="source /opt/ros/humble/setup.bash; [ -f $C_WS/install/setup.bash ] && source $C_WS/install/setup.bash; export PYTHONPATH=$C_SRC:\${PYTHONPATH:-} CAR_PKG=$C_SRC"
+C_INIT="source /opt/ros/humble/setup.bash; [ -f $C_WS/install/setup.bash ] && source $C_WS/install/setup.bash; [ -f $C_DDS_WS/install/setup.bash ] && source $C_DDS_WS/install/setup.bash; export PYTHONPATH=$C_SRC:\${PYTHONPATH:-} CAR_PKG=$C_SRC"
 
 require_docker() { command -v docker >/dev/null || lros_die "docker is not installed"; }
 
@@ -186,6 +188,9 @@ case "${1:-doctor}" in
     cexec "mkdir -p $C_WS $C_STATE $C_EVID && python3 /work/lelab/tools/ros2_collection/local_ros2/lib/stage_vendor.py --source /work/vendor --dest $C_WS/src/ros_robot_controller_msgs --manifest $C_EVID/vendor-msgs-manifest.json" 2>&1 | tail -2
     cexec "cd $C_WS && $C_INIT && colcon --log-base log build --base-paths src --packages-select ros_robot_controller_msgs --install-base install --build-base build 2>&1 | tail -3"
 
+    lros_log "building lelab_mobile_interfaces in a separate install tree"
+    cexec "mkdir -p $C_DDS_WS/src $C_DDS_WS/build $C_DDS_WS/install $C_DDS_WS/log && rm -rf $C_DDS_WS/src/lelab_mobile_interfaces && cp -r /work/lelab/ros2_ws/src/lelab_mobile_interfaces $C_DDS_WS/src/ && cd $C_DDS_WS && source /opt/ros/humble/setup.bash && colcon --log-base log build --packages-select lelab_mobile_interfaces --build-base build --install-base install 2>&1 | tail -3"
+
     lros_log "starting the simulated board and the standalone control process"
     # Rotate, never delete: a status file left by a crashed previous run reads exactly
     # like a live one, and that is how a dead control process gets mistaken for a
@@ -196,7 +201,15 @@ case "${1:-doctor}" in
     # The recorder refuses to start while a required topic is stale, so the synthetic
     # wrist camera is part of the standing stack, not something each phase re-launches.
     cexec "$C_INIT; python3 $C_OPS start-camera --state-dir $C_STATE --script $C_OFF/sim_camera.py --arg=--rate-hz --arg=15" 2>&1 | tail -1
-    cexec "$C_INIT; python3 $C_OPS start-control --state-dir $C_STATE --module lelab_mobile_agent.car_control_process --arg=--profile --arg=$C_PROFILE --arg=--stream-port --arg=$STREAM_PORT --arg=--licence-socket --arg=$C_STATE/licence.sock --arg=--status-path --arg=$C_STATE/car_control_status.json --arg=--control-hz --arg=10 --arg=--window-ms --arg=250 --arg=--bundle-hash --arg=$BUNDLE" 2>&1 | tail -1
+    DDS_KEY_ARG=""
+    if [ -n "${LROS_DOCKER_DDS_KEY:-}" ]; then
+      DDS_KEY_ARG="--arg=--dds-command-key-file --arg=$LROS_DOCKER_DDS_KEY"
+    fi
+    cexec "$C_INIT; python3 $C_OPS start-control --state-dir $C_STATE --module lelab_mobile_agent.car_control_process --arg=--profile --arg=$C_PROFILE --arg=--stream-port --arg=$STREAM_PORT --arg=--licence-socket --arg=$C_STATE/licence.sock --arg=--status-path --arg=$C_STATE/car_control_status.json --arg=--control-hz --arg=10 --arg=--window-ms --arg=250 --arg=--bundle-hash --arg=$BUNDLE $DDS_KEY_ARG" 2>&1 | tail -1
+    if [ "${LROS_DOCKER_START_BRIDGE:-0}" = "1" ]; then
+      [ -n "${LROS_DOCKER_DDS_KEY:-}" ] || lros_die "LROS_DOCKER_START_BRIDGE=1 needs LROS_DOCKER_DDS_KEY"
+      cexec "$C_INIT; python3 $C_OPS start-bridge --state-dir $C_STATE --module lelab_mobile_agent.upper_dds_bridge --arg=--socket --arg=$C_DDS_STATE/bridge.sock --arg=--command-key-file --arg=$LROS_DOCKER_DDS_KEY --arg=--simulated --arg=--no-services" 2>&1 | tail -1
+    fi
     sleep 2
     lros_log "starting the PRODUCTION agent: it owns the car lease, the licence mirror and the recorder"
     cexec "$C_INIT; python3 $C_OPS start-agent --state-dir $C_STATE --module lelab_mobile_agent.agent --arg=--ros-args --arg=-p --arg=profile_path:=$C_PROFILE --arg=-p --arg=car_root:=/work/out/local_humble/docker --arg=-p --arg=host:=127.0.0.1 --arg=-p --arg=port:=$AGENT_PORT --arg=-p --arg=licence_socket:=$C_STATE/licence.sock --arg=-p --arg=control_status_path:=$C_STATE/car_control_status.json" 2>&1 | tail -1

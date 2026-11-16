@@ -431,3 +431,62 @@ agent `control.estop_latched` 与控制进程 `latched_fault` 置位，两者都
 ARM64 与固件本轮只有失败证据（无交叉工具链、`exec format error`），没有任何二进制产物；
 `deploy_readonly_agent.sh --apply/--stop/--rollback` 需要 Pi 可达，未执行。
 真机门禁清单（含上面①②的处置决定）写在 P4 README 第 6 节，逐项确认之前不要宣称"只差上车"。
+
+## 11. DDS 原生反馈/命令离线接通（2026-11-07，domain 94）
+
+本轮在既有隔离 Humble 容器中加入 `lelab_mobile_interfaces`、typed 反馈桥、DDS 薄命令适配和
+网页 `/ws/ros-status`；不改既有 domain 93 栈，不接真机，不向真实舵机发送动作。
+
+```bash
+cd /home/liaozhengyan/Desktop/lelab
+sg docker -c 'tools/ros2_collection/local_ros2/bin/dds_r1 up'
+sg docker -c 'tools/ros2_collection/local_ros2/bin/dds_r1 verify'
+sg docker -c 'tools/ros2_collection/local_ros2/bin/dds_r1 down'
+sg docker -c 'tools/ros2_collection/local_ros2/bin/dds_r1 all'
+```
+
+- 车端 profile：`ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d-dds.json`
+  （`allowed_transports=["dds_v1"]`，`simulated_offline`）。
+- 上位 bridge：`python3 -m lelab_mobile_agent.upper_dds_bridge --socket ... --command-key-file ...`；
+  app 侧 `LELAB_HYBRID_TRANSPORT=dds_v1`、`LELAB_HYBRID_FEEDBACK_SOURCE=dds`、
+  `LELAB_DDS_*_SOCKET`、`LELAB_DDS_COMMAND_KEY_FILE`。
+- 命令和反馈都经同一条本机 Unix socket；DDS 命令的 HMAC key 必须 0600，未配置时车端
+  `dds_command_disabled`，不会静默降级。
+- 记录/证据：`docs/evidence/landerpi-ros2-native-r1-20261107/README.md`；最终候选
+  `landerpi-ros2native-20261107T152145Z`（sha256 `518500c0e0d04548c172b9797319dc74b38af25a6c7dc107c20a0a1c73fdc37e`）。
+- `bin/build` 现同时构建 `ros_robot_controller_msgs` 与 `lelab_mobile_interfaces`；
+  `bin/package` 的 allow-list 已包含接口包、DDS 模块、profile 和 vendor 0006 补丁。
+
+### 实机相机驱动选择更正（2026-11-08）
+
+Pi 上 USB `3251:1930 Aurora 930` 应使用 `aurora930_node`，不能因为目标话题叫
+`/ascamera/camera_publisher/rgb0/image` 就启动 Angstrong 的 `ascamera_node`。
+车端已安装的 `peripherals/launch/include/aurora930.launch.py` 将 Aurora 图像重映射到
+现有 `/ascamera/...` 话题，无需因此换相机、改 profile 或更换数据 schema。
+这类 SDK 相机没有 UVC `/dev/videoN` 不能单独证明未连接；应核查 USB、驱动打开设备日志和
+实际图像。相机进程必须匹配当前车端的 RMW/domain/localhost/peer 设置，不能照抄历史 DDS 环境。
+本次恢复、实际图像、输出零增量与按身份停止方法见
+`docs/evidence/landerpi-camera-diagnosis-20261108T061725Z/README.md`；两集录制及 T7 导出仍未验收。
+
+## 12. 操作员采集流程（网页录制编排层，2026-11-08）
+
+`/landerpi` 已改为单一 `operator_stage` + 单一主按钮的编排流程：
+获取控制 → 开始数据集 → REC 开始本集 → 标记抓取 → 结束本集 → 保存/丢弃/重录 → 下一集 → 结束数据集（收尾/同步/导出）。
+底层 preview/align/arm/engage 与 start_session/start_episode 由后端薄编排层
+（`app_ros_mobile/lelab/hybrid_capture.py` + 路由 `/ros-mobile/hybrid/capture/*`）统一编排，仍走同一双层租约、TTL、
+急停与可信反馈门禁，不新建绕过通道；标定/映射端点/范围/测量移到 `/landerpi/calibration` 的高级设置。
+
+- 录制权威在服务端：`recording_active` 需 attempt=recording ∧ 控制身份匹配 ∧ 输出开启；刷新页面按服务端恢复，
+  session/episode id 非空不再等于“正在录制”。控制换代后新会话不继承旧 REC，旧 attempt 标 `interrupted` 并保留车端证据。
+- `end_episode` 前端只发一个意图（后端内部先停后收尾，不再重复 `pause_all`）；`recover` 用车端自身 recording id
+  关旧包，容忍“已关闭/属另一会话”，最终由 sync 校验真实 manifest。`close_dataset` 存在待审核集时拒绝而非静默丢弃。
+- 相机 `preview.jpg?fresh=true` 必须带 `X-LeLab-Viewer`（匿名 400 `viewer_required`），多页面各自独立帧进度、
+  不再互相消耗导致持续 409；组件遇 409 保留上一帧标“画面过期·可能断流”并继续轮询。
+- 导出读取上位 `capture_review.json`：只有操作员 `saved` 的 attempt 进入 LeRobot 数据集；追加用 `resume()` 在私有副本
+  写入、校验后带备份原子换回；`hardware_hybrid_manual_v1_offline6d_dds` 已纳入离线 6D 契约允许集（不影响硬件路径拒绝模拟）。
+- 验证范围（全部隔离模拟，非真机）：`docs/evidence/landerpi-capture-flow-20261108/` 内
+  `drive_acceptance.py` 22/22（两集完整 + 导出 + SDK/页面读回）、`drive_recovery.py` 17/17（换代/刷新/超时/相机/双观看者/急停）、
+  in-app 浏览器真点击走完主流程到 done。**真机 T7 两集录制/导出/急停抢占仍未验收**。
+  实现与交接详见 `docs/handoffs/2026-11-08-landerpi-capture-flow-implementation.md`。
+- 离线复跑只动 `dds_r1/run/*.pid` 记录进程（`start-dds-stack.sh` 的停止段），**不要** `bin/docker down`
+  （会连容器与 live bridge 一起停）。18288 收尾恢复为 live 硬件服务（`run-live-18288.sh`，dds_v1 + 18110 隧道）。

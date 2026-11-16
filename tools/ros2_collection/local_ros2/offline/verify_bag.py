@@ -135,9 +135,12 @@ def main() -> int:
     check(report, "every_row_names_a_recorded_episode",
           "uncontexted" not in by_episode and set(by_episode) == {ep["episode_id"] for ep in episodes},
           dict(by_episode))
+    # A boundary row can arrive between the episode start and the first phase
+    # context update; it still belongs to the episode, so it is not a missing phase.
+    phases = {row.get("phase") for row in frame_rows if row.get("phase") is not None}
     check(report, "both_phases_recorded",
-          {row.get("phase") for row in frame_rows} == {"observe", "grasp"},
-          sorted({row.get("phase") for row in frame_rows}))
+          phases == {"observe", "grasp"},
+          sorted(str(phase) for phase in phases))
 
     # A row's clock epoch must be the session's, and its bag stamp must be in the same
     # domain as the message timestamp the recorder wrote: that is what makes the row
@@ -188,6 +191,24 @@ def main() -> int:
                 and len(row["state_rad"] or {}) == 6 and row.get("leader_rad")]
     check(report, "six_axis_target_and_state_per_row", len(six_axes) == len(frame_rows),
           f"{len(six_axes)}/{len(frame_rows)}")
+    owner_identity = [row for row in frame_rows
+                      if isinstance(row.get("feedback_owner_instance"), int)
+                      and isinstance(row.get("feedback_scan_sequence"), int)]
+    check(report, "measured_feedback_owner_and_scan_recorded",
+          len(owner_identity) == len(frame_rows),
+          f"{len(owner_identity)}/{len(frame_rows)}")
+    owner_health = [row for row in frame_rows
+                    if isinstance(row.get("feedback_owner_health"), dict)]
+    consumer_stats = [row for row in frame_rows
+                      if isinstance(row.get("feedback_consumer"), dict)]
+    check(report, "owner_and_consumer_health_recorded",
+          len(owner_health) == len(frame_rows) and len(consumer_stats) == len(frame_rows),
+          f"owner={len(owner_health)} consumer={len(consumer_stats)}")
+    feedback_ages = [row.get("feedback_age_s") for row in frame_rows]
+    check(report, "measured_feedback_age_recorded",
+          all(isinstance(value, (int, float)) and not isinstance(value, bool)
+              and 0.0 <= float(value) <= 1.0 for value in feedback_ages),
+          f"max={max(feedback_ages) if feedback_ages else None}")
     identity = {row["data_identity"] for row in frame_rows}
     check(report, "rows_tagged_simulated_offline", identity == {DATA_IDENTITY}, sorted(identity))
     confirmation = {row["confirmation"] for row in frame_rows}

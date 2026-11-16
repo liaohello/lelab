@@ -393,17 +393,24 @@ def command_event_fields(*, channel: str, payload: dict[str, Any],
     }
 
 
-def feedback_provenance_from_adapter(capabilities: Any, snapshot: Any) -> dict[str, Any]:
+def feedback_provenance_from_adapter(
+    capabilities: Any, snapshot: Any, *, schema: str = SCHEMA_MOBILE_HYBRID_9D,
+    expected_calibration_hash: str | None = None,
+) -> dict[str, Any]:
     """Derive session provenance from live adapter facts, fail closed when absent.
 
     A profile label or topic name cannot prove that a value is measured.  This
     function only marks joints/base as trusted when the adapter explicitly
     reports the trusted source, validity, unchanged calibration identity and
-    freshness metadata needed by the 9D exporter.
+    freshness metadata needed by the selected exporter.  The locked-chassis 6D
+    schema has no base estimate; the default 9D schema still requires one.
     """
     caps = capabilities if isinstance(capabilities, dict) else {}
     snap = snapshot if isinstance(snapshot, dict) else {}
     reasons: list[str] = []
+    arm_only = schema == SCHEMA_ARM_GRIPPER_6DOF
+    if schema not in SCHEMA_NAMES:
+        reasons.append("unknown_export_schema")
     if not caps:
         reasons.append("adapter_capabilities_missing")
     if not snap:
@@ -448,7 +455,7 @@ def feedback_provenance_from_adapter(capabilities: Any, snapshot: Any) -> dict[s
                    and base.get("valid") is True
                    and calibration_hash is not None
                    and base.get("calibration_hash") == calibration_hash)
-    if not base_ok:
+    if not base_ok and not arm_only:
         reasons.append("base_estimate_missing_or_untrusted")
 
     covariance = base.get("covariance") if isinstance(base, dict) else None
@@ -456,7 +463,7 @@ def feedback_provenance_from_adapter(capabilities: Any, snapshot: Any) -> dict[s
                      and all(not isinstance(v, bool)
                              and isinstance(v, (int, float))
                              and math.isfinite(float(v)) for v in covariance))
-    if not covariance_ok:
+    if not covariance_ok and not arm_only:
         reasons.append("base_covariance_missing")
 
     stale_after_s = snap.get("stale_after_s")
@@ -474,18 +481,38 @@ def feedback_provenance_from_adapter(capabilities: Any, snapshot: Any) -> dict[s
     if isinstance(joint_samples, dict) and not scan_span_ok:
         reasons.append("scan_span_unavailable")
 
+    if arm_only:
+        if snap.get("available") is not True:
+            reasons.append("joint_snapshot_unavailable")
+        if not expected_calibration_hash or expected_calibration_hash == "unbound":
+            reasons.append("calibration_identity_unbound")
+        elif calibration_hash != expected_calibration_hash:
+            reasons.append("calibration_identity_mismatch")
+        if max_age_ok and scan_span_ok and float(scan_span_s) > float(stale_after_s):
+            reasons.append("scan_span_exceeds_state_age")
+        if joint_fact_ok and max_age_ok and expected_calibration_hash:
+            for name in STATE_JOINTS:
+                try:
+                    validate_joint_sample(
+                        joint_samples[name], expected_name=name,
+                        calibration_hash=expected_calibration_hash,
+                        max_age_s=float(stale_after_s))
+                except ContractError as exc:
+                    reasons.append(f"joint_sample_invalid:{name}:{exc.reason}")
+
     trusted = not reasons
     return {
         "trusted": trusted,
         "available": trusted,
         "reason": "ok" if trusted else ",".join(dict.fromkeys(reasons)),
         "joint_source_kind": TRUSTED_JOINT_SOURCE if joint_fact_ok else "unavailable",
-        "base_source_kind": base.get("source_kind") if base_ok else "unavailable",
+        "base_source_kind": ("not_in_6d_schema" if arm_only else
+                             base.get("source_kind") if base_ok else "unavailable"),
         "calibration_hash": calibration_hash,
-        "base_estimate_has_covariance": covariance_ok,
+        "base_estimate_has_covariance": False if arm_only else covariance_ok,
         "max_state_age_s": float(stale_after_s) if max_age_ok else None,
         "joint_topic": caps.get("joint_topic") or caps.get("joint_states_topic"),
-        "base_topic": caps.get("base_topic"),
+        "base_topic": None if arm_only else caps.get("base_topic"),
         "scan_span_ms": round(float(scan_span_s) * 1000.0, 3) if scan_span_ok else None,
         "fact_source": "adapter.capabilities+adapter.read_snapshot",
         "execution_observed": "unavailable",

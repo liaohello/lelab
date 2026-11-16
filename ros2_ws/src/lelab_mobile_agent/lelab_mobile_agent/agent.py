@@ -20,6 +20,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
 import numpy as np
+from . import servo_feedback_limits
 import rclpy
 from ament_index_python.packages import get_package_share_directory
 from builtin_interfaces.msg import Duration
@@ -57,7 +58,8 @@ from .follower_calibration_job import (ARM_JOINTS as CALIBRATION_ARM_JOINTS,
                                        GRIPPER_JOINT, CalibrationJobError,
                                        FollowerCalibrationJob)
 from .recorder import SessionRecorder
-from .recording_contract import command_event_fields, feedback_provenance_from_adapter
+from .recording_contract import (SCHEMA_ARM_GRIPPER_6DOF, SCHEMA_MOBILE_HYBRID_9D,
+                                 command_event_fields, feedback_provenance_from_adapter)
 from .ros_servo_output import OUTPUT_TOPIC as SERVO_OUTPUT_TOPIC
 from .ros_servo_output import RosServoOutputDriver
 from .ros_servo_readback import (FEEDBACK_TOPIC as SERVO_FEEDBACK_TOPIC,
@@ -305,6 +307,10 @@ class MobileAgent(Node):
         # control process, and then each action entry point in this agent must refuse
         # rather than silently produce a second writer.
         self.output_transport = str(self.runtime.get("output_transport") or "legacy")
+        # Both framed transports hand emission to the standalone control process;
+        # only the upper-to-car link differs. The legacy action routes stay refused
+        # for either one, so a transport switch cannot create a second writer.
+        self.frame_transport = self.output_transport in ("frame_stream", "dds_v1")
         self.frame_outputs_enabled = False
         self.licence_bridge = None
         sensor_cfg = self.profile.get("sensors", {}).get("wrist_rgb", {})
@@ -534,7 +540,7 @@ class MobileAgent(Node):
                     max_scan_span_s=float(self.follower_feedback_cfg.get("max_scan_span_s", 0.5)),
                     scan_period_s=float(self.follower_feedback_cfg.get("scan_period_s", 0.2)),
                 )
-                if self.output_transport == "frame_stream":
+                if self._frame_transport_enabled():
                     # Reading the board is not writing it.  With the frame transport the
                     # standalone control process owns the servo publisher, so binding one
                     # here would be the second writer this mode exists to rule out; the
@@ -1375,7 +1381,15 @@ class MobileAgent(Node):
         try:
             capabilities = driver.capabilities()
             snapshot = driver.read_snapshot()
-            result = feedback_provenance_from_adapter(capabilities, snapshot)
+            runtime = getattr(self, "runtime", {}) or {}
+            profile = getattr(self, "profile", {}) or {}
+            schema = (runtime.get("export_schema")
+                      or (profile.get("training_export") or {}).get("schema")
+                      or SCHEMA_MOBILE_HYBRID_9D)
+            result = feedback_provenance_from_adapter(
+                capabilities, snapshot, schema=schema,
+                expected_calibration_hash=(self._adapter_calibration_hash()
+                                           if schema == SCHEMA_ARM_GRIPPER_6DOF else None))
             result["simulated"] = False
             result["hardware_measurement"] = bool(result.get("trusted"))
             result["data_source"] = getattr(
@@ -1433,6 +1447,73 @@ class MobileAgent(Node):
     def _refuse_read_only(self, what: str) -> None:
         if self.read_only:
             raise ApiError(403, "read_only_mode", f"{what} is disabled in hardware_readonly mode")
+
+    def feedback_limits_settings(self) -> dict | None:
+        status_path = getattr(self, "control_status_path", "")
+        if not status_path or not getattr(self, "frame_transport", False):
+            return None
+        return servo_feedback_limits.load(
+            Path(status_path).with_name("feedback-raw-limits.json"), self.profile["profile"])
+
+    def _active_feedback_limits(self) -> dict | None:
+        status_path = getattr(self, "control_status_path", "")
+        if not status_path or not getattr(self, "frame_transport", False):
+            return None
+        path = Path(status_path)
+        try:
+            if time.time() - path.stat().st_mtime > 1.0:
+                return None
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        control = document.get("control") if isinstance(document, dict) else None
+        control = control if isinstance(control, dict) else document
+        value = control.get("feedback_raw_limits")
+        return value if isinstance(value, dict) else None
+
+    def _assert_feedback_limits_recording_ready(self) -> dict:
+        saved = self.feedback_limits_settings()
+        active = self._active_feedback_limits()
+        if not isinstance(saved, dict) or not isinstance(active, dict):
+            raise ApiError(409, "feedback_limits_unavailable",
+                           "the recording process has no active feedback-limit contract")
+        if saved.get("version") != active.get("version") or \
+                saved.get("sha256") != active.get("sha256"):
+            raise ApiError(409, "feedback_limits_reenable_required",
+                           "saved feedback limits differ from the range configuration "
+                           "loaded by the output driver")
+        if active.get("binding_status") != "device_bound" or \
+                not isinstance(active.get("device_identity"), dict):
+            raise ApiError(409, "feedback_limits_device_binding_required",
+                           "save and re-enable a device-bound feedback-limit version")
+        return active
+
+    def save_feedback_limits(self, token: str, body: dict) -> dict:
+        self._refuse_read_only("feedback limits configuration")
+        with self.lock:
+            self._check_token(token)
+            if self.feedback_limits_settings() is None:
+                raise ApiError(503, "feedback_limits_unavailable", "frame driver required")
+            if (self.hybrid_control_token is not None or self.frame_outputs_enabled
+                    or self.sessions.active or self.control_mode != "idle"):
+                raise ApiError(409, "feedback_limits_require_released_session", "release teleoperation and recording first")
+            status_path = Path(self.control_status_path)
+            try:
+                age = time.time() - status_path.stat().st_mtime
+                driver = json.loads(status_path.read_text())
+            except (OSError, ValueError) as error:
+                raise ApiError(503, "emitter_state_unavailable", str(error)) from error
+            if not 0 <= age <= 1.0 or driver.get("outputs_enabled") is not False:
+                raise ApiError(409, "emitter_stop_unconfirmed", "fresh disabled emitter required")
+            try:
+                settings = servo_feedback_limits.save(
+                    status_path.with_name("feedback-raw-limits.json"), self.profile["profile"],
+                    body.get("ranges"), body.get("expected_version"))
+            except ValueError as error:
+                raise ApiError(409, "feedback_limits_invalid", str(error)) from error
+            self._emit("feedback_limits_saved", version=settings["version"], ranges=settings["ranges"])
+            return {**settings, "saved": True, "motion_granted": False,
+                    "requires_new_session": True}
 
     def acquire(self, client_id: str, ttl_s: float = 30.0, *,
                 recovery: bool = False) -> dict:
@@ -1573,9 +1654,16 @@ class MobileAgent(Node):
         if bridge is not None:
             bridge.wake()
 
+    def _frame_transport_enabled(self) -> bool:
+        """Both framed transports own emission; partial test objects may only set output_transport."""
+        value = getattr(self, "frame_transport", None)
+        if isinstance(value, bool):
+            return value
+        return getattr(self, "output_transport", "legacy") in ("frame_stream", "dds_v1")
+
     def frame_stream_active(self, session_id=None, session_epoch=None) -> bool:
         bridge = getattr(self, "licence_bridge", None)
-        if bridge is None or self.output_transport != "frame_stream":
+        if bridge is None or not self._frame_transport_enabled():
             return False
         if session_id is None or session_epoch is None:
             live_id, live_epoch, _, _, _ = self._hybrid_identity()
@@ -1595,7 +1683,7 @@ class MobileAgent(Node):
         The stop paths are deliberately never guarded: an emergency stop or a pause
         must keep working while a frame transport owns the output.
         """
-        if self.output_transport != "frame_stream":
+        if not self._frame_transport_enabled():
             return
         session_id, session_epoch, _, _, _ = self._hybrid_identity()
         raise ApiError(409, "frame_transport_active",
@@ -1603,7 +1691,7 @@ class MobileAgent(Node):
                        f"session {session_id} epoch {session_epoch}")
 
     def start_licence_bridge(self, socket_path: str) -> bool:
-        if not socket_path or self.output_transport != "frame_stream":
+        if not socket_path or not self._frame_transport_enabled():
             return False
         from .agent_licence_bridge import AgentLicenceBridge
 
@@ -2120,7 +2208,7 @@ class MobileAgent(Node):
                                "the single-axis control process is missing, stale, or misconfigured")
         from .hybrid_gateway import HybridGatewayError
 
-        if self.output_transport == "frame_stream":
+        if self._frame_transport_enabled():
             # The agent still decides; the control process still emits.  Enabling here
             # must not light up a second driver inside this process, so the identity
             # and trusted-feedback checks above are the gate and the licence mirror is
@@ -2208,7 +2296,7 @@ class MobileAgent(Node):
             session_epoch=status["session_epoch"],
             calibration_bundle_hash=status["calibration_bundle_hash"],
             simulated=self._is_simulated_profile(),
-            emitter="car_control_process" if self.output_transport == "frame_stream" else "agent_gateway",
+            emitter="car_control_process" if self._frame_transport_enabled() else "agent_gateway",
         )
         return {
             **result,
@@ -2237,9 +2325,9 @@ class MobileAgent(Node):
                 if self.base_pub is not None and now - self.last_zero > 0.2:
                     self.base_pub.publish(Twist())
                     self.last_zero = now
-                stale_identity = (self.control_client is not None
-                                  or self.control_epoch is not None
-                                  or self.frame_outputs_enabled)
+                stale_identity = (getattr(self, "control_client", None) is not None
+                                  or getattr(self, "control_epoch", None) is not None
+                                  or getattr(self, "frame_outputs_enabled", False))
                 if (self.control_token is not None and now > self.control_expires) or (
                         self.control_token is None and stale_identity):
                     self._expire_control_lease("control_expired")
@@ -2374,6 +2462,8 @@ class MobileAgent(Node):
             "session_epoch": getattr(self, "recording_session_epoch", None),
             "clock_epoch": getattr(self, "recording_clock_epoch", None),
             "requested_session_id": getattr(self, "requested_session_id", None),
+            "calibration_bundle_hash": getattr(
+                self, "requested_calibration_bundle_hash", None),
             "requested_calibration_bundle_hash": getattr(
                 self, "requested_calibration_bundle_hash", None),
             "session_identity_status": (
@@ -2404,6 +2494,7 @@ class MobileAgent(Node):
             "recording_event_topic": self.profile.get("recording", {}).get(
                 "event_topic", "/lelab/events"),
             "feedback_provenance": self._feedback_provenance(),
+            "feedback_limits": self._active_feedback_limits(),
             "camera_topic": self.rgb_topic,
             "camera_info_topic": self.camera_info_topic,
             "preview_backend": self.preview_backend,
@@ -2522,6 +2613,8 @@ class MobileAgent(Node):
                                f"loaded profile expects {expected_schema!r}")
         if self.sessions.active:
             raise ApiError(409, "session_active", self.sessions.session_id or "")
+        if self.frame_transport and not self.read_only:
+            self._assert_feedback_limits_recording_ready()
         missing = self.topic_health(missing_only=True)
         if missing:
             raise ApiError(409, "topics_missing", ", ".join(missing))
@@ -3120,6 +3213,7 @@ class MobileAgent(Node):
                     "last_reject": self.last_reject,
                     "leader_arm_available": self.leader_arm_enabled,
                     "follower_feedback": self._feedback_gate()[1],
+                    "feedback_raw_limits": self.feedback_limits_settings(),
                     "teleop": {
                         "enabled": bool(self.teleop_cfg.get("enabled")),
                         "state_topic": self.teleop_cfg.get("state_topic"),
@@ -3299,6 +3393,11 @@ class AgentHandler(BaseHTTPRequestHandler):
                 self._json(200, {"ok": True, "agent": self.server.agent.agent_version})
             elif request_path == "/status":
                 self._json(200, self.server.agent.status())
+            elif request_path == "/hybrid/feedback-limits":
+                settings = self.server.agent.feedback_limits_settings()
+                if settings is None:
+                    raise ApiError(503, "feedback_limits_unavailable", "frame driver required")
+                self._json(200, settings)
             elif request_path == "/preview.mjpg":
                 self._mjpeg()
             elif request_path == "/preview.jpg":
@@ -3362,7 +3461,9 @@ class AgentHandler(BaseHTTPRequestHandler):
                     "/expert/run", "/expert/stop", "/task/reset"):
                 raise ApiError(409, "hybrid_no_output",
                                "hybrid profile refuses legacy actuator paths; use the v1 channel gateway")
-            if self.path == "/hybrid/begin_epoch":
+            if self.path == "/hybrid/feedback-limits":
+                out = agent.save_feedback_limits(token, body)
+            elif self.path == "/hybrid/begin_epoch":
                 out = agent.begin_hybrid_epoch(token, body)
             elif self.path == "/hybrid/enable_output":
                 out = agent.hybrid_enable_output(token, body)

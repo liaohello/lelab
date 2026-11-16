@@ -116,7 +116,8 @@ class FrameLink:
                  lease_token: str, ttl_ms: int = 150,
                  window_margin_ms: float = DEFAULT_WINDOW_MARGIN_MS,
                  status_cache: CachedCarStatus | None = None,
-                 clock_ns: Callable[[], int] = time.monotonic_ns):
+                 clock_ns: Callable[[], int] = time.monotonic_ns,
+                 client=None, transport_name: str = "frame_stream"):
         self.session_id = session_id
         self.session_epoch = session_epoch
         self.bundle_hash = bundle_hash
@@ -126,11 +127,13 @@ class FrameLink:
         self.window_margin_ms = float(window_margin_ms)
         self.status_cache = status_cache
         self._clock_ns = clock_ns
-        self.client = StreamClient(host=host, port=port, timeout_s=1.0)
+        self.client = client or StreamClient(host=host, port=port, timeout_s=1.0)
+        self.transport_name = transport_name
         self._seq = {"arm": 0, "gripper": 0}
         self._frame_seq = 0
         self.counts = {"submitted": 0, "skipped_no_window": 0, "admitted": 0,
-                       "refused": 0, "receipts": 0, "superseded": 0, "errors": 0}
+                       "refused": 0, "receipts": 0, "superseded": 0, "errors": 0,
+                       "emitted": 0}
         self.refusals: dict[str, int] = {}
         self.last_error: str | None = None
         self.stream_epoch: int | None = None
@@ -201,9 +204,15 @@ class FrameLink:
         self.collect()
         if not self.engaged:
             raise FrameLinkError("not_engaged", "call engage() after an explicit align")
+        if (self.transport_name == "dds_v1"
+                and getattr(self.client, "engaged", True) is False):
+            # DDS loss is a stop, never a reason to reopen the TCP transport.
+            raise FrameLinkError("dds_transport_lost",
+                                 getattr(self.client, "last_error", None) or "bridge lost")
         window = self.client.current_window
         remaining = float((window or {}).get("window_remaining_ms") or 0.0)
-        if window is None or remaining < self.window_margin_ms:
+        if (window is None or remaining < self.window_margin_ms
+                or window.get("command_transport_ready") is False):
             # A frame naming a nearly-closed window is refused by the car, so the
             # sender pauses instead of burning sequence numbers on certain refusals.
             self.counts["skipped_no_window"] += 1
@@ -254,15 +263,24 @@ class FrameLink:
             self.counts["errors"] += 1
             self.last_error = f"pump_{error.reason}"
             return receipts
+        transport_error = getattr(self.client, "last_error", None)
+        if transport_error:
+            self.counts["errors"] += 1
+            self.last_error = str(transport_error)
         for receipt in self.client.drain_receipts():
             self.counts["receipts"] += 1
             receipts.append(receipt)
-            if receipt.get("state") == "admitted":
+            state = receipt.get("state")
+            if state == "admitted":
                 self.counts["admitted"] += 1
+            elif state == "emitted":
+                self.counts["emitted"] += 1
             else:
                 self.counts["refused"] += 1
                 reason = str(receipt.get("reason"))
                 self.refusals[reason] = self.refusals.get(reason, 0) + 1
+            if state != "emitted" and receipt.get("emitted") is True:
+                self.counts["emitted"] += 1
         return receipts
 
     def state(self) -> dict[str, Any]:
@@ -277,4 +295,4 @@ class FrameLink:
                             "counts": dict(self.status_cache.counts),
                             "last_error": self.status_cache.last_error}),
                 "frame_protocol_version": FRAME_PROTOCOL_VERSION,
-                "transport": "frame_stream"}
+                "transport": self.transport_name}

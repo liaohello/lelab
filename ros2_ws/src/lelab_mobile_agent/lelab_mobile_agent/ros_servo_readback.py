@@ -6,6 +6,7 @@ driver periodically asks its bounded read service for joint identity and positio
 """
 from __future__ import annotations
 
+import json
 import threading
 import time
 from typing import Any, Callable
@@ -19,6 +20,9 @@ SERVICE = "/ros_robot_controller/bus_servo/get_state"
 RAW_MIN = -1000
 RAW_MAX = 1000
 FEEDBACK_TOPIC = "/lelab/ros_robot_controller/servo_readback"
+HEALTH_TOPIC = "/lelab/ros_robot_controller/driver_health"
+HEALTH_SCHEMA = "lelab.servo_driver_health.v1"
+HEALTH_MAX_BYTES = 65536
 # v2 measured-frame envelope: [format=2, owner_instance, seq, scan_us, id,pos ×6].
 # owner_instance is a software identifier the publishing owner generates once at
 # startup; it is NOT an MCU boot ID and carries no hardware provenance. Sequence
@@ -399,6 +403,8 @@ class RosServoFeedbackTopicDriver:
         max_scan_span_s: float = 0.5,
         scan_period_s: float = 0.2,
         converter: Callable[[int, str], float] | None = None,
+        health_topic: str | None = None,
+        health_message_type: Any = None,
     ) -> None:
         self.node = node
         self.message_type = message_type
@@ -427,9 +433,20 @@ class RosServoFeedbackTopicDriver:
         self.last_success_mono: float | None = None
         self.successful_scans = 0
         self.failed_scans = 0
+        self.first_failure: dict[str, Any] | None = None
+        self.on_frame: Callable[[dict[str, Any]], None] | None = None
+        self.frame_callback_errors = 0
+        self.owner_health: dict[str, Any] | None = None
+        self.owner_health_mono: float | None = None
+        self.owner_health_rejects = 0
+        self.owner_health_last_error: str | None = None
         self.paused = False
         self.subscription = node.create_subscription(
             message_type, topic, self._on_message, 10)
+        self.health_subscription = None
+        if health_topic and health_message_type is not None:
+            self.health_subscription = node.create_subscription(
+                health_message_type, health_topic, self._on_health, 10)
 
     @staticmethod
     def _default_converter(raw: int, _name: str) -> float:
@@ -470,7 +487,45 @@ class RosServoFeedbackTopicDriver:
         with self.lock:
             self.last_error = reason
             self.failed_scans += 1
+            if self.first_failure is None:
+                self.first_failure = {"reason": reason,
+                                      "at_mono_ns": time.monotonic_ns()}
             self.store.clear(reason)
+
+    def _on_health(self, message: Any) -> None:
+        """Owner scan health is a different fact from this consumer's receipt stats."""
+        try:
+            payload = str(getattr(message, "data", ""))
+            if not payload or len(payload) > HEALTH_MAX_BYTES:
+                raise ValueError("health_payload_size")
+            document = json.loads(payload)
+            if not isinstance(document, dict) or document.get("schema") != HEALTH_SCHEMA:
+                raise ValueError("health_schema")
+            owner = document.get("owner_instance")
+            if isinstance(owner, bool) or not isinstance(owner, int) or owner < 1:
+                raise ValueError("health_owner_instance")
+            for key in ("scans_ok", "scans_failed", "consecutive_failures",
+                        "recovery_attempts", "write_failures"):
+                value = document.get(key, 0)
+                if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                    raise ValueError(f"health_{key}")
+            sequence = document.get("last_success_seq")
+            if sequence is not None and (
+                    isinstance(sequence, bool) or not isinstance(sequence, int)
+                    or sequence < 0):
+                raise ValueError("health_last_success_seq")
+            first = document.get("first_failure")
+            if first is not None and not isinstance(first, dict):
+                raise ValueError("health_first_failure")
+        except (TypeError, ValueError) as error:
+            with self.lock:
+                self.owner_health_rejects += 1
+                self.owner_health_last_error = str(error)
+            return
+        with self.lock:
+            self.owner_health = document
+            self.owner_health_mono = time.monotonic()
+            self.owner_health_last_error = None
 
     def _on_message(self, message: Any) -> None:
         owner_change: tuple[int | None, int, int] | None = None
@@ -565,9 +620,17 @@ class RosServoFeedbackTopicDriver:
             self.scan_span_s = scan_span_us / 1_000_000.0
             self.last_success_mono = finished
             self.last_error = None
+            self.first_failure = None
             self.successful_scans += 1
             if changed:
                 owner_change = (previous_owner, owner, self.publisher_generation)
+            frame_callback = self.on_frame
+        if frame_callback is not None:
+            try:
+                frame_callback(self.read_snapshot())
+            except Exception:  # noqa: BLE001 - a subscriber must not kill the owner feed
+                with self.lock:
+                    self.frame_callback_errors += 1
         if owner_change is not None and self.on_owner_changed is not None:
             # Fired outside the readback lock: the control runtime takes its own
             # control lock and stops the output driver here. Observation resumes
@@ -588,6 +651,22 @@ class RosServoFeedbackTopicDriver:
             snapshot["publisher_generation"] = self.publisher_generation
             snapshot["publisher_identity_kind"] = "software_owner_instance"
             snapshot["last_success_mono"] = self.last_success_mono
+            snapshot["first_failure"] = self.first_failure
+            snapshot["owner_health"] = self.owner_health
+            snapshot["owner_health_age_s"] = (
+                None if self.owner_health_mono is None
+                else max(0.0, time.monotonic() - self.owner_health_mono))
+            snapshot["owner_health_rejects"] = self.owner_health_rejects
+            snapshot["owner_health_last_error"] = self.owner_health_last_error
+            snapshot["frame_callback_errors"] = self.frame_callback_errors
+            snapshot["consumer"] = {
+                "successful_scans": self.successful_scans,
+                "failed_scans": self.failed_scans,
+                "last_error": self.last_error,
+                "first_failure": self.first_failure,
+                "note": ("consumer failed_scans counts invalid received frames; "
+                         "the owner's scans_failed is the acquisition-side count"),
+            }
             snapshot["servo_pulses"] = {
                 name: int(sample["raw_position"])
                 for name, sample in (snapshot.get("joint_samples") or {}).items()

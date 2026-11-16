@@ -1,0 +1,14 @@
+# Wraps the existing cancellable homing task. It does not copy the state machine
+# and does not acquire a second lease.
+string session_id
+uint64 session_epoch
+string request_id
+---
+bool success
+string state
+string detail
+string result_json
+---
+float32 progress
+string phase
+string detail

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useApi } from "@/contexts/ApiContext";
 import { apiRequest } from "@/lib/apiClient";
+import { useStatusStream } from "@/hooks/useStatusStream";
 
 const PROFILE = "hardware_hybrid_follow_v1";
 const JOINTS = ["joint1", "joint2", "joint3", "joint4", "joint5"] as const;
@@ -64,6 +65,8 @@ function number(value: unknown, digits = 3): string {
 function faultExplanation(value: unknown): string {
   if (typeof value !== "string" || !value) return "服务端没有提供具体故障原因。";
   const descriptions: Array<[string, string]> = [
+    ["frame_emitter_feedback_out_of_range", "从臂当前位置超出驱动允许的 raw 0–1000 范围，使能请求已拒绝；请先核对姿态、零位和标定。"],
+    ["frame_emitter_enable_timeout", "执行进程未在限定时间内完成使能，输出保持关闭；详情中的 car_last_refusal 是车端最近的拒绝记录。"],
     ["follow_feedback_untrusted", "六路从臂反馈在 1.0 秒门限内没有形成一组有效新扫描，跟随已主动停止输出。"],
     ["stale_or_invalid_timestamp", "六轴共用同一次扫描时间戳；时间戳过期或非法时整组反馈会被安全门禁拒绝。"],
     ["frame_follow_failed", "跟随线程触发反馈门禁后主动退出，网页服务本身仍在运行。"],
@@ -166,8 +169,13 @@ export default function LanderpiTeleop() {
   const [mappingConfig, setMappingConfig] = useState<any>(null);
   const [mappingDraft, setMappingDraft] = useState<Record<string, number>>({});
   const [mappingBusy, setMappingBusy] = useState(false);
+  const [rosStatus, setRosStatus] = useState<any>(null);
   const refreshing = useRef(false);
   const heartbeatInFlight = useRef(false);
+  const rosStream = useStatusStream<any>({
+    path: "/ws/ros-status",
+    onMessage: setRosStatus,
+  });
 
   const request = useCallback(async (path: string, init?: RequestInit) => {
     return apiRequest<any>(baseUrl, fetchWithHeaders, path, {
@@ -511,6 +519,68 @@ export default function LanderpiTeleop() {
             <button type="button" onClick={() => setError(null)} className="ml-auto text-xs underline">关闭</button>
           </div>
         )}
+
+        <section
+          data-testid="ros-status-card"
+          className="rounded-2xl border border-slate-800 bg-slate-900/45 p-4"
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="mr-auto text-sm font-semibold text-slate-200">ROS 2 反馈与停止回执</h2>
+            <Badge ok={rosStream === "open"}>状态流 {rosStream === "open" ? "已连接" : rosStream}</Badge>
+            <Badge ok={rosStatus?.feedback_valid === true}>
+              反馈 {rosStatus?.feedback_valid === true ? "新鲜" : "不可用"}
+            </Badge>
+            <Badge ok={rosStatus?.transport === "dds_v1"}>
+              传输 {typeof rosStatus?.transport === "string" ? rosStatus.transport : "未连接"}
+            </Badge>
+            <Badge ok={rosStatus?.estop_latched !== true}>
+              {rosStatus?.estop_latched === true ? "急停锁存" : "急停未锁存"}
+            </Badge>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3 lg:grid-cols-6">
+            <div className="rounded-lg bg-slate-950/70 p-2">
+              <p className="text-[10px] uppercase tracking-wider text-slate-600">源扫描年龄</p>
+              <p className="mt-1 font-mono text-sm text-sky-300">{number(rosStatus?.source_scan_age_s, 3)} s</p>
+            </div>
+            <div className="rounded-lg bg-slate-950/70 p-2">
+              <p className="text-[10px] uppercase tracking-wider text-slate-600">缓存年龄</p>
+              <p className="mt-1 font-mono text-sm text-sky-300">{number(rosStatus?.cache_age_s, 3)} s</p>
+            </div>
+            <div className="rounded-lg bg-slate-950/70 p-2">
+              <p className="text-[10px] uppercase tracking-wider text-slate-600">采样率</p>
+              <p className="mt-1 font-mono text-sm text-emerald-300">{number(rosStatus?.sample_rate_hz, 2)} Hz</p>
+            </div>
+            <div className="rounded-lg bg-slate-950/70 p-2">
+              <p className="text-[10px] uppercase tracking-wider text-slate-600">恢复阶段</p>
+              <p className="mt-1 font-mono text-sm text-slate-200">
+                {typeof rosStatus?.recovery?.phase === "string" ? rosStatus.recovery.phase : "无"}
+              </p>
+            </div>
+            <div className="rounded-lg bg-slate-950/70 p-2">
+              <p className="text-[10px] uppercase tracking-wider text-slate-600">首次故障</p>
+              <p className="mt-1 break-all font-mono text-xs text-amber-300">
+                {typeof rosStatus?.first_failure?.reason === "string"
+                  ? rosStatus.first_failure.reason
+                  : "无"}
+              </p>
+            </div>
+            <div className="rounded-lg bg-slate-950/70 p-2">
+              <p className="text-[10px] uppercase tracking-wider text-slate-600">停止回执</p>
+              <p className="mt-1 break-all font-mono text-xs text-slate-200">
+                {typeof rosStatus?.stop_receipt?.reason === "string"
+                  ? rosStatus.stop_receipt.reason
+                  : typeof rosStatus?.last_stop?.state === "string"
+                    ? rosStatus.last_stop.state
+                    : "无"}
+              </p>
+            </div>
+          </div>
+          <p className="mt-2 font-mono text-[11px] text-slate-500">
+            scan #{String(rosStatus?.scan_sequence ?? "—")} · owner {String(rosStatus?.publisher_instance ?? "—")}
+            {" · "}consumer failed {String(rosStatus?.consumer?.failed_scans ?? "—")}
+            {" · "}owner failed {String(rosStatus?.owner_health?.scans_failed ?? "—")}
+          </p>
+        </section>
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
           <section className="overflow-hidden rounded-2xl border border-slate-800 bg-black/70 shadow-2xl shadow-black/30">

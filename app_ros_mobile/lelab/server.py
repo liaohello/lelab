@@ -1691,6 +1691,14 @@ async def websocket_storage_status(websocket: WebSocket):
     await _push_status_loop(websocket, get_storage_summary, interval=2.0)
 
 
+@app.websocket("/ws/ros-status")
+async def websocket_ros_status(websocket: WebSocket):
+    """ROS/DDS feedback and stop status without polling the car."""
+    from .ros_status_stream import collect_ros_status
+
+    await _push_status_loop(websocket, collect_ros_status, interval=0.5)
+
+
 # 开始录制。三重前置检查，任一不过就拒绝启动：
 #   1. 磁盘剩余 < 5% → 507（录制会迅速撑爆磁盘）；
 #   2. 服务端相机预览必须先释放设备 → 否则 409；

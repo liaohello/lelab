@@ -24,12 +24,14 @@ from facade_smoke import (AGENT, STREAM_PORT, WORK, SyntheticUpper, car_status,
                           FrameCarControlLease, StreamHardwareObserver,
                           FrameStreamHardwareFacade, FrameStreamDriver,
                           configure_hybrid_facade)
+from lelab.hybrid_stream_hardware import DdsFrameDriver
 
 # Set before importing the route modules: they snapshot these paths at import time.
 os.environ["LELAB_ROS_AGENT_URL"] = AGENT
 os.environ["LELAB_ROS_COLLECTION_ROOT"] = str(WORK / "web-upper")
 os.environ["HF_LEROBOT_HOME"] = str(WORK / "web-datasets")
-os.environ.setdefault("LELAB_HYBRID_TRANSPORT", "frame_stream_v1")
+TRANSPORT = os.environ.get("LELAB_HYBRID_TRANSPORT", "frame_stream_v1")
+os.environ["LELAB_HYBRID_TRANSPORT"] = TRANSPORT
 
 from lelab import ros_mobile  # noqa: E402
 from lelab import server as production  # noqa: E402
@@ -44,14 +46,29 @@ def build_simulated_facade() -> FrameStreamHardwareFacade:
     assets = calibration_assets_fixture(measured_at_utc="2026-11-04T00:00:00Z")
     ids = {kind: assets[kind]["identity"] for kind in ("leader", "follower", "mapping")}
     upper = SyntheticUpper(agent_url=AGENT, store=store, leader_identity=ids["leader"])
-    car = FrameCarControlLease(AGENT, expected_profile="hardware_hybrid_manual_v1_offline6d")
-    observer = StreamHardwareObserver(upper=upper, agent_url=AGENT, store=store,
+    expected_transport = "dds_v1" if TRANSPORT == "dds_v1" else "frame_stream"
+    expected_profile = ("hardware_hybrid_manual_v1_offline6d_dds"
+                        if TRANSPORT == "dds_v1" else "hardware_hybrid_manual_v1_offline6d")
+    car = FrameCarControlLease(AGENT, expected_profile=expected_profile,
+                               expected_transport=expected_transport)
+    observer = StreamHardwareObserver(
+        upper=upper, agent_url=AGENT, store=store,
         leader_identity=ids["leader"], follower_identity=ids["follower"],
-        mapping_identity=ids["mapping"], simulated_source=True)
+        mapping_identity=ids["mapping"], simulated_source=True,
+        feedback_source=("dds" if TRANSPORT == "dds_v1" else "http"),
+        dds_socket=os.environ.get("LELAB_DDS_FEEDBACK_SOCKET"))
     car.observer = observer
     facade = FrameStreamHardwareFacade(upper=upper, car=car, observer=observer,
                                        calibration_store=store)
-    facade.bind_driver(FrameStreamDriver(car, observer, AGENT, host="127.0.0.1", port=STREAM_PORT))
+    if TRANSPORT == "dds_v1":
+        facade.bind_driver(DdsFrameDriver(
+            car, observer, AGENT,
+            dds_socket=os.environ.get("LELAB_DDS_BRIDGE_SOCKET", "/tmp/lelab_dds_bridge.sock"),
+            key_file=os.environ.get("LELAB_DDS_COMMAND_KEY_FILE", ""),
+            sender_id="offline-web"))
+    else:
+        facade.bind_driver(FrameStreamDriver(car, observer, AGENT, host="127.0.0.1",
+                                             port=STREAM_PORT))
     facade.simulated_context = {"simulated": True, "data_identity": "simulated_offline",
                                 "training_eligible": False}
     # The page reaches the car-side recorder through the production routes only when

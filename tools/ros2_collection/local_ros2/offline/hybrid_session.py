@@ -25,7 +25,12 @@ for candidate in (REPO / "app_ros_mobile", REPO / "tools/ros2_collection/local_r
         sys.path.insert(0, str(candidate))
 
 from agent_session import call, write_marker          # noqa: E402
+from lelab.hybrid_dds_feedback import (                # noqa: E402
+    ClockMapping, DdsFeedbackClient, compare_sources, feedback_from_snapshot,
+)
+from lelab.hybrid_dds_transport import DdsFrameLink    # noqa: E402
 from lelab.hybrid_frame_link import CachedCarStatus, FrameLink  # noqa: E402
+from lelab.teleop_frame_v1 import load_auth_key        # noqa: E402
 from lelab.teleop_stream import StreamError            # noqa: E402
 
 ARM_JOINTS = ["joint1", "joint2", "joint3", "joint4", "joint5"]
@@ -62,6 +67,16 @@ class Session:
         self.clock_epoch = uuid.uuid4().hex
         self.control_epoch = None
         self.token = None
+        self.dds_feedback = None
+        self.dds_mapping = ClockMapping() if args.transport == "dds_v1" else None
+        self.dds_comparisons = []
+        self.dds_feedback_ages = []
+        self.dds_feedback_owners = set()
+        self.dds_feedback_seqs = []
+        self.dds_snapshots = 0
+        self.dds_available = 0
+        self._last_dds_poll = 0.0
+        self.enable_pending = False
 
     def check(self, name, passed, detail=""):
         self.checks.append({"name": name, "passed": bool(passed), "detail": str(detail)[:400]})
@@ -99,11 +114,14 @@ class Session:
             time.sleep(0.5)              # let the clearance reach the mirror
         ready = wait_for_feedback(self.args.agent_url)
         self.check("readback_complete", ready.get("available") is True, ready)
-        enabled = call(self.args.agent_url, "/hybrid/enable_output", session, token=self.token)
-        self.check("outputs_enabled_by_agent", enabled.get("outputs_enabled") is True,
-                   f"emitter={enabled.get('emitter')}")
-        self.check("frame_emitter_is_the_control_process",
-                   enabled.get("emitter") == "car_control_process", enabled.get("emitter"))
+        if self.args.transport == "dds_v1":
+            self._wait_new_licence()
+            self.dds_feedback = DdsFeedbackClient(self.args.dds_socket)
+            # DDS deferral: the hello must be the first new epoch, with outputs still
+            # off, so a parked control process can clear reengage_required exactly once.
+            self.enable_pending = True
+        else:
+            self._enable_output(session)
         self.marker.update({"lease_token": self.token, "session_id": session["session_id"],
                             "session_epoch": self.control_epoch,
                             "calibration_bundle_hash": self.args.bundle,
@@ -112,6 +130,37 @@ class Session:
                             "client_id": self.args.client_id,
                             "data_identity": "simulated_offline", "training_eligible": False})
         write_marker(self.marker_path, self.marker)
+
+    def _wait_new_licence(self, timeout_s=5.0):
+        """Wait until the control process mirror names this session with outputs off."""
+        deadline = time.monotonic() + timeout_s
+        last = {}
+        while time.monotonic() < deadline:
+            try:
+                status = json.loads(
+                    pathlib.Path(self.args.control_status).read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                status = {}
+            licence = (status.get("licence") or {}).get("licence")
+            last = licence
+            if (isinstance(licence, dict)
+                    and str(licence.get("session_id")) == str(self.args.frame_session_id)
+                    and licence.get("outputs_enabled") is False):
+                self.check("dds_licence_ready_for_hello", True,
+                           {"session_id": licence.get("session_id")})
+                return True
+            time.sleep(0.1)
+        self.check("dds_licence_ready_for_hello", False, last)
+        return False
+
+    def _enable_output(self, session):
+        enabled = call(self.args.agent_url, "/hybrid/enable_output", session, token=self.token)
+        self.check("outputs_enabled_by_agent", enabled.get("outputs_enabled") is True,
+                   f"emitter={enabled.get('emitter')}")
+        self.check("frame_emitter_is_the_control_process",
+                   enabled.get("emitter") == "car_control_process", enabled.get("emitter"))
+        self.enable_pending = False
+        return enabled
 
     def start_session(self):
         out = call(self.args.agent_url, "/recording/start_session", {
@@ -133,14 +182,67 @@ class Session:
         return out
 
     # -- one episode --------------------------------------------------------
-    def episode(self, index):
-        link = FrameLink(host="127.0.0.1", port=self.args.stream_port,
+    def _open_link(self):
+        status_cache = CachedCarStatus(
+            probe=lambda: call(self.args.agent_url, "/status"),
+            period_s=0.2, max_age_s=1.0)
+        session = {"session_id": self.args.frame_session_id,
+                   "session_epoch": self.control_epoch,
+                   "calibration_bundle_hash": self.args.bundle}
+        if self.args.transport == "dds_v1":
+            key = load_auth_key(self.args.dds_key_file)
+            return DdsFrameLink.build(
+                socket_path=self.args.dds_socket,
+                sender_id=self.args.dds_sender_id,
+                transport_epoch=f"dds-{uuid.uuid4().hex}",
+                auth_key=key, session=session, ttl_ms=self.args.ttl_ms,
+                status_cache=status_cache)
+        return FrameLink(host="127.0.0.1", port=self.args.stream_port,
                          session_id=self.args.frame_session_id,
                          session_epoch=self.control_epoch, bundle_hash=self.args.bundle,
                          lease_token=self.token, ttl_ms=self.args.ttl_ms,
-                         status_cache=CachedCarStatus(
-                             probe=lambda: call(self.args.agent_url, "/status"),
-                             period_s=0.2, max_age_s=1.0))
+                         status_cache=status_cache)
+
+    def _poll_dds_feedback(self):
+        if self.args.transport != "dds_v1" or self.dds_feedback is None:
+            return
+        try:
+            snapshot = self.dds_feedback.read()
+        except Exception as error:  # noqa: BLE001 - the report records the failure
+            self.record("dds_feedback_read_failed", error=f"{type(error).__name__}:{error}")
+            return
+        if not snapshot:
+            return
+        self.dds_snapshots += 1
+        now = time.monotonic()
+        if now - self._last_dds_poll < 0.5:
+            return
+        self._last_dds_poll = now
+        self._last_dds_snapshot = snapshot
+        document = feedback_from_snapshot(
+            snapshot, self.dds_mapping, expected_calibration_hash=self.args.bundle,
+            stale_after_s=1.0)
+        if document.get("available") is True:
+            self.dds_available += 1
+        age = document.get("age_bound_s")
+        if isinstance(age, (int, float)) and not isinstance(age, bool):
+            self.dds_feedback_ages.append(float(age))
+        owner = document.get("publisher_instance")
+        if isinstance(owner, int):
+            self.dds_feedback_owners.add(owner)
+        sequence = document.get("scan_sequence")
+        if isinstance(sequence, int) and not isinstance(sequence, bool):
+            self.dds_feedback_seqs.append(sequence)
+        try:
+            http = call(self.args.agent_url, "/status")
+            http_feedback = ((http.get("control") or {}).get("follower_feedback") or {})
+            self.dds_comparisons.append(compare_sources(
+                http_feedback, document, snapshot))
+        except Exception:  # noqa: BLE001 - comparison is diagnostic
+            pass
+
+    def episode(self, index):
+        link = self._open_link()
         link.attach_lease(self.token)
         started = {}
         try:
@@ -149,6 +251,10 @@ class Session:
         except (StreamError, RuntimeError) as error:
             self.check(f"episode{index}_link_engaged", False, f"{type(error).__name__}: {error}")
             return started
+        if getattr(self, "enable_pending", False):
+            self._enable_output({"session_id": self.args.frame_session_id,
+                                 "session_epoch": self.control_epoch,
+                                 "calibration_bundle_hash": self.args.bundle})
         started_at = time.monotonic()
         episode = call(self.args.agent_url, "/recording/start_episode", {
             "source": "manual_hybrid", "task": self.args.task,
@@ -225,9 +331,12 @@ class Session:
             else:
                 counts["skipped"] += 1
             link.collect()
+            if self.args.transport == "dds_v1":
+                self._poll_dds_feedback()
         link.collect()
         counts["admitted"] = link.counts["admitted"]
         counts["refused"] = link.counts["refused"]
+        counts["emitted"] = link.counts.get("emitted", 0)
         counts["refusals"] = dict(link.refusals)
         return counts
 
@@ -253,6 +362,9 @@ class Session:
                                    {"token": self.token}, token=self.token)
         except RuntimeError as error:
             out["release_error"] = str(error)[:160]
+        if self.dds_feedback is not None:
+            self.dds_feedback.close()
+            self.dds_feedback = None
         self.marker["lease_token"] = ""
         write_marker(self.marker_path, self.marker)
         self.check("lease_released", out.get("released", {}).get("ok") is True,
@@ -361,6 +473,11 @@ def main() -> int:
     parser.add_argument("--grasp-s", type=float, default=3.0)
     parser.add_argument("--hz", type=float, default=10.0)
     parser.add_argument("--ttl-ms", type=int, default=150)
+    parser.add_argument("--transport", choices=["frame_stream_v1", "dds_v1"],
+                        default="frame_stream_v1")
+    parser.add_argument("--dds-socket", default="/work/out/dds_r1/state/bridge.sock")
+    parser.add_argument("--dds-key-file", default="/work/out/dds_r1/state/command.key")
+    parser.add_argument("--dds-sender-id", default="offline-dds-upper")
     parser.add_argument("--archive-to", default="")
     parser.add_argument("--report", required=True)
     args = parser.parse_args()
@@ -385,6 +502,46 @@ def main() -> int:
     else:
         session.check("session_completed", True, "no exception on the production path")
 
+    dds_report = None
+    if args.transport == "dds_v1":
+        comparisons = session.dds_comparisons
+        diffs = [item.get("max_abs_raw_diff") for item in comparisons
+                 if isinstance(item.get("max_abs_raw_diff"), (int, float))
+                 and not isinstance(item.get("max_abs_raw_diff"), bool)]
+        ages = session.dds_feedback_ages
+        dds_report = {
+            "enabled": True,
+            "socket": args.dds_socket,
+            "sender_id": args.dds_sender_id,
+            "snapshots": session.dds_snapshots,
+            "available_samples": session.dds_available,
+            "owners": sorted(session.dds_feedback_owners),
+            "scan_seq_min": min(session.dds_feedback_seqs) if session.dds_feedback_seqs else None,
+            "scan_seq_max": max(session.dds_feedback_seqs) if session.dds_feedback_seqs else None,
+            "age_bound_max_s": max(ages) if ages else None,
+            "comparisons": len(comparisons),
+            "max_abs_raw_diff_ticks": max(diffs) if diffs else None,
+            "last_comparison": comparisons[-1] if comparisons else None,
+            "clock_mapping": (session.dds_mapping.state()
+                              if session.dds_mapping is not None else None),
+        }
+        session.check("dds_feedback_seen", session.dds_available > 0,
+                      f"snapshots={session.dds_snapshots}")
+        session.check("dds_feedback_age_within_gate",
+                      bool(ages) and max(ages) <= 1.0,
+                      f"max={max(ages) if ages else None}")
+        session.check("dds_and_http_raw_close",
+                      bool(diffs) and max(diffs) <= 5,
+                      f"max_diff={max(diffs) if diffs else None}")
+        admitted = sum(int((phase or {}).get("admitted") or 0)
+                       for episode in episode_reports
+                       for phase in (episode.get("frames") or {}).values())
+        emitted = sum(int((phase or {}).get("emitted") or 0)
+                      for episode in episode_reports
+                      for phase in (episode.get("frames") or {}).values())
+        session.check("dds_frames_admitted_and_emitted", admitted > 0 and emitted > 0,
+                      f"admitted={admitted} emitted={emitted}")
+
     document = {
         "data_identity": "simulated_offline",
         "training_eligible": False,
@@ -394,6 +551,8 @@ def main() -> int:
         "control_session_id": args.frame_session_id,
         "control_session_epoch": session.control_epoch,
         "clock_epoch": session.clock_epoch,
+        "transport": args.transport,
+        "dds": dds_report,
         "episodes": episode_reports,
         "checks": session.checks,
         "failed": [check["name"] for check in session.checks if not check["passed"]],

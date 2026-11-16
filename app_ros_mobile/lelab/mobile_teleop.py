@@ -208,7 +208,8 @@ class TeleopMapper:
 
     def __init__(self, mapping: dict[str, Any], follower_limits_rad: dict[str, list[float]],
                  leader_travel_rad: dict[str, tuple[float, float]] | None = None,
-                 gripper_mapping_mode: str = "relative"):
+                 gripper_mapping_mode: str = "relative",
+                 follower_raw_to_rad: dict[str, Any] | None = None):
         self.joints = {j["follower"]: j for j in mapping.get("joints", [])}
         self.gripper = mapping.get("gripper", {})
         self.filter_alpha = float(mapping.get("filter_alpha", 0.4))
@@ -216,6 +217,7 @@ class TeleopMapper:
         self.max_step_rad_s = float(mapping.get("max_step_rad_s", 1.0))
         self.follower_limits = follower_limits_rad
         self.leader_travel_rad = dict(leader_travel_rad or {})
+        self.follower_raw_to_rad = dict(follower_raw_to_rad or {})
         if gripper_mapping_mode not in ("relative", "absolute_normalized"):
             raise ValueError("invalid gripper mapping mode")
         self.gripper_mapping_mode = gripper_mapping_mode
@@ -223,6 +225,9 @@ class TeleopMapper:
         self._last_target: dict[str, float] = {}
         self._last_wall: float | None = None
         self._last_gripper_pulse: float | None = None
+        for name, cfg in self.joints.items():
+            if cfg.get("mapping_mode") == "absolute_raw_linear":
+                self._absolute_anchor(cfg, name)
 
     def reset(self, reason: str = "") -> dict[str, Any]:
         self._filtered.clear()
@@ -255,12 +260,13 @@ class TeleopMapper:
         return (delta + math.pi) % (2.0 * math.pi) - math.pi
 
     def joint_target(self, follower: str, leader_rad: float, leader_ref_rad: float,
-                     follower_ref_rad: float, now: float) -> dict[str, Any]:
+                     follower_ref_rad: float, now: float,
+                     leader_raw: float | None = None) -> dict[str, Any]:
         now = float(now)
         dt = 0.0 if self._last_wall is None else max(0.0, now - self._last_wall)
         self._last_wall = now
         return self._joint_target(follower, leader_rad, leader_ref_rad,
-                                  follower_ref_rad, dt)
+                                  follower_ref_rad, dt, leader_raw=leader_raw)
 
     def frame(self, requests: list[dict[str, Any]], now: float) -> list[dict[str, Any]]:
         """Compute one complete arm frame with one shared elapsed time."""
@@ -274,12 +280,14 @@ class TeleopMapper:
                 float(request["leader_ref_rad"]),
                 float(request["follower_ref_rad"]),
                 dt,
+                leader_raw=request.get("leader_raw"),
             )
             for request in requests
         ]
 
     def _joint_target(self, follower: str, leader_rad: float, leader_ref_rad: float,
-                      follower_ref_rad: float, dt: float) -> dict[str, Any]:
+                      follower_ref_rad: float, dt: float,
+                      *, leader_raw: float | None = None) -> dict[str, Any]:
         cfg = self.joints.get(follower)
         if cfg is None:
             raise KeyError(f"joint {follower!r} is not in the mapping")
@@ -293,13 +301,33 @@ class TeleopMapper:
         soft_low = max(low, float(cfg.get("soft_min_rad", low)))
         soft_high = min(high, float(cfg.get("soft_max_rad", high)))
         normalization = None
+        normalized_delta = None
+        absolute_raw = None
+        leader_raw_value = None
+        anchor_raw = None
+        raw_mode = cfg.get("mapping_mode") == "absolute_raw_linear"
         leader_range = self.leader_travel_rad.get(follower)
-        if leader_range is not None:
+        if raw_mode:
+            anchors = self._absolute_anchor(cfg, follower)
+            if leader_raw is None or isinstance(leader_raw, bool) or not math.isfinite(
+                    float(leader_raw)):
+                raise ValueError(f"absolute mapping requires leader raw for {follower}")
+            leader_raw_value = float(leader_raw)
+            leader_low, leader_high, follower_low, follower_high = anchors
+            normalized = (leader_raw_value - leader_low) / (leader_high - leader_low)
+            absolute_raw = follower_low + normalized * (follower_high - follower_low)
+            raw_min, raw_max = sorted((follower_low, follower_high))
+            anchor_raw = min(raw_max, max(raw_min, absolute_raw))
+            raw = self._raw_to_rad(follower, anchor_raw)
+            normalization = normalized
+            normalized_delta = normalized
+        elif leader_range is not None:
             leader_span = leader_range[1] - leader_range[0]
             follower_span = soft_high - soft_low
             if leader_span <= 0 or follower_span <= 0:
                 raise ValueError(f"invalid calibration travel for {follower}")
             normalization = delta / leader_span
+            normalized_delta = normalization
             raw = follower_ref_rad + direction * scale * normalization * follower_span
         else:
             raw = follower_ref_rad + direction * scale * delta
@@ -321,21 +349,71 @@ class TeleopMapper:
             "joint": follower,
             "pre_clip_rad": round(raw, 6),
             "target_rad": round(limited, 6),
-            "clipped": abs(raw - clipped) > 1e-9,
+            "clipped": (abs(raw - clipped) > 1e-9 or
+                        (absolute_raw is not None and abs(absolute_raw - anchor_raw) > 1e-9)),
             "soft_limits_rad": [soft_low, soft_high],
             "hardware_limits_rad": [low, high],
             "direction": direction,
             "scale": scale,
             "wrapped": wrap,
+            "mapping_mode": ("absolute_raw_linear" if raw_mode else "relative_delta"),
+            "leader_raw": (round(leader_raw_value, 3)
+                           if leader_raw_value is not None else None),
+            "leader_anchor_raw": (
+                [float(anchors[0]), float(anchors[1])] if raw_mode else None),
+            "follower_anchor_raw": (
+                [float(anchors[2]), float(anchors[3])] if raw_mode else None),
+            "follower_target_raw_pre_clip": (
+                round(absolute_raw, 3) if absolute_raw is not None else None),
+            "follower_target_raw": (
+                round(anchor_raw, 3) if anchor_raw is not None else None),
             "leader_delta_rad": round(delta, 6),
-            "normalization": ("leader_range_to_follower_range"
-                              if normalization is not None else "none"),
-            "leader_normalized_delta": (round(normalization, 6)
-                                        if normalization is not None else None),
+            "normalization": ("leader_raw_linear_to_follower_raw" if raw_mode else
+                              ("leader_range_to_follower_range"
+                               if normalization is not None else "none")),
+            "leader_normalized_delta": (round(normalized_delta, 6)
+                                        if normalized_delta is not None else None),
             "leader_travel_rad": (list(leader_range)
                                   if leader_range is not None else None),
             "follower_travel_rad": [soft_low, soft_high],
         }
+
+    @staticmethod
+    def _absolute_anchor(cfg: dict[str, Any], follower: str
+                         ) -> tuple[float, float, float, float]:
+        fields = (
+            "leader_low_raw",
+            "leader_high_raw",
+            "follower_at_leader_low_raw",
+            "follower_at_leader_high_raw",
+        )
+        values = []
+        for field in fields:
+            value = cfg.get(field)
+            if (isinstance(value, bool) or not isinstance(value, (int, float))
+                    or not math.isfinite(float(value))):
+                raise ValueError(f"absolute mapping anchor missing for {follower}:{field}")
+            values.append(float(value))
+        low, high, follower_low, follower_high = values
+        if low == high:
+            raise ValueError(f"absolute mapping leader anchors equal for {follower}")
+        if follower_low == follower_high:
+            raise ValueError(f"absolute mapping follower anchors equal for {follower}")
+        return low, high, follower_low, follower_high
+
+    def _raw_to_rad(self, follower: str, raw: float) -> float:
+        transform = self.follower_raw_to_rad.get(follower)
+        if not isinstance(transform, dict):
+            transform = self.follower_raw_to_rad
+        if not isinstance(transform, dict):
+            transform = {}
+        zero = float(transform.get("zero_tick", transform.get("centre_raw", 500)))
+        direction = float(transform.get("direction", 1))
+        radians_per_tick = float(transform.get("radians_per_tick", RADIANS_PER_PULSE))
+        if not math.isfinite(zero) or direction not in (-1.0, 1.0) or not math.isfinite(
+                radians_per_tick) or radians_per_tick <= 0:
+            raise ValueError(f"invalid follower raw conversion for {follower}")
+        return (float(raw) - zero) * radians_per_tick * direction
 
     def gripper_target(self, percent: float, percent_ref: float, pulse_ref: float,
                        now: float | None = None) -> dict[str, Any]:

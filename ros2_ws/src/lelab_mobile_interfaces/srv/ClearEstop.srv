@@ -1,0 +1,11 @@
+# Clearing a stop never grants motion. motion_granted is always false.
+string request_id
+string owner
+string session_id
+uint64 session_epoch
+---
+bool success
+string confirmed_state         # cleared | pending_or_failed | not_latched
+string detail
+bool motion_granted
+string response_json

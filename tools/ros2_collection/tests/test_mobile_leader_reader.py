@@ -29,13 +29,17 @@ WRITE_METHODS = ("write", "sync_write", "torque_enable", "disable_torque", "writ
 
 
 class FakeBus:
-    def __init__(self, values=None, raise_on_read=None):
+    def __init__(self, values=None, raise_on_read=None, raw_values=None):
         self.calls: list[str] = []
         if values is None:
             # Default fixture: a complete read including the gripper.
             values = {name: float(i * 10) for i, name in enumerate(LEADER_JOINTS)}
             values["gripper"] = 42.0
         self.values = dict(values)
+        self.raw_values = dict(raw_values or {
+            **{name: 1000.0 + i * 10 for i, name in enumerate(LEADER_JOINTS)},
+            "gripper": 1500.0,
+        })
         self.raise_on_read = raise_on_read or 0
 
     def connect(self):
@@ -44,12 +48,13 @@ class FakeBus:
     def disconnect(self, disable_torque=True):
         self.calls.append(f"disconnect:disable_torque={disable_torque}")
 
-    def sync_read(self, model, ids, num_retry=0):
-        self.calls.append(f"sync_read:{model}:{num_retry}")
+    def sync_read(self, model, ids, num_retry=0, normalize=True):
+        self.calls.append(
+            f"sync_read{'' if normalize else '_raw'}:{model}:{num_retry}")
         self.raise_on_read -= 1
         if self.raise_on_read >= 0:
             raise OSError("bus timeout")
-        return dict(self.values)
+        return dict(self.values if normalize else self.raw_values)
 
     def __getattr__(self, name):
         if name in WRITE_METHODS:
@@ -85,10 +90,17 @@ class LeaderReaderTests(unittest.TestCase):
         reader = SO101LeaderReader(self.config(), bus=bus)
         reader.open()
         status = reader.poll_once()
-        self.assertEqual(bus.calls, ["connect", "sync_read:Present_Position:2"])
+        self.assertEqual(
+            bus.calls,
+            ["connect", "sync_read:Present_Position:2",
+             "sync_read_raw:Present_Position:2"],
+        )
         self.assertTrue(status["connected"])
         self.assertEqual(status["reads"], 1)
         self.assertTrue(status["healthy"], status["reason"])
+        self.assertTrue(status["raw_available"])
+        self.assertEqual(status["raw_positions"]["shoulder_pan"], 1000)
+        self.assertEqual(status["raw_positions"]["gripper"], 1500)
 
     def test_degree_to_radian_conversion_and_gripper_percent_units(self):
         bus = FakeBus(values={name: 90.0 for name in LEADER_JOINTS} | {"gripper": 75.0})
