@@ -52,6 +52,14 @@ FOLLOWER_CONFIG_FILE = os.path.join(CONFIG_STORAGE_PATH, "follower_config.txt")
 HARDWARE_INVENTORY_PATH = os.path.expanduser(
     os.getenv("LELAB_HARDWARE_INVENTORY_DIR", str(_DEFAULT_LEROBOT_HOME / "hardware"))
 )
+CAMERA_INVENTORY_PATH = os.path.expanduser(
+    os.getenv("LELAB_CAMERA_INVENTORY_DIR", str(_DEFAULT_LEROBOT_HOME / "cameras"))
+)
+# Operator-confirmed single-arm teleoperation test evidence, keyed by the exact
+# ports, calibration files and safety limits it was earned under.
+TELEOP_TEST_DIR = os.path.expanduser(
+    os.getenv("LELAB_TELEOP_TEST_DIR", str(_DEFAULT_LEROBOT_HOME / "teleop-tests"))
+)
 
 # Robot config records (per-robot JSON metadata)
 ROBOTS_PATH = os.path.expanduser("~/.cache/huggingface/lerobot/robots")

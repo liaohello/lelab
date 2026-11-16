@@ -12,7 +12,9 @@ import BimanualRecording from "@/pages/BimanualRecording";
 import Training from "@/pages/Training";
 import Inference from "@/pages/Inference";
 import Observe from "@/pages/Observe";
+import TeleopTest from "@/pages/TeleopTest";
 import HardwareInventory from "@/pages/HardwareInventory";
+import CameraInventory from "@/pages/CameraInventory";
 import EditDataset from "@/pages/EditDataset";
 import Upload from "@/pages/Upload";
 import SystemStorage from "@/pages/SystemStorage";
@@ -26,6 +28,7 @@ import SingleTabGuard from "@/components/SingleTabGuard";
 import TeleopStopNotice from "@/components/TeleopStopNotice";
 import UpdateNotice from "@/components/UpdateNotice";
 import HardwareLeaseBanner from "@/components/HardwareLeaseBanner";
+import ServiceStatusBar from "@/components/ServiceStatusBar";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { ApiProvider } from "./contexts/ApiContext";
 import { HfAuthProvider } from "./contexts/HfAuthContext";
@@ -43,6 +46,7 @@ function App() {
                 <DragAndDropProvider>
                   <BrowserRouter>
                     <SingleTabGuard>
+                      <ServiceStatusBar />
                       <TeleopStopNotice />
                       <UpdateNotice />
                       <HardwareLeaseBanner />
@@ -56,7 +60,9 @@ function App() {
                         <Route path="/training/:jobId" element={<Training />} />
                         <Route path="/inference" element={<Inference />} />
                         <Route path="/observe" element={<Observe />} />
+                        <Route path="/teleop-test" element={<TeleopTest />} />
                         <Route path="/hardware" element={<HardwareInventory />} />
+                        <Route path="/cameras" element={<CameraInventory />} />
                         <Route path="/calibration" element={<Calibration />} />
                         <Route path="/edit-dataset" element={<EditDataset />} />
                         <Route path="/system-storage" element={<SystemStorage />} />

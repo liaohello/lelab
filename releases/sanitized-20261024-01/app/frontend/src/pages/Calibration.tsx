@@ -73,18 +73,45 @@ interface RobotRecord {
   is_clean: boolean;
 }
 
+const HARDWARE_ROLE_LABELS: Record<string, string> = {
+  left_follower: "左从臂",
+  right_follower: "右从臂",
+  left_leader: "左主臂",
+  right_leader: "右主臂",
+};
+
 const Calibration = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const robotName =
-    (location.state as { robot_name?: string } | null)?.robot_name ?? null;
+  const locationState = (location.state ?? {}) as {
+    robot_name?: string | null;
+    device_type?: string | null;
+    port?: string | null;
+    hardware_role?: string | null;
+  };
+  const robotName = locationState.robot_name ?? null;
+  const hardwareRole = locationState.hardware_role ?? null;
+  const requestedDeviceType =
+    locationState.device_type === "robot" || locationState.device_type === "teleop"
+      ? locationState.device_type
+      : null;
+  // Which rig group this device belongs to, so finishing here can hand the
+  // operator straight to that group's single-arm teleoperation test.
+  const testSide: "left" | "right" | null =
+    hardwareRole?.startsWith("left") || robotName?.startsWith("left")
+      ? "left"
+      : hardwareRole?.startsWith("right") || robotName?.startsWith("right")
+        ? "right"
+        : null;
   const { toast } = useToast();
   const { baseUrl, fetchWithHeaders } = useApi();
 
   const consoleRef = useRef<HTMLDivElement>(null);
   const demoVideoRef = useRef<HTMLDivElement>(null);
 
-  const [deviceType, setDeviceType] = useState<string>("teleop");
+  const [deviceType, setDeviceType] = useState<string>(
+    requestedDeviceType ?? "teleop"
+  );
   const [port, setPort] = useState<string>("");
   const [robot, setRobot] = useState<RobotRecord | null>(null);
   const [cameras, setCameras] = useState<CameraConfig[]>([]);
@@ -118,23 +145,26 @@ const Calibration = () => {
     (async () => {
       const r = await fetchRobot();
       if (!r || cancelled) return;
-      // Default to the first incomplete side in the checklist (leader, then follower).
-      const defaultDevice = !r.leader_config
-        ? "teleop"
-        : !r.follower_config
-        ? "robot"
-        : "teleop";
+      // A hardware-workbench navigation explicitly selects the role and stable port.
+      // Without that navigation, preserve the historical "first incomplete side" default.
+      const defaultDevice =
+        requestedDeviceType ??
+        (!r.leader_config
+          ? "teleop"
+          : !r.follower_config
+          ? "robot"
+          : "teleop");
+      const configuredPort =
+        locationState.port ??
+        (defaultDevice === "teleop" ? r.leader_port || "" : r.follower_port || "");
       setDeviceType(defaultDevice);
-      setPort(
-        defaultDevice === "teleop"
-          ? r.leader_port || ""
-          : r.follower_port || ""
-      );
+      setPort(configuredPort);
       setCameras(r.cameras ?? []);
     })();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [robotName, fetchRobot]);
 
   // Persist camera changes back to the robot record (debounced).
@@ -543,6 +573,11 @@ const Calibration = () => {
             <h1 className="text-3xl font-bold">
               {robotName ? `Calibrate "${robotName}"` : "Device Calibration"}
             </h1>
+            {hardwareRole && HARDWARE_ROLE_LABELS[hardwareRole] ? (
+              <Badge className="bg-blue-900 text-blue-100">
+                目标设备：{HARDWARE_ROLE_LABELS[hardwareRole]}
+              </Badge>
+            ) : null}
           </div>
         </div>
 
@@ -556,6 +591,26 @@ const Calibration = () => {
             </AlertDescription>
           </Alert>
         )}
+
+        {robotName && testSide ? (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-800/60 p-3">
+            <div className="text-sm text-slate-300">
+              本组（{testSide}）标定完成后，先做一次单臂遥操作测试再回到双臂采集准备。
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/hardware")}
+              >
+                返回四臂标定工作台
+              </Button>
+              <Button size="sm" onClick={() => navigate(`/teleop-test?side=${testSide}`)}>
+                测试该组遥操作
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="bg-slate-800/60 border-slate-700 backdrop-blur-sm">

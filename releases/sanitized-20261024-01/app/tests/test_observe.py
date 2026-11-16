@@ -6,9 +6,8 @@ import time
 
 import numpy as np
 import pytest
-from pydantic import ValidationError
-
 from lelab import observe as ob
+from pydantic import ValidationError
 
 _ReadOnlyFollowerArm = ob._ReadOnlyFollowerArm
 
@@ -245,6 +244,19 @@ def test_bimanual_observe_reports_twelve_values_and_no_actions(monkeypatch):
     assert status["actions_sent"] == 0
     assert ob.camera_frame("front")
 
+    message = manager.messages[-1]
+    assert len(message["values"]) == 12
+    assert message["arms"]["left"] == {}
+    assert set(message["arms"]["right"]) == {
+        "Rotation",
+        "Pitch",
+        "Elbow",
+        "Wrist_Pitch",
+        "Wrist_Roll",
+        "Jaw",
+    }
+    assert message["joints"] == message["arms"]["right"]
+
     stopped = ob.handle_stop_observe()
     assert stopped["success"] is True
     assert _FakeBimanualSource.instances[-1].closed is True
@@ -282,6 +294,144 @@ def test_bimanual_source_guards_both_buses_and_releases_cameras() -> None:
     source.close()
     assert source.arms["left"]._bus is None
     assert source.arms["right"]._bus is None
+
+
+def test_arm_summary_separates_connection_and_calibration_file(tmp_path) -> None:
+    port = tmp_path / "ttyACM9"
+    calibration = tmp_path / "missing.json"
+    arm = ob._ReadOnlyFollowerArm(str(port), str(calibration))
+
+    summary = arm.summary()
+    assert summary["port_connected"] is False
+    assert summary["calibration_file_exists"] is False
+    assert summary["calibrated"] is False
+    assert summary["unit"] == "raw_steps"
+
+    port.write_text("")
+    calibration.write_text("{}")
+    summary = arm.summary()
+    assert summary["port_connected"] is True
+    assert summary["calibration_file_exists"] is True
+    assert summary["calibrated"] is True
+    assert summary["unit"] == "degrees"
+
+
+class _FakeFollowerSource:
+    instances: list[_FakeFollowerSource] = []
+
+    def __init__(self, side, port, *, calibration, cameras):
+        self.side = side
+        self.port = port
+        self.calibration = calibration
+        self.cameras = cameras
+        self.closed = False
+        _FakeFollowerSource.instances.append(self)
+
+    def start(self):
+        pass
+
+    def capture(self):
+        observation = {
+            f"{motor}.pos": float(index)
+            for index, motor in enumerate(
+                (
+                    "shoulder_pan",
+                    "shoulder_lift",
+                    "elbow_flex",
+                    "wrist_flex",
+                    "wrist_roll",
+                    "gripper",
+                )
+            )
+        }
+        observation["front"] = np.zeros((8, 8, 3), dtype=np.uint8)
+        return observation
+
+    def camera_ages_ms(self):
+        return {"front": 3.0}
+
+    def torque_state(self):
+        return dict.fromkeys(_ReadOnlyFollowerArm.DEFAULT_MOTOR_IDS, 0)
+
+    def summary(self):
+        return {
+            "side": self.side,
+            "port": self.port,
+            "port_connected": True,
+            "calibration": self.calibration,
+            "calibration_file_exists": bool(self.calibration),
+            "calibrated": bool(self.calibration),
+            "unit": "degrees" if self.calibration else "raw_steps",
+        }
+
+    def urdf_arms(self, state):
+        return {self.side: {"Rotation": 0.1} if self.calibration else {}}
+
+    def close(self):
+        self.closed = True
+
+
+def test_single_follower_observe_uses_selected_side_only(monkeypatch):
+    monkeypatch.setattr(ob, "ReadOnlySingleFollowerSource", _FakeFollowerSource)
+    ob.reset_observe_state()
+    manager = _FakeManager()
+    result = ob.handle_start_follower_observe(
+        ob.FollowerObserveRequest(
+            side="left",
+            port="/dev/left-fake",
+            calibration="/tmp/left.json",
+            cameras={"front": {"index": 0, "width": 640, "height": 480, "fps": 30}},
+        ),
+        manager,
+    )
+    assert result["success"] is True
+    deadline = time.monotonic() + 2.0
+    while not manager.messages and time.monotonic() < deadline:
+        time.sleep(0.02)
+    status = ob.handle_observe_status()
+    assert status["selected_side"] == "left"
+    assert len(status["state"]) == 6
+    assert status["bindings"]["left"]["port_connected"] is True
+    assert status["actions_sent"] == 0
+    message = manager.messages[-1]
+    assert message["side"] == "left"
+    assert message["arms"] == {"left": {"Rotation": 0.1}}
+    stopped = ob.handle_stop_observe()
+    assert stopped["success"] is True
+    assert _FakeFollowerSource.instances[-1].closed is True
+
+
+def test_single_source_exposes_urdf_under_selected_side_only(tmp_path) -> None:
+    calibration = tmp_path / "right.json"
+    calibration.write_text("{}")
+    source = ob.ReadOnlySingleFollowerSource(
+        "right",
+        str(tmp_path / "ttyACM7"),
+        calibration=str(calibration),
+        bus_factory=lambda port, _calibration: _ReadOnlyFakeBus(port),
+    )
+    state = {f"{motor}.pos": float(index) for index, motor in enumerate(
+        _ReadOnlyFollowerArm.DEFAULT_MOTOR_IDS
+    )}
+
+    arms = source.urdf_arms(state)
+
+    assert set(arms) == {"right"}
+    assert set(arms["right"]) == {
+        "Rotation",
+        "Pitch",
+        "Elbow",
+        "Wrist_Pitch",
+        "Wrist_Roll",
+        "Jaw",
+    }
+
+    uncalibrated = ob.ReadOnlySingleFollowerSource(
+        "right",
+        str(tmp_path / "ttyACM7"),
+        bus_factory=lambda port, _calibration: _ReadOnlyFakeBus(port),
+    )
+    assert uncalibrated.urdf_arms(state) == {"right": {}}
 
 
 def test_bimanual_observe_rejects_same_port() -> None:

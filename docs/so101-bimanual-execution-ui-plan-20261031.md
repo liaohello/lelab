@@ -345,3 +345,27 @@
 - 已完成：前端优化规划、执行顺序、验收条件和 Agent Prompt。
 - 未执行：应用启动、标定、真实观测、相机枚举、策略加载、影子推理和实机运动。
 - 下一步：用户确认现场支撑并明确恢复后，从左从臂 `5B90149339` 开始。
+
+## 8. 2026-11-02 采集主流程重构（进行中）
+
+用户确认的采集主流程：**设备识别 → 左臂逐台标定与遥操作测试 → 右臂逐台标定与遥操作测试 → 配置并确认相机 → 双臂采集 → 检查数据集**。不再把“双臂同时遥操作”作为独立步骤；`/observe` 保留为排障入口，不承担遥操作主流程。按 5 步实施顺序推进：
+
+| 步骤 | 状态 | 说明 |
+| --- | --- | --- |
+| 1 观测页设备选择与状态判定 | 代码完成，页面已用真实记录渲染验证 | `/observe` 默认只选一组，端口与标定来自 `/hardware/rig-bindings`，不再预填机器专属路径；单臂走新增的 `POST /observe/follower/start`，只连接所选一组；“串口节点 / 标定文件 / 数据实时 / 实机测试”四项分别显示，URDF 仅在该组已标定且数据实时时驱动；WebSocket 只接受 `source=observe_only` 的消息，别的会话无法冒充。实机观测仍由用户执行。 |
+| 2 逐台标定 + 单臂遥操作测试 | 代码完成，页面已渲染验证 | 标定页完成后提供“测试该组遥操作”，跳到 `/teleop-test?side=…`；`TeleoperateRequest` 新增 `side`，端口与标定由 `lelab/teleop_test.py` 从机器人记录解析，记录不完整直接拒绝；跟随循环记录“示教原始目标 / 限幅后下发 / 从臂实测”与逐关节限幅次数、最大限幅、最大差值；`/teleoperation-status` 的 `test` 字段返回该遥测，停止后仍保留供确认；`POST /teleoperation/test/confirm` 把操作者结论连同端口、标定内容 SHA-256 与生效限幅的指纹写入 `…/hf/teleop-tests/v1.json`，任何一项变化后 `/teleoperation/test/readiness` 报告 `stale`；`/bimanual` 顶部新增两组就绪带。测试会真实下发动作，必须勾选安全确认才能开始；实机测试由用户执行。同轮把 `/bimanual` 改写成连续准备流程：顶部常驻进度 `1 设备与标定 → 2 单臂遥操作测试 → 3 相机与画面确认 → 4 采集配置`，第一步左右各一张卡片、示教臂与工作臂分列（端口未配置 / 端口未连接 / 未标定 / 需要检查 / 标定文件存在 五态互不替代，并标注“待实机测试”），每台自带“开始标定／查看 / 重新标定”并带上 `robot_name/device_type/port/hardware_role` 路由状态，返回即刷新；所选记录与该组结论记录不一致时提示归属。步骤 2 是提示而非硬门禁（未确认仍可为排障采集），端口/标定/限幅变化会把结论标为已过期。 |
+| 3 相机卡片与画面标识 | 代码完成，页面已渲染验证 | `/cameras` 每台卡片保留两个名字：画面显示名称（仅给操作员，最长 60 字）与数据字段（`observation.images.<field>`），另有稳定 `/dev/v4l/by-id` 路径、`/dev/videoN`、连接状态；新增“我已逐台遮挡/指向，确认预览就是这台相机”的勾选，保存时写入 `confirmed_at`，设备拔掉或取消映射后确认自动失效（`merge_inventory_cameras`）。新增 `GET /cameras/collection-binding` 输出 ready/missing/unconfirmed；`/bimanual` 顶部显示“物理相机 → 数据字段 → 稳定设备 → 状态”汇总表，“用确认结果生成采集相机”按确认映射填充采集列表（稳定路径作为 `device_id`），只要有已映射设备未连接就阻止开始采集。真实预览、录制后重开数据集核对画面归属仍待现场验证。 |
+| 4 双臂录制与数据检查 | 未开始 | |
+| 5 多服务占用与有效配置统一 | 部分完成 | 新增常驻 `ServiceStatusBar`（App.tsx 顶层）显示“服务 host:port / 占用者与任务 / 该进程实际生效的从臂限幅”，数据来自 `/teleoperation/test/readiness` 的 `identity.safety` 与 `/hardware/lease`，10 秒轮询；限幅全关时直接显示“关闭”，不再需要靠记忆判断当前连的是 8000 还是 18186。跨进程设备占用协调（两个后端争用同一串口）仍未实现。 |
+
+验证记录（2026-11-02，本机 `127.0.0.1:18186`）：
+
+```bash
+.venv/bin/ruff check app/lelab/teleop_test.py app/lelab/teleoperate.py app/lelab/server.py app/tests/test_teleop_test.py
+PYTHONPATH=app:lerobot/src .venv/bin/python -m pytest app/tests/test_server.py app/tests/test_hardware_lease_api.py \
+  app/tests/test_teleop_test.py app/tests/test_teleoperate.py app/tests/test_observe.py app/tests/test_rig_bindings.py \
+  app/tests/test_camera_inventory.py app/tests/test_smoke.py -q
+# 81 passed
+```
+
+前端 `npx tsc --noEmit` 无输出、`npm run build` 成功（`dist/assets/index-DxqFPWM_.js`）。浏览器实测：`/observe` 左/右/双臂三档切换只填充对应组的端口与标定；`/teleop-test` 显示 left_rig/right_rig 的示教与工作臂端口、标定路径、生效限幅（`max_relative_target=3`、`max_position_deviation=12`、`calibration_range_margin=0`）和“尚未测试”结论；`/bimanual` 就绪带显示“记录含两台标定 · 尚未测试”。以上均为页面与状态验证，未启动遥操作会话、未打开串口做真实跟随。
