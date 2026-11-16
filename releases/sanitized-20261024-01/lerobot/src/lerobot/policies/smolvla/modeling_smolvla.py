@@ -334,6 +334,19 @@ class SmolVLAPolicy(PreTrainedPolicy):
         losses = losses[:, :, : self.config.max_action_dim]
         loss_dict["losses_after_rm_padding"] = losses.clone().mean().item()
 
+        # Optional LeLab diagnostic: per-group mean of the *same* masked flow
+        # loss (never a separate objective, never derived from the scalar). The
+        # group means are an exact decomposition of the total mean when the
+        # groups partition the action dimensions.
+        action_groups = getattr(self, "_lelab_action_groups", None)
+        if action_groups:
+            from lerobot.utils import lelab_monitor
+
+            for group_name, value in lelab_monitor.grouped_loss_means(
+                losses, actions_is_pad, action_groups
+            ).items():
+                loss_dict[f"lelab_loss_{group_name}"] = value
+
         if reduction == "none":
             # Return per-sample losses (B,) by averaging over valid (time, action) entries
             if actions_is_pad is None:

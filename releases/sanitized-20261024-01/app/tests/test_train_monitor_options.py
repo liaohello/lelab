@@ -82,10 +82,15 @@ def test_scheduler_type_conflicts_with_the_policy_preset() -> None:
         )
 
 
-def test_monitor_only_flags_are_reported_not_emitted() -> None:
-    """0.7.0 dropped the monitor patch's instrumentation flags."""
-    from lelab.train import unsupported_training_fields
+def test_monitor_only_flags_are_emitted_when_the_library_declares_them() -> None:
+    """After the N2 monitor port the installed library declares both fields.
 
+    They travel as plain draccus options, and the probe that used to hide them
+    must now report nothing.
+    """
+    from lelab.train import _training_config_field_names, unsupported_training_fields
+
+    fields = _training_config_field_names()
     request = TrainingRequest(
         dataset_repo_id="a/b",
         weight_norm_freq=100,
@@ -93,9 +98,16 @@ def test_monitor_only_flags_are_reported_not_emitted() -> None:
     )
     cmd = _argv(request)
 
-    assert "--weight_norm_freq" not in cmd
-    assert "--action_loss_groups" not in cmd
-    assert unsupported_training_fields(request) == ["weight_norm_freq", "action_loss_groups"]
+    assert "weight_norm_freq" in fields, f"installed lerobot lacks the field: {sorted(fields)}"
+    assert "action_loss_groups" in fields
+    assert "--weight_norm_freq" in cmd
+    assert cmd[cmd.index("--weight_norm_freq") + 1] == "100"
+    assert "--action_loss_groups" in cmd
+    assert json.loads(cmd[cmd.index("--action_loss_groups") + 1]) == {
+        "joints": [0, 1],
+        "grippers": [2],
+    }
+    assert unsupported_training_fields(request) == []
 
 
 def test_resume_command_is_minimal_and_checkpoint_authoritative() -> None:

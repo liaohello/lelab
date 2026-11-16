@@ -186,7 +186,19 @@ class TrainPipelineConfig(HubMixin):
     # that already exist on the preset scheduler can be overridden; changing the
     # scheduler *type* is refused because the preset's type is part of the
     # policy's recipe (disable the preset and pass --scheduler.type instead).
-    scheduler_overrides: dict[str, object] | None = None
+    # The value type must be `Any`, not `object`: draccus cannot decode `object`
+    # at all, so `dict[str, object]` broke both `--scheduler_overrides.*` on the
+    # CLI and every resume, since the saved train_config.json writes `null` for
+    # an unset dict.
+    scheduler_overrides: dict[str, Any] | None = None
+    # LeLab local customization: sample the global model / trainable parameter L2
+    # norm every N steps (0 = disabled). Low frequency keeps the full-model pass
+    # off the hot path while still showing a curve in the monitor.
+    weight_norm_freq: int = 0
+    # LeLab local customization: optional named action-dimension groups for loss
+    # diagnostics (e.g. the Scene1 10 relative joints + 2 absolute grippers).
+    # Loss groups never change the training objective.
+    action_loss_groups: dict[str, list[int]] | None = None
     # Process topology: dp_replicate / dp_shard (HSDP) and context-parallel degree placeholders.
     parallelism: ParallelismConfig = field(default_factory=ParallelismConfig)
     # Execution runtime handed to the Accelerator: mixed precision, gradient accumulation,
@@ -409,6 +421,9 @@ class TrainPipelineConfig(HubMixin):
                 "eval_steps > 0 requires dataset.eval_split > 0.0 or dataset.eval_episodes to hold out "
                 "eval data."
             )
+        if self.weight_norm_freq < 0:
+            raise ValueError("weight_norm_freq must be >= 0")
+        self._validate_action_loss_groups()
 
         # Remote runs auto-generate the repo_id in submit_to_hf (the policy may only be
         # resolved here, from --policy.path), so don't demand it up front for them.
@@ -424,6 +439,26 @@ class TrainPipelineConfig(HubMixin):
             raise ValueError("save_checkpoint_to_hub requires --policy.repo_id.")
 
         self._validate_distributed()
+
+    def _validate_action_loss_groups(self) -> None:
+        """Reject malformed action-loss diagnostics early instead of at the first logged step."""
+        groups = self.action_loss_groups
+        if groups is None:
+            return
+        if not isinstance(groups, dict) or not groups:
+            raise ValueError("action_loss_groups must be a non-empty object of name -> [dims]")
+        used: set[int] = set()
+        for name, indices in groups.items():
+            if not isinstance(name, str) or not name:
+                raise ValueError("action_loss_groups keys must be non-empty strings")
+            if not isinstance(indices, list) or not indices:
+                raise ValueError(f"action_loss_groups[{name!r}] must be a non-empty list")
+            for index in indices:
+                if not isinstance(index, int) or index < 0:
+                    raise ValueError(f"action_loss_groups[{name!r}] contains an invalid dimension {index!r}")
+                if index in used:
+                    raise ValueError(f"action dimension {index} appears in more than one loss group")
+                used.add(index)
 
     def _validate_distributed(self) -> None:
         """Fail-fasts for the distributed-training scope.

@@ -20,6 +20,8 @@ These tests do not grep the argv. They hand the generated argv to the real
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 # The config choice registry is filled by importing the policies package. The
@@ -194,17 +196,21 @@ def test_language_conditioned_policies_require_a_task(policy_type):
     assert policy_type in _LANGUAGE_CONDITIONED_POLICY_TYPES
 
 
-def test_monitor_only_flags_are_reported_when_the_library_cannot_take_them():
+def test_monitor_only_flags_are_emitted_once_the_library_declares_them():
     request = TrainingRequest(
         dataset_repo_id="lerobot/pusht",
         weight_norm_freq=50,
         action_loss_groups={"arm": [0, 1, 2, 3, 4], "gripper": [5]},
     )
-    # 0.7.0 dropped both fields; they must be reported rather than emitted.
-    assert unsupported_training_fields(request) == ["weight_norm_freq", "action_loss_groups"]
+    # After the N2 monitor port the library declares both fields, so the argv
+    # carries them and the "unsupported" probe has nothing to report.
+    assert unsupported_training_fields(request) == []
     argv = build_training_command(request, "/tmp/out")
-    assert "--weight_norm_freq" not in argv
-    assert "--action_loss_groups" not in argv
+    assert argv[argv.index("--weight_norm_freq") + 1] == "50"
+    assert json.loads(argv[argv.index("--action_loss_groups") + 1]) == {
+        "arm": [0, 1, 2, 3, 4],
+        "gripper": [5],
+    }
 
 
 # ── N1: held-out split and per-episode weights reach the real loader ──────────

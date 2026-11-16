@@ -25,6 +25,9 @@ from lerobot.utils.lelab_monitor import build_checkpoint_manifest, write_json_at
 
 def _make_checkpoint(root: Path, step: int = 4) -> Path:
     checkpoint = root / "run" / "checkpoints" / f"{step:06d}"
+    # 0.7 layout: the optimizer is one safetensors blob plus its param-group
+    # description, and a scheduler file exists only when the run has one.
+    # ACT has no scheduler preset, so this fixture must not invent one.
     files = {
         "pretrained_model/model.safetensors": b"weights",
         "pretrained_model/config.json": b'{"type":"act"}',
@@ -32,7 +35,7 @@ def _make_checkpoint(root: Path, step: int = 4) -> Path:
         "training_state/training_step.json": b'{"step":4}',
         "training_state/rng_state.safetensors": b"rng",
         "training_state/optimizer_state.safetensors": b"optimizer",
-        "training_state/scheduler_state.json": b'{"last_epoch":4}',
+        "training_state/optimizer_param_groups.json": b"[]",
     }
     for name, payload in files.items():
         path = checkpoint / name
