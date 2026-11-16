@@ -1,0 +1,199 @@
+{
+  "run_id": "20261116T1010Z-m1m3",
+  "branch": "codex/lerobot-070-integration",
+  "head": "71c575406f131dd5b7e71106df18f31a6c7e887a",
+  "worktree": "/home/liaozhengyan/Desktop/lelab-lerobot070",
+  "python": "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python",
+  "python_version": "3.12.3",
+  "import_paths": {
+    "lerobot": "<worktree>/releases/sanitized-20261024-01/lerobot/src/lerobot/__init__.py",
+    "lelab": "<worktree>/releases/sanitized-20261024-01/app/lelab/__init__.py",
+    "lerobot_version": "0.7.0",
+    "pythonpath_overridden": false
+  },
+  "environment": {
+    "nproc_soft_hard": [4096, 4096],
+    "blas_pinned": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1",
+    "gpu": "none (AMD Radeon Vega iGPU; nvidia-smi absent)",
+    "torch": "2.11.0+cpu",
+    "torchcodec": "installed but unloadable (missing libavutil); pyav fallback active"
+  },
+  "cases": [
+    {
+      "case_id": "TC-ENV-01",
+      "status": "passed",
+      "detail": "origin state, realpaths and 1354-file upstream manifest recorded in run 20261116T014700Z-m0"
+    },
+    {
+      "case_id": "TC-ENV-02",
+      "status": "passed",
+      "command": "env -u PYTHONPATH .venv/bin/python -c 'import lerobot; print(version, path)'",
+      "detail": "lerobot 0.7.0 imported from the worktree with no PYTHONPATH override; LeLab resolves to the same worktree"
+    },
+    {
+      "case_id": "TC-ENV-03",
+      "status": "partial",
+      "detail": "POLICY_EXTRAS now covers fastwam/fineart_vla with probe+target, asserted by test_policy_extra_map_covers_the_new_policies. The 'missing key dependency cannot be skipped away' half is covered by that direct import probe but no simulated-missing-extra fixture was added.",
+      "tests": ["app/tests/test_train_cli_contract_070.py::test_policy_extra_map_covers_the_new_policies"]
+    },
+    {
+      "case_id": "TC-POL-01",
+      "status": "partial",
+      "detail": "act/smolvla/fastwam/fineart_vla/pi05 all construct through the real 0.7.0 config registry and parse from the generated argv. Building the policy class itself (weight instantiation) was not run for the two new families.",
+      "tests": ["app/tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config"]
+    },
+    {
+      "case_id": "TC-POL-02",
+      "status": "not_run",
+      "detail": "dtype/bf16 mapping and legacy torch_dtype checkpoint loading not exercised"
+    },
+    {
+      "case_id": "TC-POL-03",
+      "status": "not_run",
+      "detail": "processor/stats/FAST-tokenizer roundtrip not exercised"
+    },
+    {
+      "case_id": "TC-POL-04",
+      "status": "partial",
+      "detail": "fastwam now refuses to build a command without explicit action/proprio dims, refuses them for other policies, and rejects a declared action width that differs from the bound feature.",
+      "tests": [
+        "app/tests/test_train_cli_contract_070.py::test_fastwam_requires_explicit_dimensions",
+        "app/tests/test_train_cli_contract_070.py::test_policy_dimensions_do_not_leak_to_other_policies",
+        "app/tests/test_train_cli_contract_070.py::test_fastwam_dimensions_reach_the_parsed_config",
+        "app/tests/test_train_cli_contract_070.py::test_fastwam_rejects_a_dataset_width_that_differs_from_its_own_declaration"
+      ]
+    },
+    {"case_id": "TC-POL-05", "status": "not_run", "detail": "relative-action round trip and inverse transform not exercised"},
+    {"case_id": "TC-POL-06", "status": "not_run", "detail": "subtask/language supervision split not exercised"},
+    {
+      "case_id": "TC-CLI-01",
+      "status": "passed",
+      "detail": "generated argv handed to the real 0.7.0 TrainPipelineConfig for 5 policies with tracking on and off; never a --wandb.* token; --trackio.* carries enable/project",
+      "tests": [
+        "app/tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config",
+        "app/tests/test_train_cli_contract_070.py::test_tracking_maps_to_trackio_instead_of_wandb",
+        "app/tests/test_train_cli_contract_070.py::test_disabled_tracking_emits_no_tracking_flags_at_all",
+        "app/tests/test_train.py::test_tracking_maps_to_trackio_and_never_emits_wandb"
+      ]
+    },
+    {
+      "case_id": "TC-CLI-02",
+      "status": "partial",
+      "detail": "pretrained-path/type conflict and groot-only flag gating still pass; fastwam-only dims are gated and refused elsewhere. GR00T+new-policy combination matrix not extended.",
+      "tests": [
+        "app/tests/test_train.py::test_pretrained_policy_uses_path_without_conflicting_type",
+        "app/tests/test_train.py::test_groot_policy_flags_are_emitted_only_for_groot"
+      ]
+    },
+    {
+      "case_id": "TC-CLI-03",
+      "status": "partial",
+      "detail": "post-preset optimizer and scheduler overrides land in the parsed config; scheduler type + preset is refused before a job exists; resume keeps the checkpoint authoritative. The library-side resume guard could not be unit-tested because draccus reads config_path from its own parser context.",
+      "tests": [
+        "app/tests/test_train_cli_contract_070.py::test_optimizer_override_survives_the_policy_preset",
+        "app/tests/test_train_cli_contract_070.py::test_optimizer_override_rejects_unknown_field",
+        "app/tests/test_train_cli_contract_070.py::test_resume_takes_precedence_over_preset_overrides",
+        "app/tests/test_train_monitor_options.py::test_scheduler_type_conflicts_with_the_policy_preset"
+      ]
+    },
+    {
+      "case_id": "TC-CLI-04",
+      "status": "partial",
+      "detail": "requires_task now true for fastwam/fineart_vla. Task passthrough for Chinese/empty strings and the remote-probe-missing-extra path were not exercised."
+    },
+    {
+      "case_id": "TC-SAF-01",
+      "status": "passed",
+      "detail": "workspace -> calibration -> relative order reproduced numerically (origin 0, present 6, target 100, workspace 10, range [-8,8], step 2 => 8)",
+      "tests": ["lerobot/tests/robots/test_so100_follower.py::test_all_three_guards_compose_in_the_documented_order"]
+    },
+    {
+      "case_id": "TC-SAF-02",
+      "status": "passed",
+      "detail": "external displacement to 25 yields 23 (one capped step back), origin stays fixed, partial workspace dict rejected without a write",
+      "tests": [
+        "lerobot/tests/robots/test_so100_follower.py::test_startup_workspace_origin_survives_a_step_towards_the_envelope",
+        "lerobot/tests/robots/test_so100_follower.py::test_startup_workspace_dict_requires_all_commanded_motor_keys"
+      ]
+    },
+    {"case_id": "TC-SAF-03", "status": "not_run", "detail": "step-wise homing sign from motor definitions not exercised (0.7.0 moved homing into MotorsBus.record_calibration)"},
+    {
+      "case_id": "TC-SAF-04",
+      "status": "passed",
+      "detail": "lease expiry/emergency-preempt tests pass unchanged in the full app suite",
+      "tests": ["app/tests/test_hardware_lease.py", "app/tests/test_hardware_lease_api.py"]
+    },
+    {
+      "case_id": "TC-SAF-05",
+      "status": "passed",
+      "detail": "stop/emergency/partial-failure cleanup tests pass in the full app suite",
+      "tests": ["app/tests/test_bimanual_recording.py::test_stop_recording_does_not_release_lease_early", "app/tests/test_safety.py"]
+    },
+    {
+      "case_id": "TC-DAT-01",
+      "status": "passed",
+      "detail": "weighted ratio 2.6-3.4 over 4000 draws, reproducibility per epoch, resume suffix equality, unweighted permutation preserved",
+      "tests": ["lerobot/tests/datasets/test_sampler.py (25 passed)"]
+    },
+    {"case_id": "TC-DAT-02", "status": "partial", "detail": "sampler-level validation (length/negative/NaN-free/all-zero) passes; config -> weights.json -> loader integration not implemented yet because DatasetConfig.sample_weights_file is not re-applied on 0.7.0"},
+    {"case_id": "TC-DAT-03", "status": "partial", "detail": "sealing/composite/remote-sync suites pass inside the full app run; the staged-sync failure injection was not run separately"},
+    {"case_id": "TC-DAT-04", "status": "partial", "detail": "bimanual fake recording with real writer + video decode passes (14 tests); ROS fixture reader check against the 0.7.0 reader not run"},
+    {"case_id": "TC-CKP-01", "status": "blocked", "detail": "lelab_monitor / training_metrics store not yet ported; app/tests/test_pause_resume_state.py cannot even be collected"},
+    {"case_id": "TC-CKP-02", "status": "blocked", "detail": "depends on the monitor pause/resume hooks"},
+    {"case_id": "TC-CKP-03", "status": "blocked", "detail": "depends on the monitor checkpoint validation"},
+    {"case_id": "TC-CKP-04", "status": "blocked", "detail": "depends on the monitor checkpoint format matrix"},
+    {"case_id": "TC-INF-01", "status": "not_run", "detail": "M4 not started"},
+    {"case_id": "TC-INF-02", "status": "blocked", "detail": "app/tests/test_observation_sender.py loads lerobot/async_inference by path; 0.7.0 replaced it, so the module no longer exists"},
+    {"case_id": "TC-INF-03", "status": "not_run", "detail": "M4 not started"},
+    {"case_id": "TC-INF-04", "status": "not_run", "detail": "M4 not started"},
+    {"case_id": "TC-MOD-01", "status": "not_run", "detail": "no FastWAM tiny/fake forward attempted"},
+    {"case_id": "TC-MOD-02", "status": "not_run", "detail": "no FineART offline node attempted"},
+    {"case_id": "TC-MOD-03", "status": "partial", "detail": "ACT/SmolVLA app paths still collect and pass in the full suite; no new-regression parity fixture was added"},
+    {"case_id": "TC-UI-01", "status": "not_run", "detail": "no browser interaction run"},
+    {
+      "case_id": "TC-UI-02",
+      "status": "partial",
+      "detail": "tsc --noEmit passed (661 source files, exit 0). Production vite build could not start: Node cannot allocate Wasm memory for undici's llhttp because the host has ~1 GB free. dist/ is therefore the pre-change bundle.",
+      "tests": ["node node_modules/typescript/bin/tsc -p tsconfig.app.json --noEmit --listFiles => exit 0"]
+    },
+    {"case_id": "TC-REL-01", "status": "not_run", "detail": "no candidate package or rollback rehearsal yet; blocked by the build"},
+    {"case_id": "TC-REAL-01", "status": "blocked", "detail": "no GPU, no FastWAM/FineART weights verified on this host"},
+    {"case_id": "TC-REAL-02", "status": "not_run", "detail": "language supervision not attempted"},
+    {"case_id": "TC-HW-01", "status": "blocked", "detail": "no device observation authorisation in this session"},
+    {"case_id": "TC-HW-02", "status": "blocked", "detail": "no motion authorisation in this session"}
+  ],
+  "suite_runs": [
+    {
+      "scope": "app",
+      "cwd": "<worktree>/app",
+      "command": ".venv/bin/python -m pytest tests -q --continue-on-collection-errors",
+      "exit_code": 1,
+      "counts": {"passed": 563, "failed": 0, "skipped": 1, "errors": 2},
+      "errors_are": [
+        "tests/test_observation_sender.py (async_inference module removed in 0.7.0)",
+        "tests/test_pause_resume_state.py (lelab_monitor not yet ported)"
+      ]
+    },
+    {
+      "scope": "lerobot",
+      "cwd": "<worktree>/lerobot",
+      "command": ".venv/bin/python -m pytest tests/robots/test_so100_follower.py tests/datasets/test_sampler.py -q",
+      "exit_code": 0,
+      "counts": {"passed": 39, "failed": 0, "skipped": 0}
+    },
+    {
+      "scope": "app (targeted 070 contract)",
+      "cwd": "<worktree>/app",
+      "command": ".venv/bin/python -m pytest tests/test_train_cli_contract_070.py -q",
+      "exit_code": 0,
+      "counts": {"passed": 20, "failed": 0, "skipped": 0}
+    }
+  ],
+  "known_gaps": [
+    "sample_weights_file / eval_episodes / DatasetConfig extensions not re-applied to 0.7.0",
+    "lelab_monitor + training_metrics pause/resume hooks not ported",
+    "async_inference -> 0.7.0 remote inference rewrite not started",
+    "production frontend build blocked by host memory",
+    "real FastWAM/FineART weights not run (no GPU)"
+  ]
+}

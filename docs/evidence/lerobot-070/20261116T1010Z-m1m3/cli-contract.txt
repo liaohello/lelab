@@ -1,0 +1,278 @@
+/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:306: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session". Set it to "fixture-scope" to keep the current behavior.
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+collecting ... collected 20 items
+
+tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[act] PASSED [  5%]
+tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[smolvla] PASSED [ 10%]
+tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[fastwam] PASSED [ 15%]
+tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[fineart_vla] PASSED [ 20%]
+tests/test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config[pi05] PASSED [ 25%]
+tests/test_train_cli_contract_070.py::test_tracking_maps_to_trackio_instead_of_wandb PASSED [ 30%]
+tests/test_train_cli_contract_070.py::test_disabled_tracking_emits_no_tracking_flags_at_all PASSED [ 35%]
+tests/test_train_cli_contract_070.py::test_optimizer_override_survives_the_policy_preset PASSED [ 40%]
+tests/test_train_cli_contract_070.py::test_optimizer_override_is_rejected_together_with_resume FAILED [ 45%]
+tests/test_train_cli_contract_070.py::test_optimizer_override_rejects_unknown_field FAILED [ 50%]
+tests/test_train_cli_contract_070.py::test_fastwam_requires_explicit_dimensions PASSED [ 55%]
+tests/test_train_cli_contract_070.py::test_policy_dimensions_do_not_leak_to_other_policies PASSED [ 60%]
+tests/test_train_cli_contract_070.py::test_fastwam_dimensions_reach_the_parsed_config PASSED [ 65%]
+tests/test_train_cli_contract_070.py::test_fastwam_rejects_a_dataset_width_that_differs_from_its_own_declaration PASSED [ 70%]
+tests/test_train_cli_contract_070.py::test_policy_extra_map_covers_the_new_policies[fastwam-diffusers-lerobot[fastwam]] PASSED [ 75%]
+tests/test_train_cli_contract_070.py::test_policy_extra_map_covers_the_new_policies[fineart_vla-transformers-lerobot[fineart_vla]] PASSED [ 80%]
+tests/test_train_cli_contract_070.py::test_policy_extra_map_covers_the_new_policies[smolvla-transformers-lerobot[smolvla]] PASSED [ 85%]
+tests/test_train_cli_contract_070.py::test_language_conditioned_policies_require_a_task[fastwam] PASSED [ 90%]
+tests/test_train_cli_contract_070.py::test_language_conditioned_policies_require_a_task[fineart_vla] PASSED [ 95%]
+tests/test_train_cli_contract_070.py::test_monitor_only_flags_are_reported_when_the_library_cannot_take_them PASSED [100%]
+
+=================================== FAILURES ===================================
+___________ test_optimizer_override_is_rejected_together_with_resume ___________
+
+    def test_optimizer_override_is_rejected_together_with_resume():
+        config = TrainPipelineConfig(
+            dataset=DatasetConfig(repo_id="lerobot/pusht"),
+            use_policy_training_preset=True,
+            resume=True,
+            optimizer_overrides={"lr": 1e-4},
+        )
+>       with pytest.raises(ValueError, match="cannot be combined with resume"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'cannot be combined with resume'
+E         Actual message: 'A config_path is expected when resuming a run. Please specify path to train_config.json'
+
+tests/test_train_cli_contract_070.py:111: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  lerobot.utils.import_utils:import_utils.py:102 Could not load libtorchcodec. Likely causes:
+          1. FFmpeg is not properly installed in your environment. We support
+             versions 4, 5, 6, 7, and 8, and we attempt to load libtorchcodec
+             for each of those versions. Errors for versions not installed on
+             your system are expected; only the error for your installed FFmpeg
+             version is relevant. On Windows, ensure you've installed the
+             "full-shared" version which ships DLLs.
+          2. The PyTorch version (2.11.0+cpu) is not compatible with
+             this version of TorchCodec. Refer to the version compatibility
+             table:
+             https://github.com/pytorch/torchcodec?tab=readme-ov-file#installing-torchcodec.
+          3. Another runtime dependency; see exceptions below.
+
+        The following exceptions were raised as we tried to load libtorchcodec:
+        
+[start of libtorchcodec loading traceback]
+FFmpeg version 8:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.60: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core8.so
+
+FFmpeg version 7:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.59: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core7.so
+
+FFmpeg version 6:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.58: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so
+
+FFmpeg version 5:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.57: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core5.so
+
+FFmpeg version 4:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.56: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
+[end of libtorchcodec loading traceback].
+'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
+________________ test_optimizer_override_rejects_unknown_field _________________
+
+    def test_optimizer_override_rejects_unknown_field():
+        config = TrainPipelineConfig(
+            dataset=DatasetConfig(repo_id="lerobot/pusht"),
+            use_policy_training_preset=True,
+            optimizer_overrides={"betas": 1},
+        )
+>       with pytest.raises(ValueError, match="only supports lr/weight_decay/grad_clip_norm"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'only supports lr/weight_decay/grad_clip_norm'
+E         Actual message: 'Neither policy nor reward_model is configured. Please specify one with `--policy.path` or `--reward_model.path`.'
+
+tests/test_train_cli_contract_070.py:121: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  lerobot.utils.import_utils:import_utils.py:102 Could not load libtorchcodec. Likely causes:
+          1. FFmpeg is not properly installed in your environment. We support
+             versions 4, 5, 6, 7, and 8, and we attempt to load libtorchcodec
+             for each of those versions. Errors for versions not installed on
+             your system are expected; only the error for your installed FFmpeg
+             version is relevant. On Windows, ensure you've installed the
+             "full-shared" version which ships DLLs.
+          2. The PyTorch version (2.11.0+cpu) is not compatible with
+             this version of TorchCodec. Refer to the version compatibility
+             table:
+             https://github.com/pytorch/torchcodec?tab=readme-ov-file#installing-torchcodec.
+          3. Another runtime dependency; see exceptions below.
+
+        The following exceptions were raised as we tried to load libtorchcodec:
+        
+[start of libtorchcodec loading traceback]
+FFmpeg version 8:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.60: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core8.so
+
+FFmpeg version 7:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.59: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core7.so
+
+FFmpeg version 6:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.58: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so
+
+FFmpeg version 5:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.57: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core5.so
+
+FFmpeg version 4:
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1503, in load_library
+    ctypes.CDLL(path)
+  File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libavutil.so.56: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+    torch.ops.load_library(core_library_path)
+  File "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1505, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
+[end of libtorchcodec loading traceback].
+'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
+=========================== short test summary info ============================
+FAILED tests/test_train_cli_contract_070.py::test_optimizer_override_is_rejected_together_with_resume
+FAILED tests/test_train_cli_contract_070.py::test_optimizer_override_rejects_unknown_field
+======================== 2 failed, 18 passed in 21.25s =========================
