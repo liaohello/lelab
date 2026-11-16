@@ -187,8 +187,8 @@ def test_weighted_start_fails_fast_when_remote_lerobot_is_old(
 ) -> None:
     fake_ssh.add(".ready", 0, "")
     # The capability probe runs `python3 -` with the DatasetConfig source on stdin
-    # and exits 3 when `sample_weights_file` is missing.
-    fake_ssh.add("DatasetConfig", 3, "")
+    # and exits 3 (naming the missing fields on stderr) when they are absent.
+    fake_ssh.add("DatasetConfig", 3, "sample_weights_file")
     runner = _runner(config, fake_ssh, tmp_path)
     request = TrainingRequest(
         dataset_repo_id="local/composite_deadbeef",
@@ -200,7 +200,9 @@ def test_weighted_start_fails_fast_when_remote_lerobot_is_old(
         dataset_weights_file="weights.json",
     )
 
-    with pytest.raises(RemoteTrainingError, match="不支持加权采样"):
+    # The error names the field the remote host is missing, so the operator knows
+    # whether to resync lerobot or drop weighted sampling.
+    with pytest.raises(RemoteTrainingError, match="缺少 DatasetConfig 字段：sample_weights_file"):
         runner.start("act-20260101-000000", request, "/local/output")
 
     uploaded = [call for call in fake_ssh.calls if "cat >" in call[0][-1]]

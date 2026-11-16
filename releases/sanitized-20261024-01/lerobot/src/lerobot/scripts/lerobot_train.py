@@ -68,7 +68,7 @@ from lerobot.datasets import (
     StreamingLeRobotDataset,
     compute_sampler_state,
 )
-from lerobot.datasets.factory import make_train_eval_datasets
+from lerobot.datasets.factory import load_episode_weights, make_train_eval_datasets
 from lerobot.datasets.multi_dataset import MultiLeRobotDataset
 from lerobot.distributed import (
     ParallelDims,
@@ -360,6 +360,21 @@ def make_dataloaders(
         # BatchSamplerShard without needing a `generator` attribute to synchronize an RNG, and
         # resume is sample-exact.
         shuffle = False
+        # LeLab: `--dataset.sample_weights_file` gives composite datasets
+        # per-episode weights. Weights describe the *full* episode axis, so the
+        # training subset (explicit eval_episodes / episodes) is projected onto
+        # it rather than re-indexing weights onto the filtered subset.
+        episode_weights = load_episode_weights(
+            cfg.dataset.sample_weights_file,
+            episode_indices=dataset.episodes,
+            total_episodes=dataset.meta.total_episodes,
+        )
+        if episode_weights is not None and is_main_process():
+            logging.info(
+                "Weighted sampling enabled from %s (%d episodes)",
+                cfg.dataset.sample_weights_file,
+                len(episode_weights),
+            )
         sampler = EpisodeAwareSampler(
             dataset.meta.episodes["dataset_from_index"],
             dataset.meta.episodes["dataset_to_index"],
@@ -369,6 +384,7 @@ def make_dataloaders(
             shuffle=True,
             seed=cfg.seed if cfg.seed is not None else 0,
             absolute_to_relative_idx=dataset.absolute_to_relative_idx,
+            episode_weights=episode_weights,
         )
         if cfg.resume and step > 0:
             if cfg.checkpoint_path is None:

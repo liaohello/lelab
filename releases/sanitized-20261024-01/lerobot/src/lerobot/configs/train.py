@@ -161,7 +161,8 @@ class TrainPipelineConfig(HubMixin):
     # Run policy in the simulation environment every N steps to measure reward/success (0 = disabled).
     env_eval_freq: int = 20_000
     log_freq: int = 200  # 0 or negative disables periodic logging
-    # Compute eval loss on held-out episodes every N steps (0 = disabled). Requires eval_split > 0.
+    # Compute eval loss on held-out episodes every N steps (0 = disabled).
+    # Requires dataset.eval_split > 0 or explicit dataset.eval_episodes.
     eval_steps: int = 0
     # Cap on total eval samples, split uniformly across tasks (0 = use all held-out data).
     max_eval_samples: int = 0
@@ -403,8 +404,11 @@ class TrainPipelineConfig(HubMixin):
                 "Use image_transforms.backend='dataloader' to augment in the DataLoader workers."
             )
 
-        if self.eval_steps > 0 and self.dataset.eval_split == 0.0:
-            raise ValueError("eval_steps > 0 requires dataset.eval_split > 0.0 to hold out eval data.")
+        if self.eval_steps > 0 and self.dataset.eval_split == 0.0 and not self.dataset.eval_episodes:
+            raise ValueError(
+                "eval_steps > 0 requires dataset.eval_split > 0.0 or dataset.eval_episodes to hold out "
+                "eval data."
+            )
 
         # Remote runs auto-generate the repo_id in submit_to_hf (the policy may only be
         # resolved here, from --policy.path), so don't demand it up front for them.

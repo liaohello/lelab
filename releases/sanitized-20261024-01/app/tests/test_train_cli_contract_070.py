@@ -205,3 +205,108 @@ def test_monitor_only_flags_are_reported_when_the_library_cannot_take_them():
     argv = build_training_command(request, "/tmp/out")
     assert "--weight_norm_freq" not in argv
     assert "--action_loss_groups" not in argv
+
+
+# ── N1: held-out split and per-episode weights reach the real loader ──────────
+# The argv-level assertions above stop at the parser. These follow the parsed
+# value into the dataset factory and the DataLoader sampler, so a flag that
+# parses but is never consumed fails here.
+
+
+def test_explicit_eval_episodes_parse_and_reach_the_dirsplit(tmp_path):
+    request = TrainingRequest(
+        dataset_repo_id="lerobot/pusht",
+        dataset_eval_episodes=[0, 1, 2],
+        eval_steps=100,
+    )
+    config, _argv = _parse(request, tmp_path / "out")
+
+    assert config.dataset.eval_episodes == [0, 1, 2]
+    assert config.dataset.eval_split == 0.0
+    assert config.eval_steps == 100
+    # validate() must accept explicit episodes as a substitute for eval_split.
+    config.policy.push_to_hub = False
+    config.validate()
+
+
+def test_weights_file_parses_into_the_dataset_config(tmp_path):
+    weights = tmp_path / "weights.json"
+    weights.write_text('{"episode_weights": [1.0, 2.0]}', encoding="utf-8")
+    # A weights file only travels for a composite selection: frames mode is the
+    # frame-proportional default and deliberately emits no weights file.
+    request = TrainingRequest(
+        dataset_repo_id="lerobot/pusht",
+        dataset_repo_ids=["lerobot/pusht", "lerobot/aloha_sim_insertion_human"],
+        dataset_composite_hash="deadbeef",
+        dataset_weights_mode="equal",
+        dataset_weights_file=str(weights),
+    ).model_copy(update={"dataset_repo_id": "lerobot/composite_deadbeef"})
+    config, _argv = _parse(request, tmp_path / "out")
+
+    from lerobot.datasets import load_episode_weights
+
+    assert config.dataset.sample_weights_file == str(weights)
+    assert load_episode_weights(config.dataset.sample_weights_file) == [1.0, 2.0]
+
+
+def test_parsed_split_and_weights_actually_shape_the_sampler(tmp_path):
+    """Config → file → factory → DataLoader, using the argv the app generated."""
+    import torch
+    from lerobot.datasets import EpisodeAwareSampler
+    from lerobot.datasets.factory import load_episode_weights
+    from lerobot.datasets.lerobot_dataset import LeRobotDataset
+
+    features = {
+        "observation.state": {"dtype": "float32", "shape": (2,), "names": None},
+        "action": {"dtype": "float32", "shape": (2,), "names": None},
+    }
+    ds_root = tmp_path / "ds"
+    writer = LeRobotDataset.create(repo_id="local/contract", fps=10, features=features, root=ds_root, use_videos=False)
+    for _ in range(2):
+        for _ in range(4):
+            writer.add_frame(
+                {"observation.state": torch.zeros(2), "action": torch.zeros(2), "task": "t"}
+            )
+        writer.save_episode()
+    writer.finalize()
+
+    weights = tmp_path / "weights.json"
+    weights.write_text('{"episode_weights": [1.0, 3.0]}', encoding="utf-8")
+    request = TrainingRequest(
+        dataset_repo_id="local/contract",
+        dataset_repo_ids=["local/contract", "local/other"],
+        dataset_composite_hash="cafe",
+        dataset_weights_mode="custom",
+        dataset_weights=[1.0, 3.0],
+        dataset_root=str(ds_root),
+        dataset_weights_file=str(weights),
+    ).model_copy(update={"dataset_repo_id": "local/composite_cafe"})
+    config, _argv = _parse(request, tmp_path / "out")
+
+    dataset = LeRobotDataset(
+        "local/contract",
+        root=config.dataset.root,
+        episodes=dataset_episodes(config),
+    )
+    weights_values = load_episode_weights(
+        config.dataset.sample_weights_file,
+        episode_indices=dataset.episodes,
+        total_episodes=dataset.meta.total_episodes,
+    )
+    sampler = EpisodeAwareSampler(
+        dataset.meta.episodes["dataset_from_index"],
+        dataset.meta.episodes["dataset_to_index"],
+        episode_indices_to_use=dataset.episodes,
+        shuffle=True,
+        seed=0,
+        absolute_to_relative_idx=dataset.absolute_to_relative_idx,
+        episode_weights=weights_values,
+    )
+    probs = sampler._frame_probabilities
+    assert probs is not None
+    assert probs[:4].sum() == pytest.approx(0.25)
+    assert probs[4:].sum() == pytest.approx(0.75)
+
+
+def dataset_episodes(config):
+    return config.dataset.episodes or list(range(2))

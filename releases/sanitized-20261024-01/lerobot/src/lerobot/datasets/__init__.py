@@ -36,7 +36,7 @@ from .dataset_tools import (
     remove_feature,
     split_dataset,
 )
-from .factory import make_dataset, make_train_eval_datasets, resolve_delta_timestamps
+from .factory import load_episode_weights, make_dataset, make_train_eval_datasets, resolve_delta_timestamps
 from .image_writer import safe_stop_image_writer
 from .io_utils import load_episodes, write_stats
 from .language import EVENT_ONLY_STYLES, PERSISTENT_STYLES, STYLE_REGISTRY, column_for_style
@@ -83,6 +83,7 @@ __all__ = [
     "delete_episodes",
     "get_feature_stats",
     "load_episodes",
+    "load_episode_weights",
     "make_dataset",
     "make_train_eval_datasets",
     "merge_datasets",

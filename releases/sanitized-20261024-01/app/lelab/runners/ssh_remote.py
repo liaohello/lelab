@@ -560,12 +560,14 @@ class SshRemoteJobRunner:
         )
 
     def _ensure_weighted_sampling_supported(self) -> None:
-        """Fail fast when the remote lerobot predates weighted sampling."""
+        """Fail fast when the remote lerobot predates weighted sampling or explicit eval splits."""
         source = (
             "import sys\n"
             "from lerobot.configs.default import DatasetConfig\n"
             "fields = getattr(DatasetConfig, '__dataclass_fields__', {})\n"
-            "sys.exit(0 if 'sample_weights_file' in fields else 3)\n"
+            "missing = [n for n in ('sample_weights_file', 'eval_episodes') if n not in fields]\n"
+            "sys.stderr.write(','.join(missing))\n"
+            "sys.exit(0 if not missing else 3)\n"
         )
         interpreter = (self.remote_python or DEFAULT_REMOTE_PYTHON).strip() or DEFAULT_REMOTE_PYTHON
         argv = [
@@ -575,10 +577,10 @@ class SshRemoteJobRunner:
         ]
         return_code, output = self._ssh(argv, source)
         if return_code == 3:
+            missing = output.strip() or "sample_weights_file"
             raise RemoteTrainingError(
-                f"训练机（{self.config.endpoint}）上的 lerobot 不支持加权采样"
-                "（缺少 DatasetConfig.sample_weights_file）。请先同步本地 lerobot fork，"
-                "或改用 dataset_weights_mode='frames'。"
+                f"训练机（{self.config.endpoint}）上的 lerobot 缺少 DatasetConfig 字段：{missing}。"
+                "请先同步本地 lerobot fork，或改用 dataset_weights_mode='frames' 并去掉显式验证集。"
             )
         if return_code != 0:
             detail = " ".join(line.strip() for line in output.splitlines() if line.strip())[-300:]
