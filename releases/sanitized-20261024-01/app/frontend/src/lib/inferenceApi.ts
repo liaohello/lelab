@@ -20,6 +20,13 @@ export interface StartInferenceRequest {
   actions_per_chunk?: number;
   fps?: number;
   chunk_size_threshold?: number;
+  // LeRobot 0.7 remote inference: operator-declared server identity and schema.
+  remote_deployment?: string;
+  remote_semantics?: string;
+  remote_state_dim?: number;
+  remote_action_dim?: number;
+  remote_refill_seconds?: number;
+  remote_action_timeout_s?: number;
 }
 
 export interface InferenceStatus {

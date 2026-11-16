@@ -422,6 +422,10 @@ def test_remote_bimanual_client_command_uses_child_ids_and_safety():
         cameras={"front": {"type": "opencv", "camera_index": 0, "width": 64, "height": 48, "fps": 30}},
         target="remote",
         policy_type="act",
+        remote_deployment="bimanual_red",
+        remote_semantics="so101-degrees-gripper-percent-v1",
+        remote_state_dim=12,
+        remote_action_dim=12,
     )
     cmd = _build_client_command(
         request,
@@ -430,6 +434,7 @@ def test_remote_bimanual_client_command_uses_child_ids_and_safety():
         remote_policy_path="/models/bimanual",
     )
     joined = " ".join(cmd)
+    assert "--inference.type=remote" in joined
     assert "--robot.type=bi_so_follower" in joined
     assert "--robot.left_arm_config.id=left-follower" in joined
     assert "--robot.right_arm_config.id=right-follower" in joined

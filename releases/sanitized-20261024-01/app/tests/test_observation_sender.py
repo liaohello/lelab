@@ -1,42 +1,16 @@
-"""Tests for the non-blocking observation sender used by the robot client.
+"""Tests for LeLab's non-blocking observation bridge.
 
-The module lives in the LeRobot fork (`lerobot/async_inference/`). It is loaded
-by file path on purpose: `lerobot.async_inference.__init__` imports gRPC, which
-is only installed on the runtime hosts, while this helper is pure stdlib.
+LeRobot 0.7 removed ``lerobot.async_inference.observation_sender``. The helper
+now lives in the app's own 0.7 adapter; it is pure stdlib and is imported from
+the same package the production control loops use. No module-level importorskip
+and no file-path loading: if the adapter is missing, collection must fail.
 """
 
 from __future__ import annotations
 
-import importlib.util
-import sys
 import time
-from pathlib import Path
 
-import pytest
-
-_FORK_MODULE = (
-    Path(__file__).resolve().parents[2]
-    / "lerobot"
-    / "src"
-    / "lerobot"
-    / "async_inference"
-    / "observation_sender.py"
-)
-
-
-def _load_sender_class():
-    if not _FORK_MODULE.exists():  # pragma: no cover - layout guard
-        pytest.skip(f"LeRobot fork not found at {_FORK_MODULE}")
-    spec = importlib.util.spec_from_file_location("lelab_test_observation_sender", _FORK_MODULE)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    # dataclasses look the module up in sys.modules while processing the class body.
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module.LatestObservationSender
-
-
-LatestObservationSender = _load_sender_class()
+from lelab.utils.inference_070 import LatestObservationSender
 
 
 class _Observation:

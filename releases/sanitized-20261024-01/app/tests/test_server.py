@@ -123,6 +123,10 @@ def test_start_inference_dispatches_remote_target(client: TestClient, monkeypatc
             "cameras": {},
             "duration_s": 30,
             "target": "remote",
+            "remote_deployment": "so101_red",
+            "remote_semantics": "so101-degrees-gripper-percent-v1",
+            "remote_state_dim": 6,
+            "remote_action_dim": 6,
         },
     )
 

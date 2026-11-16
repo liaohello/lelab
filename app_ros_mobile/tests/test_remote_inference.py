@@ -31,7 +31,10 @@ def test_client_command_targets_the_tunnel(monkeypatch) -> None:
         duration_s=30,
         target="remote",
         policy_type="act",
-        actions_per_chunk=25,
+        remote_deployment="so101_red",
+        remote_semantics="so101-degrees-gripper-percent-v1",
+        remote_state_dim=6,
+        remote_action_dim=6,
     )
 
     cmd = _build_client_command(
@@ -42,17 +45,18 @@ def test_client_command_targets_the_tunnel(monkeypatch) -> None:
     )
     joined = " ".join(cmd)
 
-    assert "lerobot.async_inference.robot_client" in joined
-    assert "--server_address=127.0.0.1:28081" in joined
+    assert "lerobot.scripts.lerobot_rollout" in joined
+    assert "--inference.type=remote" in joined
+    assert "--inference.endpoint=tcp/127.0.0.1:28081" in joined
+    assert "--inference.deployment=so101_red" in joined
     assert "--robot.port=/dev/serial/by-id/usb-follower" in joined
     assert "--robot.id=follower_a" in joined
-    assert "--policy_type=act" in joined
-    assert "--actions_per_chunk=25" in joined
     assert "--task=pick the red block" in joined
     # Local safety limits travel with the robot config, cloud or not.
     assert "--robot.max_relative_target=5.0" in joined
     assert "--robot.max_position_deviation" not in joined
-    assert "wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}" in joined
+    assert "wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30" in joined
+    assert "async_inference" not in joined
 
 
 def test_client_command_omits_empty_task() -> None:
@@ -62,6 +66,10 @@ def test_client_command_omits_empty_task() -> None:
         policy_ref="/remote/checkpoints/000001/pretrained_model",
         duration_s=10,
         target="remote",
+        remote_deployment="so101_red",
+        remote_semantics="so101-degrees-gripper-percent-v1",
+        remote_state_dim=6,
+        remote_action_dim=6,
     )
     cmd = _build_client_command(
         request,

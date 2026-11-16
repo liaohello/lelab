@@ -91,6 +91,15 @@ class InferenceRequest(BaseModel):
     remote_policy_device: str = "cuda"
     #: GPU index on the train server ("auto" is resolved by the caller).
     remote_gpu: int | None = None
+    # LeRobot 0.7 remote inference: the model host owns an explicitly named
+    # deployment and a units/order semantics convention. Neither is inferred
+    # from the policy family; a wrong guess could move the wrong joint.
+    remote_deployment: str = ""
+    remote_semantics: str = ""
+    remote_refill_seconds: float = 0.5
+    remote_action_timeout_s: float = 5.0
+    remote_state_dim: int | None = None
+    remote_action_dim: int | None = None
 
     @model_validator(mode="after")
     def validate_robot_mode(self) -> InferenceRequest:
@@ -101,6 +110,26 @@ class InferenceRequest(BaseModel):
             raise ValueError("Use either a single follower or a bimanual rig")
         if self.bimanual is not None and not self.cameras:
             raise ValueError("Bimanual inference requires the configured camera set")
+        if self.target == "remote":
+            if not self.remote_deployment.strip() or not self.remote_semantics.strip():
+                raise ValueError(
+                    "Remote inference requires remote_deployment and remote_semantics; "
+                    "the 0.7 server never guesses units or joint order"
+                )
+            if self.actions_per_chunk != 50 or self.chunk_size_threshold != 0.5:
+                raise ValueError(
+                    "actions_per_chunk/chunk_size_threshold belong to the retired async "
+                    "client and have no 0.7 equivalent; use remote_refill_seconds and "
+                    "remote_action_timeout_s instead"
+                )
+            contract = self.policy_contract or {}
+            state_dim = self.remote_state_dim or contract.get("state_dim")
+            action_dim = self.remote_action_dim or contract.get("action_dim")
+            if state_dim is None or action_dim is None:
+                raise ValueError(
+                    "Remote inference requires explicit remote_state_dim/remote_action_dim "
+                    "(or a policy_contract declaring both); never inherit 7/8 defaults"
+                )
         return self
 
     @property

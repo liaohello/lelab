@@ -34,6 +34,8 @@ from typing import Any, Protocol
 
 import numpy as np
 
+from .utils.inference_070 import SERVER_MODULE, DeploymentSpec
+
 logger = logging.getLogger(__name__)
 
 MODE_OBSERVE = "observe"
@@ -94,6 +96,12 @@ class JetsonConfig:
     checkpoint: str = DEFAULT_CHECKPOINT
     policy_type: str = DEFAULT_POLICY_TYPE
     bind_host: str = "0.0.0.0"
+    # LeRobot 0.7 server identity. These are operator declarations, never
+    # inferred from the checkpoint or the policy family.
+    deployment: str = ""
+    semantics: str = ""
+    state_dim: int = 6
+    action_dim: int = 6
 
     def __post_init__(self) -> None:
         for name in ("root", "python", "checkpoint"):
@@ -115,6 +123,10 @@ class JetsonConfig:
             checkpoint=values.get("LELAB_JETSON_CHECKPOINT", DEFAULT_CHECKPOINT),
             policy_type=values.get("LELAB_JETSON_POLICY_TYPE", DEFAULT_POLICY_TYPE),
             bind_host=values.get("LELAB_JETSON_BIND_HOST", "0.0.0.0"),
+            deployment=values.get("LELAB_JETSON_DEPLOYMENT", ""),
+            semantics=values.get("LELAB_JETSON_SEMANTICS", ""),
+            state_dim=int(values.get("LELAB_JETSON_STATE_DIM", "6")),
+            action_dim=int(values.get("LELAB_JETSON_ACTION_DIM", "6")),
         )
 
     @property
@@ -480,7 +492,24 @@ class JetsonPolicyServer:
         return payload
 
     def start(self, *, timeout_s: float = 30.0) -> dict[str, Any]:
-        script = r"""set -eu
+        if not self.config.deployment.strip() or not self.config.semantics.strip():
+            raise JetsonPolicyError(
+                "LeRobot 0.7 requires LELAB_JETSON_DEPLOYMENT and LELAB_JETSON_SEMANTICS; "
+                "the retired async PolicyServer had no explicit deployment identity"
+            )
+        spec = DeploymentSpec(
+            deployment=self.config.deployment.strip(),
+            semantics=self.config.semantics.strip(),
+            checkpoint=self.config.checkpoint,
+            device="cuda",
+            port=self.config.policy_port,
+            state_dim=self.config.state_dim,
+            action_dim=self.config.action_dim,
+            state_names=DEFAULT_STATE_NAMES[: self.config.state_dim],
+        )
+        config_json = json.dumps(spec.server_config(), sort_keys=True)
+        script = (
+            r"""set -eu
 root=$1
 python=$2
 bind_host=$3
@@ -488,6 +517,7 @@ port=$4
 src=$5
 checkpoint=$6
 policy_type=$7
+config_json=$8
 mkdir -p "$root/run" "$root/logs"
 pidfile="$root/run/policy_server.pid"
 marker="$root/run/session.json"
@@ -506,10 +536,14 @@ cd "$root"
 export PYTHONPATH="$src"
 export HF_HOME="$root/hf"
 export HF_HUB_DISABLE_XET=1
+printf '%s\n' "$config_json" > "$root/run/server.yaml"
 : > "$root/logs/policy_server.log"
-setsid nohup "$python" -m lerobot.async_inference.policy_server \
-  --host="$bind_host" --port="$port" --fps=30 \
-  --inference_latency=0.0333333333 --obs_queue_timeout=2 \
+# Zenoh listens on loopback: the client runs on this Jetson and no plaintext
+# policy endpoint is exposed to the laboratory network.
+setsid nohup "$python" -m """
+        + SERVER_MODULE
+        + r""" --config_path="$root/run/server.yaml" \
+  --zenoh.listen_endpoints="[tcp/127.0.0.1:$port]" \
   > "$root/logs/policy_server.log" 2>&1 &
 pid=$!
 echo "$pid" > "$pidfile"
@@ -517,6 +551,7 @@ printf '{"pid":%s,"port":%s,"policy_type":"%s","checkpoint":"%s","source":"%s","
   "$pid" "$port" "$policy_type" "$checkpoint" "$src" "$bind_host" "$(date +%s)" > "$marker"
 echo "STARTED $pid"
 """
+        )
         code, output = self._ssh_runner(
             script,
             self.config.root,
@@ -526,6 +561,7 @@ echo "STARTED $pid"
             self.config.source_dir,
             self.config.checkpoint,
             self.config.policy_type,
+            config_json,
             timeout=60.0,
         )
         text = output.strip()
@@ -620,7 +656,9 @@ if [ -z "$pid" ]; then rm -f "$pidfile"; echo "ALREADY_STOPPED"; exit 0; fi
 if ! kill -0 "$pid" 2>/dev/null; then rm -f "$pidfile"; echo "ALREADY_STOPPED"; exit 0; fi
 cmd=$(tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null || true)
 cwd=$(readlink "/proc/$pid/cwd" 2>/dev/null || true)
-case "$cmd" in *"lerobot.async_inference.policy_server"*) ;; *) echo "NOT_OURS $pid $cmd"; exit 4;; esac
+# Match our 0.7 server and the retired 0.6 one so old leftovers remain
+# releasable; never match an unrelated process on the same port.
+case "$cmd" in *"lerobot.scripts.lerobot_policy_server"*|*"lerobot.async_inference.policy_server"*) ;; *) echo "NOT_OURS $pid $cmd"; exit 4;; esac
 case "$cwd" in "$root"|"$root"/*) ;; *) echo "NOT_OURS_CWD $pid $cwd"; exit 5;; esac
 kill -TERM -"$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null || true
 i=0
@@ -1104,6 +1142,12 @@ class JetsonShadowClient:
     def start(self) -> dict[str, Any]:
         if self.phase not in {"init", "stopped"}:
             raise JetsonPolicyError(f"client cannot start from phase {self.phase!r}")
+        if self.mode in {MODE_SHADOW, MODE_EXECUTE}:
+            raise JetsonPolicyError(
+                "JetsonShadowClient gRPC upload is a retired 0.6 path; LeRobot 0.7 uses "
+                "lerobot-rollout --inference.type=remote with Zenoh. Read-only observe "
+                "mode and the local safety wrapper remain available."
+            )
         self._stop.clear()
         self.fault = None
         self._generation += 1

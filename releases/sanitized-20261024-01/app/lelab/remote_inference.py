@@ -44,6 +44,7 @@ Lifecycle of a session:
 from __future__ import annotations
 
 import contextlib
+import json
 import logging
 import os
 import socket
@@ -64,13 +65,22 @@ from .rollout import (
 from .runners import ssh_ops
 from .train_server import marker_payload
 from .utils.config import FOLLOWER_CONFIG_PATH, setup_follower_calibration_file
+from .utils.inference_070 import (
+    SERVER_MODULE,
+    DeploymentSpec,
+    Inference070Error,
+    rollout_command,
+    server_command,
+)
 from .utils.policy_refs import PolicyRefError, parse_policy_ref
 from .utils.servers import train_policy_endpoint
 
 logger = logging.getLogger(__name__)
 
-POLICY_SERVER_MODULE = "lerobot.async_inference.policy_server"
-ROBOT_CLIENT_MODULE = "lerobot.async_inference.robot_client"
+# Retired in 0.7.0: lerobot.async_inference.{policy_server,robot_client}.
+# Both constants remain as the single place that names the replacement entries.
+POLICY_SERVER_MODULE = SERVER_MODULE
+ROBOT_CLIENT_MODULE = "lerobot.scripts.lerobot_rollout"
 POLICY_SERVER_DIRNAME = "policy_server"
 SESSION_MARKER_NAME = ".lelab-session.json"
 
@@ -162,6 +172,41 @@ def _policy_server_root(config: TrainServerConfig) -> str:
     return f"{config.root.rstrip('/')}/{POLICY_SERVER_DIRNAME}"
 
 
+def _deployment_spec(request: InferenceRequest, remote_policy_path: str) -> DeploymentSpec:
+    """Build the operator-owned 0.7 server schema from an explicit request."""
+    from .utils.servers import train_policy_endpoint
+
+    _host, port = train_policy_endpoint()
+    contract = request.policy_contract or {}
+    state_names = contract.get("state_names") or contract.get("joint_names") or ()
+    if not isinstance(state_names, (list, tuple)):
+        raise Inference070Error("policy_contract state_names must be a list of component names")
+    cameras: dict[str, tuple[int, int, int]] = {}
+    for name, cfg in request.cameras.items():
+        try:
+            width, height = int(cfg["width"]), int(cfg["height"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise Inference070Error(
+                f"camera {name!r} needs explicit width and height for the 0.7 server schema"
+            ) from exc
+        if width <= 0 or height <= 0:
+            raise Inference070Error(f"camera {name!r} has an invalid frame size")
+        cameras[name] = (height, width, 3)
+    return DeploymentSpec(
+        deployment=request.remote_deployment.strip(),
+        semantics=request.remote_semantics.strip(),
+        checkpoint=remote_policy_path,
+        device=request.remote_policy_device,
+        port=port,
+        action_fps=float(request.fps),
+        state_dim=int(request.remote_state_dim or contract["state_dim"]),
+        action_dim=int(request.remote_action_dim or contract["action_dim"]),
+        state_names=tuple(str(name) for name in state_names),
+        camera_shapes=cameras,
+        robot_type="bi_so_follower" if request.bimanual is not None else "so101_follower",
+    )
+
+
 # --------------------------------------------------------------------------
 # Remote PolicyServer process
 # --------------------------------------------------------------------------
@@ -172,15 +217,16 @@ _START_SERVER_SCRIPT = (
     + r"""session_dir=$(expand_remote_path "$1")
 python_bin=$(expand_remote_path "$2")
 port=$3
-fps=$4
-latency=$5
-obs_timeout=$6
-hf_home=$(expand_remote_path "$7")
-proxy=$8
-hf_endpoint=$9
-hf_token=${10}
+hf_home=$(expand_remote_path "$4")
+proxy=$5
+hf_endpoint=$6
+hf_token=$7
+config_json=$8
 mkdir -p -- "$session_dir"
 cd "$session_dir"
+# The deployment identity and feature schema are operator-owned; this file is
+# generated from a validated DeploymentSpec, never from the connecting robot.
+printf '%s\n' "$config_json" > server.yaml
 export HF_HOME="$hf_home"
 export HF_HUB_DISABLE_XET=1
 if [ -n "$hf_endpoint" ]; then export HF_ENDPOINT="$hf_endpoint"; fi
@@ -190,9 +236,10 @@ if [ -n "$proxy" ]; then
   export NO_PROXY="127.0.0.1,localhost"
 fi
 : > run.log
-setsid nohup "$python_bin" -m lerobot.async_inference.policy_server \
-  --host=127.0.0.1 --port="$port" --fps="$fps" \
-  --inference_latency="$latency" --obs_queue_timeout="$obs_timeout" \
+setsid nohup "$python_bin" -m """
+    + SERVER_MODULE
+    + r""" --config_path="$session_dir/server.yaml" \
+  --zenoh.listen_endpoints="[tcp/127.0.0.1:$port]" \
   > run.log 2>&1 &
 echo $! > run.pid
 cat run.pid
@@ -203,7 +250,7 @@ cat run.pid
 def _start_remote_policy_server(
     config: TrainServerConfig,
     *,
-    port: int,
+    spec: DeploymentSpec,
     env: dict[str, str],
     stamp: str,
 ) -> tuple[int, str]:
@@ -214,14 +261,12 @@ def _start_remote_policy_server(
         _START_SERVER_SCRIPT,
         session_dir,
         python,
-        str(port),
-        str(_DEFAULT_SERVER_FPS),
-        str(_DEFAULT_INFERENCE_LATENCY),
-        str(_DEFAULT_OBS_QUEUE_TIMEOUT),
+        str(spec.port),
         env.get("HF_HOME", ""),
         env.get("HTTPS_PROXY", ""),
         env.get("HF_ENDPOINT", ""),
         env.get("HF_TOKEN", ""),
+        json.dumps(spec.server_config(), sort_keys=True),
         timeout=30.0,
     )
     if return_code != 0:
@@ -447,9 +492,20 @@ def _build_client_command(
     local_port: int,
     remote_policy_path: str,
 ) -> list[str]:
+    """Build the 0.7 remote-rollout command on the robot host.
+
+    The checkpoint is *not* passed here: the server already loaded an
+    operator-owned deployment. ``local_port`` only selects the loopback end of
+    the SSH tunnel, which is the same TCP endpoint Zenoh connects to.
+    """
     from .safety import follower_safety_cli_args
 
-    policy_type = (request.policy_type or "act").strip() or "act"
+    spec = _deployment_spec(request, remote_policy_path)
+    if spec.port != local_port:
+        raise Inference070Error(
+            f"tunnel port {local_port} and deployment endpoint {spec.port} disagree"
+        )
+    robot_args: list[str] = []
     if request.bimanual is not None:
         left_id = Path(request.bimanual.left.follower_config).stem
         right_id = Path(request.bimanual.right.follower_config).stem
@@ -458,10 +514,7 @@ def _build_client_command(
         for arg in safety:
             arm_safety.append(arg.replace("--robot.", "--robot.left_arm_config.", 1))
             arm_safety.append(arg.replace("--robot.", "--robot.right_arm_config.", 1))
-        cmd = [
-            sys.executable,
-            "-m",
-            ROBOT_CLIENT_MODULE,
+        robot_args = [
             "--robot.type=bi_so_follower",
             "--robot.id=lelab_bimanual",
             f"--robot.calibration_dir={FOLLOWER_CONFIG_PATH}",
@@ -470,43 +523,17 @@ def _build_client_command(
             f"--robot.right_arm_config.port={request.bimanual.right.follower_port}",
             f"--robot.right_arm_config.id={right_id}",
             *arm_safety,
-            f"--server_address=127.0.0.1:{local_port}",
-            f"--policy_type={policy_type}",
-            f"--pretrained_name_or_path={remote_policy_path}",
-            f"--policy_device={request.remote_policy_device or 'cuda'}",
-            "--client_device=cpu",
-            f"--actions_per_chunk={request.actions_per_chunk}",
-            f"--fps={request.fps}",
-            f"--chunk_size_threshold={request.chunk_size_threshold}",
         ]
-        if request.task:
-            cmd.append(f"--task={request.task}")
-        if request.cameras:
-            cmd.append(f"--robot.cameras={_format_cameras_arg(request.cameras)}")
-        return cmd
-
-    cmd = [
-        sys.executable,
-        "-m",
-        ROBOT_CLIENT_MODULE,
-        "--robot.type=so101_follower",
-        f"--robot.port={request.follower_port}",
-        f"--robot.id={follower_id}",
-        *follower_safety_cli_args(),
-        f"--server_address=127.0.0.1:{local_port}",
-        f"--policy_type={policy_type}",
-        f"--pretrained_name_or_path={remote_policy_path}",
-        f"--policy_device={request.remote_policy_device or 'cuda'}",
-        "--client_device=cpu",
-        f"--actions_per_chunk={request.actions_per_chunk}",
-        f"--fps={request.fps}",
-        f"--chunk_size_threshold={request.chunk_size_threshold}",
-    ]
-    if request.task:
-        cmd.append(f"--task={request.task}")
+    else:
+        robot_args = [
+            "--robot.type=so101_follower",
+            f"--robot.port={request.follower_port}",
+            f"--robot.id={follower_id}",
+            *follower_safety_cli_args(),
+        ]
     if request.cameras:
-        cmd.append(f"--robot.cameras={_format_cameras_arg(request.cameras)}")
-    return cmd
+        robot_args.append(f"--robot.cameras={_format_cameras_arg(request.cameras)}")
+    return rollout_command(sys.executable, spec=spec, request=request, robot_args=robot_args)
 
 
 def _pump_client_stdout(proc: subprocess.Popen, log_handle) -> None:
@@ -622,6 +649,7 @@ def handle_start_remote_inference(request: InferenceRequest) -> dict[str, Any]:
 
         _host, remote_port = train_policy_endpoint()
         _set_phase("starting_server")
+        spec = _deployment_spec(request, remote_policy_path)
         # Port 28081 is single-session by design: refuse to touch a foreign
         # listener, and hand our own leftovers to the operator's cleanup button.
         from .train_server import our_sessions, train_server_status
@@ -646,7 +674,7 @@ def handle_start_remote_inference(request: InferenceRequest) -> dict[str, Any]:
             )
         server_pid, server_log = _start_remote_policy_server(
             config,
-            port=remote_port,
+            spec=spec,
             env=env,
             stamp=stamp,
         )

@@ -87,6 +87,14 @@ const InferenceModal: React.FC<Props> = ({
   const [selectedStep, setSelectedStep] = useState<number | null>(initialStep);
   const [task, setTask] = useState("");
   const [durationS, setDurationS] = useState(60);
+  // 0.7 remote server identity: required and operator-owned. The old async
+  // client inferred nothing from the policy family; neither do we.
+  const [remoteDeployment, setRemoteDeployment] = useState("");
+  const [remoteSemantics, setRemoteSemantics] = useState("");
+  const [remoteStateDim, setRemoteStateDim] = useState(6);
+  const [remoteActionDim, setRemoteActionDim] = useState(6);
+  const [remoteRefill, setRemoteRefill] = useState(0.5);
+  const [remoteActionTimeout, setRemoteActionTimeout] = useState(5);
   const [submitting, setSubmitting] = useState(false);
   // Where the policy runs: on this Jetson, or on the GPU training server
   // (LeLab starts the remote PolicyServer and the SSH tunnel itself).
@@ -227,7 +235,12 @@ const InferenceModal: React.FC<Props> = ({
     selectedRef != null &&
     !!policyConfig &&
     allCamerasBound &&
-    (target === "local" || !!trainServer?.configured) &&
+    (target === "local" ||
+      (!!trainServer?.configured &&
+        !!remoteDeployment.trim() &&
+        !!remoteSemantics.trim() &&
+        remoteStateDim > 0 &&
+        remoteActionDim > 0)) &&
     !submitting;
 
   const handleStart = async () => {
@@ -261,6 +274,16 @@ const InferenceModal: React.FC<Props> = ({
         duration_s: durationS,
         target,
         policy_type: policyConfig.policy_type ?? "act",
+        ...(target === "remote"
+          ? {
+              remote_deployment: remoteDeployment.trim(),
+              remote_semantics: remoteSemantics.trim(),
+              remote_state_dim: remoteStateDim,
+              remote_action_dim: remoteActionDim,
+              remote_refill_seconds: remoteRefill,
+              remote_action_timeout_s: remoteActionTimeout,
+            }
+          : {}),
       });
       onOpenChange(false);
       navigate("/inference");
@@ -372,7 +395,7 @@ const InferenceModal: React.FC<Props> = ({
             </Select>
             <p className="text-xs text-gray-500">
               {target === "remote"
-                ? `LeLab starts a loopback PolicyServer on ${trainServer?.endpoint ?? "the training server"}, opens an SSH tunnel, and streams actions back to this Jetson. The hardware safety limits stay on the robot.`
+                ? `LeLab starts a LeRobot 0.7 PolicyServer on ${trainServer?.endpoint ?? "the training server"}, opens an SSH tunnel to its loopback Zenoh endpoint, and runs a remote rollout here. The hardware safety limits stay on the robot.`
                 : "The policy file is loaded on this Jetson. Use the training server when the checkpoint only exists there."}
             </p>
             {selectedIsRemote ? (
@@ -382,6 +405,96 @@ const InferenceModal: React.FC<Props> = ({
               </p>
             ) : null}
           </div>
+
+          {target === "remote" ? (
+            <div className="space-y-3 rounded-lg border border-amber-700/60 bg-amber-950/20 p-3">
+              <p className="text-xs text-amber-200">
+                LeRobot 0.7 remote deployment. The server owns the checkpoint and
+                these values must match its configuration; no joint order or unit
+                convention is guessed.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="remoteDeployment" className="text-xs text-gray-300">
+                    Deployment *
+                  </Label>
+                  <Input
+                    id="remoteDeployment"
+                    value={remoteDeployment}
+                    onChange={(e) => setRemoteDeployment(e.target.value)}
+                    placeholder="so101_red"
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="remoteSemantics" className="text-xs text-gray-300">
+                    Semantics *
+                  </Label>
+                  <Input
+                    id="remoteSemantics"
+                    value={remoteSemantics}
+                    onChange={(e) => setRemoteSemantics(e.target.value)}
+                    placeholder="so101-degrees-gripper-percent-v1"
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="remoteStateDim" className="text-xs text-gray-300">
+                    State dim *
+                  </Label>
+                  <Input
+                    id="remoteStateDim"
+                    type="number"
+                    min={1}
+                    value={remoteStateDim}
+                    onChange={(e) => setRemoteStateDim(Number(e.target.value))}
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="remoteActionDim" className="text-xs text-gray-300">
+                    Action dim *
+                  </Label>
+                  <Input
+                    id="remoteActionDim"
+                    type="number"
+                    min={1}
+                    value={remoteActionDim}
+                    onChange={(e) => setRemoteActionDim(Number(e.target.value))}
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="remoteRefill" className="text-xs text-gray-300">
+                    Refill (s)
+                  </Label>
+                  <Input
+                    id="remoteRefill"
+                    type="number"
+                    min={0.01}
+                    step={0.1}
+                    value={remoteRefill}
+                    onChange={(e) => setRemoteRefill(Number(e.target.value))}
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="remoteActionTimeout" className="text-xs text-gray-300">
+                    Action timeout (s)
+                  </Label>
+                  <Input
+                    id="remoteActionTimeout"
+                    type="number"
+                    min={0.01}
+                    step={0.5}
+                    value={remoteActionTimeout}
+                    onChange={(e) => setRemoteActionTimeout(Number(e.target.value))}
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
