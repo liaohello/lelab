@@ -250,6 +250,8 @@ def record_loop(
     display_mode: str = "rerun",
     display_compressed_images: bool = False,
     timer: CycleTimer | None = None,
+    cycle_callback=None,
+    save_sent_action: bool = False,
 ) -> None:
     """Drive the robot from the teleoperator at *fps*, optionally recording each frame.
 
@@ -259,6 +261,17 @@ def record_loop(
     statistics span the whole session and are reported per episode.  Without it each
     call gets a private timer: identical pacing and identical slow-loop warnings, just
     no end-of-run summary, since a single phase has no run to summarise.
+
+    *cycle_callback* is a LeLab-local extension: it receives one dict per control
+    cycle with the processed observation, the teleop target, the post-safety sent
+    action and per-section timing. It lets the web recorder publish a same-cycle
+    joint snapshot and write sidecar diagnostics without reading the serial buses
+    from an HTTP thread.
+
+    *save_sent_action* is also a LeLab-local extension. When true, ``action``
+    stores the command returned by ``robot.send_action()`` (after local safety
+    clamps) instead of the teleop-processor output. It defaults to false so
+    existing datasets keep their historical semantics.
     """
     if dataset is not None and dataset.fps != fps:
         raise ValueError(f"The dataset fps should be equal to requested fps ({dataset.fps} != {fps}).")
@@ -297,19 +310,25 @@ def record_loop(
 
     no_action_count = 0
     timestamp = 0.0
+    episode_frame_index = 0
     start_episode_t = time.perf_counter()
     while timestamp < control_time_s:
         # Checked before `tick()`: this iteration is not a control tick, so it should not
-        # be timed as one.
-        if events["exit_early"]:
+        # be timed as one. `stop_recording` aborts the current phase immediately so a
+        # web/emergency stop is not delayed by another observe/send cycle.
+        if events["exit_early"] or events.get("stop_recording", False):
             events["exit_early"] = False
             break
 
+        cycle_started = time.perf_counter()
+        cycle_started_wall = time.time()
+        cycle_started_monotonic = time.monotonic()
         timer.tick()
 
         with timer.section("observe"):
             # Get robot observation
             obs = robot.get_observation()
+        observe_done = time.perf_counter()
 
         with timer.section("process_obs"):
             # Applies a pipeline to the raw robot observation, default is IdentityProcessor
@@ -349,6 +368,7 @@ def record_loop(
                         "This is likely to happen when resetting the environment without a teleop device. "
                         "The robot won't be at its rest position at the start of the next episode."
                     )
+        teleop_done = time.perf_counter()
 
         # Nothing to send and nothing to record, but the phase still has to be paced and
         # still has to end: `continue`ing straight past the tail of the loop body used to
@@ -364,13 +384,57 @@ def record_loop(
             # so action actually sent is saved in the dataset. action = postprocessor.process(action)
             # TODO(steven, pepijn, adil): we should use a pipeline step to clip the action, so the sent action is the action that we input to the robot.
             _sent_action = robot.send_action(robot_action_to_send)
+        send_done = time.perf_counter()
 
+        recorded_frame_index = None
         # Write to dataset
         if dataset is not None:
             with timer.section("record"):
-                action_frame = build_dataset_frame(dataset.features, action_values, prefix=ACTION)
+                action_for_dataset = action_values
+                if save_sent_action:
+                    missing = [key for key in action_values if key not in _sent_action]
+                    if missing:
+                        raise ValueError(
+                            "save_sent_action=True but send_action() omitted action keys: " f"{missing}"
+                        )
+                    action_for_dataset = _sent_action
+                recorded_frame_index = episode_frame_index
+                action_frame = build_dataset_frame(dataset.features, action_for_dataset, prefix=ACTION)
                 frame = {**observation_frame, **action_frame, "task": single_task}
                 dataset.add_frame(frame)
+                episode_frame_index += 1
+        record_done = time.perf_counter()
+
+        if cycle_callback is not None:
+            try:
+                cycle_callback(
+                    {
+                        "observation": obs_processed,
+                        "raw_action": dict(action_values),
+                        "sent_action": dict(_sent_action),
+                        "recorded": dataset is not None,
+                        "frame_index": recorded_frame_index,
+                        "episode_index": dataset.num_episodes if dataset is not None else None,
+                        "standard_timestamp_s": (recorded_frame_index / fps)
+                        if recorded_frame_index is not None
+                        else None,
+                        "cycle_started_wall_s": cycle_started_wall,
+                        "cycle_started_monotonic_s": cycle_started_monotonic,
+                        "elapsed_s": cycle_started - start_episode_t,
+                        "fps": fps,
+                        "timings_ms": {
+                            "observe": (observe_done - cycle_started) * 1000.0,
+                            "process_obs": (teleop_done - observe_done) * 1000.0,
+                            "send": (send_done - teleop_done) * 1000.0,
+                            "record": (record_done - send_done) * 1000.0,
+                            "total": (record_done - cycle_started) * 1000.0,
+                        },
+                    }
+                )
+            except Exception:
+                # A UI/diagnostics callback must never stop data capture. The
+                # app-level callback records its own last error for the status API.
+                logging.exception("cycle_callback failed; recording continues")
 
         if display_data:
             with timer.section("telemetry"):

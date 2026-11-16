@@ -54,6 +54,7 @@ class EpisodeAwareSampler:
         shuffle: bool = False,
         seed: int = 0,
         absolute_to_relative_idx: Mapping[int, int] | None = None,
+        episode_weights: list[float] | None = None,
     ):
         """
         Args:
@@ -64,6 +65,15 @@ class EpisodeAwareSampler:
             drop_n_last_frames: Frames to drop from the end of each episode.
             shuffle: Whether to shuffle the indices.
             seed: Seed the permutation is derived from (together with the epoch).
+            episode_weights: Optional per-episode sampling weight, one value per
+                episode of the underlying dataset *before* filtering. Each value
+                is the relative weight of every frame of that episode, so a
+                merged/composite dataset can give its member recordings equal or
+                custom weight instead of frame-proportional weight. When set,
+                each epoch draws `len(sampler)` positions *with replacement*
+                from the resulting frame distribution: a plain permutation of a
+                full pass over the data visits every frame exactly once, which
+                would cancel any weighting.
         """
         if drop_n_first_frames < 0:
             raise ValueError(f"drop_n_first_frames must be >= 0, got {drop_n_first_frames}")
@@ -110,6 +120,25 @@ class EpisodeAwareSampler:
         self._start_index = 0
         self._absolute_to_relative = absolute_to_relative_idx
 
+        self._frame_probabilities = None
+        if episode_weights is not None:
+            weights = np.asarray(episode_weights, dtype=np.float64)
+            if weights.ndim != 1 or weights.size != len(from_indices):
+                raise ValueError(
+                    "episode_weights must be a 1D array with one entry per dataset episode, "
+                    f"got shape {weights.shape} for {len(from_indices)} episodes"
+                )
+            if not np.all(np.isfinite(weights)) or np.any(weights < 0):
+                raise ValueError("episode_weights must be finite and non-negative")
+            used_weights = weights[used]
+            if used_weights.sum() <= 0:
+                raise ValueError("episode_weights are all zero after filtering out unused episodes")
+            frame_weights = np.repeat(used_weights, lengths[used])
+            total = frame_weights.sum()
+            if total <= 0:
+                raise ValueError("episode weights leave no frames to sample")
+            self._frame_probabilities = frame_weights / total
+
     @property
     def indices(self) -> list[int]:
         """Materialized frame indices in unshuffled order; O(num_frames), introspection only."""
@@ -131,6 +160,11 @@ class EpisodeAwareSampler:
         epoch_seed = int(np.random.SeedSequence([self.seed, epoch]).generate_state(1, dtype=np.uint64)[0])
         return torch.Generator().manual_seed(epoch_seed)
 
+    def _epoch_numpy_generator(self, epoch: int) -> np.random.Generator:
+        # Same (seed, epoch) derivation as `_epoch_generator`, so weighted epochs
+        # reproduce identically on every rank and when a run is resumed.
+        return np.random.default_rng(np.random.SeedSequence([self.seed, epoch]))
+
     def _frame_index(self, position: int) -> int:
         episode = int(np.searchsorted(self._cum_lengths, position, side="right"))
         position_in_episode = position - (int(self._cum_lengths[episode - 1]) if episode > 0 else 0)
@@ -147,7 +181,16 @@ class EpisodeAwareSampler:
         return self._iter_epoch(epoch, start)
 
     def _iter_epoch(self, epoch: int, start: int) -> Iterator[int]:
-        if self.shuffle:
+        if self._frame_probabilities is not None:
+            order = self._epoch_numpy_generator(epoch).choice(
+                self._num_frames,
+                size=self._num_frames,
+                replace=True,
+                p=self._frame_probabilities,
+            )
+            for k in range(start, self._num_frames):
+                yield self._frame_index(int(order[k]))
+        elif self.shuffle:
             order = torch.randperm(self._num_frames, generator=self._epoch_generator(epoch))
             for k in range(start, self._num_frames):
                 yield self._frame_index(int(order[k]))

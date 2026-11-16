@@ -18,7 +18,7 @@ dependencies = [
     # Keep the UI/API on the same LeRobot generation as the bundled source.
     # Deployment installs the sibling LeRobot checkout editable so Jetson and
     # the training server execute the exact same control/data code.
-    "lerobot[core_scripts,feetech,training]>=0.6.2,<0.7.0",
+    "lerobot[core_scripts,feetech,training]>=0.7.0,<0.8.0",
     # Windows-only: real DirectShow camera names for /available-cameras so the
     # frontend can match a camera to its browser deviceId (issues #12, #16).
     # Guarded by try/except at the call site, so its absence degrades gracefully.

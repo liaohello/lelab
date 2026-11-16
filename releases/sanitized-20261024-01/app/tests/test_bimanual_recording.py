@@ -123,6 +123,9 @@ def test_bimanual_rejects_shared_camera_device_and_requires_cameras():
 
 
 class _FakeSOFollower:
+    # 0.7.0 BiSOFollower aggregates `supports_position_hold` from its child arms.
+    supports_position_hold = True
+
     def __init__(self, config):
         self.config = config
         self.id = config.id

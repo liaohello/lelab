@@ -234,3 +234,72 @@ def test_compute_sampler_state():
         "epoch": 1,
         "start_index": 100,
     }
+
+
+# LeLab local customization: per-episode weights for merged/composite datasets.
+def _weighted_sampler(weights, **kwargs):
+    return EpisodeAwareSampler(
+        [0, 10],
+        [10, 20],
+        shuffle=True,
+        seed=0,
+        episode_weights=weights,
+        **kwargs,
+    )
+
+
+def test_weighted_sampling_follows_episode_weights():
+    sampler = _weighted_sampler([1.0, 3.0])
+    counts = [0, 0]
+    for _ in range(200):
+        indices = list(sampler)
+        assert len(indices) == 20
+        for index in indices:
+            counts[0 if index < 10 else 1] += 1
+
+    ratio = counts[1] / counts[0]
+    # 4000 draws at p=(0.25, 0.75): the ratio sits at 3.0 with a ~0.09 sd.
+    assert 2.6 < ratio < 3.4, counts
+
+
+def test_weighted_sampling_is_reproducible_and_epoch_varied():
+    first = _weighted_sampler([1.0, 1.0])
+    second = _weighted_sampler([1.0, 1.0])
+
+    epoch_0 = list(first)
+    assert epoch_0 == list(second)
+    assert epoch_0 != list(first)
+
+
+def test_weighted_sampling_can_still_resume_mid_epoch():
+    reference = _weighted_sampler([1.0, 2.0])
+    epoch_0 = list(reference)
+    resumed = _weighted_sampler([1.0, 2.0])
+    resumed.load_state_dict({"epoch": 0, "start_index": 12})
+
+    assert list(resumed) == epoch_0[12:]
+
+
+def test_weighted_sampling_ignores_unused_episodes():
+    sampler = EpisodeAwareSampler(
+        [0, 10, 20],
+        [10, 20, 30],
+        episode_indices_to_use=[2],
+        shuffle=True,
+        seed=0,
+        episode_weights=[0.0, 0.0, 1.0],
+    )
+
+    indices = list(sampler)
+
+    assert len(indices) == 10
+    assert set(indices) <= set(range(20, 30))
+
+
+def test_weighted_sampling_validates_weights():
+    with pytest.raises(ValueError, match="one entry per dataset episode"):
+        _weighted_sampler([1.0])
+    with pytest.raises(ValueError, match="finite and non-negative"):
+        _weighted_sampler([1.0, -1.0])
+    with pytest.raises(ValueError, match="all zero"):
+        _weighted_sampler([0.0, 0.0])
