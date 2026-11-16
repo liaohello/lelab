@@ -33,9 +33,13 @@ CLI 参数并启动子进程；LeRobot 在这里完成真正的模型训练。CL
 draccus（@parser.wrap）反序列化为 TrainPipelineConfig 后进入 train() 主流程。
 """
 
+import contextlib
 import dataclasses
+import itertools
 import json
 import logging
+import os
+import shutil
 import sys
 import time
 from collections.abc import Iterator
@@ -55,6 +59,7 @@ from tqdm import tqdm
 from lerobot.common.train_utils import (
     get_step_checkpoint_dir,
     get_step_identifier,
+    load_rng_state,
     load_training_metadata,
     publish_trained_model,
     push_checkpoint_to_hub,
@@ -83,6 +88,7 @@ from lerobot.policies import PreTrainedPolicy, make_policy, make_pre_post_proces
 from lerobot.policies.factory import ProcessorConfigKwargs
 from lerobot.processor.rename_processor import rename_batch_keys, rename_stats
 from lerobot.rewards import make_reward_pre_post_processors
+from lerobot.utils import lelab_monitor
 from lerobot.utils.collate import lerobot_collate_fn
 from lerobot.utils.constants import PRETRAINED_MODEL_DIR, TRAINING_STATE_DIR
 from lerobot.utils.import_utils import _peft_available, register_third_party_plugins, require_package
@@ -156,6 +162,7 @@ def update_policy(
     lr_scheduler=None,
     lock=None,
     sample_weighter=None,
+    collect_grad_norm: bool = False,
 ) -> tuple[MetricsTracker, dict | None]:
     """
     Performs a single training step to update the policy's weights.
@@ -236,8 +243,18 @@ def update_policy(
         # be meaningless. Always pass the full parameter list: accelerate's FSDP2 path requires
         # an exact match with the prepared model's parameters for a globally correct norm.
         grad_norm = None
-        if accelerator.sync_gradients and grad_clip_norm > 0:
-            grad_norm = accelerator.clip_grad_norm_(policy.parameters(), grad_clip_norm)
+        if accelerator.sync_gradients:
+            if grad_clip_norm > 0:
+                # Returns the total pre-clip norm (the value LeLab charts).
+                grad_norm = accelerator.clip_grad_norm_(policy.parameters(), grad_clip_norm)
+            elif collect_grad_norm:
+                # Clipping disabled: compute the same global norm on the log step
+                # only, without modifying gradients and without reusing a stale
+                # value from an earlier step.
+                # `max_norm=inf` makes accelerate's clip a mathematical no-op
+                # (clip coefficient clamps to 1) while returning the exact
+                # global pre-clip norm, including under FSDP.
+                grad_norm = accelerator.clip_grad_norm_(policy.parameters(), float("inf"))
 
         # Optimizer step (a no-op on non-final micro-batches under gradient accumulation)
         with lock if lock is not None else nullcontext():
@@ -556,6 +573,21 @@ def train(cfg: TrainPipelineConfig):
             policy = policy.wrap_with_peft(peft_cli_overrides=peft_cli_overrides)
         peft_model = policy
 
+    # Optional LeLab diagnostics: attach validated action-dimension groups to
+    # the unwrapped policy (never to the serialized config), so SmolVLA can
+    # report per-group means of the same flow loss.
+    action_dim = None
+    try:
+        action_feature = getattr(getattr(policy, "config", None), "action_feature", None)
+        action_dim = int(action_feature.shape[0]) if action_feature is not None else None
+    except Exception:
+        action_dim = None
+    action_loss_groups = lelab_monitor.configure_action_groups(
+        accelerator.unwrap_model(policy), action_dim, cfg.action_loss_groups
+    )
+    if action_loss_groups is not None and is_main_process():
+        logging.info("LeLab action loss groups enabled: %s", action_loss_groups)
+
     accelerator.wait_for_everyone()
 
     # --- processors (overrides built once, as one typed mapping) -------------------------------
@@ -632,6 +664,7 @@ def train(cfg: TrainPipelineConfig):
     step = 0  # number of loop steps (= micro-batches consumed per data-parallel worker)
     if cfg.resume:
         step = resume_before_prepare(cfg)  # step + RNG only; sharded state loads after prepare
+    initial_step = step
 
     dataloader, eval_dataloader = make_dataloaders(cfg, dataset, eval_dataset, step, parallel_dims)
 
@@ -651,6 +684,40 @@ def train(cfg: TrainPipelineConfig):
     finalize_sharded_policy(policy, parallel_dims)
     if cfg.resume:
         resume_after_prepare(cfg, accelerator, policy, optimizer, lr_scheduler)
+        # `resume_before_prepare` restores the RNG early, but dataset/dataloader
+        # construction and accelerator.prepare can consume the global RNG while
+        # setting up. Resetting again immediately before the loop makes a
+        # resumed run continue bit-for-bit from the checkpoint's random stream
+        # (the iterator created below consumes the same amount as a fresh run).
+        load_rng_state(cfg.checkpoint_path / TRAINING_STATE_DIR)
+
+    # --- LeLab monitoring snapshot (after preset overrides + checkpoint restore) ----------------
+    if is_main_process():
+        lelab_monitor.emit(
+            "resolved_config",
+            lelab_monitor.resolved_config_payload(
+                cfg,
+                policy=accelerator.unwrap_model(policy),
+                optimizer=optimizer,
+                scheduler=lr_scheduler,
+                dataset=dataset,
+                eval_dataset=eval_dataset,
+                world_size=accelerator.num_processes,
+                device=str(accelerator.device),
+                action_groups=action_loss_groups,
+            ),
+        )
+        lelab_monitor.emit(
+            "attempt_started",
+            {
+                "step": int(step),
+                "resumed": bool(cfg.resume),
+                "checkpoint": str(cfg.checkpoint_path) if cfg.checkpoint_path is not None else None,
+                "total_steps": int(cfg.steps),
+                "world_size": int(accelerator.num_processes),
+                "sharded": bool(parallel_dims.is_sharded),
+            },
+        )
 
     # --- auxiliaries (after the core assembly, per the construction-order contract) -------------
     sample_weighter = None
@@ -694,7 +761,22 @@ def train(cfg: TrainPipelineConfig):
         logging.info(f"{num_learnable_params=} ({format_big_number(num_learnable_params)})")
         logging.info(f"{num_total_params=} ({format_big_number(num_total_params)})")
 
-    dl_iter = cycle(dataloader)
+    if cfg.resume and step > 0:
+        # Creating the sharded iterator and fetching its first batch can seed
+        # DataLoader workers (consuming the global RNG). On resume that
+        # consumption already happened before the checkpoint and must not be
+        # repeated, or the model's next stochastic forward diverges. Prime the
+        # iterator under RNG isolation and keep its prefetched batch.
+        with lelab_monitor.isolated_rng():
+            dl_iter = cycle(dataloader)
+            try:
+                first_batch = next(dl_iter)
+            except StopIteration:
+                first_batch = None
+        if first_batch is not None:
+            dl_iter = itertools.chain([first_batch], dl_iter)
+    else:
+        dl_iter = cycle(dataloader)
     policy.train()
 
     # EMA shadow of the policy weights (Chi et al. 2023, Diffusion Policy, section V.D). The shadow
@@ -787,7 +869,11 @@ def train(cfg: TrainPipelineConfig):
 
     if is_main_process():
         progbar = tqdm(
-            total=cfg.steps - step,
+            # Absolute total/initial keeps the progress line on the same step
+            # axis after a resume (otherwise it reports "1/remaining" and the
+            # control plane's current_step regresses).
+            total=cfg.steps,
+            initial=step,
             desc="Training",
             unit="step",
             disable=inside_slurm(),
@@ -808,6 +894,9 @@ def train(cfg: TrainPipelineConfig):
         train_tracker.preprocessing_s = time.perf_counter() - preprocessing_start
 
         # 核心一步：前向算 loss、反向传播、优化器/调度器更新（详见 update_policy docstring）
+        # Predict whether this update lands on a log step so the no-clipping
+        # path computes the global grad norm only for steps that are reported.
+        will_log = cfg.log_freq > 0 and (step + 1) % cfg.log_freq == 0
         train_tracker, _ = update_policy(
             train_tracker,
             policy,
@@ -817,6 +906,7 @@ def train(cfg: TrainPipelineConfig):
             accelerator=accelerator,
             lr_scheduler=lr_scheduler,
             sample_weighter=sample_weighter,
+            collect_grad_norm=will_log,
         )
         train_tracker.step_s = time.perf_counter() - step_start
 
@@ -857,29 +947,141 @@ def train(cfg: TrainPipelineConfig):
                         wandb_log_dict["ema/decay"] = ema.cur_decay_value
                         wandb_log_dict["ema/step"] = ema.optimization_step
                     wandb_logger.log_dict(wandb_log_dict, step)
+                snapshot = train_tracker.to_dict()
+                group_losses = {
+                    key[len("lelab_loss_") :]: value
+                    for key, value in snapshot.items()
+                    if key.startswith("lelab_loss_")
+                }
+                current_lrs = [float(group["lr"]) for group in optimizer.param_groups]
+                lelab_monitor.emit(
+                    "train",
+                    {
+                        "step": int(step),
+                        "phase": "train",
+                        "source": "worker",
+                        "loss": snapshot.get("loss"),
+                        "grad_norm": snapshot.get("grad_norm"),
+                        "lr": current_lrs[0] if current_lrs else None,
+                        "lrs": current_lrs,
+                        "group_losses": group_losses,
+                        "samples": snapshot.get("samples"),
+                        "epochs": snapshot.get("epochs"),
+                        "samples_per_s": float(train_tracker.samples_per_s.avg)
+                        if hasattr(train_tracker, "samples_per_s")
+                        else None,
+                        "clip_norm": float(cfg.optimizer.grad_clip_norm),
+                        "grad_norm_scope": "global_pre_clip"
+                        if cfg.optimizer.grad_clip_norm > 0
+                        else "global_no_clip",
+                        "world_size": int(accelerator.num_processes),
+                    },
+                )
             train_tracker.reset_averages()
+
+        if cfg.weight_norm_freq > 0 and step % cfg.weight_norm_freq == 0 and is_main_process():
+            if parallel_dims.is_sharded:
+                lelab_monitor.emit(
+                    "weight_norm",
+                    {
+                        "step": int(step),
+                        "phase": "weight_norm",
+                        "reason": "interval",
+                        "weight_norm": None,
+                        "trainable_weight_norm": None,
+                        "unsupported": "sharded parameters have no globally reduced norm in this monitor",
+                        "world_size": int(accelerator.num_processes),
+                    },
+                )
+            else:
+                norms = lelab_monitor.parameter_norms(accelerator.unwrap_model(policy))
+                lelab_monitor.emit(
+                    "weight_norm",
+                    {
+                        "step": int(step),
+                        "phase": "weight_norm",
+                        "reason": "interval",
+                        "world_size": int(accelerator.num_processes),
+                        "scope": "full_model_rank0",
+                        **norms,
+                    },
+                )
 
         if is_eval_step:
             policy.eval()
+            eval_started = time.perf_counter()
             eval_loss_sum = 0.0
             n_eval_batches = 0
-            with torch.no_grad(), accelerator.autocast():
+            n_eval_samples = 0
+            eval_group_sums: dict[str, float] = {}
+            eval_group_counts: dict[str, int] = {}
+            # Validation draws flow-matching noise and may seed loader workers.
+            # Isolate every RNG so enabling validation cannot change the
+            # subsequent training trajectory.
+            with lelab_monitor.isolated_rng(), torch.no_grad(), accelerator.autocast():
                 for eval_batch in eval_dataloader:
                     eval_batch = _preprocess_dataset_batch(
                         eval_batch, dataset.meta.camera_keys, cfg.rename_map, preprocessor
                     )
-                    loss, _ = policy(eval_batch)  # __call__, so FSDP2 forward hooks run
+                    loss, eval_output = policy(eval_batch)  # __call__, so FSDP2 forward hooks run
+                    batch_size = int(eval_batch["action"].shape[0]) if "action" in eval_batch else 1
                     eval_loss_sum += loss.item()
                     n_eval_batches += 1
-            eval_loss = eval_loss_sum / max(n_eval_batches, 1)
-            eval_loss = torch.tensor(eval_loss, device=device)
-            eval_loss = accelerator.reduce(eval_loss, reduction="mean").item()
+                    n_eval_samples += batch_size
+                    if eval_output:
+                        for key, value in eval_output.items():
+                            if not key.startswith("lelab_loss_") or not isinstance(value, (int, float)):
+                                continue
+                            eval_group_sums[key] = eval_group_sums.get(key, 0.0) + float(value)
+                            eval_group_counts[key] = eval_group_counts.get(key, 0) + 1
+            eval_loss: float | None = None
+            if n_eval_batches > 0:
+                eval_loss = eval_loss_sum / n_eval_batches
+                eval_loss = torch.tensor(eval_loss, device=device)
+                eval_loss = accelerator.reduce(eval_loss, reduction="mean").item()
             policy.train()
+            eval_duration = time.perf_counter() - eval_started
 
             if is_main_process():
-                logging.info(f"step {step}: eval_loss={eval_loss:.4f}")
-                if wandb_logger:
-                    wandb_logger.log_dict({"eval_loss": eval_loss}, step=step, mode="eval")
+                if eval_loss is None:
+                    logging.warning("step %d: eval_loss unavailable (eval dataloader produced no batches)", step)
+                    lelab_monitor.emit(
+                        "validation",
+                        {
+                            "step": int(step),
+                            "phase": "validation",
+                            "source": "worker",
+                            "loss": None,
+                            "error": "eval dataloader produced no batches",
+                            "n_batches": 0,
+                            "n_samples": 0,
+                            "duration_s": eval_duration,
+                        },
+                    )
+                else:
+                    logging.info(f"step {step}: eval_loss={eval_loss:.4f}")
+                    group_losses = {
+                        key[len("lelab_loss_") :]: eval_group_sums[key] / eval_group_counts[key]
+                        for key in eval_group_sums
+                    }
+                    lelab_monitor.emit(
+                        "validation",
+                        {
+                            "step": int(step),
+                            "phase": "validation",
+                            "source": "worker",
+                            "loss": eval_loss,
+                            "n_batches": n_eval_batches,
+                            "n_samples": n_eval_samples,
+                            "group_losses": group_losses,
+                            "duration_s": eval_duration,
+                            "seed": cfg.seed,
+                            "rng_isolated": True,
+                            "world_size": int(accelerator.num_processes),
+                        },
+                    )
+                    if wandb_logger:
+                        wandb_logger.log_dict({"eval_loss": eval_loss}, step=step, mode="eval")
 
         # 按 save_freq 定期保存 checkpoint：checkpoints/<step>/pretrained_model/ 存模型与配置，
         # training_state/ 存优化器/调度器等状态；最后一个 checkpoint 由 update_last_checkpoint 标记
@@ -979,6 +1181,130 @@ def train(cfg: TrainPipelineConfig):
                     wandb_logger.log_video(eval_info["overall"]["video_paths"][0], step, mode="eval")
 
             accelerator.wait_for_everyone()
+
+        # --- cooperative pause at a completed optimizer-update boundary ---------------------
+        # The request is a bounded control-marker file written by the runner that
+        # owns this job; no signal is sent to an arbitrary PID. We only act after
+        # the update, scheduler step, logging, evaluation and periodic save above,
+        # then publish a complete checkpoint atomically and exit with a distinct
+        # code so the control plane can distinguish "paused" from "done".
+        if lelab_monitor.pause_enabled() and lelab_monitor.pause_requested():
+            lelab_monitor.clear_pause_request()
+            lelab_monitor.emit_pause("saving", step=int(step), total_steps=int(cfg.steps))
+            lelab_monitor.write_pause_state("saving", step=int(step))
+            try:
+                if accelerator.num_processes > 1 or parallel_dims.is_sharded:
+                    raise RuntimeError(
+                        "cooperative pause is supported only for single-process, non-sharded runs"
+                    )
+                checkpoint_dir = get_step_checkpoint_dir(cfg.output_dir, cfg.steps, step)
+                state_complete = (
+                    (checkpoint_dir / TRAINING_STATE_DIR / "training_step.json").is_file()
+                    and (checkpoint_dir / PRETRAINED_MODEL_DIR / "model.safetensors").is_file()
+                )
+                if checkpoint_dir.exists() and not state_complete:
+                    raise RuntimeError(
+                        f"checkpoint directory {checkpoint_dir} exists but is incomplete; "
+                        "refusing to overwrite it"
+                    )
+                if not state_complete:
+                    temp_dir = checkpoint_dir.parent / f".pause-tmp-{step:06d}"
+                    if temp_dir.exists():
+                        shutil.rmtree(temp_dir)
+                    save_checkpoint(
+                        checkpoint_dir=temp_dir,
+                        step=step,
+                        cfg=cfg,
+                        policy=policy,
+                        optimizer=optimizer,
+                        scheduler=lr_scheduler,
+                        preprocessor=preprocessor,
+                        postprocessor=postprocessor,
+                        accelerator=accelerator,
+                    )
+                    if checkpoint_dir.exists():
+                        # A periodic checkpoint at this exact step completed first;
+                        # keep it and drop the duplicate temporary copy.
+                        shutil.rmtree(temp_dir)
+                    else:
+                        os.replace(temp_dir, checkpoint_dir)
+                if ema is not None:
+                    with contextlib.suppress(Exception):
+                        torch.save(
+                            ema.state_dict(),
+                            checkpoint_dir / TRAINING_STATE_DIR / EMA_STATE_FILENAME,
+                        )
+                if is_main_process():
+                    with contextlib.suppress(OSError):
+                        update_last_checkpoint(checkpoint_dir)
+                    if cfg.weight_norm_freq > 0:
+                        norms = lelab_monitor.parameter_norms(accelerator.unwrap_model(policy))
+                        lelab_monitor.emit(
+                            "weight_norm",
+                            {
+                                "step": int(step),
+                                "phase": "weight_norm",
+                                "reason": "pause",
+                                "world_size": 1,
+                                "scope": "full_model_rank0",
+                                **norms,
+                            },
+                        )
+                    manifest = lelab_monitor.build_checkpoint_manifest(
+                        checkpoint_dir,
+                        step=step,
+                        cfg=cfg,
+                        extra={
+                            "dataset_repo_id": str(cfg.dataset.repo_id),
+                            "dataset_root": cfg.dataset.root,
+                            "dataset_revision": cfg.dataset.revision,
+                            "train_episodes": list(getattr(dataset, "episodes", None) or []),
+                            "eval_episodes": list(getattr(eval_dataset, "episodes", None) or [])
+                            if eval_dataset is not None
+                            else [],
+                            "eval_steps": int(cfg.eval_steps),
+                            "batch_size": int(cfg.batch_size),
+                            "seed": cfg.seed,
+                            "total_steps": int(cfg.steps),
+                            "initial_step": int(initial_step),
+                            "resumed": bool(cfg.resume),
+                            "resume_checkpoint": str(cfg.checkpoint_path)
+                            if cfg.checkpoint_path is not None
+                            else None,
+                            "action_loss_groups": dict(action_loss_groups or {}),
+                            "policy_type": getattr(active_cfg, "type", None),
+                        },
+                    )
+                    if not manifest["complete"]:
+                        raise RuntimeError(
+                            "pause checkpoint is missing required files: " + ", ".join(manifest["missing"])
+                        )
+                    lelab_monitor.write_json_atomic(
+                        checkpoint_dir / lelab_monitor.PAUSE_MANIFEST_FILE, manifest
+                    )
+                    lelab_monitor.write_pause_state(
+                        "saved",
+                        step=int(step),
+                        checkpoint=str(checkpoint_dir),
+                        config_sha256=manifest.get("config_sha256"),
+                    )
+                    lelab_monitor.emit_pause(
+                        "saved",
+                        step=int(step),
+                        total_steps=int(cfg.steps),
+                        checkpoint=str(checkpoint_dir),
+                        config_sha256=manifest.get("config_sha256"),
+                    )
+                    logging.info(
+                        "Paused after optimizer step %d; complete checkpoint at %s", step, checkpoint_dir
+                    )
+                sys.exit(lelab_monitor.PAUSE_EXIT_CODE)
+            except SystemExit:
+                raise
+            except Exception as exc:  # noqa: BLE001 - report and keep training
+                logging.exception("Cooperative pause failed at step %d", step)
+                lelab_monitor.emit_pause("failed", step=int(step), error=f"{type(exc).__name__}: {exc}")
+                lelab_monitor.write_pause_state("failed", step=int(step), error=str(exc))
 
     if is_main_process():
         progbar.close()

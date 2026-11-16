@@ -13,6 +13,8 @@ import {
   XCircle,
   ExternalLink,
   Play,
+  PauseCircle,
+  RotateCcw,
 } from "lucide-react";
 import { useApi } from "@/contexts/ApiContext";
 import {
@@ -41,6 +43,10 @@ const statePresentation: Record<
   { label: string; color: string; Icon: React.ComponentType<{ className?: string }> }
 > = {
   running: { label: "Running", color: "text-green-400", Icon: Loader2 },
+  pause_requested: { label: "Pausing…", color: "text-amber-400", Icon: PauseCircle },
+  paused: { label: "Paused", color: "text-sky-400", Icon: PauseCircle },
+  pause_failed: { label: "Pause failed", color: "text-red-400", Icon: AlertTriangle },
+  resuming: { label: "Resuming…", color: "text-amber-400", Icon: RotateCcw },
   done: { label: "Done", color: "text-slate-400", Icon: CheckCircle2 },
   failed: { label: "Failed", color: "text-red-400", Icon: XCircle },
   interrupted: { label: "Interrupted", color: "text-amber-400", Icon: AlertTriangle },
@@ -51,7 +57,7 @@ const JobCard: React.FC<Props> = ({ job, onStop, onDelete, onPlay }) => {
   const { baseUrl, fetchWithHeaders } = useApi();
   const present = statePresentation[job.state];
   const Icon = present.Icon;
-  const isRunning = job.state === "running";
+  const isRunning = ["running", "pause_requested", "resuming"].includes(job.state);
   const isImported = job.runner === "imported";
   const importedSource = job.hf_repo_id || job.output_dir;
   const stateLabel = isImported ? "Imported" : present.label;

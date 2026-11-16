@@ -76,8 +76,18 @@ class HfCloudJobRunner(SubprocessJobRunner):
         metrics: TrainingMetrics,
         log_file_path: Path,
         flavor: str,
+        *,
+        event_sink=None,
+        run_id: str | None = None,
+        attempt_id: str | None = None,
     ) -> None:
-        super().__init__(metrics, log_file_path)
+        super().__init__(
+            metrics,
+            log_file_path,
+            event_sink=event_sink,
+            run_id=run_id,
+            attempt_id=attempt_id,
+        )
         self._flavor = flavor
         self._hf_job_id: str | None = None
         self._hf_job_url: str | None = None

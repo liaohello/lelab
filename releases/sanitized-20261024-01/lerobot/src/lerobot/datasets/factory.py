@@ -198,40 +198,59 @@ def make_dataset(cfg: TrainPipelineConfig) -> LeRobotDataset | MultiLeRobotDatas
 def make_train_eval_datasets(
     cfg: TrainPipelineConfig,
 ) -> tuple[LeRobotDataset | MultiLeRobotDataset, LeRobotDataset | None]:
-    """Create train and optional eval datasets by splitting episodes based on eval_split.
+    """Create train and optional eval datasets by splitting episodes.
 
-    The last ceil(n_episodes * eval_split) episodes per task are held out for evaluation.
-    If eval_split == 0.0, returns (full_dataset, None).
+    With ``dataset.eval_episodes`` the split is the explicit, auditable episode
+    list (every other loaded episode trains; Scene1 uses validation 0..11).
+    Otherwise the last ``ceil(n_episodes * eval_split)`` episodes per task are
+    held out. If neither is set, returns ``(full_dataset, None)``.
     """
     full_dataset = make_dataset(cfg)
 
-    if cfg.dataset.eval_split == 0.0:
+    explicit_eval = cfg.dataset.eval_episodes
+    if cfg.dataset.eval_split == 0.0 and not explicit_eval:
         return full_dataset, None
 
     base_episodes = (
         full_dataset.episodes if full_dataset.episodes is not None else list(range(full_dataset.num_episodes))
     )
 
-    episode_tasks = full_dataset.meta.episodes["tasks"]
-    task_to_episodes: dict[str, list[int]] = {}
-    for ep_idx in base_episodes:
-        task_key = episode_tasks[ep_idx][0] if episode_tasks[ep_idx] else ""
-        task_to_episodes.setdefault(task_key, []).append(ep_idx)
+    if explicit_eval is not None:
+        base_set = set(base_episodes)
+        missing = sorted(set(explicit_eval) - base_set)
+        if missing:
+            raise ValueError(
+                f"eval_episodes {missing} are not part of the loaded dataset episodes "
+                f"(available: {len(base_episodes)} episodes)."
+            )
+        eval_set = set(explicit_eval)
+        # Preserve dataset episode order for deterministic evaluation.
+        train_episodes = [ep for ep in base_episodes if ep not in eval_set]
+        eval_episodes = [ep for ep in base_episodes if ep in eval_set]
+        split_label = f"eval_episodes={eval_episodes}"
+    else:
+        episode_tasks = full_dataset.meta.episodes["tasks"]
+        task_to_episodes: dict[str, list[int]] = {}
+        for ep_idx in base_episodes:
+            task_key = episode_tasks[ep_idx][0] if episode_tasks[ep_idx] else ""
+            task_to_episodes.setdefault(task_key, []).append(ep_idx)
 
-    train_episodes, eval_episodes = [], []
-    for eps in task_to_episodes.values():
-        n_eval = math.ceil(len(eps) * cfg.dataset.eval_split)
-        train_episodes.extend(eps[: len(eps) - n_eval])
-        eval_episodes.extend(eps[len(eps) - n_eval :])
+        train_episodes, eval_episodes = [], []
+        for eps in task_to_episodes.values():
+            n_eval = math.ceil(len(eps) * cfg.dataset.eval_split)
+            train_episodes.extend(eps[: len(eps) - n_eval])
+            eval_episodes.extend(eps[len(eps) - n_eval :])
+        split_label = f"eval_split={cfg.dataset.eval_split}, {len(task_to_episodes)} tasks"
 
     if not train_episodes:
         raise ValueError(
-            f"eval_split={cfg.dataset.eval_split} leaves 0 training episodes from {len(base_episodes)} total."
+            f"The requested validation split leaves 0 training episodes from {len(base_episodes)} total."
         )
+    if not eval_episodes:
+        raise ValueError("The requested validation split holds out 0 evaluation episodes.")
 
     logging.info(
-        f"Train/eval split: {len(train_episodes)} train, {len(eval_episodes)} eval "
-        f"(eval_split={cfg.dataset.eval_split}, {len(task_to_episodes)} tasks)"
+        f"Train/eval split: {len(train_episodes)} train, {len(eval_episodes)} eval ({split_label})"
     )
 
     delta_timestamps = resolve_delta_timestamps(cfg.trainable_config, full_dataset.meta, cfg.rename_map)

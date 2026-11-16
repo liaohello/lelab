@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import builtins
+import dataclasses
 import datetime as dt
 import json
 import multiprocessing
@@ -157,6 +158,18 @@ class TrainPipelineConfig(HubMixin):
     use_policy_training_preset: bool = True
     optimizer: OptimizerConfig | None = None
     scheduler: LRSchedulerConfig | None = None
+    # Explicit field overrides applied *after* the policy preset (and after the
+    # checkpoint config on resume), so `--optimizer.lr` semantics are not lost
+    # to `get_optimizer_preset()`. Unknown keys are rejected instead of ignored.
+    optimizer_overrides: dict[str, Any] | None = None
+    scheduler_overrides: dict[str, Any] | None = None
+    # Sample the global model / trainable parameter L2 norm every N steps
+    # (0 = disabled). Low frequency keeps the full-model pass off the hot path.
+    weight_norm_freq: int = 0
+    # Optional named action-dimension groups for loss diagnostics (e.g. the
+    # Scene1 10 relative joints + 2 absolute grippers). Loss groups never change
+    # the training objective.
+    action_loss_groups: dict[str, list[int]] | None = None
     # Process topology: dp_replicate / dp_shard (HSDP) and context-parallel degree placeholders.
     parallelism: ParallelismConfig = field(default_factory=ParallelismConfig)
     # Execution runtime handed to the Accelerator: mixed precision, gradient accumulation,
@@ -315,8 +328,20 @@ class TrainPipelineConfig(HubMixin):
             self.optimizer = active_cfg.get_optimizer_preset()
             self.scheduler = active_cfg.get_scheduler_preset()
 
-        if self.eval_steps > 0 and self.dataset.eval_split == 0.0:
-            raise ValueError("eval_steps > 0 requires dataset.eval_split > 0.0 to hold out eval data.")
+        # Applied after the preset (and after the checkpoint config on resume)
+        # so an explicitly requested LR/schedule is what the optimizer and
+        # scheduler actually use. This is the precedence fix for the old
+        # `--optimizer.lr` CLI flag, which the preset silently replaced.
+        self._apply_training_overrides()
+
+        if self.eval_steps > 0 and self.dataset.eval_split == 0.0 and not self.dataset.eval_episodes:
+            raise ValueError(
+                "eval_steps > 0 requires dataset.eval_split > 0.0 or an explicit dataset.eval_episodes list "
+                "to hold out eval data."
+            )
+        if self.weight_norm_freq < 0:
+            raise ValueError("weight_norm_freq must be >= 0")
+        self._validate_action_loss_groups()
 
         # Remote runs auto-generate the repo_id in submit_to_hf (the policy may only be
         # resolved here, from --policy.path), so don't demand it up front for them.
@@ -332,6 +357,139 @@ class TrainPipelineConfig(HubMixin):
             raise ValueError("save_checkpoint_to_hub requires --policy.repo_id.")
 
         self._validate_distributed()
+
+    _OPTIMIZER_OVERRIDE_FIELDS = ("lr", "weight_decay", "grad_clip_norm", "betas", "eps")
+    _SUPPORTED_SCHEDULER_TYPES = (
+        "cosine_decay_with_warmup",
+        "cosine_annealing_with_warmup",
+        "constant_with_warmup",
+    )
+
+    def _apply_training_overrides(self) -> None:
+        """Apply explicit overrides on top of the policy preset / checkpoint config."""
+        optimizer_overrides = dict(self.optimizer_overrides or {})
+        if optimizer_overrides:
+            if self.optimizer is None:
+                raise ValueError("optimizer_overrides require an optimizer (set use_policy_training_preset).")
+            unknown = sorted(set(optimizer_overrides) - set(self._OPTIMIZER_OVERRIDE_FIELDS))
+            if unknown:
+                raise ValueError(
+                    f"Unsupported optimizer_overrides key(s): {unknown}. "
+                    f"Supported: {list(self._OPTIMIZER_OVERRIDE_FIELDS)}"
+                )
+            lr = optimizer_overrides.get("lr")
+            if lr is not None and (not isinstance(lr, int | float) or float(lr) <= 0):
+                raise ValueError(f"optimizer_overrides.lr must be a positive number, got {lr!r}")
+            betas = optimizer_overrides.get("betas")
+            if betas is not None and (not isinstance(betas, list | tuple) or len(betas) != 2):
+                raise ValueError(f"optimizer_overrides.betas must be a pair, got {betas!r}")
+            for key, value in optimizer_overrides.items():
+                if value is None:
+                    continue
+                if key == "betas":
+                    value = tuple(float(item) for item in value)
+                elif key in {"lr", "weight_decay", "grad_clip_norm", "eps"}:
+                    # draccus/YAML may hand numeric tokens such as 1e-05 back as
+                    # strings when they arrive inside a dict; coerce explicitly.
+                    value = float(value)
+                setattr(self.optimizer, key, value)
+
+            # Keep the cosine schedule's floor/peak consistent with a new base LR.
+            # The LambdaLR multiplies the optimizer's LR by a 0..1 curve, so the
+            # scheduler's peak_lr only defines the floor ratio; leaving the old
+            # peak would silently change the intended floor.
+            if lr is not None and self.scheduler is not None:
+                scheduler_overrides = self.scheduler_overrides or {}
+                if (
+                    getattr(self.scheduler, "type", None) == "cosine_decay_with_warmup"
+                    and "peak_lr" not in scheduler_overrides
+                ):
+                    old_peak = float(getattr(self.scheduler, "peak_lr", 0.0) or 0.0)
+                    old_floor = float(getattr(self.scheduler, "decay_lr", 0.0) or 0.0)
+                    self.scheduler.peak_lr = float(lr)
+                    if old_peak > 0 and old_floor > float(lr):
+                        self.scheduler.decay_lr = float(lr) * (old_floor / old_peak)
+
+        scheduler_overrides = dict(self.scheduler_overrides or {})
+        if not scheduler_overrides:
+            return
+        type_name = scheduler_overrides.pop("type", None)
+        if type_name is not None:
+            if type_name not in self._SUPPORTED_SCHEDULER_TYPES:
+                raise ValueError(
+                    f"Unsupported scheduler type {type_name!r}. "
+                    f"Supported: {list(self._SUPPORTED_SCHEDULER_TYPES)}"
+                )
+            scheduler_class = LRSchedulerConfig.get_choice_class(type_name)
+            allowed = {item.name for item in dataclasses.fields(scheduler_class)}
+            unknown = sorted(set(scheduler_overrides) - allowed)
+            if unknown:
+                raise ValueError(
+                    f"Unsupported scheduler_overrides field(s) for {type_name}: {unknown}. "
+                    f"Supported: {sorted(allowed)}"
+                )
+            kwargs: dict[str, Any] = {}
+            for item in dataclasses.fields(scheduler_class):
+                if item.name in scheduler_overrides:
+                    kwargs[item.name] = self._coerce_scheduler_value(
+                        item.name, scheduler_overrides[item.name]
+                    )
+                elif type(self.scheduler) is scheduler_class and hasattr(self.scheduler, item.name):
+                    kwargs[item.name] = getattr(self.scheduler, item.name)
+            self.scheduler = scheduler_class(**kwargs)
+            return
+        if self.scheduler is None:
+            raise ValueError("scheduler_overrides require a scheduler; include a 'type' to create one.")
+        allowed = {item.name for item in dataclasses.fields(type(self.scheduler))}
+        unknown = sorted(set(scheduler_overrides) - allowed)
+        if unknown:
+            raise ValueError(
+                f"Unsupported scheduler_overrides field(s) for "
+                f"{getattr(self.scheduler, 'type', type(self.scheduler).__name__)}: {unknown}. "
+                f"Supported: {sorted(allowed)}"
+            )
+        for key, value in scheduler_overrides.items():
+            setattr(self.scheduler, key, self._coerce_scheduler_value(key, value))
+
+    @staticmethod
+    def _coerce_scheduler_value(key: str, value: Any) -> Any:
+        """Coerce dict-override numbers that YAML may have returned as strings."""
+        if value is None:
+            return None
+        numeric_types = {
+            "num_warmup_steps": int,
+            "num_decay_steps": int,
+            "num_vqvae_training_steps": int,
+            "num_cycles": float,
+            "peak_lr": float,
+            "decay_lr": float,
+        }
+        target = numeric_types.get(key)
+        if target is None:
+            return value
+        try:
+            return target(float(value)) if target is int else target(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid numeric value for scheduler field {key!r}: {value!r}") from exc
+
+    def _validate_action_loss_groups(self) -> None:
+        groups = self.action_loss_groups
+        if groups is None:
+            return
+        if not isinstance(groups, dict) or not groups:
+            raise ValueError("action_loss_groups must be a non-empty object of name -> [dims]")
+        used: set[int] = set()
+        for name, indices in groups.items():
+            if not isinstance(name, str) or not name:
+                raise ValueError("action_loss_groups keys must be non-empty strings")
+            if not isinstance(indices, list) or not indices:
+                raise ValueError(f"action_loss_groups[{name!r}] must be a non-empty list")
+            for index in indices:
+                if not isinstance(index, int) or index < 0:
+                    raise ValueError(f"action_loss_groups[{name!r}] contains an invalid dimension {index!r}")
+                if index in used:
+                    raise ValueError(f"action dimension {index} appears in more than one loss group")
+                used.add(index)
 
     def _validate_distributed(self) -> None:
         """Fail-fasts for the distributed-training scope.

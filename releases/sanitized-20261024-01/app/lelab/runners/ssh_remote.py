@@ -50,6 +50,7 @@ from queue import Empty, Queue
 from ..jobs import LogLine, TrainingMetrics, extract_wandb_run_url, parse_metrics_into
 from ..remote_sync import TrainServerConfig, ssh_base_command
 from ..train import TrainingRequest, build_training_command
+from . import ssh_ops
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +133,9 @@ proxy=$4
 hf_endpoint=$5
 hf_token=$6
 gpu=$7
+run_id=$8
+attempt_id=$9
+truncate_log=$10
 cd "$dir"
 export HF_LEROBOT_HOME="$root/datasets"
 export HF_HOME="$root/models/huggingface"
@@ -152,7 +156,19 @@ if [ -n "$proxy" ]; then
   export http_proxy="$proxy" https_proxy="$proxy"
   export NO_PROXY="127.0.0.1,localhost"
 fi
-: > run.log
+for subdir in control metrics; do
+  if [ ! -d "$subdir" ]; then mkdir "$subdir"; fi
+done
+rm -f control/pause.request control/pause.state.json
+export LELAB_CONTROL_DIR="$dir/control"
+export LELAB_RUN_ID="$run_id"
+export LELAB_ATTEMPT_ID="$attempt_id"
+export LELAB_EVENTS_PATH="$dir/metrics/worker-events.jsonl"
+if [ "$truncate_log" = "1" ]; then
+  : > run.log
+else
+  touch run.log
+fi
 rm -f run.exit
 setsid nohup sh -c "$command; echo \$? > run.exit" > run.log 2>&1 &
 echo $! > run.pid
@@ -162,6 +178,12 @@ _STATE_SCRIPT = "set -eu\n" + _EXPAND_PATH_FUNCTION + r"""dir=$(expand_remote_pa
 cd "$dir"
 pid=$(cat run.pid 2>/dev/null || true)
 if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+  cwd=$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)
+  target=$(readlink -f "$dir" 2>/dev/null || printf '%s' "$dir")
+  if [ -n "$cwd" ] && [ "$cwd" != "$target" ]; then
+    printf 'gone %s\n' "$pid"
+    exit 0
+  fi
   printf 'running %s\n' "$pid"
 elif [ -f run.exit ]; then
   printf 'exit %s %s\n' "$pid" "$(cat run.exit)"
@@ -176,8 +198,119 @@ pid=$(cat run.pid 2>/dev/null || true)
 if [ -z "$pid" ]; then
   exit 0
 fi
+cwd=$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)
+target=$(readlink -f "$dir" 2>/dev/null || printf '%s' "$dir")
+if [ -n "$cwd" ] && [ "$cwd" != "$target" ]; then
+  echo "refusing to signal pid $pid: cwd $cwd does not belong to $target" >&2
+  exit 4
+fi
 kill -TERM "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null || true
 """
+
+_PAUSE_SCRIPT = "set -eu\n" + _EXPAND_PATH_FUNCTION + r"""dir=$(expand_remote_path "$1")
+cd "$dir"
+pid=$(cat run.pid 2>/dev/null || true)
+if [ -z "$pid" ] || ! kill -0 "$pid" 2>/dev/null; then
+  echo "training process is not running" >&2
+  exit 5
+fi
+cwd=$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)
+target=$(readlink -f "$dir" 2>/dev/null || printf '%s' "$dir")
+if [ -n "$cwd" ] && [ "$cwd" != "$target" ]; then
+  echo "refusing to pause pid $pid: cwd $cwd does not belong to $target" >&2
+  exit 4
+fi
+mkdir -p control
+printf '{"requested_at": %s, "pid": %s}\n' "$(date +%s)" "$pid" > control/pause.request.tmp
+mv control/pause.request.tmp control/pause.request
+"""
+
+_READ_PAUSE_STATE_SCRIPT = "set -eu\n" + _EXPAND_PATH_FUNCTION + r"""dir=$(expand_remote_path "$1")
+cd "$dir"
+cat control/pause.state.json 2>/dev/null || true
+"""
+
+_VERIFY_PAUSE_SCRIPT = "set -eu\n" + _EXPAND_PATH_FUNCTION + r"""ckpt=$(expand_remote_path "$1")
+interpreter=$2
+"$interpreter" - "$ckpt" <<'PY'
+import hashlib
+import json
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1])
+manifest_path = root / "lelab_pause.json"
+if not manifest_path.is_file():
+    print("pause manifest is missing")
+    sys.exit(3)
+try:
+    manifest = json.loads(manifest_path.read_text())
+except Exception as exc:  # noqa: BLE001
+    print(f"pause manifest is unreadable: {exc}")
+    sys.exit(3)
+if not manifest.get("complete"):
+    print("pause manifest is incomplete")
+    sys.exit(3)
+for record in manifest.get("required_files") or []:
+    path = root / str(record.get("path"))
+    if not path.is_file():
+        print(f"missing {record.get('path')}")
+        sys.exit(3)
+    if path.stat().st_size != int(record.get("size", -1)):
+        print(f"size mismatch for {record.get('path')}")
+        sys.exit(3)
+    expected = record.get("sha256")
+    if expected:
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(4 * 1024 * 1024), b""):
+                digest.update(chunk)
+        if digest.hexdigest() != expected:
+            print(f"sha256 mismatch for {record.get('path')}")
+            sys.exit(3)
+print("ok")
+PY
+"""
+
+
+def verify_remote_pause_checkpoint(
+    config: TrainServerConfig,
+    checkpoint_dir: str,
+    *,
+    remote_python: str = DEFAULT_REMOTE_PYTHON,
+    ssh: Callable[[list[str], str | None], tuple[int, str]] | None = None,
+) -> tuple[bool, str | None, dict | None]:
+    """Read and verify a pause manifest on the training server.
+
+    Hash verification runs on the server, so the large optimizer/model files
+    never move across the link. Returns ``(ok, reason, manifest)``.
+    """
+    import json as _json
+
+    manifest: dict | None = None
+    try:
+        text = ssh_ops.read_remote_file(
+            config, posixpath.join(checkpoint_dir, "lelab_pause.json"), ssh=ssh
+        )
+        if text:
+            payload = _json.loads(text)
+            if isinstance(payload, dict):
+                manifest = payload
+    except Exception as exc:  # noqa: BLE001
+        return False, f"could not read pause manifest: {exc}", None
+    if manifest is None:
+        return False, "pause manifest is missing or unreadable", None
+    return_code, output = ssh_ops.run_script(
+        config,
+        _VERIFY_PAUSE_SCRIPT,
+        checkpoint_dir,
+        remote_python or DEFAULT_REMOTE_PYTHON,
+        ssh=ssh,
+    )
+    if return_code != 0 or "ok" not in output.splitlines():
+        detail = " ".join(line.strip() for line in output.splitlines() if line.strip())[-400:]
+        return False, detail or f"remote verification failed (exit {return_code})", manifest
+    return True, None, manifest
 
 _TAIL_SCRIPT = "set -eu\n" + _EXPAND_PATH_FUNCTION + r"""dir=$(expand_remote_path "$1")
 offset=$2
@@ -204,6 +337,9 @@ class SshRemoteJobRunner:
         min_free_vram_mb: int | None = None,
         ssh: Callable[[list[str], str | None], tuple[int, str]] | None = None,
         poll_interval: float = _DEFAULT_POLL_INTERVAL,
+        event_sink: Callable[[str, float], None] | None = None,
+        run_id: str | None = None,
+        attempt_id: str | None = None,
     ) -> None:
         self.config = config
         self.job_id = job_id
@@ -232,6 +368,96 @@ class SshRemoteJobRunner:
         self._thread: threading.Thread | None = None
         self._state_lock = threading.Lock()
         self._remote_dir = posixpath.join(config.root, "jobs", job_id)
+        self._event_sink = event_sink
+        self._run_id = run_id
+        self._attempt_id = attempt_id
+        self._log_offset_path = (
+            log_file_path.parent / "remote-log.offset" if log_file_path is not None else None
+        )
+
+    supports_pause = True
+
+    @property
+    def remote_events_path(self) -> str:
+        return posixpath.join(self._remote_dir, "metrics", "worker-events.jsonl")
+
+    def _persist_log_offset(self) -> None:
+        if self._log_offset_path is None:
+            return
+        try:
+            self._log_offset_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self._log_offset_path.with_suffix(".tmp")
+            tmp.write_text(str(int(self._log_offset)), encoding="utf-8")
+            os.replace(tmp, self._log_offset_path)
+        except OSError:
+            pass
+
+    def _read_log_offset(self) -> int | None:
+        if self._log_offset_path is None:
+            return None
+        try:
+            return int(self._log_offset_path.read_text(encoding="utf-8").strip())
+        except (OSError, ValueError):
+            return None
+
+    def ingest_remote_events(self) -> None:
+        """Replay structured events written while LeLab was disconnected.
+
+        The worker's append-only events file is authoritative; each line goes
+        through the event sink (deduped by the store), not the log panel, so a
+        restart does not duplicate log entries.
+        """
+        if self._event_sink is None:
+            return
+        try:
+            text = ssh_ops.read_remote_file(
+                self.config, self.remote_events_path, max_bytes=8 * 1024 * 1024
+            )
+        except Exception as exc:
+            logger.warning("Could not read remote events for %s: %s", self.job_id, exc)
+            return
+        if not text:
+            return
+        for line in text.splitlines():
+            if not line.strip():
+                continue
+            try:
+                self._event_sink(line, time.time())
+            except Exception as exc:
+                logger.warning("Remote event replay failed: %s", exc)
+
+    @property
+    def remote_control_dir(self) -> str:
+        return posixpath.join(self._remote_dir, "control")
+
+    def request_pause(self) -> None:
+        """Place a bounded control marker beside the job on the GPU host.
+
+        The remote script verifies that the recorded PID's cwd is this job's
+        directory (PID-reuse / foreign-process guard) before writing anything.
+        """
+        return_code, output = self._run_script(_PAUSE_SCRIPT, self.remote_dir, check=False)
+        if return_code != 0:
+            detail = " ".join(line.strip() for line in output.splitlines() if line.strip())[-400:]
+            raise RemoteTrainingError(
+                f"Could not request pause on {self.config.endpoint} (exit {return_code}): "
+                f"{detail or 'no output'}"
+            )
+
+    def read_pause_state(self) -> dict | None:
+        try:
+            return_code, output = self._run_script(
+                _READ_PAUSE_STATE_SCRIPT, self.remote_dir, check=False
+            )
+        except Exception:
+            return None
+        if return_code != 0 or not output.strip():
+            return None
+        try:
+            payload = json.loads(output.strip().splitlines()[-1])
+        except json.JSONDecodeError:
+            return None
+        return payload if isinstance(payload, dict) else None
 
     # ------------------------------------------------------------- topology
     @property
@@ -414,6 +640,13 @@ class SshRemoteJobRunner:
             self.remote_python,
         )
         command_text = " ".join(shlex.quote(part) for part in command)
+        is_resume = bool(config.resume_config_path)
+        # Capture the old log size BEFORE launching: on resume the new process
+        # appends, and measuring afterwards could skip its first events.
+        try:
+            resume_offset = self._remote_log_size() if is_resume else 0
+        except RemoteTrainingError:
+            resume_offset = 0
         self._run_script(
             _LAUNCH_SCRIPT,
             self.remote_dir,
@@ -423,7 +656,12 @@ class SshRemoteJobRunner:
             self.remote_hf_endpoint,
             self.remote_hf_token,
             "" if self.remote_gpu is None else str(self.remote_gpu),
+            self._run_id or job_id,
+            self._attempt_id or "",
+            "0" if is_resume else "1",
         )
+        self._log_offset = resume_offset
+        self._persist_log_offset()
         state = self._fetch_state()
         if state.get("pid") is not None:
             self._remote_pid = state["pid"]
@@ -434,19 +672,28 @@ class SshRemoteJobRunner:
             self._remote_pid,
             self.remote_dir,
         )
+        # Best-effort replay of the durable event sidecar (covers a resume
+        # whose first lines landed before the tail offset was established).
+        self.ingest_remote_events()
         self._start_poller()
 
     def reattach(self, *, remote_dir: str | None = None) -> None:
         """Re-attach to a job that kept running across a Jetson reload."""
         if remote_dir:
             self._remote_dir = remote_dir
-        # Skip whatever is already in the local log to avoid duplicate lines;
-        # metrics resume from the next line the remote writes.
+        # Resume from the last consumed byte, not the current EOF: lines written
+        # while LeLab was down must still be ingested. Fall back to EOF only
+        # when no persisted offset exists.
+        persisted = self._read_log_offset()
         try:
             size = self._remote_log_size()
         except RemoteTrainingError:
             size = 0
-        self._log_offset = size
+        if persisted is None or persisted > size:
+            self._log_offset = size
+        else:
+            self._log_offset = persisted
+        self.ingest_remote_events()
         state = self._fetch_state()
         self._remote_pid = state.get("pid")
         if state.get("exit_code") is not None:
@@ -514,7 +761,11 @@ class SshRemoteJobRunner:
             return
         self._stop_event.set()
         self._stop_requested = True
-        self._run_script(_STOP_SCRIPT, self.remote_dir, check=False)
+        stop_rc, stop_out = self._run_script(_STOP_SCRIPT, self.remote_dir, check=False)
+        if stop_rc == 4:
+            self._stop_requested = False
+            detail = " ".join(line.strip() for line in stop_out.splitlines() if line.strip())[-300:]
+            raise RemoteTrainingError(f"拒绝终止不属于该任务的远端进程：{detail}")
         deadline = time.monotonic() + 10.0
         while time.monotonic() < deadline:
             state = self._fetch_state()
@@ -527,6 +778,9 @@ class SshRemoteJobRunner:
             "set -eu\n"
             + _EXPAND_PATH_FUNCTION
             + 'dir=$(expand_remote_path "$1")\ncd "$dir"\npid=$(cat run.pid 2>/dev/null || true)\n'
+            'cwd=$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)\n'
+            'target=$(readlink -f "$dir" 2>/dev/null || printf \'%s\' "$dir")\n'
+            'if [ -n "$cwd" ] && [ "$cwd" != "$target" ]; then exit 4; fi\n'
             '[ -n "$pid" ] && kill -KILL "-$pid" 2>/dev/null || true\n'
         )
         self._run_script(kill_script, self.remote_dir, check=False)
@@ -565,6 +819,7 @@ class SshRemoteJobRunner:
                 self._log_offset = max(0, self._remote_log_size() - len(chunk))
         else:
             self._log_offset += len(chunk.encode("utf-8", errors="replace"))
+        self._persist_log_offset()
         text = self._partial + chunk
         lines = text.split("\n")
         self._partial = lines.pop()
@@ -583,7 +838,13 @@ class SshRemoteJobRunner:
                 url = extract_wandb_run_url(stripped)
                 if url is not None:
                     self._wandb_run_url = url
-            log_line = LogLine(timestamp=time.time(), message=stripped)
+            timestamp = time.time()
+            if self._event_sink is not None:
+                try:
+                    self._event_sink(stripped, timestamp)
+                except Exception as exc:  # monitoring must never stop training
+                    logger.warning("Metric event sink failed: %s", exc)
+            log_line = LogLine(timestamp=timestamp, message=stripped)
             self._append_log(log_line)
             if self._log_queue.qsize() >= 1000:
                 with contextlib.suppress(Empty):
