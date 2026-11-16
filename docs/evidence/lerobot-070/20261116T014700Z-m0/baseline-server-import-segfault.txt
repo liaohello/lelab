@@ -1,0 +1,6 @@
+Fatal Python error: Segmentation fault
+
+Thread 0x00007b2ed6187080 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1289 in create_module
+  File "<frozen importlib._bootstrap>", line 813

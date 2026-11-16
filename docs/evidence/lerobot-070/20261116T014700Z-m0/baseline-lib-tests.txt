@@ -1,0 +1,514 @@
+/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:306: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session". Set it to "fixture-scope" to keep the current behavior.
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+
+Testing with DEVICE='cpu'
+EEEEEEEE..........................                                       [100%]
+==================================== ERRORS ====================================
+__________________ ERROR at setup of test_connect_disconnect ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-660/test_connect_disconnect0')
+
+    @pytest.fixture
+    def follower(tmp_path):
+        bus_mock = _make_bus_mock()
+    
+        def _bus_side_effect(*_args, **kwargs):
+            bus_mock.motors = kwargs["motors"]
+            motors_order: list[str] = list(bus_mock.motors)
+    
+            bus_mock.sync_read.return_value = {motor: idx for idx, motor in enumerate(motors_order, 1)}
+            bus_mock.sync_write.return_value = None
+            bus_mock.write.return_value = None
+            bus_mock.disable_torque.return_value = None
+            bus_mock.enable_torque.return_value = None
+            bus_mock.is_calibrated = True
+            return bus_mock
+    
+        with (
+            patch(
+                "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+                side_effect=_bus_side_effect,
+            ),
+            patch.object(SO100Follower, "configure", lambda self: None),
+        ):
+            cfg = SO100FollowerConfig(port="/dev/null", calibration_dir=tmp_path)
+>           robot = SO100Follower(cfg)
+                    ^^^^^^^^^^^^^^^^^^
+
+tests/robots/test_so100_follower.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/lerobot/robots/so_follower/so_follower.py:70: in __init__
+    self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <lerobot.robots.so_follower.so_follower.SOFollower object at 0x77c76c1088f0>
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+    
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+>           limits[motor] = (min(low, high), max(low, high))
+                             ^^^^^^^^^^^^^^
+E           TypeError: '<' not supported between instances of 'MagicMock' and 'MagicMock'
+
+src/lerobot/robots/so_follower/so_follower.py:89: TypeError
+____________________ ERROR at setup of test_get_observation ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-660/test_get_observation0')
+
+    @pytest.fixture
+    def follower(tmp_path):
+        bus_mock = _make_bus_mock()
+    
+        def _bus_side_effect(*_args, **kwargs):
+            bus_mock.motors = kwargs["motors"]
+            motors_order: list[str] = list(bus_mock.motors)
+    
+            bus_mock.sync_read.return_value = {motor: idx for idx, motor in enumerate(motors_order, 1)}
+            bus_mock.sync_write.return_value = None
+            bus_mock.write.return_value = None
+            bus_mock.disable_torque.return_value = None
+            bus_mock.enable_torque.return_value = None
+            bus_mock.is_calibrated = True
+            return bus_mock
+    
+        with (
+            patch(
+                "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+                side_effect=_bus_side_effect,
+            ),
+            patch.object(SO100Follower, "configure", lambda self: None),
+        ):
+            cfg = SO100FollowerConfig(port="/dev/null", calibration_dir=tmp_path)
+>           robot = SO100Follower(cfg)
+                    ^^^^^^^^^^^^^^^^^^
+
+tests/robots/test_so100_follower.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/lerobot/robots/so_follower/so_follower.py:70: in __init__
+    self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <lerobot.robots.so_follower.so_follower.SOFollower object at 0x77c76b5215b0>
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+    
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+>           limits[motor] = (min(low, high), max(low, high))
+                             ^^^^^^^^^^^^^^
+E           TypeError: '<' not supported between instances of 'MagicMock' and 'MagicMock'
+
+src/lerobot/robots/so_follower/so_follower.py:89: TypeError
+___________ ERROR at setup of test_get_observation_uses_read_retries ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-660/test_get_observation_uses_read0')
+
+    @pytest.fixture
+    def follower(tmp_path):
+        bus_mock = _make_bus_mock()
+    
+        def _bus_side_effect(*_args, **kwargs):
+            bus_mock.motors = kwargs["motors"]
+            motors_order: list[str] = list(bus_mock.motors)
+    
+            bus_mock.sync_read.return_value = {motor: idx for idx, motor in enumerate(motors_order, 1)}
+            bus_mock.sync_write.return_value = None
+            bus_mock.write.return_value = None
+            bus_mock.disable_torque.return_value = None
+            bus_mock.enable_torque.return_value = None
+            bus_mock.is_calibrated = True
+            return bus_mock
+    
+        with (
+            patch(
+                "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+                side_effect=_bus_side_effect,
+            ),
+            patch.object(SO100Follower, "configure", lambda self: None),
+        ):
+            cfg = SO100FollowerConfig(port="/dev/null", calibration_dir=tmp_path)
+>           robot = SO100Follower(cfg)
+                    ^^^^^^^^^^^^^^^^^^
+
+tests/robots/test_so100_follower.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/lerobot/robots/so_follower/so_follower.py:70: in __init__
+    self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <lerobot.robots.so_follower.so_follower.SOFollower object at 0x77c76b99b440>
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+    
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+>           limits[motor] = (min(low, high), max(low, high))
+                             ^^^^^^^^^^^^^^
+E           TypeError: '<' not supported between instances of 'MagicMock' and 'MagicMock'
+
+src/lerobot/robots/so_follower/so_follower.py:89: TypeError
+_____________ ERROR at setup of test_send_action_uses_read_retries _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-660/test_send_action_uses_read_ret0')
+
+    @pytest.fixture
+    def follower(tmp_path):
+        bus_mock = _make_bus_mock()
+    
+        def _bus_side_effect(*_args, **kwargs):
+            bus_mock.motors = kwargs["motors"]
+            motors_order: list[str] = list(bus_mock.motors)
+    
+            bus_mock.sync_read.return_value = {motor: idx for idx, motor in enumerate(motors_order, 1)}
+            bus_mock.sync_write.return_value = None
+            bus_mock.write.return_value = None
+            bus_mock.disable_torque.return_value = None
+            bus_mock.enable_torque.return_value = None
+            bus_mock.is_calibrated = True
+            return bus_mock
+    
+        with (
+            patch(
+                "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+                side_effect=_bus_side_effect,
+            ),
+            patch.object(SO100Follower, "configure", lambda self: None),
+        ):
+            cfg = SO100FollowerConfig(port="/dev/null", calibration_dir=tmp_path)
+>           robot = SO100Follower(cfg)
+                    ^^^^^^^^^^^^^^^^^^
+
+tests/robots/test_so100_follower.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/lerobot/robots/so_follower/so_follower.py:70: in __init__
+    self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <lerobot.robots.so_follower.so_follower.SOFollower object at 0x77c76b541700>
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+    
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+>           limits[motor] = (min(low, high), max(low, high))
+                             ^^^^^^^^^^^^^^
+E           TypeError: '<' not supported between instances of 'MagicMock' and 'MagicMock'
+
+src/lerobot/robots/so_follower/so_follower.py:89: TypeError
+_ ERROR at setup of test_send_action_combines_relative_and_startup_workspace_limits_with_one_read _
+
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-660/test_send_action_combines_rela0')
+
+    @pytest.fixture
+    def follower(tmp_path):
+        bus_mock = _make_bus_mock()
+    
+        def _bus_side_effect(*_args, **kwargs):
+            bus_mock.motors = kwargs["motors"]
+            motors_order: list[str] = list(bus_mock.motors)
+    
+            bus_mock.sync_read.return_value = {motor: idx for idx, motor in enumerate(motors_order, 1)}
+            bus_mock.sync_write.return_value = None
+            bus_mock.write.return_value = None
+            bus_mock.disable_torque.return_value = None
+            bus_mock.enable_torque.return_value = None
+            bus_mock.is_calibrated = True
+            return bus_mock
+    
+        with (
+            patch(
+                "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+                side_effect=_bus_side_effect,
+            ),
+            patch.object(SO100Follower, "configure", lambda self: None),
+        ):
+            cfg = SO100FollowerConfig(port="/dev/null", calibration_dir=tmp_path)
+>           robot = SO100Follower(cfg)
+                    ^^^^^^^^^^^^^^^^^^
+
+tests/robots/test_so100_follower.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/lerobot/robots/so_follower/so_follower.py:70: in __init__
+    self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <lerobot.robots.so_follower.so_follower.SOFollower object at 0x77c76b1de5a0>
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+    
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+>           limits[motor] = (min(low, high), max(low, high))
+                             ^^^^^^^^^^^^^^
+E           TypeError: '<' not supported between instances of 'MagicMock' and 'MagicMock'
+
+src/lerobot/robots/so_follower/so_follower.py:89: TypeError
+_______ ERROR at setup of test_startup_workspace_origin_is_captured_once _______
+
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-660/test_startup_workspace_origin_0')
+
+    @pytest.fixture
+    def follower(tmp_path):
+        bus_mock = _make_bus_mock()
+    
+        def _bus_side_effect(*_args, **kwargs):
+            bus_mock.motors = kwargs["motors"]
+            motors_order: list[str] = list(bus_mock.motors)
+    
+            bus_mock.sync_read.return_value = {motor: idx for idx, motor in enumerate(motors_order, 1)}
+            bus_mock.sync_write.return_value = None
+            bus_mock.write.return_value = None
+            bus_mock.disable_torque.return_value = None
+            bus_mock.enable_torque.return_value = None
+            bus_mock.is_calibrated = True
+            return bus_mock
+    
+        with (
+            patch(
+                "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+                side_effect=_bus_side_effect,
+            ),
+            patch.object(SO100Follower, "configure", lambda self: None),
+        ):
+            cfg = SO100FollowerConfig(port="/dev/null", calibration_dir=tmp_path)
+>           robot = SO100Follower(cfg)
+                    ^^^^^^^^^^^^^^^^^^
+
+tests/robots/test_so100_follower.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/lerobot/robots/so_follower/so_follower.py:70: in __init__
+    self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <lerobot.robots.so_follower.so_follower.SOFollower object at 0x77c76b591a00>
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+    
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+>           limits[motor] = (min(low, high), max(low, high))
+                             ^^^^^^^^^^^^^^
+E           TypeError: '<' not supported between instances of 'MagicMock' and 'MagicMock'
+
+src/lerobot/robots/so_follower/so_follower.py:89: TypeError
+_ ERROR at setup of test_startup_workspace_dict_requires_all_commanded_motor_keys _
+
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-660/test_startup_workspace_dict_re0')
+
+    @pytest.fixture
+    def follower(tmp_path):
+        bus_mock = _make_bus_mock()
+    
+        def _bus_side_effect(*_args, **kwargs):
+            bus_mock.motors = kwargs["motors"]
+            motors_order: list[str] = list(bus_mock.motors)
+    
+            bus_mock.sync_read.return_value = {motor: idx for idx, motor in enumerate(motors_order, 1)}
+            bus_mock.sync_write.return_value = None
+            bus_mock.write.return_value = None
+            bus_mock.disable_torque.return_value = None
+            bus_mock.enable_torque.return_value = None
+            bus_mock.is_calibrated = True
+            return bus_mock
+    
+        with (
+            patch(
+                "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+                side_effect=_bus_side_effect,
+            ),
+            patch.object(SO100Follower, "configure", lambda self: None),
+        ):
+            cfg = SO100FollowerConfig(port="/dev/null", calibration_dir=tmp_path)
+>           robot = SO100Follower(cfg)
+                    ^^^^^^^^^^^^^^^^^^
+
+tests/robots/test_so100_follower.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/lerobot/robots/so_follower/so_follower.py:70: in __init__
+    self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <lerobot.robots.so_follower.so_follower.SOFollower object at 0x77c76b582870>
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+    
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+>           limits[motor] = (min(low, high), max(low, high))
+                             ^^^^^^^^^^^^^^
+E           TypeError: '<' not supported between instances of 'MagicMock' and 'MagicMock'
+
+src/lerobot/robots/so_follower/so_follower.py:89: TypeError
+______________________ ERROR at setup of test_send_action ______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-liaozhengyan/pytest-660/test_send_action0')
+
+    @pytest.fixture
+    def follower(tmp_path):
+        bus_mock = _make_bus_mock()
+    
+        def _bus_side_effect(*_args, **kwargs):
+            bus_mock.motors = kwargs["motors"]
+            motors_order: list[str] = list(bus_mock.motors)
+    
+            bus_mock.sync_read.return_value = {motor: idx for idx, motor in enumerate(motors_order, 1)}
+            bus_mock.sync_write.return_value = None
+            bus_mock.write.return_value = None
+            bus_mock.disable_torque.return_value = None
+            bus_mock.enable_torque.return_value = None
+            bus_mock.is_calibrated = True
+            return bus_mock
+    
+        with (
+            patch(
+                "lerobot.robots.so_follower.so_follower.FeetechMotorsBus",
+                side_effect=_bus_side_effect,
+            ),
+            patch.object(SO100Follower, "configure", lambda self: None),
+        ):
+            cfg = SO100FollowerConfig(port="/dev/null", calibration_dir=tmp_path)
+>           robot = SO100Follower(cfg)
+                    ^^^^^^^^^^^^^^^^^^
+
+tests/robots/test_so100_follower.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/lerobot/robots/so_follower/so_follower.py:70: in __init__
+    self._calibration_limits: dict[str, tuple[float, float]] = self._build_calibration_limits()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <lerobot.robots.so_follower.so_follower.SOFollower object at 0x77c76b98b200>
+
+    def _build_calibration_limits(self) -> dict[str, tuple[float, float]]:
+        """Per-motor ``(low, high)`` command bounds taken from the calibration.
+    
+        The endpoints are converted through the bus itself so the limits always
+        live in the same space as the values ``send_action`` receives
+        (degrees / normalized / gripper 0-100).
+        """
+        if not self.bus.calibration:
+            return {}
+        limits: dict[str, tuple[float, float]] = {}
+        for motor in self.bus.motors:
+            calibration = self.bus.calibration.get(motor)
+            if calibration is None:
+                continue
+            motor_id = self.bus.motors[motor].id
+            low = self.bus._normalize({motor_id: calibration.range_min})[motor_id]
+            high = self.bus._normalize({motor_id: calibration.range_max})[motor_id]
+>           limits[motor] = (min(low, high), max(low, high))
+                             ^^^^^^^^^^^^^^
+E           TypeError: '<' not supported between instances of 'MagicMock' and 'MagicMock'
+
+src/lerobot/robots/so_follower/so_follower.py:89: TypeError
+=========================== short test summary info ============================
+ERROR tests/robots/test_so100_follower.py::test_connect_disconnect - TypeErro...
+ERROR tests/robots/test_so100_follower.py::test_get_observation - TypeError: ...
+ERROR tests/robots/test_so100_follower.py::test_get_observation_uses_read_retries
+ERROR tests/robots/test_so100_follower.py::test_send_action_uses_read_retries
+ERROR tests/robots/test_so100_follower.py::test_send_action_combines_relative_and_startup_workspace_limits_with_one_read
+ERROR tests/robots/test_so100_follower.py::test_startup_workspace_origin_is_captured_once
+ERROR tests/robots/test_so100_follower.py::test_startup_workspace_dict_requires_all_commanded_motor_keys
+ERROR tests/robots/test_so100_follower.py::test_send_action - TypeError: '<' ...
+26 passed, 8 errors in 0.76s

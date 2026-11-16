@@ -1,0 +1,119 @@
+{
+  "run_id": "20261116T014700Z-m0",
+  "stage": "M0",
+  "generated_at": "2026-11-16T09:57Z",
+  "worktree": "/home/liaozhengyan/Desktop/lelab-lerobot070",
+  "branch": "codex/lerobot-070-integration",
+  "branch_base_commit": "47d17546d035dbbc401cd80c4d8768269d709826",
+  "original_workspace_untouched": true,
+  "cases": [
+    {
+      "case_id": "TC-ENV-01",
+      "status": "passed",
+      "assertions": {
+        "original_repo_state_recorded": true,
+        "original_head": "47d17546d035dbbc401cd80c4d8768269d709826",
+        "migration_realpath_inside_worktree": true,
+        "source_manifest_recomputable": true
+      },
+      "artifacts": [
+        "origin-state.md",
+        "upstream-lerobot-0.7.0.sha256"
+      ],
+      "notes": "1354 upstream files hashed. app/lerobot/current resolve to <worktree>/releases/sanitized-20261024-01/*; none resolve into the original workspace."
+    },
+    {
+      "case_id": "TC-ENV-02",
+      "status": "not_run",
+      "reason": "Target 0.7.0 import check belongs to M2. Baseline 0.6.2 import was verified as a prerequisite (see baseline_env field)."
+    },
+    {
+      "case_id": "TC-ENV-03",
+      "status": "not_run",
+      "reason": "Dependency preflight for FastWAM/FineART extras belongs to M2/M3."
+    }
+  ],
+  "baseline_env": {
+    "python": "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python",
+    "python_version": "3.12.3",
+    "install_mode": "editable (-e ./app -e ./lerobot)",
+    "lerobot_version": "0.6.2",
+    "lerobot_import_path": "<worktree>/releases/sanitized-20261024-01/lerobot/src/lerobot/__init__.py",
+    "lelab_import_path": "<worktree>/releases/sanitized-20261024-01/app/lelab/__init__.py",
+    "torch": "2.11.0+cpu",
+    "cuda_available": false,
+    "gpu_present": false,
+    "import_check_without_pythonpath": "passed"
+  },
+  "baseline_tests": [
+    {
+      "scope": "app",
+      "cwd": "<worktree>/app",
+      "command": ".venv/bin/python -m pytest tests/test_train.py tests/test_utils_system.py tests/test_policy_refs.py tests/test_hardware_lease.py tests/test_hardware_lease_api.py tests/test_safety.py tests/test_calibrate.py tests/test_calibration_limits.py tests/test_rollout.py tests/test_remote_inference.py -q -ra",
+      "exit_code": 1,
+      "counts": {"passed": 130, "failed": 1, "skipped": 0},
+      "output": "baseline-app-tests.txt",
+      "existing_failures": [
+        {
+          "node": "tests/test_remote_inference.py::test_client_command_targets_the_tunnel",
+          "cause": "stale expectation: code emits 'backend: 200, fourcc: MJPG' inside --robot.cameras which the test substring does not allow",
+          "classification": "pre-existing, will be replaced in M4",
+          "introduced_by_migration": false
+        }
+      ]
+    },
+    {
+      "scope": "lerobot",
+      "cwd": "<worktree>/lerobot",
+      "command": ".venv/bin/python -m pytest tests/robots/test_so100_follower.py tests/datasets/test_sampler.py -q -ra",
+      "exit_code": 1,
+      "counts": {"passed": 26, "failed": 0, "errors": 8, "skipped": 0},
+      "output": "baseline-lib-tests.txt",
+      "existing_failures": [
+        {
+          "node": "tests/robots/test_so100_follower.py (8 tests error at fixture)",
+          "cause": "TypeError at src/lerobot/robots/so_follower/so_follower.py:89 _build_calibration_limits: the MagicMock bus has no real .calibration, so min()/max() receive MagicMock. Test fixture in this snapshot predates the calibration-limit code.",
+          "classification": "pre-existing test/code drift in sanitized-20261024-01; must be repaired during M1/M2 (these nodes carry TC-SAF-01/02)",
+          "introduced_by_migration": false
+        }
+      ]
+    }
+  ],
+  "environment_findings": [
+    {
+      "id": "host-nproc-ceiling",
+      "detail": "ulimit -Su = ulimit -Hu = 4096 for this UID. At M0 start ~3792 threads were live, so fork() intermittently returned EAGAIN (bash could not spawn any external command).",
+      "mitigation": "All python runs pin OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1. Without this, importing lelab.server segfaults because OpenBLAS cannot create its worker threads (see baseline-server-import-segfault.txt).",
+      "impact": "Hard cap on parallelism: tests must run serially, no pytest-xdist."
+    },
+    {
+      "id": "no-gpu",
+      "detail": "No NVIDIA device (nvidia-smi absent, AMD Cezanne iGPU only). CPU torch 2.11.0+cpu installed; torch must stay in [2.7, 2.12) per lerobot constraint.",
+      "impact": "TC-REAL-01/02 (real FastWAM/FineART weights) will be CPU-bound if attempted; TC-HW-* needs hardware access."
+    },
+    {
+      "id": "torchcodec-load-failure",
+      "detail": "torchcodec 0.11.1 cannot load libtorchcodec_core4.so in this env (OSError from torch.ops.load_library).",
+      "impact": "Video decoding paths that require torchcodec are affected; opencv/av paths are unaffected. To be re-checked after the 0.7.0 dependency set is installed."
+    }
+  ],
+  "branch_increments_measured": {
+    "feat/local-bimanual": {
+      "commits": ["805357d", "7461286"],
+      "merge_base_with_current": "07216e08",
+      "files_changed": 56,
+      "insertions": 13123,
+      "deletions": 297,
+      "not_yet_integrated": true
+    },
+    "codex/training-monitor-review": {
+      "commits": ["3cd1840"],
+      "merge_base_with_current": "07216e08",
+      "files_changed": 28,
+      "insertions": 5944,
+      "deletions": 367,
+      "not_yet_integrated": true,
+      "note": "worktree lives in /tmp; replay from the branch only"
+    }
+  }
+}

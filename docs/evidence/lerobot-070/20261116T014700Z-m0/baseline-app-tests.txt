@@ -1,0 +1,219 @@
+/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:306: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session". Set it to "fixture-scope" to keep the current behavior.
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python
+rootdir: /home/liaozhengyan/Desktop/lelab-lerobot070/releases/sanitized-20261024-01/app
+configfile: pyproject.toml
+plugins: anyio-4.16.0, asyncio-1.5.0, platformdirs-4.14.5
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 131 items
+
+tests/test_train.py::test_minimal_request_yields_well_formed_argv PASSED [  0%]
+tests/test_train.py::test_optional_dataset_fields_only_present_when_set PASSED [  1%]
+tests/test_train.py::test_pretrained_policy_uses_path_without_conflicting_type PASSED [  2%]
+tests/test_train.py::test_wandb_block_only_serialized_when_enabled PASSED [  3%]
+tests/test_train.py::test_push_to_hub_emits_repo_id_only_when_enabled PASSED [  3%]
+tests/test_train.py::test_seed_omitted_when_none PASSED                  [  4%]
+tests/test_train.py::test_training_request_validates_required_field PASSED [  5%]
+tests/test_train.py::test_env_eval_freq_flag PASSED                      [  6%]
+tests/test_train.py::test_cloud_target_emits_job_flags_and_skips_push_to_hub PASSED [  6%]
+tests/test_train.py::test_cloud_resume_omits_save_checkpoint_to_hub PASSED [  7%]
+tests/test_train.py::test_local_target_keeps_push_to_hub PASSED          [  8%]
+tests/test_train.py::test_groot_policy_flags_are_emitted_only_for_groot PASSED [  9%]
+tests/test_utils_system.py::test_build_install_cmd_contains_pip_and_package PASSED [  9%]
+tests/test_utils_system.py::test_build_install_cmd_uses_current_python_when_no_uv PASSED [ 10%]
+tests/test_utils_system.py::test_install_manager_initial_state_is_idle PASSED [ 11%]
+tests/test_utils_system.py::test_detect_cuda_status_flags_mismatch_when_gpu_but_cpu_torch PASSED [ 12%]
+tests/test_utils_system.py::test_detect_cuda_status_no_mismatch_when_cuda_available PASSED [ 12%]
+tests/test_utils_system.py::test_detect_cuda_status_no_mismatch_without_gpu PASSED [ 13%]
+tests/test_utils_system.py::test_nvidia_gpu_present_false_when_smi_absent PASSED [ 14%]
+tests/test_utils_system.py::test_warn_if_cuda_mismatch_logs_on_mismatch PASSED [ 15%]
+tests/test_utils_system.py::test_warn_if_cuda_mismatch_silent_when_ok PASSED [ 16%]
+tests/test_utils_system.py::test_cuda_status_endpoint_returns_expected_shape PASSED [ 16%]
+tests/test_utils_system.py::test_policy_extra_maps_policies_to_install_targets PASSED [ 17%]
+tests/test_utils_system.py::test_policy_extra_core_policy_needs_nothing PASSED [ 18%]
+tests/test_utils_system.py::test_policy_extra_available_reflects_find_spec PASSED [ 19%]
+tests/test_utils_system.py::test_policy_extra_install_is_noop_for_core_policy PASSED [ 19%]
+tests/test_utils_system.py::test_policy_extra_route_known_and_core PASSED [ 20%]
+tests/test_policy_refs.py::test_absolute_path_is_local PASSED            [ 21%]
+tests/test_policy_refs.py::test_home_relative_path_is_local PASSED       [ 22%]
+tests/test_policy_refs.py::test_checkpoint_tree_ref PASSED               [ 22%]
+tests/test_policy_refs.py::test_repo_root_ref PASSED                     [ 23%]
+tests/test_policy_refs.py::test_unparsable_refs_raise[] PASSED           [ 24%]
+tests/test_policy_refs.py::test_unparsable_refs_raise[   ] PASSED        [ 25%]
+tests/test_policy_refs.py::test_unparsable_refs_raise[not-a-ref] PASSED  [ 25%]
+tests/test_policy_refs.py::test_unparsable_refs_raise[user/repo@checkpoints/abc] PASSED [ 26%]
+tests/test_hardware_lease.py::test_acquire_grants_exclusive_lease PASSED [ 27%]
+tests/test_hardware_lease.py::test_second_acquire_reports_current_holder PASSED [ 28%]
+tests/test_hardware_lease.py::test_same_task_cannot_stack PASSED         [ 29%]
+tests/test_hardware_lease.py::test_observers_cannot_take_control PASSED  [ 29%]
+tests/test_hardware_lease.py::test_unknown_task_is_rejected PASSED       [ 30%]
+tests/test_hardware_lease.py::test_release_requires_the_token_or_task PASSED [ 31%]
+tests/test_hardware_lease.py::test_stop_endpoint_release_by_task PASSED  [ 32%]
+tests/test_hardware_lease.py::test_renew_extends_only_with_the_token PASSED [ 32%]
+tests/test_hardware_lease.py::test_renew_accepts_task_and_owner_instead_of_the_token PASSED [ 33%]
+tests/test_hardware_lease.py::test_status_never_exposes_the_token PASSED [ 34%]
+tests/test_hardware_lease.py::test_expiry_releases_and_stops_the_task PASSED [ 35%]
+tests/test_hardware_lease.py::test_expiry_without_stop_on_expiry_still_releases PASSED [ 35%]
+tests/test_hardware_lease.py::test_finished_task_releases_after_the_activity_grace PASSED [ 36%]
+tests/test_hardware_lease.py::test_emergency_preempt_drops_any_lease PASSED [ 37%]
+tests/test_hardware_lease.py::test_forced_acquire_preempts_the_previous_holder PASSED [ 38%]
+tests/test_hardware_lease.py::test_stop_task_runs_the_hook_for_any_task PASSED [ 38%]
+tests/test_hardware_lease.py::test_broken_stop_hook_does_not_strand_the_lease PASSED [ 39%]
+tests/test_hardware_lease.py::test_ttl_is_clamped_to_safe_bounds PASSED  [ 40%]
+tests/test_hardware_lease_api.py::test_lease_lifecycle_over_http PASSED  [ 41%]
+tests/test_hardware_lease_api.py::test_conflicting_acquire_reports_the_holder PASSED [ 41%]
+tests/test_hardware_lease_api.py::test_observer_cannot_acquire_over_http PASSED [ 42%]
+tests/test_hardware_lease_api.py::test_start_endpoint_refuses_when_another_task_holds_the_lease PASSED [ 43%]
+tests/test_hardware_lease_api.py::test_failed_start_releases_the_lease PASSED [ 44%]
+tests/test_hardware_lease_api.py::test_stop_endpoint_releases_the_lease PASSED [ 45%]
+tests/test_hardware_lease_api.py::test_start_uses_client_headers_as_the_owner PASSED [ 45%]
+tests/test_hardware_lease_api.py::test_observer_header_blocks_start PASSED [ 46%]
+tests/test_hardware_lease_api.py::test_emergency_stop_preempts_and_stops_every_task PASSED [ 47%]
+tests/test_safety.py::test_conservative_defaults_are_enabled PASSED      [ 48%]
+tests/test_safety.py::test_environment_can_override_or_disable_limits PASSED [ 48%]
+tests/test_safety.py::test_calibration_margin_accepts_negative_expansion PASSED [ 49%]
+tests/test_safety.py::test_calibration_margin_can_be_disabled PASSED     [ 50%]
+tests/test_safety.py::test_calibration_margin_motor_map PASSED           [ 51%]
+tests/test_safety.py::test_json_motor_map_is_supported PASSED            [ 51%]
+tests/test_safety.py::test_invalid_environment_value_fails_closed[] PASSED [ 52%]
+tests/test_safety.py::test_invalid_environment_value_fails_closed[0] PASSED [ 53%]
+tests/test_safety.py::test_invalid_environment_value_fails_closed[-1] PASSED [ 54%]
+tests/test_safety.py::test_invalid_environment_value_fails_closed[garbage] PASSED [ 54%]
+tests/test_safety.py::test_invalid_environment_value_fails_closed[{}] PASSED [ 55%]
+tests/test_safety.py::test_invalid_environment_value_fails_closed[{"gripper": 0}] PASSED [ 56%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[-5-False] PASSED [ 57%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[0-False] PASSED [ 58%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[1-True] PASSED [ 58%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[100-True] PASSED [ 59%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[2000-True] PASSED [ 60%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[4095-True] PASSED [ 61%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[4999-True] PASSED [ 61%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[5000-False] PASSED [ 62%]
+tests/test_calibrate.py::test_is_valid_position_boundaries[6000-False] PASSED [ 63%]
+tests/test_calibrate.py::test_calibration_status_defaults_to_idle PASSED [ 64%]
+tests/test_calibrate.py::test_calibration_request_dataclass_round_trip PASSED [ 64%]
+tests/test_calibrate.py::test_calibration_manager_starts_idle PASSED     [ 65%]
+tests/test_calibrate.py::test_calibration_manager_get_status_when_idle_returns_status_object PASSED [ 66%]
+tests/test_calibrate.py::test_calibration_bus_reads_are_serialized PASSED [ 67%]
+tests/test_calibrate.py::test_calibration_manager_rejects_double_start_via_message PASSED [ 67%]
+tests/test_calibrate.py::test_cleanup_device_force_releases_and_clears_when_disconnect_fails PASSED [ 68%]
+tests/test_calibration_limits.py::test_inside_limits_is_untouched PASSED [ 69%]
+tests/test_calibration_limits.py::test_outside_limits_is_clamped PASSED  [ 70%]
+tests/test_calibration_limits.py::test_positive_margin_shrinks_and_negative_margin_expands PASSED [ 70%]
+tests/test_calibration_limits.py::test_motor_map_margin_is_per_joint PASSED [ 71%]
+tests/test_calibration_limits.py::test_margin_wider_than_range_pins_the_midpoint PASSED [ 72%]
+tests/test_rollout.py::test_inference_request_rejects_missing_required_fields PASSED [ 73%]
+tests/test_rollout.py::test_inference_request_has_expected_defaults PASSED [ 74%]
+tests/test_rollout.py::test_rollout_safety_cli_defaults_are_local_and_conservative PASSED [ 74%]
+tests/test_rollout.py::test_detect_device_returns_cpu_when_neither_cuda_nor_mps PASSED [ 75%]
+tests/test_rollout.py::test_detect_device_prefers_cuda_over_mps PASSED   [ 76%]
+tests/test_rollout.py::test_detect_device_falls_back_to_mps_when_no_cuda PASSED [ 77%]
+tests/test_rollout.py::test_detect_device_returns_cpu_when_torch_probe_raises PASSED [ 77%]
+tests/test_rollout.py::test_detect_device_rejects_jetson_cuda_wheel_without_sm87 PASSED [ 78%]
+tests/test_rollout.py::test_detect_device_accepts_jetson_cuda_wheel_with_sm87 PASSED [ 79%]
+tests/test_rollout.py::test_resolve_policy_path_returns_local_dir_unchanged PASSED [ 80%]
+tests/test_rollout.py::test_resolve_policy_path_raises_on_unparsable_ref PASSED [ 80%]
+tests/test_rollout.py::test_resolve_policy_path_resolves_hub_ref PASSED  [ 81%]
+tests/test_rollout.py::test_resolve_policy_path_resolves_hub_root_ref PASSED [ 82%]
+tests/test_rollout.py::test_format_cameras_arg_empty_yields_empty_braces PASSED [ 83%]
+tests/test_rollout.py::test_format_cameras_arg_renames_camera_index_to_index_or_path PASSED [ 83%]
+tests/test_rollout.py::test_format_cameras_arg_omits_none_values PASSED  [ 84%]
+tests/test_rollout.py::test_format_cameras_arg_handles_multiple_cameras PASSED [ 85%]
+tests/test_rollout.py::test_format_cameras_arg_defaults_linux_opencv_to_v4l2_mjpg PASSED [ 86%]
+tests/test_rollout.py::test_format_cameras_arg_preserves_explicit_linux_capture_mode PASSED [ 87%]
+tests/test_rollout.py::test_handle_stop_inference_when_idle_returns_409 PASSED [ 87%]
+tests/test_rollout.py::test_handle_inference_status_when_idle_returns_dict_with_expected_keys PASSED [ 88%]
+tests/test_rollout.py::test_handle_start_inference_blocked_when_teleoperation_active PASSED [ 89%]
+tests/test_rollout.py::test_handle_start_inference_blocked_when_recording_active PASSED [ 90%]
+tests/test_rollout.py::test_handle_start_inference_blocked_when_already_active PASSED [ 90%]
+tests/test_rollout.py::test_handle_start_inference_closes_log_when_popen_fails PASSED [ 91%]
+tests/test_rollout.py::test_classify_outcome_ok_warns_and_fails PASSED   [ 92%]
+tests/test_rollout.py::test_rollout_inference_args_uses_rtc_for_relative_action_policies PASSED [ 93%]
+tests/test_rollout.py::test_rollout_inference_args_omits_rtc_for_absolute_policies PASSED [ 93%]
+tests/test_rollout.py::test_rollout_inference_args_uses_groot_chunk_default_when_missing PASSED [ 94%]
+tests/test_rollout.py::test_friendly_hint_maps_common_failures PASSED    [ 95%]
+tests/test_rollout.py::test_extract_error_from_log_pulls_exception_tail PASSED [ 96%]
+tests/test_remote_inference.py::test_client_command_targets_the_tunnel FAILED [ 96%]
+tests/test_remote_inference.py::test_client_command_omits_empty_task PASSED [ 97%]
+tests/test_remote_inference.py::test_remote_env_carries_mirror_proxy_and_token PASSED [ 98%]
+tests/test_remote_inference.py::test_stage_policy_parses_the_remote_path PASSED [ 99%]
+tests/test_remote_inference.py::test_stage_policy_reports_failure PASSED [100%]
+
+=================================== FAILURES ===================================
+____________________ test_client_command_targets_the_tunnel ____________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70478959f0e0>
+
+    def test_client_command_targets_the_tunnel(monkeypatch) -> None:
+        monkeypatch.setenv("LELAB_MAX_RELATIVE_TARGET", "5")
+        monkeypatch.setenv("LELAB_MAX_POSITION_DEVIATION", "off")
+        request = InferenceRequest(
+            follower_port="/dev/serial/by-id/usb-follower",
+            follower_config="follower_a",
+            policy_ref="/remote/checkpoints/000050/pretrained_model",
+            task="pick the red block",
+            cameras={"wrist": {"type": "opencv", "camera_index": 0, "width": 640, "height": 480, "fps": 30}},
+            duration_s=30,
+            target="remote",
+            policy_type="act",
+            actions_per_chunk=25,
+        )
+    
+        cmd = _build_client_command(
+            request,
+            follower_id="follower_a",
+            local_port=28081,
+            remote_policy_path="/home/trainer/Desktop/lelab_server/models/pretrained/act_so101",
+        )
+        joined = " ".join(cmd)
+    
+        assert "lerobot.async_inference.robot_client" in joined
+        assert "--server_address=127.0.0.1:28081" in joined
+        assert "--robot.port=/dev/serial/by-id/usb-follower" in joined
+        assert "--robot.id=follower_a" in joined
+        assert "--policy_type=act" in joined
+        assert "--actions_per_chunk=25" in joined
+        assert "--task=pick the red block" in joined
+        # Local safety limits travel with the robot config, cloud or not.
+        assert "--robot.max_relative_target=5.0" in joined
+        assert "--robot.max_position_deviation" not in joined
+>       assert "wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}" in joined
+E       AssertionError: assert 'wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}' in '/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python -m lerobot.async_inference.robot_client --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-follower --robot.id=follower_a --robot.max_relative_target=5.0 --robot.calibration_range_margin=0.0 --server_address=127.0.0.1:28081 --policy_type=act --pretrained_name_or_path=/home/trainer/Desktop/lelab_server/models/pretrained/act_so101 --policy_device=cuda --client_device=cpu --actions_per_chunk=25 --fps=30 --chunk_size_threshold=0.5 --task=pick the red block --robot.cameras={wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30, backend: 200, fourcc: MJPG}}'
+
+tests/test_remote_inference.py:55: AssertionError
+=============================== warnings summary ===============================
+tests/test_utils_system.py::test_cuda_status_endpoint_returns_expected_shape
+  /home/liaozhengyan/Desktop/lelab-lerobot070/releases/sanitized-20261024-01/app/lelab/server.py:3115: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+tests/test_utils_system.py::test_cuda_status_endpoint_returns_expected_shape
+tests/test_utils_system.py::test_cuda_status_endpoint_returns_expected_shape
+  /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/fastapi/applications.py:4723: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)  # ty: ignore[deprecated]
+
+tests/test_utils_system.py::test_cuda_status_endpoint_returns_expected_shape
+  /home/liaozhengyan/Desktop/lelab-lerobot070/releases/sanitized-20261024-01/app/lelab/server.py:3127: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_remote_inference.py::test_client_command_targets_the_tunnel
+================== 1 failed, 130 passed, 4 warnings in 12.12s ==================
