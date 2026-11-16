@@ -371,8 +371,18 @@ class CalibrationManager:
         actual_positions = self._read_raw_positions()
         logger.info(f"Current positions for homing: {actual_positions}")
 
-        self._homing_offsets = self.device.bus._get_half_turn_homings(actual_positions)
-        logger.info(f"Calculated homing offsets: {self._homing_offsets}")
+        # LeRobot 0.7 requires the per-motor sign here. On Feetech servos the
+        # encoder home is `raw_present + Homing_Offset`, so a *positive* offset
+        # makes the reported position fall; STS3215 declares
+        # homing_offset_sign=-1 precisely to express that, and `_def` multiplies
+        # by it. Omitting the sign raises TypeError; substituting +1 by hand
+        # would send every joint the wrong way around the half turn.
+        signs = {motor: self.device.bus._definition(motor).homing_offset_sign for motor in actual_positions}
+        if any(sign is None for sign in signs.values()):
+            unsupported = sorted(motor for motor, sign in signs.items() if sign is None)
+            raise RuntimeError(f"Motors {unsupported} have no homing offset sign; cannot home them")
+        self._homing_offsets = self.device.bus._get_half_turn_homings(actual_positions, signs)
+        logger.info(f"Calculated homing offsets (signs={signs}): {self._homing_offsets}")
 
         for motor, offset in self._homing_offsets.items():
             self.device.bus.write("Homing_Offset", motor, offset)

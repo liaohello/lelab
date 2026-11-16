@@ -162,3 +162,69 @@ def test_cleanup_device_force_releases_and_clears_when_disconnect_fails() -> Non
 
     assert device.bus.port_handler.closed is True  # force-released despite failure
     assert mgr.device is None  # handle cleared so a new calibration can start
+
+
+def test_homing_step_passes_the_vendor_sign_and_lands_on_the_half_turn(monkeypatch) -> None:
+    """`_get_half_turn_homings` requires per-motor signs in LeRobot 0.7.
+
+    Calling it with positions only raises TypeError; substituting a hard-coded
+    sign would send every joint the wrong way. This drives the real
+    CalibrationManager against the real Feetech definition so the mapping from
+    "raw position" to "written Homing_Offset" is checked end to end.
+    """
+    from lerobot.motors import Motor, MotorNormMode
+    from lerobot.motors.feetech import FeetechMotorsBus
+
+    from lelab.calibrate import CalibrationManager
+
+    real_bus = FeetechMotorsBus(
+        port="/dev/null",
+        motors={
+            "shoulder_pan": Motor(1, "sts3215", MotorNormMode.DEGREES),
+            "gripper": Motor(10, "sts3215", MotorNormMode.RANGE_0_100),
+        },
+    )
+    raw_positions = {"shoulder_pan": 3000, "gripper": 2047}
+    written: dict[str, int] = {}
+
+    class Bus:
+        motors = tuple(raw_positions)
+
+        def __getattr__(self, name):
+            # Everything except the homing maths is delegated to the real bus, so
+            # the definition/sign lookup is the vendor one.
+            return getattr(real_bus, name)
+
+        def disable_torque(self, *args, **kwargs):
+            return None
+
+        def write(self, register, motor, value, *args, **kwargs):
+            if register == "Homing_Offset":
+                written[motor] = int(value)
+            return None
+
+        def reset_calibration(self, *args, **kwargs):
+            return None
+
+        def sync_read(self, register, *args, **kwargs):
+            assert register == "Present_Position"
+            return dict(raw_positions)
+
+    mgr = CalibrationManager()
+    mgr.device = type("Device", (), {"bus": Bus()})()
+    # _step_homing writes the operating mode first; keep that off the fake.
+    monkeypatch.setattr(
+        "lelab.calibrate.OperatingMode",
+        type("OM", (), {"POSITION": type("P", (), {"value": 0})()}),
+    )
+
+    mgr._step_homing()
+
+    half_turn = (4096 - 1) // 2
+    assert set(written) == set(raw_positions), written
+    # A joint already sitting at the half turn needs no correction.
+    assert written["gripper"] == 0
+    # Anywhere else, the correction must be non-zero and use the vendor sign:
+    # Feetech reports homing_offset_sign = -1, so offset = -(half - raw).
+    assert written["shoulder_pan"] == -(half_turn - 3000)
+    assert written["shoulder_pan"] == mgr._homing_offsets["shoulder_pan"]

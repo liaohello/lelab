@@ -219,6 +219,10 @@ export interface TrainingRequest {
   policy_use_relative_actions?: boolean;
   policy_relative_exclude_joints?: string[];
   policy_use_bf16?: boolean;
+  // FastWAM only: the backend requires both so the policy's 7/8 defaults are
+  // never applied to a 6- or 12-channel dataset.
+  policy_action_dim?: number;
+  policy_proprio_dim?: number;
   // Optional target for runner dispatch; omitted ⇒ local.
   target?: {
     runner: "local" | "hf_cloud" | "ssh_remote";

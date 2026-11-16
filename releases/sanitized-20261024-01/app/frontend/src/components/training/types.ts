@@ -84,6 +84,11 @@ export interface TrainingConfig {
   policy_use_relative_actions?: boolean;
   policy_relative_exclude_joints?: string[];
   policy_use_bf16?: boolean;
+  // FastWAM-specific (only used when policy_type === "fastwam"). Its config
+  // defaults to 7 actions / 8 state dims, which silently describes a different
+  // robot body, so the backend refuses to build the command without both.
+  policy_action_dim?: number;
+  policy_proprio_dim?: number;
 }
 
 export type TrainingRunState =

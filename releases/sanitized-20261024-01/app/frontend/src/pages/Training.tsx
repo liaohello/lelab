@@ -144,6 +144,12 @@ function configToRequest(c: TrainingConfig): TrainingRequest {
           policy_use_bf16: c.policy_use_bf16,
         }
       : {}),
+    ...(c.policy_type === "fastwam"
+      ? {
+          policy_action_dim: c.policy_action_dim,
+          policy_proprio_dim: c.policy_proprio_dim,
+        }
+      : {}),
   };
 }
 

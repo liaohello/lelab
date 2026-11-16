@@ -74,12 +74,17 @@ def test_pretrained_policy_uses_path_without_conflicting_type() -> None:
     assert "--policy.type" not in cmd
 
 
-def test_wandb_block_only_serialized_when_enabled() -> None:
-    from lelab.train import TrainingRequest, build_training_command
+def test_tracking_block_uses_trackio_and_never_emits_wandb() -> None:
+    """LeRobot 0.7 removed `--wandb.*`; draccus rejects even a disabled flag."""
+    from lelab.train import (
+        TrainingRequest,
+        build_training_command,
+        unmapped_tracking_fields,
+    )
 
     off = build_training_command(TrainingRequest(dataset_repo_id="x", wandb_enable=False), "/tmp/out")
-    assert _arg_value(off, "--wandb.enable") == "false"
-    assert "--wandb.project" not in off
+    assert not [a for a in off if a.startswith("--wandb")]
+    assert not [a for a in off if a.startswith("--trackio")]
 
     on = build_training_command(
         TrainingRequest(
@@ -87,14 +92,26 @@ def test_wandb_block_only_serialized_when_enabled() -> None:
             wandb_enable=True,
             wandb_project="proj",
             wandb_entity="me",
+            wandb_notes="note",
             wandb_run_id="abc",
+            wandb_mode="offline",
         ),
         "/tmp/out",
     )
-    assert _arg_value(on, "--wandb.enable") == "true"
-    assert _arg_value(on, "--wandb.project") == "proj"
-    assert _arg_value(on, "--wandb.entity") == "me"
-    assert _arg_value(on, "--wandb.run_id") == "abc"
+    assert _arg_value(on, "--trackio.enable") == "true"
+    assert _arg_value(on, "--trackio.project") == "proj"
+    assert not [a for a in on if a.startswith("--wandb")]
+    # Fields with no Trackio equivalent are accepted but reported, not forwarded.
+    assert unmapped_tracking_fields(
+        TrainingRequest(
+            dataset_repo_id="x",
+            wandb_enable=True,
+            wandb_entity="me",
+            wandb_notes="note",
+            wandb_run_id="abc",
+            wandb_mode="offline",
+        )
+    ) == ["wandb_entity", "wandb_notes", "wandb_run_id", "wandb_mode"]
 
 
 def test_push_to_hub_emits_repo_id_only_when_enabled() -> None:

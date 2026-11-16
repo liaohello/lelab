@@ -145,6 +145,43 @@ const EssentialsCard: React.FC<EssentialsCardProps> = ({
             />
           </div>
 
+          {/* FastWAM only. Its config defaults to 7 action / 8 state dims, which
+              describes a different robot body; the backend refuses to build the
+              command without both, so they must be visible here. */}
+          {config.policy_type === "fastwam" && (
+            <>
+              <div>
+                <Label htmlFor="policy_action_dim" className="text-slate-300">
+                  Action Dim <span className="text-rose-400">*</span>
+                </Label>
+                <NumberInput
+                  id="policy_action_dim"
+                  value={config.policy_action_dim}
+                  onChange={(v) => updateConfig('policy_action_dim', v)}
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+                <p className="mt-1 text-xs text-slate-400">
+                  6 for a single SO-101 arm, 12 for the bimanual pair.
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="policy_proprio_dim" className="text-slate-300">
+                  Proprio Dim <span className="text-rose-400">*</span>
+                </Label>
+                <NumberInput
+                  id="policy_proprio_dim"
+                  value={config.policy_proprio_dim}
+                  onChange={(v) => updateConfig('policy_proprio_dim', v)}
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+                <p className="mt-1 text-xs text-slate-400">
+                  Must match the observation.state width of the dataset.
+                </p>
+              </div>
+            </>
+          )}
+
           <div>
             <Label htmlFor="batch_size" className="text-slate-300">
               Batch Size

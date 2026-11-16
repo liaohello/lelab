@@ -223,6 +223,25 @@ class TrainingRequest(BaseModel):
         return list(self.dataset_repo_ids or [self.dataset_repo_id])
 
 
+_UNMAPPED_TRACKING_FIELDS: tuple[str, ...] = (
+    "wandb_entity",
+    "wandb_notes",
+    "wandb_run_id",
+    "wandb_mode",
+)
+
+
+def unmapped_tracking_fields(request: TrainingRequest) -> list[str]:
+    """Request fields that have no faithful LeRobot 0.7 Trackio counterpart.
+
+    中文：这些字段在 0.7 里没有语义等价物（Space 仓库不是 entity，显示名不是
+    run id，Trackio 也没有 online/offline 开关）。为了老客户端不报错仍然接收，
+    但不转成 CLI 参数——转发会让 draccus 直接失败或悄悄改变语义。调用方应把
+    这个列表回传给前端展示。
+    """
+    return [name for name in _UNMAPPED_TRACKING_FIELDS if getattr(request, name, None)]
+
+
 def build_training_command(
     request: TrainingRequest,
     output_dir: str,
@@ -359,20 +378,22 @@ def build_training_command(
     if request.job_name:
         cmd.extend(["--job_name", request.job_name])
 
-    # W&B
-    cmd.extend(["--wandb.enable", "true" if request.wandb_enable else "false"])
+    # Tracking. LeRobot 0.7.0 dropped the `wandb` config section in favour of
+    # `trackio` (local SQLite run store, optional HF Space sync). draccus rejects
+    # unknown flags, so `--wandb.*` must never be emitted — not even a disabled
+    # one — and only the trackio options with a real counterpart are forwarded.
+    # `entity`, `notes`, `run_id` and `mode` are W&B-only concepts: Trackio's
+    # `space_id` is a Space repo, `run_name` is a display name and there is no
+    # online/offline switch, so mapping them would silently change meaning.
+    # They stay accepted by the API for backward compatibility and are reported
+    # by `unmapped_tracking_fields()` instead.
     if request.wandb_enable:
+        cmd.extend(["--trackio.enable", "true"])
         if request.wandb_project:
-            cmd.extend(["--wandb.project", request.wandb_project])
-        if request.wandb_entity:
-            cmd.extend(["--wandb.entity", request.wandb_entity])
-        if request.wandb_notes:
-            cmd.extend(["--wandb.notes", request.wandb_notes])
-        if request.wandb_run_id:
-            cmd.extend(["--wandb.run_id", request.wandb_run_id])
-        if request.wandb_mode:
-            cmd.extend(["--wandb.mode", request.wandb_mode])
-        cmd.extend(["--wandb.disable_artifact", "true" if request.wandb_disable_artifact else "false"])
+            cmd.extend(["--trackio.project", request.wandb_project])
+        cmd.extend(
+            ["--trackio.disable_artifact", "true" if request.wandb_disable_artifact else "false"]
+        )
 
     # Env
     if request.env_type:
