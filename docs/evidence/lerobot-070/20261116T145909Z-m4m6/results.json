@@ -1,0 +1,131 @@
+{
+  "run_id": "20261116T145909Z-m4m6",
+  "branch": "codex/lerobot-070-integration",
+  "worktree": "/home/liaozhengyan/Desktop/lelab-lerobot070",
+  "head_before_final_commits": "d7eef1d",
+  "python": "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python (CPython 3.12.3)",
+  "import_paths": {
+    "lerobot": "<worktree>/releases/sanitized-20261024-01/lerobot/src/lerobot/__init__.py",
+    "lelab_app": "<worktree>/releases/sanitized-20261024-01/app/lelab/__init__.py",
+    "lelab_ros": "<worktree>/app_ros_mobile/lelab/__init__.py",
+    "lerobot_version": "0.7.0",
+    "pythonpath_overridden": false,
+    "editable": true
+  },
+  "environment": {
+    "nproc_soft_hard": [4096, 4096],
+    "rlimit_as_bytes": 4294967296,
+    "blas_pinned": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1",
+    "gpu_local": "none (no nvidia-smi, no /dev/nvidia*)",
+    "gpu_g128": "Tesla V100S 32GB, 23118 MiB used by other jobs at check time",
+    "torch_local": "2.11.0+cpu",
+    "zenoh": "eclipse-zenoh 1.10.2 installed in the isolated project venv",
+    "node_local": "v22.22.2; Wasm allocation blocked by 4 GiB RLIMIT_AS",
+    "node_build_host": "g128 node v24.22.0, no virtual-memory cap"
+  },
+  "suite_runs": [
+    {
+      "scope": "app",
+      "cwd": "<worktree>/releases/sanitized-20261024-01/app",
+      "command": ".venv/bin/python -m pytest tests -q -ra",
+      "counts": {"passed": 589, "failed": 0, "skipped": 1},
+      "note": "after the two contracts below were updated; final rerun recorded in app-suite.txt"
+    },
+    {
+      "scope": "app inference contracts",
+      "command": "pytest tests/test_remote_inference.py tests/test_observation_sender.py tests/test_inference_070_jetson.py -q -ra",
+      "counts": {"passed": 18, "failed": 0, "skipped": 0}
+    },
+    {
+      "scope": "app monitor/calibration",
+      "command": "pytest tests/test_calibrate.py tests/test_pause_resume_state.py tests/test_training_metrics_store.py tests/test_train_monitor_options.py -q",
+      "counts": {"passed": 46, "failed": 0, "skipped": 0}
+    },
+    {
+      "scope": "lerobot local customizations",
+      "command": "pytest tests/robots/test_so100_follower.py tests/datasets/test_sampler.py tests/configs/test_training_monitor_overrides.py -q",
+      "counts": {"passed": 54, "failed": 0, "skipped": 0}
+    },
+    {
+      "scope": "lerobot 0.7 policy + parity",
+      "command": "pytest tests/policies/fineart_vla/test_fineart_vla.py tests/policies/fastwam/test_fastwam_policy.py tests/policies/fastwam/test_fastwam_checkpoint_dtype.py tests/inference/test_prediction_parity.py -q -ra",
+      "counts": {"passed": 48, "failed": 1, "skipped": 3},
+      "failure": "test_vae_adapter_empty_build_encode_decode_shapes: CPU allocator cannot allocate under 4 GiB RLIMIT_AS; reproducible alone; not a code assertion failure"
+    },
+    {
+      "scope": "lerobot remote inference",
+      "command": "pytest tests/remote_inference -q -ra",
+      "counts": {"passed": 161, "failed": 0, "skipped": 2},
+      "skips": "router/security cases require LEROBOT_ZENOHD; direct loopback cases ran"
+    },
+    {
+      "scope": "lerobot explicit loopback",
+      "command": "pytest tests/remote_inference/test_remote_path.py::test_direct_remote_actions_match_local_pipeline_after_queue_drains tests/remote_inference/test_transport_lifecycle.py::test_transport_loss_cleans_up_and_readmits_without_restarting_server tests/remote_inference/test_transport_cancellation.py::test_cancelled_control_wait_returns_while_server_operation_still_runs -v",
+      "counts": {"passed": 3, "failed": 0, "skipped": 0}
+    },
+    {
+      "scope": "app_ros_mobile",
+      "command": "pytest tests -q -ra",
+      "counts": {"passed": 812, "failed": 10, "skipped": 0},
+      "classification": "1 remote-inference contract failure fixed and re-verified (9 passed targeted); 4 libsvtav1 OOM, 1 thread creation failure, 1 missing historical evidence fixture, 1 estop 409, 1 homing assertion remain environmental/pre-existing and are listed as failures, not passes"
+    },
+    {
+      "scope": "frontend",
+      "command": "node node_modules/typescript/bin/tsc -p tsconfig.app.json --noEmit; node (on g128) node_modules/vite/bin/vite.js build",
+      "counts": {"passed": 2, "failed": 0, "skipped": 0},
+      "artifacts": ["frontend/dist/index.html", "frontend/dist/assets/index-BRxloIhH.js", "frontend/dist/assets/index-OI39ixo9.css"]
+    }
+  ],
+  "cases": [
+    {"case_id": "TC-ENV-01", "status": "passed", "artifacts": ["../20261116T014700Z-m0/inventory.json", "../20261116T014700Z-m0/origin-state.md"]},
+    {"case_id": "TC-ENV-02", "status": "passed", "command": "env -u PYTHONPATH .venv/bin/python -c 'import lerobot; print(...)'", "detail": "0.7.0 imported from worktree, no PYTHONPATH override"},
+    {"case_id": "TC-ENV-03", "status": "partial", "detail": "extra map covers fastwam/fineart_vla and remote; no simulated missing-extra host fixture"},
+    {"case_id": "TC-POL-01", "status": "passed", "tests": ["test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config", "tests/policies/fineart_vla/test_fineart_vla.py", "tests/policies/fastwam/test_fastwam_policy.py"]},
+    {"case_id": "TC-POL-02", "status": "partial", "detail": "CPU float32/bfloat16 checkpoint tests passed; CUDA dtype cases skipped; no legacy torch_dtype checkpoint fixture"},
+    {"case_id": "TC-POL-03", "status": "passed", "tests": ["tests/policies/fineart_vla/test_fineart_vla.py::test_processor_save_load_roundtrip_embeds_action_tokenizer"], "detail": "fake tokenizer; no real Wan/PI05 tokenizer fidelity claim"},
+    {"case_id": "TC-POL-04", "status": "passed", "tests": ["test_train_cli_contract_070.py (dimension gates)", "tests/test_remote_inference.py::test_server_config_is_accepted_by_the_real_070_server_config"]},
+    {"case_id": "TC-POL-05", "status": "passed", "tests": ["tests/policies/fastwam/test_fastwam_policy.py::test_relative_actions_opt_in_on_a_saved_checkpoint"]},
+    {"case_id": "TC-POL-06", "status": "partial", "detail": "FineART recipe/language-supervision tests passed; LeLab side only preflights task/field split, no planner claim"},
+    {"case_id": "TC-CLI-01", "status": "passed", "tests": ["tests/test_train_cli_contract_070.py", "tests/test_train.py"]},
+    {"case_id": "TC-CLI-02", "status": "partial", "detail": "pretrained/type and groot-only gates retained; new-policy × GR00T matrix incomplete"},
+    {"case_id": "TC-CLI-03", "status": "partial", "detail": "optimizer/scheduler/resume parser tests passed; real interrupted training resume not run"},
+    {"case_id": "TC-CLI-04", "status": "partial", "detail": "task passthrough and remote schema tested; missing-extra remote probe not simulated"},
+    {"case_id": "TC-SAF-01", "status": "passed", "tests": ["tests/robots/test_so100_follower.py::test_all_three_guards_compose_in_the_documented_order"]},
+    {"case_id": "TC-SAF-02", "status": "passed", "tests": ["tests/robots/test_so100_follower.py::test_startup_workspace_origin_survives_a_step_towards_the_envelope"]},
+    {"case_id": "TC-SAF-03", "status": "passed", "tests": ["app/tests/test_calibrate.py::test_homing_step_passes_the_vendor_sign_and_lands_on_the_half_turn"], "detail": "real Feetech motor definition sign, fake bus"},
+    {"case_id": "TC-SAF-04", "status": "passed", "tests": ["app/tests/test_hardware_lease.py", "app/tests/test_hardware_lease_api.py"]},
+    {"case_id": "TC-SAF-05", "status": "passed", "tests": ["app/tests/test_safety.py", "app/tests/test_bimanual_recording.py::test_stop_recording_does_not_release_lease_early"]},
+    {"case_id": "TC-DAT-01", "status": "passed", "tests": ["lerobot/tests/datasets/test_sampler.py"]},
+    {"case_id": "TC-DAT-02", "status": "passed", "detail": "N1 config -> weights.json -> loader -> sampler path covered; 54-test local library suite"},
+    {"case_id": "TC-DAT-03", "status": "passed", "detail": "sealing/composite/remote-sync app tests in full app suite"},
+    {"case_id": "TC-DAT-04", "status": "partial", "detail": "bimanual fake recording with real writer passed; ROS fixture suite has 9 environmental/pre-existing failures and is not a full pass"},
+    {"case_id": "TC-CKP-01", "status": "passed", "tests": ["app/tests/test_training_metrics_store.py"]},
+    {"case_id": "TC-CKP-02", "status": "not_run", "detail": "real optimizer/RNG/sampler continuation was not executed; FakeRunner alone is insufficient"},
+    {"case_id": "TC-CKP-03", "status": "passed", "tests": ["app/tests/test_pause_resume_state.py::test_resume_rejects_missing_or_corrupted_checkpoint"]},
+    {"case_id": "TC-CKP-04", "status": "partial", "detail": "full checkpoint path covered; EMA/PEFT/DCP matrix not exercised"},
+    {"case_id": "TC-INF-01", "status": "passed", "tests": ["tests/inference/test_prediction_parity.py", "app/tests/test_remote_inference.py::test_stale_wrong_or_nonfinite_actions_are_not_dispatchable"]},
+    {"case_id": "TC-INF-02", "status": "passed", "tests": ["tests/remote_inference/test_remote_path.py::test_direct_remote_actions_match_local_pipeline_after_queue_drains", "app/tests/test_remote_inference.py", "app/tests/test_inference_070_jetson.py"], "detail": "real Zenoh loopback with fake policy; no hardware"},
+    {"case_id": "TC-INF-03", "status": "passed", "detail": "0.7 generation/TTL/cancel tests passed; app-side stale action gate tested"},
+    {"case_id": "TC-INF-04", "status": "partial", "detail": "fake transport cancellation/lifecycle passed; LeLab end-to-end foreign-port and handshake injection not run"},
+    {"case_id": "TC-MOD-01", "status": "partial", "detail": "offline FastWAM config/dtype/forward tests passed; VAE shape test blocked by 4 GiB address-space limit"},
+    {"case_id": "TC-MOD-02", "status": "passed", "tests": ["tests/policies/fineart_vla/test_fineart_vla.py"]},
+    {"case_id": "TC-MOD-03", "status": "passed", "detail": "ACT/SmolVLA app suites passed with no new regression"},
+    {"case_id": "TC-UI-01", "status": "not_run", "detail": "no browser interaction run in this session; no test script existed and none was fabricated"},
+    {"case_id": "TC-UI-02", "status": "partial", "detail": "tsc exit 0 and production build exit 0 on g128; dist contains remoteDeployment; changed-file ESLint/Ruff not available in this environment"},
+    {"case_id": "TC-REL-01", "status": "passed", "artifacts": ["candidate package with MANIFEST.json, SHA256SUMS, REHEARSAL.json"], "detail": "1678 files, unpack/verify/tamper-reject/restore passed; original current untouched"},
+    {"case_id": "TC-REAL-01", "status": "blocked", "detail": "no local GPU; g128 V100S mostly occupied; no FastWAM/FineART weights found"},
+    {"case_id": "TC-REAL-02", "status": "blocked", "detail": "no language-labelled data or real FineART checkpoint"},
+    {"case_id": "TC-HW-01", "status": "blocked", "detail": "no device observation authorisation in this session"},
+    {"case_id": "TC-HW-02", "status": "blocked", "detail": "no motion authorisation in this session"}
+  ],
+  "candidate": {
+    "path": "lelab-lerobot070-20261116T153120Z",
+    "file_count": 1678,
+    "rehearsal": {"unpack": "passed", "verify": "passed", "tamper_rejected": true, "restore_verified": true}
+  },
+  "known_failures": [
+    "FastWAM VAE shape test fails under 4 GiB RLIMIT_AS (CPU allocator)",
+    "app_ros_mobile: 9 failures remain (4 avcodec OOM, 1 thread limit, 1 missing historical evidence file, 1 estop 409, 1 homing assertion)",
+    "test_jetson_policy.py module is skipped: grpc and retired async_inference helpers absent; replacement guard tests passed in test_inference_070_jetson.py"
+  ]
+}

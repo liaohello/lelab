@@ -1,0 +1,33 @@
+/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:306: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session". Set it to "fixture-scope" to keep the current behavior.
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/liaozhengyan/Desktop/lelab-lerobot070/releases/sanitized-20261024-01/app
+configfile: pyproject.toml
+plugins: anyio-4.16.0, asyncio-1.5.0, platformdirs-4.14.5
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 18 items
+
+tests/test_remote_inference.py::test_client_command_targets_the_tunnel PASSED [  5%]
+tests/test_remote_inference.py::test_inference_flags_parse_with_the_real_070_config PASSED [ 11%]
+tests/test_remote_inference.py::test_client_command_omits_empty_task PASSED [ 16%]
+tests/test_remote_inference.py::test_remote_request_requires_explicit_identity_and_dimensions PASSED [ 22%]
+tests/test_remote_inference.py::test_server_config_is_accepted_by_the_real_070_server_config PASSED [ 27%]
+tests/test_remote_inference.py::test_start_server_script_uses_only_the_070_entry_point PASSED [ 33%]
+tests/test_remote_inference.py::test_stale_wrong_or_nonfinite_actions_are_not_dispatchable PASSED [ 38%]
+tests/test_remote_inference.py::test_remote_env_carries_mirror_proxy_and_token PASSED [ 44%]
+tests/test_remote_inference.py::test_stage_policy_parses_the_remote_path PASSED [ 50%]
+tests/test_remote_inference.py::test_stage_policy_reports_failure PASSED [ 55%]
+tests/test_observation_sender.py::test_submit_never_blocks_the_caller PASSED [ 61%]
+tests/test_observation_sender.py::test_must_go_survives_being_replaced PASSED [ 66%]
+tests/test_observation_sender.py::test_send_failure_does_not_kill_the_thread PASSED [ 72%]
+tests/test_observation_sender.py::test_stop_ends_the_thread PASSED       [ 77%]
+tests/test_inference_070_jetson.py::test_jetson_server_requires_explicit_deployment_and_semantics PASSED [ 83%]
+tests/test_inference_070_jetson.py::test_jetson_server_script_uses_the_070_entry_point PASSED [ 88%]
+tests/test_inference_070_jetson.py::test_shadow_and_execute_clients_fail_before_any_device_access PASSED [ 94%]
+tests/test_inference_070_jetson.py::test_observe_mode_remains_available_without_transport PASSED [100%]
+
+============================= 18 passed in 17.44s ==============================

@@ -1,0 +1,1 @@
+/bin/bash: line 1: /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/ruff: No such file or directory

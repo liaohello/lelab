@@ -1,0 +1,10 @@
+{
+  "path": "/home/liaozhengyan/Desktop/lelab-lerobot070/docs/evidence/lerobot-070/20261116T145909Z-m4m6/lelab-lerobot070-20261116T153120Z",
+  "file_count": 1678,
+  "rehearsal": {
+    "unpack": "passed",
+    "verify": "passed",
+    "tamper_rejected": true,
+    "restore_verified": true
+  }
+}

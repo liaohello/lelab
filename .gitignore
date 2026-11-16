@@ -285,3 +285,6 @@ docs/evidence/**/*.mp4
 # colcon/ROS 2 build output from local `ros2_ws` builds; regenerable, large.
 /install/
 /log/
+
+# Regenerable review candidate packages (tarballs and unpacked payloads).
+/docs/evidence/lerobot-070/*/lelab-lerobot070-*/

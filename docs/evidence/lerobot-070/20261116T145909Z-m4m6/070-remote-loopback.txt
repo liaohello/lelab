@@ -1,0 +1,20 @@
+/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:306: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session". Set it to "fixture-scope" to keep the current behavior.
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/liaozhengyan/Desktop/lelab-lerobot070/releases/sanitized-20261024-01/lerobot
+configfile: pyproject.toml
+plugins: anyio-4.16.0, asyncio-1.5.0, platformdirs-4.14.5
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 3 items
+
+Testing with DEVICE='cpu'
+
+tests/remote_inference/test_remote_path.py::test_direct_remote_actions_match_local_pipeline_after_queue_drains PASSED [ 33%]
+tests/remote_inference/test_transport_lifecycle.py::test_transport_loss_cleans_up_and_readmits_without_restarting_server PASSED [ 66%]
+tests/remote_inference/test_transport_cancellation.py::test_cancelled_control_wait_returns_while_server_operation_still_runs PASSED [100%]
+
+============================== 3 passed in 1.01s ===============================

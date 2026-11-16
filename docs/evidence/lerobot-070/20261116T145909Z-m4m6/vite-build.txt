@@ -1,0 +1,8 @@
+node:internal/deps/undici/undici:5971
+      return await WebAssembly.instantiate(mod, {
+                               ^
+
+RangeError: WebAssembly.instantiate(): Out of memory: Cannot allocate Wasm memory for new instance
+    at lazyllhttp (node:internal/deps/undici/undici:5971:32)
+
+Node.js v22.22.2
