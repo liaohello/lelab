@@ -1,0 +1,39 @@
+PASS  landing renders
+PASS  landing exposes a Training entry
+PASS  training form opens from the UI
+PASS  policy defaults to ACT  — ACT (Action Chunking Transformer)
+PASS  dimension inputs hidden before switching
+PASS  FastWAM dims start empty so 7/8 is never silently inherited  — {"action":"","proprio":""}
+PASS  Start is disabled with no dataset selected
+PASS  dataset selection unblocks Start
+PASS  browser POSTed exactly one training job  — posts=1
+PASS  wire carries fastwam + 6/6 dims from the DOM  — {"p":"fastwam","a":6,"s":6}
+PASS  wire carries the dataset chosen in the DOM  — so101/pick_cube_local
+PASS  job page opens with the fake job
+PASS  Run on robot enabled once a checkpoint exists
+PASS  inference dialog opens
+PASS  remote target reveals deployment identity fields
+PASS  remote dims default to the SO-101 6/6 pair  — {"state":"6","action":"6","timeout":"5"}
+PASS  Start Inference blocked until deployment/semantics are named
+PASS  Start Inference enabled with a complete remote contract
+PASS  browser POSTed exactly one inference request  — posts=1
+PASS  Chinese task survives JS → JSON → schema  — "把红色方块放进盒子里"
+PASS  remote identity/units travel verbatim  — {"d":"so101_red","s":"so101-degrees-gripper-percent-v1"}
+PASS  remote dims + timeout come from the DOM  — {"s":6,"a":6,"t":6.5}
+PASS  policy type is carried for the remote server  — fastwam
+PASS  follower port/config come from the selected robot  — {"p":"/dev/lelab-fake-follower","c":"so101_follower"}
+PASS  hard navigation to /training serves the SPA shell
+PASS  cleared dimension reaches the backend and is refused  — posts=1
+PASS  backend refusal names the missing FastWAM dimension  — start_refused: fastwam requires explicit dimensions so the 7-action/8-state defaults are not applied to a 6- or 12-channel dataset; missing: ['policy_action_dim', 'policy_proprio_dim']
+PASS  refusal is shown to the operator, not swallowed
+PASS  failed submit stays on the form  — http://127.0.0.1:8138/training
+PASS  LoRA toggle reveals rank/alpha with the documented defaults
+PASS  form warns that LoRA needs a pretrained policy
+PASS  adapter training without a checkpoint is refused by the backend  — posts=1
+PASS  refusal explains the missing pretrained policy  — start_refused: LoRA fine-tuning needs a pretrained policy checkpoint (policy_pretrained_path); training adapters from scratch is refused
+PASS  LoRA job reaches the backend once a checkpoint is named  — posts=1
+PASS  wire carries use_peft + rank/alpha and the pretrained path  — {"u":true,"r":16,"a":32,"p":"lerobot/fastwam_base"}
+PASS  no uncaught JS exception during the flow
+PASS  console errors are limited to the deliberate refusal
+
+37 passed, 0 failed

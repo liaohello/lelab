@@ -72,7 +72,43 @@ Hub LFS 摘要确认残留 blob 就是权重本体
 12,041,526,464 B），把它软链回本地 checkpoint 目录，并补 `config.json`、
 `policy_pre/postprocessor.json` 后重跑；冻结组件在联网（镜像）状态下重新解析。
 
-## 4. 明确不成立的推断
+## 4. LoRA：把可训练量再降两个数量级
+
+`fastwam-stage5-lora.json`，同一 checkpoint、同一 batch（B=1、horizon 32、2 相机、state 8），
+`freeze_video_expert=true` + `--lora --lora-r 16`（alpha 32）：
+
+| 配置 | 可训练参数 | 训练态下界 | 实测峰值 | 1 次更新 |
+| --- | --- | --- | --- | --- |
+| 未冻结（checkpoint 原样） | 6020.7M | 72.3 GB | 未试跑（必败） | — |
+| 冻结视频专家 | 1020.9M | 12.25 GB | **21.67 GB** | 完成 |
+| 冻结 + LoRA r=16 | **7.92M**（246 个张量） | **0.13 GB** | **16.12 GB** | 完成 |
+
+LoRA 的峰值几乎被 13.5 GB 的常驻权重决定（前向激活只多 2.6 GB），所以瓶颈从"训练态"
+变成了"**加载**"：34 GB 卡上还有 ~18 GB 余量，40 GB 不再是必要条件。
+
+接入方式（本轮新增，`fa23bc7` 之后的提交）：
+
+- `FastWAMPolicy._get_default_peft_targets()`：目标为正则
+  `model\.mot\.layers\.\d+\.blocks\.action\.(self_attn|cross_attn)\.(q|v)`；
+  `modules_to_save` 是 checkpoint 里不存在的三层（action encoder / head / proprio encoder）。
+- **踩过的坑**：safetensors 里的键是 `model.mot.mixtures.action.blocks.N...`，但 `MoT` 把
+  每个 block 重新挂到 `mot.layers[i].blocks[<expert>]`，所以真实模块路径是
+  `model.mot.layers.N.blocks.action...`。按文件里的名字配 LoRA 会得到
+  `NoMatchingPeftModuleError: No modules were targeted for adaptation`。
+  该回归已固化为测试：`tests/policies/fastwam/test_fastwam_peft_targets.py`（5 passed），
+  其中一条专门断言"文件拼写不是目标"。
+- `get_optim_params()` 改为返回策略内**全部**可训练张量：PEFT 的 `modules_to_save`
+  在 DiT 之外，旧实现只遍历 `model.dit` 会把它们漏出优化器（测试
+  `test_optim_params_include_trainables_outside_the_dit` 覆盖）。
+- 端到端：`--policy.use_peft=true --peft.r/--peft.lora_alpha` 已可从应用
+  `TrainingRequest` 透传（`use_peft/peft_r/peft_alpha/peft_dropout`），表单有开关与 rank/alpha，
+  未填预训练路径时后端拒绝并给出可执行提示（DOM 断言 11–13）。
+
+注意：本轮 LoRA 的 `modules_to_save` 可训练量统计因参数名带 `base_model.model.` 前缀而未能
+按名字拆分（报告里 `trainable_modules_to_save_M=0.0` 是统计口径问题，不是没训练）；
+可训练总量 7.92M 来自优化器实际参数列表，是权威值。
+
+## 5. 明确不成立的推断
 
 - **"32 GB OOM，所以 40 GB 够"** —— 不成立。未冻结配置需要 72.3 GB 训练态；冻结配置的缺口
   在激活，实测峰值尚未取得，40 GB 只是比 34 GB 多 6 GB，不能保证覆盖激活。

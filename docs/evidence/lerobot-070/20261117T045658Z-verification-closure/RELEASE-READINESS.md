@@ -14,7 +14,8 @@ Run：`20261117T045658Z-verification-closure`。分支 `codex/lerobot-070-integr
 | FastWAM 有限动作 | **passed（仅管线）** | `3_chunk`：`[1,32,7]`、finite、abs_max 3.59。**注意**：该 checkpoint 不含动作头，动作来自新建的随机层，见 `STAGE5-MEMORY.md` §3.1 |
 | FastWAM 保存/重载 | **passed** | `4_save_reload`：同输入/同显式噪声/两侧 reset，`max_abs_diff=0.0`、`bitwise_identical=true`，容差 0.0919；旧的 1.6016 是 select_action 队列位置错误，已修复 |
 | FastWAM 短反传/更新 | **passed（冻结配置）/ blocked（原样配置）** | 冻结：1 次更新完成，峰值 **21.67 GB** / 34.08 GB；原样（6020.7M 全可训练）训练态下界 **72.3 GB**，34/40 GB 都不够，未做必败试跑 |
-| FineART 资产与加载 | **blocked** | 权重 8.71 GiB 下载完成且 SHA-256 与 Hub 一致；但 `google/paligemma-3b-pt-224` 门禁 403，processor 无法实例化；`fineart-verify.json` |
+| FastWAM LoRA 微调 | **passed（1 次更新）** | r=16/alpha=32：可训练 **7.92M**、训练态下界 0.13 GB、峰值 **16.12 GB**，梯度与优化器状态有限；表单/后端/DOM 已接通（37 条断言含 3 条 LoRA） |
+| FineART 资产与加载 | **blocked（待复验）** | 权重 8.71 GiB 下载完成且 SHA-256 与 Hub 一致；但 `google/paligemma-3b-pt-224` 门禁 403，processor 无法实例化；`fineart-verify.json` |
 | FineART 动作 | **not_run** | 依赖上一步 |
 | 语言规划 | **未开始** | 只有任务字段透传；无语言标注数据与权重验证 |
 | SO-101 6/12 维适配 | **未验证** | 表单/后端门禁到位（本轮 DOM 已验证拒绝路径）；无 6/12 维权重、无实机 |
@@ -54,9 +55,10 @@ Run：`20261117T045658Z-verification-closure`。分支 `codex/lerobot-070-integr
 
 | profile | ID | 文件数 | 演练 |
 | --- | --- | --- | --- |
-| app | `lelab-app-070-20261117T070209Z` | 1681 | 解包 / 校验 / 篡改拒绝 / 恢复 全 passed |
-| ros | `lelab-ros-070-20261117T070237Z` | 1762 | 同上；含 `app_ros_mobile` + `ros2_ws/src/lelab_mobile_agent` |
+| app | `lelab-app-070-20261117T160714Z` | 1682 | 解包 / 校验 / 篡改拒绝 / 恢复 全 passed（含 LoRA 改动） |
+| ros | `lelab-ros-070-20261117T160744Z` | 1763 | 同上；含 `app_ros_mobile` + `ros2_ws/src/lelab_mobile_agent` |
 
+早前一对（`…T070209Z`/`…T070237Z`，1681/1762）被这组取代，目录保留以便对比。
 `MANIFEST.json` 含 branch/commit/profile/requires/excludes/sha256；
 `SHA256SUMS` 可逐文件复核。tarball 与 payload 是再生工件，按 `.gitignore` 不入库
 （与既有的训练监控快照处理一致）。
@@ -71,3 +73,7 @@ Run：`20261117T045658Z-verification-closure`。分支 `codex/lerobot-070-integr
 3. **FastWAM 动作头**：base checkpoint 缺 `action_encoder/head/proprio_encoder`，
    要做真实动作质量评估必须先有一次 SO-101 微调（数据 + 6/12 维配置）。
 4. **实机**：仍需设备与运动授权，本轮未申请扩大。
+5. **LoRA 只在 FastWAM 上验证**：其他策略的默认 targets 未审；`modules_to_save` 可训练量
+   的拆分统计受 `base_model.model.` 前缀影响（总量 7.92M 为权威值）。
+6. **镜像**：`hf-mirror.com` 可用但 gated 403；`modelscope.cn` 的 PaliGemma 副本与 HF
+   LFS 摘要逐位一致，仅用于无 token 环境继续验证，**不替代**许可证。见 `MIRRORS.md`。

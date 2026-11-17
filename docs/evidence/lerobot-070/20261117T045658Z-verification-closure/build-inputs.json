@@ -3,20 +3,51 @@
   "case": "UI-DOM-01 (build provenance half)",
   "subject": "releases/sanitized-20261024-01/app/frontend",
   "worktree": "/home/liaozhengyan/Desktop/lelab-lerobot070",
-  "commit": "7b1667d8d9166a2ba7e5de29472c499b7ba0f250",
   "frontend_subtree_dirty": false,
-  "inputs": {
-    "file_count": 169,
-    "scope": "src/**, public/**, index.html, package.json, package-lock.json, vite.config.ts, tsconfig*.json, tailwind.config.ts, postcss.config.js, components.json",
-    "manifest_file": "frontend-inputs.sha256",
-    "manifest_root_sha256": "ae1ad7cf2141286552560725c8e06edaec2393acd12fb409166187ee5c0b50c6",
-    "lockfile_sha256": "e54dd43ff92f444343112394bf3c00b306eba5e7bfb8061e154d7f31472e035d"
-  },
+  "builds": [
+    {
+      "id": "build-1 (pre-LoRA)",
+      "commit": "7b1667d8d9166a2ba7e5de29472c499b7ba0f250",
+      "inputs": {
+        "file_count": 169,
+        "manifest_root_sha256": "ae1ad7cf2141286552560725c8e06edaec2393acd12fb409166187ee5c0b50c6",
+        "lockfile_sha256": "e54dd43ff92f444343112394bf3c00b306eba5e7bfb8061e154d7f31472e035d"
+      },
+      "outputs": {
+        "file_count": 28,
+        "manifest_sha256": "77028d17da53cf1415aaedb81bea9cf7eefa42311803da0301d1e9c48607fb46",
+        "entry_js": "assets/index-BRxloIhH.js"
+      },
+      "superseded_by": "build-2",
+      "note": "Manifest of this build is no longer stored here; its hash is kept so the earlier closure record stays auditable."
+    },
+    {
+      "id": "build-2 (LoRA toggle)",
+      "commit": "working tree after the LoRA change (see the commit that adds use_peft)",
+      "inputs": {
+        "file_count": 169,
+        "manifest_file": "frontend-inputs.sha256",
+        "manifest_root_sha256": "4dcbc7c3c3a7853b1c866edacd2799543bc41fefb4bc0cf55ec7df371534092f",
+        "lockfile_sha256": "e54dd43ff92f444343112394bf3c00b306eba5e7bfb8061e154d7f31472e035d",
+        "changed_files": [
+          "src/components/training/types.ts",
+          "src/pages/Training.tsx",
+          "src/components/training/config/EssentialsCard.tsx"
+        ]
+      },
+      "outputs": {
+        "file_count": 28,
+        "entry_js": "assets/index-D1QziPbU.js",
+        "entry_css": "assets/index-p4FyEwDW.css"
+      }
+    }
+  ],
   "build": {
-    "command": "npm ci --registry=https://registry.npmmirror.com --no-audit --no-fund && npx vite build",
+    "command": "npm ci --registry=https://registry.npmmirror.com --no-audit --no-fund && npx tsc --noEmit -p tsconfig.app.json && npx vite build",
     "vite_version": "8.0.16",
     "node": "v24.22.0",
     "npm": "11.19.1",
+    "typescript_check": "clean (exit 0)",
     "host": "g128 (Ubuntu, /home/lfy/lelab-rmr/buildcheck/frontend)",
     "log": "build-rebuild.log",
     "install_log": "npm-ci.log",
@@ -26,24 +57,23 @@
     "command": "NODE_OPTIONS=--max-old-space-size=3072 node node_modules/vite/bin/vite.js build --outDir dist.rebuild",
     "exit_code": 1,
     "error": "RangeError: WebAssembly.instantiate(): Out of memory — the sandbox caps address space at 4 GiB (RLIMIT_AS), undici cannot allocate its Wasm heap",
-    "consequence": "The reproducible rebuild was executed on g128 instead. No input file changed between the two hosts."
+    "consequence": "Both builds were executed on g128 instead. No input file differs between the hosts."
   },
   "outputs": {
     "file_count": 28,
     "local_manifest": "dist-manifest.sha256",
-    "local_manifest_sha256": "77028d17da53cf1415aaedb81bea9cf7eefa42311803da0301d1e9c48607fb46",
+    "local_manifest_sha256": "3881c759804afbc1444149b243fa9591d90504870164688403c2fc84f6af28ec",
     "rebuild_manifest": "dist-manifest.rebuild-g128.sha256",
-    "rebuild_manifest_sha256": "77028d17da53cf1415aaedb81bea9cf7eefa42311803da0301d1e9c48607fb46",
+    "rebuild_manifest_sha256": "3881c759804afbc1444149b243fa9591d90504870164688403c2fc84f6af28ec",
     "identical": true,
-    "identical_scope": "all 28 files, byte-for-byte, across two hosts / two Node major versions / two independent installs"
+    "identical_scope": "build-2: all 28 files byte-for-byte identical between the delivered dist and the independent rebuild (two installs, two Node majors)"
   },
   "served_bytes": {
     "server": "http://127.0.0.1:8138 (harness serving releases/.../frontend/dist)",
     "checked": {
-      "index.html": "ea0f6c7f0b052f726188419f945ae89f3881e7badc89de04ad2e3f5a8a97184c",
-      "assets/index-BRxloIhH.js": "ced8802fb5820dc96ce6dba954a4735522cadffedb45c221ae43931158fcc461",
-      "assets/index-OI39ixo9.css": "f464ecad06508a62d553d00da512755c02d72c25b9d1eb51193d389b61870056",
-      "favicon.ico": "bd845f3018a6d5c08b9845654bd1c1f6fcf3c8ee016acdbe90625f431e66648c"
+      "index.html": "bd3d73a19e90b2c7870ef4c6c92cc455673f1b8f59e9ef0d43a1bf019a9d11c8",
+      "assets/index-D1QziPbU.js": "5e6022cdbf3c5012de5b0c3711c43a98d376439802749b33cbde87a016a10179",
+      "assets/index-p4FyEwDW.css": "a39924e7789623aec0771e586acd0ce67694480e8f0dbec1ca897bfe2b29e3bf"
     },
     "matches_manifest": true
   },

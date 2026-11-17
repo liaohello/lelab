@@ -1,0 +1,185 @@
+{
+  "kind": "fastwam-stage5-profile",
+  "case": "VFY-04 / K4",
+  "policy_path": "/home/lfy/lelab-rmr/fastwam-ckpt",
+  "host": "g128",
+  "torch": "2.9.1+cu126",
+  "cuda": "12.6",
+  "gpu": "Tesla V100S-PCIE-32GB",
+  "freeze_video_expert": true,
+  "gradient_checkpointing": true,
+  "text_encoder_device": "cpu",
+  "lora": {
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.0,
+    "target_modules": "model\\.mot\\.layers\\.\\d+\\.blocks\\.action\\.(self_attn|cross_attn)\\.(q|v)",
+    "modules_to_save": [
+      "model.mot.mixtures.action.action_encoder",
+      "model.mot.mixtures.action.head",
+      "model.proprio_encoder"
+    ],
+    "base_frozen_excluding_modules_to_save": false,
+    "trainable_modules_to_save_M": 0.0,
+    "trainable_adapter_M": 7.86
+  },
+  "phases": [
+    {
+      "phase": "start",
+      "t": 0.1,
+      "allocated_GB": 0.0,
+      "reserved_GB": 0.0,
+      "peak_allocated_GB": 0.0,
+      "free_GB": 30.05,
+      "total_GB": 34.08
+    },
+    {
+      "phase": "loaded",
+      "t": 139.3,
+      "allocated_GB": 13.475,
+      "reserved_GB": 25.845,
+      "peak_allocated_GB": 25.516,
+      "free_GB": 7.91,
+      "total_GB": 34.08
+    },
+    {
+      "phase": "peft_wrapped",
+      "t": 139.6,
+      "allocated_GB": 13.506,
+      "reserved_GB": 25.87,
+      "peak_allocated_GB": 25.516,
+      "free_GB": 7.82,
+      "total_GB": 34.08
+    },
+    {
+      "phase": "budgeted",
+      "t": 139.6,
+      "allocated_GB": 13.506,
+      "reserved_GB": 25.87,
+      "peak_allocated_GB": 25.516,
+      "free_GB": 7.82,
+      "total_GB": 34.08,
+      "static_lower_bound_GB": 0.13
+    },
+    {
+      "phase": "train_mode",
+      "t": 139.6,
+      "allocated_GB": 13.506,
+      "reserved_GB": 25.87,
+      "peak_allocated_GB": 13.506,
+      "free_GB": 7.82,
+      "total_GB": 34.08
+    },
+    {
+      "phase": "forward[0]",
+      "t": 149.7,
+      "allocated_GB": 16.078,
+      "reserved_GB": 27.12,
+      "peak_allocated_GB": 16.117,
+      "free_GB": 3.06,
+      "total_GB": 34.08,
+      "loss": 2.1800432205200195
+    },
+    {
+      "phase": "backward[0]",
+      "t": 150.3,
+      "allocated_GB": 13.556,
+      "reserved_GB": 27.12,
+      "peak_allocated_GB": 16.117,
+      "free_GB": 0.07,
+      "total_GB": 34.08
+    },
+    {
+      "phase": "clip[0]",
+      "t": 150.3,
+      "allocated_GB": 13.556,
+      "reserved_GB": 27.12,
+      "peak_allocated_GB": 16.117,
+      "free_GB": 0.07,
+      "total_GB": 34.08,
+      "grad_norm": 6.746734142303467
+    },
+    {
+      "phase": "optimizer_step[0]",
+      "t": 150.4,
+      "allocated_GB": 13.619,
+      "reserved_GB": 27.12,
+      "peak_allocated_GB": 16.117,
+      "free_GB": 0.07,
+      "total_GB": 34.08
+    },
+    {
+      "phase": "done",
+      "t": 150.4,
+      "allocated_GB": 13.619,
+      "reserved_GB": 27.12,
+      "peak_allocated_GB": 16.117,
+      "free_GB": 0.07,
+      "total_GB": 34.08
+    }
+  ],
+  "started_utc": "2026-11-17T16:01:28Z",
+  "params_before_wrap_M": 1020.9,
+  "budget": {
+    "params_all_M": 6028.6,
+    "params_trainable_M": 7.9,
+    "weights_all_GB": 12.07,
+    "trainable_weights_GB": 0.03,
+    "grad_GB": 0.03,
+    "adam_moments_GB_fp32": 0.06,
+    "static_lower_bound_GB": 0.13,
+    "param_dtypes": {
+      "torch.bfloat16": 2,
+      "torch.float32": 4
+    },
+    "components": {
+      "base_model": {
+        "numel_M": 6028.6,
+        "trainable_M": 7.9,
+        "dtypes": [
+          "bfloat16",
+          "float32"
+        ],
+        "devices": [
+          "cuda:0"
+        ]
+      }
+    },
+    "gpu_free_GB_after_load": 7.82,
+    "gpu_total_GB": 34.08,
+    "reserved_GB_after_load": 25.87,
+    "allocator_free_GB": 8.21,
+    "fits_static_lower_bound": true
+  },
+  "optim_params_M": 7.92,
+  "optim_params_count": 246,
+  "batch_shapes": {
+    "observation.state": [
+      1,
+      8
+    ],
+    "task": "['carry the object forward']",
+    "action": [
+      1,
+      32,
+      7
+    ],
+    "observation.images.image": [
+      1,
+      3,
+      224,
+      224
+    ],
+    "observation.images.image2": [
+      1,
+      3,
+      224,
+      224
+    ]
+  },
+  "optimizer_state_entries": 3,
+  "optimizer_state_finite": true,
+  "grad_finite": true,
+  "verdict": "1 update(s) completed",
+  "exit": "passed"
+}

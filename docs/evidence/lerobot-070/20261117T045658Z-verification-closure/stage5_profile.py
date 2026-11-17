@@ -73,6 +73,11 @@ def main() -> int:
     ap.add_argument("--text-encoder-device", default="cpu")
     ap.add_argument("--no-gradient-checkpointing", action="store_true")
     ap.add_argument("--budget-only", action="store_true")
+    ap.add_argument("--lora", action="store_true",
+                    help="wrap with the policy's default PEFT/LoRA targets before budgeting")
+    ap.add_argument("--lora-r", type=int, default=16)
+    ap.add_argument("--lora-alpha", type=int, default=32)
+    ap.add_argument("--lora-dropout", type=float, default=0.0)
     ap.add_argument("--force", action="store_true",
                     help="run the phases even when the static state alone exceeds the device")
     args = ap.parse_args()
@@ -91,6 +96,7 @@ def main() -> int:
         "freeze_video_expert": args.freeze_video_expert,
         "gradient_checkpointing": not args.no_gradient_checkpointing,
         "text_encoder_device": args.text_encoder_device,
+        "lora": args.lora,
         "phases": [],
         "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
@@ -120,6 +126,42 @@ def main() -> int:
     cfg.freeze_video_expert = args.freeze_video_expert
     policy = FastWAMPolicy.from_pretrained(args.policy_path, config=cfg)
     phase("loaded")
+
+    report["params_before_wrap_M"] = round(
+        sum(p.numel() for p in policy.parameters() if p.requires_grad) / 1e6, 1
+    )
+    if args.lora:
+        policy = policy.wrap_with_peft(peft_cli_overrides={
+            "r": args.lora_r,
+            "lora_alpha": args.lora_alpha,
+            "lora_dropout": args.lora_dropout,
+        })
+        policy.to("cuda")
+        peft_cfg = policy.peft_config[getattr(policy, "active_adapter", "default")]
+        saved = tuple(sorted(peft_cfg.modules_to_save or []))
+        report["lora"] = {
+            "r": peft_cfg.r,
+            "alpha": peft_cfg.lora_alpha,
+            "dropout": peft_cfg.lora_dropout,
+            "target_modules": peft_cfg.target_modules,
+            "modules_to_save": list(saved),
+            # "Base frozen" must exclude the modules that are deliberately trained in
+            # full (they are not in the checkpoint, so they cannot come from the base).
+            "base_frozen_excluding_modules_to_save": all(
+                not p.requires_grad
+                for n, p in policy.named_parameters()
+                if "lora_" not in n and not n.startswith(saved)
+            ),
+            "trainable_modules_to_save_M": round(
+                sum(p.numel() for n, p in policy.named_parameters()
+                    if n.startswith(saved) and p.requires_grad) / 1e6, 2
+            ),
+            "trainable_adapter_M": round(
+                sum(p.numel() for n, p in policy.named_parameters()
+                    if "lora_" in n and p.requires_grad) / 1e6, 2
+            ),
+        }
+        phase("peft_wrapped")
 
     params = list(policy.parameters())
     trainable = [p for p in params if p.requires_grad]
@@ -177,7 +219,10 @@ def main() -> int:
     torch.cuda.reset_peak_memory_stats()
     phase("train_mode")
 
-    opt = torch.optim.AdamW([p for p in policy.parameters() if p.requires_grad], lr=1e-5)
+    optim_params = policy.get_optim_params()
+    report["optim_params_M"] = round(sum(p.numel() for p in optim_params) / 1e6, 2)
+    report["optim_params_count"] = len(optim_params)
+    opt = torch.optim.AdamW(optim_params, lr=1e-5)
     horizon = int(getattr(cfg, "action_horizon", 1))
     a_dim = int(cfg.output_features["action"].shape[0])
     s_dim = int(cfg.input_features["observation.state"].shape[0])
@@ -209,9 +254,7 @@ def main() -> int:
             loss.backward()
             phase(step_name)
             step_name = f"clip[{i}]"
-            gnorm = torch.nn.utils.clip_grad_norm_(
-                [p for p in policy.parameters() if p.requires_grad], 1e9
-            )
+            gnorm = torch.nn.utils.clip_grad_norm_(optim_params, 1e9)
             phase(step_name, grad_norm=float(gnorm))
             step_name = f"optimizer_step[{i}]"
             opt.step()
@@ -238,7 +281,7 @@ def main() -> int:
             return 2
         raise
 
-    state = opt.state.get(next(p for p in policy.parameters() if p.requires_grad), {})
+    state = opt.state.get(optim_params[0], {})
     report["optimizer_state_entries"] = len(state)
     report["optimizer_state_finite"] = all(
         bool(torch.isfinite(v).all()) for v in state.values() if torch.is_tensor(v) and v.is_floating_point()

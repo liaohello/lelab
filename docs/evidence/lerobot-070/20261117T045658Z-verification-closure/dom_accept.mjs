@@ -205,6 +205,48 @@ try {
   check("failed submit stays on the form", page.url().endsWith("/training"), page.url());
   await page.screenshot({ path: `${OUT}/dom-05-api-rejection.png`, fullPage: true });
 
+  // ---- 7. LoRA: guarded by a pretrained policy, then accepted -----------
+  await page.locator("#policy_action_dim").fill("6");
+  await page.locator("#policy_proprio_dim").fill("6");
+  await page.locator("#use_peft").click();
+  await page.waitForSelector("#peft_r", { timeout: 5000 });
+  check(
+    "LoRA toggle reveals rank/alpha with the documented defaults",
+    (await page.locator("#peft_r").inputValue()) === "16" &&
+      (await page.locator("#peft_alpha").inputValue()) === "32",
+  );
+  const loraHint = await page.locator("body").innerText();
+  check("form warns that LoRA needs a pretrained policy", /refuses adapter training from scratch/.test(loraHint));
+
+  const beforeLora = (await posts(page, "/jobs/training")).length;
+  await page.getByRole("button", { name: /Start Training/ }).click();
+  await page.waitForTimeout(2000);
+  const loraPosts = (await posts(page, "/jobs/training")).slice(beforeLora);
+  const loraRejected = loraPosts.filter((e) => e.status === 400);
+  check("adapter training without a checkpoint is refused by the backend", loraRejected.length === 1,
+    `posts=${loraPosts.length}`);
+  check(
+    "refusal explains the missing pretrained policy",
+    /LoRA fine-tuning needs a pretrained policy checkpoint/.test(loraRejected.at(-1)?.note ?? ""),
+    loraRejected.at(-1)?.note ?? "",
+  );
+
+  await page.locator("#policy_pretrained_path").fill("lerobot/fastwam_base");
+  const beforeOk = (await posts(page, "/jobs/training")).length;
+  await page.getByRole("button", { name: /Start Training/ }).click();
+  await page.waitForTimeout(2500);
+  const okPosts = (await posts(page, "/jobs/training")).slice(beforeOk);
+  const okBody = okPosts.filter((e) => e.status === 201).at(-1)?.body?.config ?? {};
+  check("LoRA job reaches the backend once a checkpoint is named", okPosts.some((e) => e.status === 201),
+    `posts=${okPosts.length}`);
+  check(
+    "wire carries use_peft + rank/alpha and the pretrained path",
+    okBody.use_peft === true && okBody.peft_r === 16 && okBody.peft_alpha === 32 &&
+      okBody.policy_pretrained_path === "lerobot/fastwam_base",
+    JSON.stringify({ u: okBody.use_peft, r: okBody.peft_r, a: okBody.peft_alpha, p: okBody.policy_pretrained_path }),
+  );
+  await page.screenshot({ path: `${OUT}/dom-06-lora.png`, fullPage: true });
+
   // Network stubs (the deliberate 400 above, and the harness's missing
   // WebSocket) show up as console messages; uncaught JS exceptions do not.
   const unexpected = consoleErrors.filter((t) => !/400 \(Bad Request\)|WebSocket/.test(t));

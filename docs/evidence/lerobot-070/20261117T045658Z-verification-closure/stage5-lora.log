@@ -1,0 +1,18 @@
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+Loading weights:   0%|          | 0/242 [00:00<?, ?it/s]Loading weights: 100%|██████████| 242/242 [00:00<00:00, 5617.91it/s]
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py:206: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
+  warnings.warn(
+The config attributes {'clip_output': False} were passed to AutoencoderKLWan, but are not expected and will be ignored. Please verify your config.json configuration file.
+There are modules in AutoencoderKLWan that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+WARNING:root:Missing key(s) when loading model: {'model.mot.mixtures.action.action_encoder.bias', 'model.proprio_encoder.weight', 'model.mot.mixtures.action.action_encoder.weight', 'model.mot.mixtures.action.head.weight', 'model.mot.mixtures.action.head.bias', 'model.proprio_encoder.bias'}
+/home/lfy/lelab-rmr/closure/stage5_profile.py:252: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  phase(step_name, loss=float(loss) if torch.is_tensor(loss) else None)
+Loading weights from local directory
+{
+  "verdict": "1 update(s) completed",
+  "peak_allocated_GB": 16.117
+}

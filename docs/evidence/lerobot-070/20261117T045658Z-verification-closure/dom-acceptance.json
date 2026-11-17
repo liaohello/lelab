@@ -1,12 +1,13 @@
 {
   "kind": "ui-dom-acceptance",
   "base": "http://127.0.0.1:8138",
-  "ran_at": "2026-11-17T06:28:59.852Z",
-  "passed": 31,
+  "ran_at": "2026-11-17T16:04:02.605Z",
+  "passed": 37,
   "failed": 0,
   "console_errors": [
     "WebSocket connection to 'ws://127.0.0.1:8138/ws/joint-data' failed: Error during WebSocket handshake: Unexpected response code: 403",
     "WebSocket connection to 'ws://127.0.0.1:8138/ws/joint-data' failed: Error during WebSocket handshake: Unexpected response code: 403",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
     "Failed to load resource: the server responded with a status of 400 (Bad Request)"
   ],
   "page_errors": [],
@@ -155,6 +156,36 @@
       "name": "failed submit stays on the form",
       "ok": true,
       "detail": "http://127.0.0.1:8138/training"
+    },
+    {
+      "name": "LoRA toggle reveals rank/alpha with the documented defaults",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "form warns that LoRA needs a pretrained policy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "adapter training without a checkpoint is refused by the backend",
+      "ok": true,
+      "detail": "posts=1"
+    },
+    {
+      "name": "refusal explains the missing pretrained policy",
+      "ok": true,
+      "detail": "start_refused: LoRA fine-tuning needs a pretrained policy checkpoint (policy_pretrained_path); training adapters from scratch is refused"
+    },
+    {
+      "name": "LoRA job reaches the backend once a checkpoint is named",
+      "ok": true,
+      "detail": "posts=1"
+    },
+    {
+      "name": "wire carries use_peft + rank/alpha and the pretrained path",
+      "ok": true,
+      "detail": "{\"u\":true,\"r\":16,\"a\":32,\"p\":\"lerobot/fastwam_base\"}"
     },
     {
       "name": "no uncaught JS exception during the flow",
