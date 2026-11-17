@@ -274,28 +274,39 @@ def dataset_root(tmp_path: Path) -> Path:
 def test_pause_at_update_boundary_matches_an_uninterrupted_run(
     tmp_path: Path, dataset_root: Path
 ) -> None:
-    """4 continuous updates == 2 updates + pause + resume + 2 updates."""
-    # --- reference: four updates in one process -------------------------------------------
+    """N continuous updates == pause after 2 + resume for the remaining updates.
+
+    The run is deliberately longer than the pause point. The cooperative pause is
+    observed at the *next* update boundary after the marker is written (the trainer
+    logs step N before it checks for a pause), so with ``steps=4`` a pause requested
+    after two logged updates could land on the final step and resume would perform
+    zero optimizer updates — a false pass. Six steps leave at least three updates
+    after any early pause, and the assertions below require a real post-resume
+    ``train`` event rather than inferring continuity from the final step counter.
+    """
+    total_steps = 6
+    pause_after = 2
+    # --- reference: all updates in one process ---------------------------------------------
     ref_out = tmp_path / "run-continuous"
     ref = _run(
-        _base_argv(dataset_root, ref_out, steps=4),
+        _base_argv(dataset_root, ref_out, steps=total_steps),
         _train_env(tmp_path, None, "continuous"),
         tmp_path,
     )
     assert ref.returncode == 0, f"continuous run failed:\n{ref.stdout[-4000:]}\n{ref.stderr[-4000:]}"
     ref_state = _load_state(ref_out / "checkpoints" / "last")
-    assert ref_state["step"]["step"] == 4
+    assert ref_state["step"]["step"] == total_steps
 
     # --- interrupted: ask for a pause once two updates have been logged --------------------
     first_out = tmp_path / "run-paused"
     control = tmp_path / "control"
     control.mkdir()
     first = _run_and_pause_after(
-        _base_argv(dataset_root, first_out, steps=4),
+        _base_argv(dataset_root, first_out, steps=total_steps),
         _train_env(tmp_path, control, "paused"),
         tmp_path,
         control,
-        after_step=2,
+        after_step=pause_after,
     )
     assert first["returncode"] == 75, (
         f"expected pause exit code 75, got {first['returncode']}:\n{first['stderr'][-4000:]}"
@@ -308,8 +319,11 @@ def test_pause_at_update_boundary_matches_an_uninterrupted_run(
     saved = [event for event in pause_events if event.get("state") == "saved"]
     assert saved, f"pause never reached 'saved': {pause_events}"
     paused_step = int(saved[-1]["step"])
-    # The pause lands at an update boundary, and only after the update that triggered it.
-    assert 2 <= paused_step <= 4, f"pause landed at step {paused_step}: {first['steps_seen']}"
+    # The pause lands at a completed update boundary strictly before the end of the
+    # run, so resume is guaranteed to have updates left to perform.
+    assert pause_after <= paused_step < total_steps, (
+        f"pause landed at step {paused_step} of {total_steps}: {first['steps_seen']}"
+    )
 
     pause_ckpt = Path(saved[-1]["checkpoint"])
     manifest = json.loads((pause_ckpt / "lelab_pause.json").read_text(encoding="utf-8"))
@@ -324,7 +338,7 @@ def test_pause_at_update_boundary_matches_an_uninterrupted_run(
     # run shape, since resuming otherwise reuses the checkpoint's config verbatim.
     resumed = _run(
         [
-            *_base_argv(dataset_root, first_out, steps=4),
+            *_base_argv(dataset_root, first_out, steps=total_steps),
             "--resume=true",
             f"--config_path={pause_ckpt / 'pretrained_model' / 'train_config.json'}",
         ],
@@ -332,8 +346,19 @@ def test_pause_at_update_boundary_matches_an_uninterrupted_run(
         tmp_path,
     )
     assert resumed.returncode == 0, f"resume failed:\n{resumed.stdout[-4000:]}\n{resumed.stderr[-4000:]}"
+    # Require at least one actual optimizer update after resume; a matching final
+    # step counter alone cannot prove that the resumed process did any work.
+    resumed_steps = [
+        int(json.loads(line.split("@@LELAB_METRIC@@", 1)[1])["step"])
+        for line in resumed.stdout.splitlines()
+        if "@@LELAB_METRIC@@" in line
+        and json.loads(line.split("@@LELAB_METRIC@@", 1)[1]).get("kind") == "train"
+    ]
+    assert resumed_steps and min(resumed_steps) > paused_step, (
+        f"resume reported no post-pause update: steps={resumed_steps}, paused={paused_step}"
+    )
     resumed_state = _load_state(first_out / "checkpoints" / "last")
-    assert resumed_state["step"]["step"] == 4
+    assert resumed_state["step"]["step"] == total_steps
 
     # The uninterrupted run must have taken the same number of optimizer updates from the
     # same initial weights; only then is a parameter comparison meaningful.
