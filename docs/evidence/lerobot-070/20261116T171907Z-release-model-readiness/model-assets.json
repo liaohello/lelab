@@ -19,7 +19,7 @@
       "size_GB": 12.04,
       "files": 6,
       "gated": false,
-      "status": "downloading to /home/lfy/lelab-rmr/hf-cache"
+      "status": "downloaded (12.04 GB, verified safetensors, commit recorded in fastwam-verification.json stage1)"
     },
     {
       "repo_id": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
@@ -28,16 +28,16 @@
       "size_GB": 34.2,
       "files": 36,
       "gated": false,
-      "status": "queued after fastwam_base in the same download job"
+      "status": "downloaded (34.2 GB: VAE + DiT + text encoder, all consumed by the real load)"
     },
     {
       "repo_id": "lerobot/fineart_vla_base",
       "revision": "main",
-      "role": "FineART-VLA base checkpoint (mid-trained subtask predictor) — second model, separate verification",
+      "role": "FineART-VLA base checkpoint (mid-trained subtask predictor) \u2014 second model, separate verification",
       "size_GB": null,
       "files": null,
       "gated": false,
-      "status": "BLOCKED-FOR-NOW: mirror tree API returned empty body on repeat calls (rate limit); size unquantified (PI0.5 family, expect ~12-15 GB). Download deferred until FastWAM verification completes so the shared host's 97%-full disk keeps >=60 GB free; exact command recorded below"
+      "status": "BLOCKED: see fineart-BLOCKED.md (disk budget on 97%-full shared host + mirror rate-limit; exact rerun commands inside)"
     },
     {
       "repo_id": "lerobot/pi05_base",
@@ -60,5 +60,17 @@
     "fastwam_path_GB": 46.3,
     "fineart_path_GB_estimate": 15,
     "policy": "one model at a time; abort and record blocked if free space drops below 40 GB"
-  }
+  },
+  "actual_disk_after": {
+    "hf_cache_GB": 44,
+    "free_GB_at_finish": 36
+  },
+  "runtime_fixes": [
+    "torch upgraded CPU->2.9.1+cu126 (driver 535 = CUDA 12.2; the default PyPI 2.15+cu132 is CUDA 13 and reports cuda=False on this driver)",
+    "torchvision re-pinned to 0.24.1+cu126 to match torch",
+    "transformers 5.22.x / diffusers 0.38.x installed for lerobot[fastwam]",
+    "checkpoint dtype is bfloat16; fp32 load exceeds the 32 GB card, fp16 not the declared dtype -> load with config.dtype=bfloat16",
+    "text_encoder_device='cpu' keeps the ~11 GB UMT5-XXL off the GPU (492 GB host RAM); passed via an explicit config object (stray from_pretrained kwargs are ignored)",
+    "stage 5 (training) OOMs even with use_gradient_checkpointing=True: real inference verified, backprop needs a larger card"
+  ]
 }

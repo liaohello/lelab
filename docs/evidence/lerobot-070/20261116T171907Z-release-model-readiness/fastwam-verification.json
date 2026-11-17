@@ -1,0 +1,54 @@
+{
+  "stages": {
+    "1_integrity": {
+      "snapshot": "/home/lfy/lelab-rmr/hf-cache/hub/models--lerobot--fastwam_base/snapshots/385a4bd1df7a7895b24c6e530482092b7b08a783",
+      "files": 6,
+      "commit": "385a4bd1df7a7895b24c6e530482092b7b08a783",
+      "weight_files": [
+        "model.safetensors"
+      ],
+      "ok": true,
+      "seconds": 1.16
+    },
+    "2_load": {
+      "params_M": 6020.7,
+      "dtypes": [
+        "bfloat16"
+      ],
+      "device": "cuda:0",
+      "native_action_dim": 7,
+      "native_state_dim": 8,
+      "ok": true,
+      "seconds": 145.61
+    },
+    "3_offline_action": {
+      "action_shape": [
+        1,
+        7
+      ],
+      "dtype": "torch.float32",
+      "finite": true,
+      "sample": [
+        -1.6562,
+        -1.0,
+        0.1406,
+        0.1099
+      ],
+      "ok": true,
+      "seconds": 44.66
+    },
+    "4_save_reload": {
+      "max_abs_diff": 1.6015625,
+      "identical_within_1e_4": false,
+      "ok": true,
+      "seconds": 203.83
+    },
+    "5_short_backprop": {
+      "ok": false,
+      "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 18.00 MiB. GPU 0 has a total capacity of 31.74 GiB of which 28.75 MiB is free. Including non-PyTorch memory, this process has 31.71 GiB memory in use. Of the allocated memory 30.15 GiB is allocated by PyTorch, and 1.18 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+      "seconds": 52.47
+    }
+  },
+  "device": "Tesla V100S-PCIE-32GB",
+  "torch": "2.9.1+cu126"
+}
