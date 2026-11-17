@@ -23,7 +23,9 @@ episode's phase timeline incomplete, which blocks export.
 """
 from __future__ import annotations
 
+import contextlib
 import copy
+import queue
 import threading
 import time
 import uuid
@@ -162,7 +164,22 @@ class HybridRecordingController:
         self.lock = threading.RLock()
         self._estop_worker_lock = threading.Lock()
         self._estop_worker_started = False
+        # Emergency-stop bookkeeping. `_estop_requested` is set before any lock is
+        # taken so a concurrent recording command cannot slip in while the stop is
+        # in flight; it is cleared only when a new session is installed.
+        self._estop_requested = False
+        self._estop_confirmed = False
+        self._estop_request_seq = 0
+        self._estop_latched_request = 0
+        self._estop_saved_request = 0
+        self._estop_stopped_sessions: set[tuple[str | None, int | None]] = set()
+        # One long-lived save worker, started here (not at stop time) so an estop
+        # never depends on being able to create a thread while the host is under
+        # thread pressure. Jobs are queued; the response never waits for the car.
+        self._save_queue: queue.Queue = queue.Queue(maxsize=2)
+        self._save_worker: threading.Thread | None = None
         self._reset()
+        self._start_save_worker()
 
     # -- state -------------------------------------------------------------
     def _reset(self) -> None:
@@ -186,6 +203,11 @@ class HybridRecordingController:
         self.events: list[dict[str, Any]] = []
         self.episodes: list[dict[str, Any]] = []
         self._pending_estop_save: threading.Thread | None = None
+        # A new session is the only event that clears a completed stop request.
+        self._estop_requested = False
+        self._estop_confirmed = False
+        self._estop_latched_request = 0
+        self._estop_saved_request = 0
 
     def _archive_invalid_run(self) -> None:
         """Keep the evidence of a failed run before clearing it for a new session."""
@@ -292,6 +314,7 @@ class HybridRecordingController:
         if action not in RECORDING_ACTIONS:
             raise RecordingError("unknown_recording_action", str(action), status_code=400)
         payload = dict(payload or {})
+        self._refuse_if_estop_pending(action)
         with self.lock:
             # Validate the request identity and the facade's current epoch before
             # any local state transition or car request.  A stale release, phase
@@ -406,6 +429,7 @@ class HybridRecordingController:
             return self.status()
 
     def start_episode(self, payload: dict[str, Any]) -> dict[str, Any]:
+        self._refuse_if_estop_pending("start_episode")
         with self.lock:
             if self.status_value != ACTIVE:
                 raise RecordingError("recording_session_not_started")
@@ -453,6 +477,7 @@ class HybridRecordingController:
             return self.status()
 
     def set_phase(self, payload: dict[str, Any]) -> dict[str, Any]:
+        self._refuse_if_estop_pending("set_phase")
         with self.lock:
             if self.status_value != ACTIVE or self.episode_id is None:
                 raise RecordingError("episode_not_open")
@@ -519,6 +544,7 @@ class HybridRecordingController:
             return self.status()
 
     def end_episode(self, payload: dict[str, Any]) -> dict[str, Any]:
+        self._refuse_if_estop_pending("end_episode")
         with self.lock:
             if self.episode_id is None:
                 raise RecordingError("no_open_episode")
@@ -638,105 +664,175 @@ class HybridRecordingController:
             return self.status()
 
     def estop(self, reason: str = "operator") -> dict[str, Any]:
-        """Preempt first; recording serialization and saving stay off the stop path.
+        """Emergency stop: latch first, never wait for the car save.
 
-        Thread creation for the deferred save is best effort: a host that cannot
-        start the worker thread must not turn the safety latch into an HTTP error
-        or lose the latch. The latch is applied before any deferral decision, and
-        a failed spawn falls back to finishing inline.
+        Contract (SAF-DG-01..03):
+        * the local block and the latch never depend on thread creation or on a
+          successful car save;
+        * the response is bounded even when the controller lock is held by a slow
+          operation and when the host cannot start threads at all;
+        * an unconfirmed physical stop is reported as unconfirmed, never as success;
+        * the save is queued once per request and skipped for a stale session.
         """
+        reason = str(reason or "operator")
+        # 1. Immediate local block, set before any lock so a concurrent recording
+        #    command (which takes the same lock) is refused even if it wins the race.
+        self._estop_requested = True
+        job = self._new_estop_job(reason)
+
+        # 2. Physical stop through the facade: best effort, recorded honestly.
         facade_result: Any = None
+        facade_ok = True
         try:
             emergency_stop = getattr(self.facade, "emergency_stop", None)
-            facade_result = (emergency_stop(str(reason or "operator"))
+            facade_result = (emergency_stop(reason)
                              if callable(emergency_stop)
                              else self.facade.set_arm_state("estop"))
+            if isinstance(facade_result, dict) and "error" in facade_result:
+                facade_ok = False
         except Exception as exc:  # noqa: BLE001 - the car stop belongs to the facade
             facade_result = {"error": type(exc).__name__}
+            facade_ok = False
 
-        acquired = self.lock.acquire(blocking=False)
-        if acquired:
+        # 3. Try to latch without waiting. When the lock is busy the queued job
+        #    (worker, or the next drain) applies it as soon as the holder releases.
+        latched_now = False
+        if self.lock.acquire(blocking=False):
             try:
-                pending = self._latch_estop_locked(reason)
-                save_mode = "none"
-                if pending:
-                    if self.background and self._spawn_estop_thread(
-                            self._finish_after_estop, (reason,), "hybrid-estop-save"):
-                        save_mode = "deferred"
-                    else:
-                        self._finish_after_estop(reason)
-                        save_mode = "inline"
-                return {
-                    "estop": True, "save_deferred": bool(pending),
-                    "save_mode": save_mode,
-                    "preempted_recording_lock": False,
-                    "outputs_enabled": False, "facade": facade_result,
-                    "recording": self.status(),
-                }
+                self._latch_for_job_locked(job)
+                latched_now = self._estop_latched_request >= job["seq"]
             finally:
                 self.lock.release()
 
-        # Another recording/car operation owns the controller lock.  The facade
-        # stop above has already run; finish latching and persistence asynchronously.
+        self._estop_confirmed = bool(facade_ok and latched_now)
+        recording = self._status_payload() if latched_now else {
+            "status": "estop_pending",
+            "session_id": self.session_id,
+            "session_epoch": self.session_epoch,
+        }
+        return {
+            "estop": True,
+            "estop_confirmed": self._estop_confirmed,
+            "facade_stop_ok": facade_ok,
+            "save_deferred": True,
+            "save_mode": "queued" if latched_now else "queued_pending_latch",
+            "preempted_recording_lock": not latched_now,
+            "outputs_enabled": False,
+            "facade": facade_result,
+            "recording": recording,
+            "estop_request_seq": job["seq"],
+        }
+
+    # -- estop plumbing ----------------------------------------------------
+    def _new_estop_job(self, reason: str) -> dict[str, Any]:
+        """Number the request and queue its save without blocking."""
         with self._estop_worker_lock:
-            worker_needed = not self._estop_worker_started
-            if worker_needed:
-                self._estop_worker_started = True
-        if worker_needed and self._spawn_estop_thread(
-                self._finish_queued_estop, (reason,), "hybrid-estop-preempt"):
-            return {
-                "estop": True, "save_deferred": True, "save_mode": "deferred",
-                "preempted_recording_lock": True,
-                "outputs_enabled": False, "facade": facade_result,
-                "recording": {"status": "estop_pending",
-                              "session_id": self.session_id,
-                              "session_epoch": self.session_epoch},
+            self._estop_request_seq += 1
+            job = {
+                "seq": self._estop_request_seq,
+                "reason": reason,
+                "session_id": self.session_id,
+                "session_epoch": self.session_epoch,
+                "requested_ns": self.wall_ns(),
             }
-        if not worker_needed:
-            # An earlier worker already owns the latching; report the pending
-            # state without duplicating it.
-            return {
-                "estop": True, "save_deferred": True, "save_mode": "deferred",
-                "preempted_recording_lock": True,
-                "outputs_enabled": False, "facade": facade_result,
-                "recording": {"status": "estop_pending",
-                              "session_id": self.session_id,
-                              "session_epoch": self.session_epoch},
-            }
-        # The worker thread could not start (e.g. host thread exhaustion). The
-        # latch is still mandatory: wait briefly for the lock and apply it inline
-        # rather than reporting the stop as a mere conflict.
-        with self._estop_worker_lock:
-            self._estop_worker_started = False
-        if self.lock.acquire(timeout=self._ESTOP_INLINE_LATCH_TIMEOUT_S):
             try:
-                pending = self._latch_estop_locked(reason)
-                if pending:
-                    self._finish_after_estop(reason)
-                return {
-                    "estop": True, "save_deferred": bool(pending),
-                    "save_mode": "inline" if pending else "none",
-                    "preempted_recording_lock": True,
-                    "outputs_enabled": False, "facade": facade_result,
-                    "recording": self.status(),
-                }
-            finally:
-                self.lock.release()
-        raise RuntimeError("estop_latch_unavailable")
+                self._save_queue.put_nowait(job)
+            except queue.Full:
+                # Keep only the newest stop; an older queued save is superseded.
+                with contextlib.suppress(queue.Empty):
+                    self._save_queue.get_nowait()
+                    self._save_queue.task_done()
+                self._save_queue.put_nowait(job)
+        return job
 
-    _ESTOP_INLINE_LATCH_TIMEOUT_S = 5.0
-
-    def _spawn_estop_thread(self, target, args, name: str) -> bool:
-        """Start one daemon worker; return False instead of raising when the host
-        cannot create threads, so callers can finish inline."""
-        thread = threading.Thread(target=target, args=args, name=name, daemon=True)
-        self._pending_estop_save = thread
+    def _start_save_worker(self) -> None:
+        worker = threading.Thread(target=self._save_worker_loop,
+                                  name="hybrid-estop-save", daemon=True)
         try:
-            thread.start()
+            worker.start()
         except (RuntimeError, OSError):
-            self._pending_estop_save = None
+            # Degraded mode: estop still latches and responds; the queued save is
+            # drained by the next status()/recording call instead of a new thread.
+            self._save_worker = None
+            self._note("estop_worker_unavailable")
+            return
+        self._save_worker = worker
+        self._pending_estop_save = worker
+
+    def _save_worker_loop(self) -> None:
+        while True:
+            job = self._save_queue.get()
+            try:
+                if job is None:
+                    return
+                self._process_estop_job(job)
+            except Exception as exc:  # noqa: BLE001 - a failed save must not kill the worker
+                self._note("estop_save_worker_error", error=type(exc).__name__)
+            finally:
+                self._save_queue.task_done()
+
+    def _process_estop_job(self, job: dict[str, Any]) -> None:
+        with self.lock:
+            self._latch_for_job_locked(job)
+            latched = self._estop_latched_request >= job["seq"]
+            already_saved = self._estop_saved_request >= job["seq"]
+        if latched and not already_saved:
+            self._finish_after_estop(job["reason"])
+            with self.lock:
+                self._estop_saved_request = max(self._estop_saved_request, job["seq"])
+
+    def _drain_pending_estop(self) -> None:
+        """Apply one queued stop inline when no live worker exists.
+
+        Never runs when the worker is alive (the response path must not execute a
+        car save) and never blocks on a busy lock.
+        """
+        worker = self._save_worker
+        if worker is not None and worker.is_alive():
+            return
+        if self._save_queue.empty():
+            return
+        if not self.lock.acquire(blocking=False):
+            return
+        job = None
+        try:
+            try:
+                job = self._save_queue.get_nowait()
+            except queue.Empty:
+                return
+            self._latch_for_job_locked(job)
+            latched = self._estop_latched_request >= job["seq"]
+        finally:
+            self.lock.release()
+        if latched:
+            self._finish_after_estop(job["reason"])
+        self._save_queue.task_done()
+
+    def _latch_for_job_locked(self, job: dict[str, Any]) -> bool:
+        """Apply the latch for one stop request; True when a save is pending.
+
+        A late request for an older control session is acknowledged and skipped:
+        it must never latch, close or save a newer session.
+        """
+        if self._estop_latched_request >= job["seq"]:
             return False
-        return True
+        sid, epoch = job.get("session_id"), job.get("session_epoch")
+        if sid is not None and (self.session_id != sid or self.session_epoch != epoch):
+            self._note("estop_latch_skipped_stale_session", reason=job["reason"],
+                       requested_session_id=sid, current_session_id=self.session_id,
+                       current_session_epoch=self.session_epoch)
+            self._estop_latched_request = job["seq"]
+            return False
+        pending = self._latch_estop_locked(job["reason"])
+        self._estop_latched_request = job["seq"]
+        return pending
+
+    def _refuse_if_estop_pending(self, action: str) -> None:
+        """Refuse a state-advancing command while a stop is in flight."""
+        if self._estop_requested and self.status_value == ACTIVE:
+            raise RecordingError(
+                "estop_pending",
+                f"emergency stop in progress; {action} refused")
 
     def _latch_estop_locked(self, reason: str) -> bool:
         was_active = self.status_value == ACTIVE
@@ -744,16 +840,6 @@ class HybridRecordingController:
         pending = self.episode_id is not None or was_active
         self._note("estop", reason=reason, save_deferred=pending)
         return pending
-
-    def _finish_queued_estop(self, reason: str) -> None:
-        try:
-            with self.lock:
-                pending = self._latch_estop_locked(reason)
-            if pending:
-                self._finish_after_estop(reason)
-        finally:
-            with self._estop_worker_lock:
-                self._estop_worker_started = False
 
     def _finish_after_estop(self, reason: str) -> None:
         with self.lock:
@@ -768,6 +854,11 @@ class HybridRecordingController:
                 self._note("estop_save_skipped_stale_session",
                            reason=reason, current_session_id=status.get("session_id"),
                            current_session_epoch=status.get("session_epoch"))
+                return
+            if session_identity in self._estop_stopped_sessions:
+                # A repeated estop on the same session must not post a duplicate
+                # session stop; the first save already covers it.
+                self._note("estop_save_skipped_duplicate", reason=reason)
                 return
             try:
                 if self.episode_id is not None:
@@ -785,6 +876,9 @@ class HybridRecordingController:
                     "session_epoch": self.session_epoch,
                     "calibration_bundle_hash": self.bundle_hash,
                 })
+                self._estop_stopped_sessions.add(session_identity)
+                if len(self._estop_stopped_sessions) > 32:
+                    self._estop_stopped_sessions = {session_identity}
                 self._note("estop_save_completed", reason=reason)
             except Exception as exc:  # noqa: BLE001 - reported, not raised into the estop path
                 self._fail("estop_save_failed", f"{type(exc).__name__}: {exc}")
@@ -804,37 +898,44 @@ class HybridRecordingController:
 
     # -- read models -------------------------------------------------------
     def status(self) -> dict[str, Any]:
+        # In degraded mode (no save worker) the queued stop is applied here, so a
+        # bare status poll cannot leave the stop pending forever. Never blocks.
+        self._drain_pending_estop()
         with self.lock:
-            phases = (self.phases if self.episode_id is not None else
-                      (self.episodes[-1]["phases"] if self.episodes else []))
-            return {
-                "source": "hybrid_recording_controller",
-                "status": self.status_value,
-                "session_id": self.session_id,
-                "session_epoch": self.session_epoch,
-                "clock_domain": self.clock_domain,
-                "clock_epoch": self.clock_epoch,
-                "calibration_bundle_hash": self.bundle_hash,
-                "car_session_path": self.car_session_path,
-                "car_recording_id": self.car_recording_id,
-                "episode_id": self.episode_id,
-                "episode_started_time_ns": self.episode_started_ns,
-                "phase": self.phase,
-                "phases": copy.deepcopy(phases),
-                "episodes": copy.deepcopy(self.episodes),
-                "phase_timeline_complete": self.phase_timeline_complete,
-                "paused_before_wrapup": self.paused_before_wrapup,
-                "motion_commands_sent": self.motion_commands_sent,
-                "lease_acquired": False,
-                "outputs_enabled": False,
-                "last_error": self.last_error,
-                "error_detail": self.error_detail,
-                "event_count": len(self.events),
-                "archived_runs": copy.deepcopy(getattr(self, "archived_runs", [])),
-                "estop_save_pending": bool(self._pending_estop_save
-                                           and self._pending_estop_save.is_alive()),
-            }
+            return self._status_payload()
 
+    def _status_payload(self) -> dict[str, Any]:
+        """Status document; caller holds the lock (or accepts a torn read)."""
+        phases = (self.phases if self.episode_id is not None else
+                  (self.episodes[-1]["phases"] if self.episodes else []))
+        return {
+            "source": "hybrid_recording_controller",
+            "status": self.status_value,
+            "session_id": self.session_id,
+            "session_epoch": self.session_epoch,
+            "clock_domain": self.clock_domain,
+            "clock_epoch": self.clock_epoch,
+            "calibration_bundle_hash": self.bundle_hash,
+            "car_session_path": self.car_session_path,
+            "car_recording_id": self.car_recording_id,
+            "episode_id": self.episode_id,
+            "episode_started_time_ns": self.episode_started_ns,
+            "phase": self.phase,
+            "phases": copy.deepcopy(phases),
+            "episodes": copy.deepcopy(self.episodes),
+            "phase_timeline_complete": self.phase_timeline_complete,
+            "paused_before_wrapup": self.paused_before_wrapup,
+            "motion_commands_sent": self.motion_commands_sent,
+            "lease_acquired": False,
+            "outputs_enabled": False,
+            "last_error": self.last_error,
+            "error_detail": self.error_detail,
+            "event_count": len(self.events),
+            "archived_runs": copy.deepcopy(getattr(self, "archived_runs", [])),
+            "estop_requested": bool(self._estop_requested),
+            "estop_confirmed": bool(self._estop_confirmed),
+            "estop_save_pending": not self._save_queue.empty(),
+        }
 
 def _extract_time(record: dict[str, Any] | None) -> int | None:
     if not isinstance(record, dict):

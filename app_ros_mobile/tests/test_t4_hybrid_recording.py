@@ -5,6 +5,7 @@ import io
 import json
 import sys
 import tarfile
+import time
 from pathlib import Path
 
 import numpy as np
@@ -143,9 +144,17 @@ def test_estop_returns_without_waiting_for_the_car_save(monkeypatch):
     assert response.status_code == 200
     payload = response.json()
     assert payload['estop'] is True and payload['outputs_enabled'] is False
-    # The latch is immediate even though the car wrap-up is deferred.
+    # The latch is immediate even though the car wrap-up is deferred to the
+    # pre-started save worker.
     assert controller.status()['status'] == 'invalid'
-    ended = [c for c in car.calls if c[0] == '/recording/end_episode']
+    assert payload['estop_confirmed'] is True
+    deadline = time.time() + 5.0
+    ended = []
+    while time.time() < deadline:
+        ended = [c for c in car.calls if c[0] == '/recording/end_episode']
+        if ended:
+            break
+        time.sleep(0.02)
     assert ended and ended[-1][1].get('discarded') is True
 
 
@@ -474,68 +483,173 @@ def test_the_event_journal_keeps_session_epoch_and_never_claims_output():
 
 
 
-def test_estop_latches_even_when_the_host_cannot_start_threads(monkeypatch):
-    """A thread-exhausted host must not turn the safety latch into an HTTP error.
-
-    `_hybrid_guard` maps RuntimeError to 409, so a `threading.Thread.start()`
-    failure inside the estop path surfaced as "conflict" — and on the busy-lock
-    fallback it silently dropped the latch entirely. The estop must latch first
-    and finish the deferred save inline instead. The failure is simulated at the
-    controller's own spawn helper, which is exactly where host thread exhaustion
-    raises, without breaking the TestClient's portal threads.
-    """
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    import t4_fixtures as fx
-
-    monkeypatch.setattr(
-        ros_mobile.HybridRecordingController, "_spawn_estop_thread",
-        lambda self, target, args, name: False)
-
-    # --- primary path: latch applied, deferred save falls back to inline ---
+def _started_controller(fx, *, worker: bool = True):
     facade = fx.FakeFacade()
     car = fx.FakeCar()
     controller = ros_mobile.HybridRecordingController(
         facade, car, clock_ns=lambda: 1, wall_ns=lambda: 2, background=True)
-    monkeypatch.setattr(ros_mobile, '_HYBRID_RECORDING', controller)
-    app = FastAPI(); app.include_router(ros_mobile.router)
-    client = TestClient(app)
-    client.post('/ros-mobile/hybrid/recording', json={'action': 'start_session'})
-    client.post('/ros-mobile/hybrid/recording', json={'action': 'start_episode'})
-    response = client.post('/ros-mobile/hybrid/control',
-                           json={'action': 'estop', 'reason': 'operator'})
-    assert response.status_code == 200, response.text
-    payload = response.json()
-    assert payload['estop'] is True and payload['outputs_enabled'] is False
-    assert payload['save_mode'] == 'inline'
-    assert controller.status()['status'] == 'invalid'
+    if not worker:
+        # Simulate a host that cannot create the save worker at construction.
+        controller._save_worker = None
+    controller.start_session({})
+    controller.start_episode({})
+    return controller, facade, car
+
+
+def test_estop_without_a_worker_latches_and_drains_the_save():
+    """SAF-DG-01: no worker thread, slow car save — the stop still latches, the
+    response is immediate, and the queued save runs on the next status poll."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import t4_fixtures as fx
+
+    controller, _facade, car = _started_controller(fx, worker=False)
+    started = time.perf_counter()
+    result = controller.estop('operator')
+    elapsed = time.perf_counter() - started
+
+    assert elapsed < 1.0, f"estop waited {elapsed:.2f}s on the save path"
+    assert result['estop'] is True
+    assert result['estop_confirmed'] is True
+    assert result['outputs_enabled'] is False
+    assert result['save_mode'] == 'queued'
+    assert controller.status_value == 'invalid'
+
+    # Draining is what runs the save when there is no worker; it must not latch a
+    # different session and must complete the discarded end_episode.
+    payload = controller.status()
+    assert payload['estop_save_pending'] is False
     ended = [c for c in car.calls if c[0] == '/recording/end_episode']
     assert ended and ended[-1][1].get('discarded') is True
 
-    # --- fallback path: lock held by ANOTHER thread, no worker thread available ---
+
+def test_estop_response_is_bounded_while_the_car_save_blocks():
+    """SAF-DG-01: a car save that never returns must not hold the response."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import t4_fixtures as fx
     import threading
-    import time
 
-    controller2 = ros_mobile.HybridRecordingController(
-        fx.FakeFacade(), fx.FakeCar(), clock_ns=lambda: 1, wall_ns=lambda: 2,
-        background=True)
-    holder_ready = threading.Event()
+    release = threading.Event()
+    entered = threading.Event()
 
-    def hold_lock_briefly():
-        with controller2.lock:
-            holder_ready.set()
-            time.sleep(0.5)  # release while the estop's bounded latch waits
-    holder = threading.Thread(target=hold_lock_briefly, name="estop-lock-holder", daemon=True)
+    class BlockingCar(fx.FakeCar):
+        def post(self, path, body):
+            if path == "/recording/end_episode":
+                entered.set()
+                release.wait(timeout=10)  # slow car save
+            return super().post(path, body)
+
+    facade = fx.FakeFacade()
+    car = BlockingCar()
+    controller = ros_mobile.HybridRecordingController(
+        facade, car, clock_ns=lambda: 1, wall_ns=lambda: 2, background=True)
+    controller.start_session({})
+    controller.start_episode({})
+
+    started = time.perf_counter()
+    result = controller.estop('operator')
+    elapsed = time.perf_counter() - started
+    assert elapsed < 1.0, f"estop response blocked {elapsed:.2f}s on a slow save"
+    assert result['estop_confirmed'] is True and result['save_mode'] == 'queued'
+    # The worker is now stuck inside the save; the stop is already reported.
+    assert entered.wait(timeout=5), "worker never attempted the deferred save"
+    assert controller.status()['status'] == 'invalid'
+    release.set()
+
+
+def test_estop_with_busy_lock_reports_unconfirmed_then_worker_latches():
+    """SAF-DG-02: lock held past the old 5 s window — the response is immediate,
+    honest about confirmation, and the worker still applies the latch."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import t4_fixtures as fx
+    import threading
+
+    controller, _facade, car = _started_controller(fx)
+    holding = threading.Event()
+    release = threading.Event()
+
+    def hold():
+        with controller.lock:
+            holding.set()
+            release.wait(timeout=10)
+    holder = threading.Thread(target=hold, daemon=True)
     holder.start()
-    assert holder_ready.wait(timeout=5)
-    try:
-        # The estop cannot take the lock now and cannot spawn the worker, so it
-        # must fall back to the bounded inline latch instead of erroring out.
-        result = controller2.estop('operator')
-    finally:
-        holder.join(timeout=5)
-    assert result['estop'] is True and result['outputs_enabled'] is False
+    assert holding.wait(timeout=5)
+
+    started = time.perf_counter()
+    result = controller.estop('operator')
+    elapsed = time.perf_counter() - started
+    # Bounded: no 5 s wait for the lock, no exception.
+    assert elapsed < 1.0, f"estop waited {elapsed:.2f}s for a busy lock"
+    assert result['estop'] is True
+    assert result['estop_confirmed'] is False
     assert result['preempted_recording_lock'] is True
-    # A fresh controller has no open session data, so there is nothing to save;
-    # the latch itself must still be applied.
-    assert result['save_mode'] == 'none' and result['save_deferred'] is False
-    assert controller2.status()['status'] == 'invalid'
+    assert result['outputs_enabled'] is False
+    assert result['save_mode'] == 'queued_pending_latch'
+
+    release.set()
+    holder.join(timeout=5)
+    deadline = time.time() + 5.0
+    while time.time() < deadline and controller.status_value != 'invalid':
+        time.sleep(0.02)
+    assert controller.status_value == 'invalid'
+    deadline = time.time() + 5.0
+    while time.time() < deadline and not [c for c in car.calls
+                                          if c[0] == '/recording/stop_session']:
+        time.sleep(0.02)
+    assert [c for c in car.calls if c[0] == '/recording/stop_session']
+
+
+def test_estop_late_save_skips_a_new_session():
+    """SAF-DG-03: a save that arrives after the session changed must not touch
+    the new one (neither latch it nor post a car stop)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import t4_fixtures as fx
+
+    controller, _facade, car = _started_controller(fx)
+    old_session = controller.session_id
+    # Snapshot the queue like a slow worker would, then move to a new session.
+    job = {"seq": 1, "reason": "operator", "session_id": old_session,
+           "session_epoch": controller.session_epoch, "requested_ns": 0}
+    with controller.lock:
+        controller.session_id = "session-new"
+        controller.session_epoch = 99
+        controller.status_value = 'active'
+        latched = controller._latch_for_job_locked(job)
+    assert latched is False
+    assert controller.status_value == 'active', "a stale stop must not latch the new session"
+    kinds = [e['kind'] for e in controller.events]
+    assert 'estop_latch_skipped_stale_session' in kinds
+
+    calls_before = len(car.calls)
+    controller._process_estop_job(job)
+    assert len(car.calls) == calls_before, "a stale job posted to the car"
+    assert controller.status_value == 'active'
+
+
+def test_repeated_estop_posts_one_session_stop():
+    """Repeated estop requests are idempotent on the car and never re-latch a new
+    session; the first save covers the session."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import t4_fixtures as fx
+
+    controller, _facade, car = _started_controller(fx)
+    controller.estop('operator')
+    controller.estop('operator')
+    deadline = time.time() + 5.0
+    while time.time() < deadline and controller._estop_saved_request == 0:
+        time.sleep(0.02)
+    time.sleep(0.2)  # let a duplicate job, if any, reach the queue
+    stops = [c for c in car.calls if c[0] == '/recording/stop_session']
+    assert len(stops) == 1, f"expected one session stop, got {len(stops)}"
+
+
+def test_state_advancing_commands_refused_while_estop_pending():
+    """A command that wins the lock race must not slip in before the latch."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import t4_fixtures as fx
+
+    controller, _facade, _car = _started_controller(fx)
+    controller._estop_requested = True  # in-flight window, latch not yet applied
+    with pytest.raises(Exception) as info:
+        controller.dispatch('set_phase', {'phase': 'observe'})
+    assert 'estop_pending' in str(info.value)
