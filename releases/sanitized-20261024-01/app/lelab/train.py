@@ -160,6 +160,15 @@ class TrainingRequest(BaseModel):
     policy_action_dim: int | None = None
     policy_proprio_dim: int | None = None
 
+    # LoRA / PEFT fine-tuning. Full fine-tuning of a 6B backbone needs ~72 GB of
+    # training state (weights + grads + Adam moments), so a single 32-48 GB card
+    # can only fine-tune with adapters. The policy supplies its own defaults for
+    # target modules and for the layers the base checkpoint does not contain.
+    use_peft: bool = False
+    peft_r: int | None = None
+    peft_alpha: int | None = None
+    peft_dropout: float | None = None
+
     # Environment / evaluation
     env_type: str | None = None
     env_task: str | None = None
@@ -544,6 +553,31 @@ def build_training_command(
             "policy_action_dim/policy_proprio_dim only apply to fastwam; "
             f"policy_type={request.policy_type!r} has no such config field"
         )
+
+    # PEFT / LoRA. LeRobot refuses adapter training without a pretrained policy
+    # (`--policy.path`), so that precondition is enforced here with a message the
+    # operator can act on instead of a trainer traceback.
+    if request.use_peft:
+        if not request.policy_pretrained_path:
+            raise ValueError(
+                "LoRA fine-tuning needs a pretrained policy checkpoint "
+                "(policy_pretrained_path); training adapters from scratch is refused"
+            )
+        if request.peft_r is not None and request.peft_r <= 0:
+            raise ValueError(f"peft_r must be positive, got {request.peft_r}")
+        if request.peft_alpha is not None and request.peft_alpha <= 0:
+            raise ValueError(f"peft_alpha must be positive, got {request.peft_alpha}")
+        if request.peft_dropout is not None and not 0.0 <= request.peft_dropout < 1.0:
+            raise ValueError(f"peft_dropout must be in [0, 1), got {request.peft_dropout}")
+        cmd.extend(["--policy.use_peft", "true"])
+        if request.peft_r is not None:
+            cmd.extend(["--peft.r", str(request.peft_r)])
+        if request.peft_alpha is not None:
+            cmd.extend(["--peft.lora_alpha", str(request.peft_alpha)])
+        if request.peft_dropout is not None:
+            cmd.extend(["--peft.lora_dropout", str(request.peft_dropout)])
+    elif any(v is not None for v in (request.peft_r, request.peft_alpha, request.peft_dropout)):
+        raise ValueError("peft_r/peft_alpha/peft_dropout require use_peft=true")
 
     # Logging / checkpointing
     cmd.extend(["--log_freq", str(request.log_freq)])

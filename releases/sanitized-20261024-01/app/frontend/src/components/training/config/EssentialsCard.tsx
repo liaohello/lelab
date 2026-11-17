@@ -227,6 +227,58 @@ const EssentialsCard: React.FC<EssentialsCardProps> = ({
           </p>
         </div>
 
+        {/* Adapter training. A 6B backbone needs ~72 GB of training state for a
+            full fine-tune, which does not fit a single 32-48 GB card; LoRA keeps
+            the backbone frozen and trains rank-decomposed q/v projections plus
+            the layers the base checkpoint does not contain. */}
+        <div className="space-y-3 rounded-lg border border-slate-700 p-3">
+          <div className="flex items-center space-x-3">
+            <Switch
+              id="use_peft"
+              checked={config.use_peft ?? false}
+              onCheckedChange={(checked) => updateConfig('use_peft', checked)}
+              className="data-[state=checked]:bg-green-500"
+            />
+            <Label htmlFor="use_peft" className="text-slate-300">
+              LoRA fine-tuning
+            </Label>
+          </div>
+          <p className="text-xs text-slate-500">
+            Requires a pretrained policy above. Full fine-tuning needs far more VRAM than adapter training.
+          </p>
+          {config.use_peft && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="peft_r" className="text-slate-300">
+                  LoRA rank
+                </Label>
+                <NumberInput
+                  id="peft_r"
+                  value={config.peft_r}
+                  onChange={(v) => updateConfig('peft_r', v)}
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+              <div>
+                <Label htmlFor="peft_alpha" className="text-slate-300">
+                  LoRA alpha
+                </Label>
+                <NumberInput
+                  id="peft_alpha"
+                  value={config.peft_alpha}
+                  onChange={(v) => updateConfig('peft_alpha', v)}
+                  className="bg-slate-900 border-slate-600 text-white rounded-lg"
+                />
+              </div>
+            </div>
+          )}
+          {config.use_peft && !config.policy_pretrained_path && (
+            <p className="text-xs text-rose-300">
+              Set a pretrained policy — the backend refuses adapter training from scratch.
+            </p>
+          )}
+        </div>
+
         <WandbInstallDialog
           open={wandbDialogOpen}
           onOpenChange={setWandbDialogOpen}

@@ -150,6 +150,14 @@ function configToRequest(c: TrainingConfig): TrainingRequest {
           policy_proprio_dim: c.policy_proprio_dim,
         }
       : {}),
+    ...(c.use_peft
+      ? {
+          use_peft: true,
+          peft_r: c.peft_r,
+          peft_alpha: c.peft_alpha,
+          peft_dropout: c.peft_dropout,
+        }
+      : {}),
   };
 }
 
@@ -186,6 +194,9 @@ const ConfigurationMode: React.FC = () => {
     max_eval_samples: 0,
     weight_norm_freq: 250,
     use_policy_training_preset: true,
+    use_peft: false,
+    peft_r: 16,
+    peft_alpha: 32,
   });
 
   const [datasets, setDatasets] = useState<DatasetItem[]>([]);

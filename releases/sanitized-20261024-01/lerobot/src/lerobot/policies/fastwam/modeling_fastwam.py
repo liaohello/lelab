@@ -218,13 +218,44 @@ class FastWAMPolicy(PreTrainedPolicy):
         # Return the trainable tensors directly (a single param group). The optimizer
         # builder wraps these in a param group; returning a bare {"params": [...]} dict
         # instead would make `list(...)` yield the key string "params".
-        params = (
-            list(self.model.dit.parameters()) if hasattr(self.model, "dit") else list(self.model.parameters())
-        )
-        proprio_encoder = getattr(self.model, "proprio_encoder", None)
-        if proprio_encoder is not None:
-            params.extend(list(proprio_encoder.parameters()))
-        return [p for p in params if p.requires_grad]
+        #
+        # Every trainable tensor reachable from the policy, not just `model.dit`: with
+        # PEFT the adapter weights live inside the DiT blocks, but `modules_to_save`
+        # (the action encoder/head and the proprio encoder, which the published base
+        # checkpoint does not contain) sit outside it. Enumerating `self` keeps both
+        # cases correct; frozen modules (frozen Wan video expert, pinned text encoder)
+        # are filtered out by `requires_grad`. The VAE and the text encoder are plain
+        # attributes rather than registered parameters, so they are not swept in here.
+        return [p for p in self.parameters() if p.requires_grad]
+
+    def _get_default_peft_targets(self) -> dict[str, Any]:
+        """Default LoRA targets for FastWAM fine-tuning.
+
+        Only the action expert learns: the Wan2.2 video expert is frozen by
+        ``freeze_video_expert`` and adapting it would re-introduce ~5B trainable
+        parameters. The q/v projections of both the self- and cross-attention paths
+        in the action blocks carry the useful rank-16 update.
+
+        ``modules_to_save`` names the three modules that ``lerobot/fastwam_base``
+        does not ship (action encoder, action head, proprio encoder). LoRA cannot
+        start them from pretrained weights because there are none; leaving them out
+        would keep them frozen at their random init and drop them from the adapter
+        checkpoint, so they are trained in full and saved alongside it.
+
+        Names are the *live* module paths, not the checkpoint keys: `MoT` re-parents
+        every expert block into `mot.layers[i].blocks[name]` so a layer owns its
+        blocks once (FSDP boundary), while the safetensors keys keep the older
+        `mot.mixtures.<expert>.blocks.<i>` spelling. Targeting the checkpoint
+        spelling matches nothing and PEFT raises `NoMatchingPeftModuleError`.
+        """
+        return {
+            "target_modules": r"model\.mot\.layers\.\d+\.blocks\.action\.(self_attn|cross_attn)\.(q|v)",
+            "modules_to_save": [
+                "model.mot.mixtures.action.action_encoder",
+                "model.mot.mixtures.action.head",
+                "model.proprio_encoder",
+            ],
+        }
 
     def reset(self) -> None:
         self._action_queue: deque[Tensor] = deque([], maxlen=self.config.n_action_steps)

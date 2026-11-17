@@ -89,6 +89,13 @@ export interface TrainingConfig {
   // robot body, so the backend refuses to build the command without both.
   policy_action_dim?: number;
   policy_proprio_dim?: number;
+  // LoRA / PEFT. Full fine-tuning of a 6B backbone needs ~72 GB of training
+  // state, so a 32-48 GB card can only fine-tune with adapters. The policy
+  // supplies its own default target modules.
+  use_peft?: boolean;
+  peft_r?: number;
+  peft_alpha?: number;
+  peft_dropout?: number;
 }
 
 export type TrainingRunState =
