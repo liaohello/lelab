@@ -1,0 +1,18 @@
+fastwam-6d: OK job=fake-rmr-001 policy=fastwam
+fastwam-missing-dims: REFUSED fastwam requires explicit dimensions so the 7-action/8-state defaults are not applied to a 6- or 12-channel dataset; missing: ['policy_action_dim', 'policy_prop
+dims-on-act: OK job=fake-rmr-001 policy=act
+fineart-chinese-task: OK job=fake-rmr-001 policy=fineart_vla
+fastwam-remote: OK job=fake-rmr-001 policy=fastwam
+remote-inference-full: OK deployment=armA action_dim=6 task=pick the red block
+remote-inference-missing-identity: REFUSED [{"type":"value_error","loc":[],"msg":"Value error, Remote inference requires remote_deployment and remote_semantics; the 0.7 server never g
+file:///home/lfy/lelab-rmr/form-driver/driver.mjs:147
+    sent_policy_type: request.policy_type,
+                              ^
+
+TypeError: Cannot read properties of undefined (reading 'policy_type')
+    at file:///home/lfy/lelab-rmr/form-driver/driver.mjs:147:31
+    at Array.map (<anonymous>)
+    at file:///home/lfy/lelab-rmr/form-driver/driver.mjs:144:20
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.0

@@ -1,0 +1,64 @@
+{
+  "run_id": "20261116T171907Z-release-model-readiness",
+  "generated_utc": "2026-11-17T02:00:00Z",
+  "cache_check": {
+    "local_workstation_hf_cache": "no FastWAM/FineART/Wan/PI05 weights found in ~/.cache/huggingface or project HF_HOME",
+    "g128_hf_cache_before_this_run": "empty (no hub dir)",
+    "other_users_dirs_on_g128": "fastwam/fineart trees exist under other accounts; NOT used (not ours to consume)"
+  },
+  "network": {
+    "huggingface.co": "unreachable from workstation (proxy 502/000) and from g128 (timeout)",
+    "hf-mirror.com": "reachable from g128 (200); used via HF_ENDPOINT per existing project convention",
+    "pypi": "reachable from g128"
+  },
+  "repos": [
+    {
+      "repo_id": "lerobot/fastwam_base",
+      "revision": "main (pinned by snapshot download; commit recorded in snapshot dir)",
+      "role": "FastWAM policy weights (base model; relative-action opt-in handled by processor on fine-tune only)",
+      "size_GB": 12.04,
+      "files": 6,
+      "gated": false,
+      "status": "downloading to /home/lfy/lelab-rmr/hf-cache"
+    },
+    {
+      "repo_id": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
+      "revision": "main",
+      "role": "frozen Wan2.2 VAE + DiT + UMT5 text encoder/tokenizer required by FastWAM from_pretrained",
+      "size_GB": 34.2,
+      "files": 36,
+      "gated": false,
+      "status": "queued after fastwam_base in the same download job"
+    },
+    {
+      "repo_id": "lerobot/fineart_vla_base",
+      "revision": "main",
+      "role": "FineART-VLA base checkpoint (mid-trained subtask predictor) — second model, separate verification",
+      "size_GB": null,
+      "files": null,
+      "gated": false,
+      "status": "BLOCKED-FOR-NOW: mirror tree API returned empty body on repeat calls (rate limit); size unquantified (PI0.5 family, expect ~12-15 GB). Download deferred until FastWAM verification completes so the shared host's 97%-full disk keeps >=60 GB free; exact command recorded below"
+    },
+    {
+      "repo_id": "lerobot/pi05_base",
+      "revision": "main",
+      "role": "alternative FineART init (plain PI0.5); only needed if fineart_vla_base proves incomplete",
+      "status": "not started"
+    }
+  ],
+  "integrity_plan": {
+    "completeness": "snapshot_download returns the resolved snapshot dir; then verify every repo file is a real file with size>0 and no *.incomplete remnants; LFS pointer files are rejected explicitly (content check: safetensors magic bytes, not 'version https://git-lfs')",
+    "hashes": "safetensors metadata parsed and total tensor byte size compared against file size; repo-level commit hash recorded from the snapshot",
+    "verification_commands": [
+      "HF_ENDPOINT=https://hf-mirror.com HF_HOME=/home/lfy/lelab-rmr/hf-cache python -c \"from huggingface_hub import snapshot_download; print(snapshot_download('lerobot/fastwam_base'))\"",
+      "HF_ENDPOINT=https://hf-mirror.com HF_HOME=/home/lfy/lelab-rmr/hf-cache python -c \"from huggingface_hub import snapshot_download; print(snapshot_download('Wan-AI/Wan2.2-TI2V-5B-Diffusers'))\"",
+      "HF_ENDPOINT=https://hf-mirror.com HF_HOME=/home/lfy/lelab-rmr/hf-cache python -c \"from huggingface_hub import snapshot_download; print(snapshot_download('lerobot/fineart_vla_base'))\""
+    ]
+  },
+  "disk_budget": {
+    "free_before_GB": 113,
+    "fastwam_path_GB": 46.3,
+    "fineart_path_GB_estimate": 15,
+    "policy": "one model at a time; abort and record blocked if free space drops below 40 GB"
+  }
+}

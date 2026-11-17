@@ -1,0 +1,341 @@
+{
+  "run_id": "20261116T171907Z-release-model-readiness",
+  "branch": "codex/lerobot-070-integration",
+  "source_commit": "5daa788",
+  "python": "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python (3.12.3)",
+  "import_paths": {
+    "lerobot": "worktree releases/sanitized-20261024-01/lerobot/src (editable)",
+    "app": "releases/sanitized-20261024-01/app/lelab",
+    "app_ros_mobile": "worktree app_ros_mobile/lelab"
+  },
+  "env": {
+    "rlimit_as_bytes": 4294967296,
+    "nproc": 4096,
+    "blas_pinned": true
+  },
+  "cases": [
+    {
+      "case_id": "TC-ENV-01",
+      "status": "passed",
+      "artifacts": [
+        "../20261116T014700Z-m0/inventory.json",
+        "../20261116T014700Z-m0/origin-state.md"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-ENV-02",
+      "status": "passed",
+      "command": "env -u PYTHONPATH .venv/bin/python -c 'import lerobot; print(...)'",
+      "detail": "0.7.0 imported from worktree, no PYTHONPATH override",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-ENV-03",
+      "status": "partial",
+      "detail": "extra map covers fastwam/fineart_vla and remote; no simulated missing-extra host fixture",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-POL-01",
+      "status": "passed",
+      "tests": [
+        "test_train_cli_contract_070.py::test_generated_argv_parses_with_the_real_070_config",
+        "tests/policies/fineart_vla/test_fineart_vla.py",
+        "tests/policies/fastwam/test_fastwam_policy.py"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-POL-02",
+      "status": "partial",
+      "detail": "CPU float32/bfloat16 checkpoint tests passed; CUDA dtype cases skipped; no legacy torch_dtype checkpoint fixture",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-POL-03",
+      "status": "passed",
+      "tests": [
+        "tests/policies/fineart_vla/test_fineart_vla.py::test_processor_save_load_roundtrip_embeds_action_tokenizer"
+      ],
+      "detail": "fake tokenizer; no real Wan/PI05 tokenizer fidelity claim",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-POL-04",
+      "status": "passed",
+      "tests": [
+        "test_train_cli_contract_070.py (dimension gates)",
+        "tests/test_remote_inference.py::test_server_config_is_accepted_by_the_real_070_server_config"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-POL-05",
+      "status": "passed",
+      "tests": [
+        "tests/policies/fastwam/test_fastwam_policy.py::test_relative_actions_opt_in_on_a_saved_checkpoint"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-POL-06",
+      "status": "partial",
+      "detail": "FineART recipe/language-supervision tests passed; LeLab side only preflights task/field split, no planner claim",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-CLI-01",
+      "status": "passed",
+      "tests": [
+        "tests/test_train_cli_contract_070.py",
+        "tests/test_train.py"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-CLI-02",
+      "status": "partial",
+      "detail": "pretrained/type and groot-only gates retained; new-policy × GR00T matrix incomplete",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-CLI-03",
+      "status": "passed",
+      "detail": "Real interrupted-training resume now covered by the strengthened continuity test (resume via --config_path=pause checkpoint's train_config.json, same optimizer/scheduler state comparison); parser-level overrides covered by test_training_monitor_overrides. Supersedes the old 'real resume not run' partial.",
+      "command": "same as TC-CKP-02",
+      "exit_code": 0,
+      "source_commit": "5daa788",
+      "scope": "lerobot+app",
+      "verified_run": "20261116T171907Z-release-model-readiness"
+    },
+    {
+      "case_id": "TC-CLI-04",
+      "status": "partial",
+      "detail": "task passthrough and remote schema tested; missing-extra remote probe not simulated",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-SAF-01",
+      "status": "passed",
+      "tests": [
+        "tests/robots/test_so100_follower.py::test_all_three_guards_compose_in_the_documented_order"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-SAF-02",
+      "status": "passed",
+      "tests": [
+        "tests/robots/test_so100_follower.py::test_startup_workspace_origin_survives_a_step_towards_the_envelope"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-SAF-03",
+      "status": "passed",
+      "tests": [
+        "app/tests/test_calibrate.py::test_homing_step_passes_the_vendor_sign_and_lands_on_the_half_turn"
+      ],
+      "detail": "real Feetech motor definition sign, fake bus",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-SAF-04",
+      "status": "passed",
+      "tests": [
+        "app/tests/test_hardware_lease.py",
+        "app/tests/test_hardware_lease_api.py"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-SAF-05",
+      "status": "passed",
+      "tests": [
+        "app/tests/test_safety.py",
+        "app/tests/test_bimanual_recording.py::test_stop_recording_does_not_release_lease_early"
+      ],
+      "detail": "Estop contract hardened (5daa788): thread-start failure inside estop no longer misreports as 409 nor drops the latch; new regression test_estop_latches_even_when_the_host_cannot_start_threads passes standalone; all 9 originally environment-failed ROS nodes PASSED on g128 (57 passed).",
+      "command": "g128 rerun (see g128-rerun.log); standalone estop tests on workstation",
+      "exit_code": 0,
+      "source_commit": "5daa788",
+      "scope": "app_ros_mobile",
+      "verified_run": "20261116T171907Z-release-model-readiness"
+    },
+    {
+      "case_id": "TC-DAT-01",
+      "status": "passed",
+      "tests": [
+        "lerobot/tests/datasets/test_sampler.py"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-DAT-02",
+      "status": "passed",
+      "detail": "N1 config -> weights.json -> loader -> sampler path covered; 54-test local library suite",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-DAT-03",
+      "status": "passed",
+      "detail": "sealing/composite/remote-sync app tests in full app suite",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-DAT-04",
+      "status": "partial",
+      "detail": "Fixture independence fixed (5daa788): calibration example regenerated from the version-controlled simulated fixture, rejects with unmeasured_example. 9d_export nodes + recording module PASSED on g128 rerun. Remaining partial: full ROS suite on the workstation still hits thread/memory pressure (environment), and bimanual real-writer coverage unchanged.",
+      "command": "g128 rerun 57 passed; local suite 9 failed/813 passed (env)",
+      "exit_code": null,
+      "source_commit": "5daa788",
+      "scope": "app_ros_mobile",
+      "verified_run": "20261116T171907Z-release-model-readiness"
+    },
+    {
+      "case_id": "TC-CKP-01",
+      "status": "passed",
+      "tests": [
+        "app/tests/test_training_metrics_store.py"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-CKP-02",
+      "status": "passed",
+      "detail": "Real trainer continuity re-verified with strengthened assertions (cc935fe): 6-update run vs pause-after-2 + resume; requires 2<=paused_step<6 AND an actual post-resume train event; old bound allowed pause==final step (false pass). Measured old behaviour: marker written after 2 logged updates lands at step 3/4 (trainer checks after logging). 3 passed locally on this round.",
+      "command": "cd releases/sanitized-20261024-01/lerobot && env -u PYTHONPATH $PY -m pytest tests/scripts/test_pause_resume_continuity.py -q",
+      "exit_code": 0,
+      "source_commit": "5daa788",
+      "scope": "lerobot",
+      "verified_run": "20261116T171907Z-release-model-readiness"
+    },
+    {
+      "case_id": "TC-CKP-03",
+      "status": "passed",
+      "tests": [
+        "app/tests/test_pause_resume_state.py::test_resume_rejects_missing_or_corrupted_checkpoint"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-CKP-04",
+      "status": "partial",
+      "detail": "full checkpoint path covered; EMA/PEFT/DCP matrix not exercised",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-INF-01",
+      "status": "passed",
+      "tests": [
+        "tests/inference/test_prediction_parity.py",
+        "app/tests/test_remote_inference.py::test_stale_wrong_or_nonfinite_actions_are_not_dispatchable"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-INF-02",
+      "status": "passed",
+      "tests": [
+        "tests/remote_inference/test_remote_path.py::test_direct_remote_actions_match_local_pipeline_after_queue_drains",
+        "app/tests/test_remote_inference.py",
+        "app/tests/test_inference_070_jetson.py"
+      ],
+      "detail": "real Zenoh loopback with fake policy; no hardware",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-INF-03",
+      "status": "passed",
+      "detail": "0.7 generation/TTL/cancel tests passed; app-side stale action gate tested",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-INF-04",
+      "status": "partial",
+      "detail": "fake transport cancellation/lifecycle passed; LeLab end-to-end foreign-port and handshake injection not run",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-MOD-01",
+      "status": "partial",
+      "detail": "offline FastWAM config/dtype/forward tests passed; VAE shape test blocked by 4 GiB address-space limit",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-MOD-02",
+      "status": "passed",
+      "tests": [
+        "tests/policies/fineart_vla/test_fineart_vla.py"
+      ],
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-MOD-03",
+      "status": "passed",
+      "detail": "ACT/SmolVLA app suites passed with no new regression",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-UI-01",
+      "status": "partial",
+      "detail": "Production bundle wire-contract acceptance done without a DOM driver: verbatim-extracted configToRequest + frontend startTrainingJob/start-inference payloads driven against a harness validating with the REAL StartTrainingBody and InferenceRequest schemas (7 scenarios: fastwam 6d accepted; missing dims refused by the real gate; dims stripped for non-fastwam; fineart config accepted; ssh target carried; remote inference full accepted; remote missing identity refused by the 0.7 identity gate). Browser DOM interaction BLOCKED on this host: no Playwright/Chromium (not installed; Chromium cannot run under 4 GiB RLIMIT_AS), Firefox is snap-packaged and cannot run under sandbox capabilities. The WorkBuddy built-in preview can drive the live bundle at 127.0.0.1:8137.",
+      "command": "g128 node v24 driver (driver-report.txt) against workstation harness (ui_requests.jsonl)",
+      "exit_code": 0,
+      "source_commit": "5daa788",
+      "scope": "app",
+      "verified_run": "20261116T171907Z-release-model-readiness"
+    },
+    {
+      "case_id": "TC-UI-02",
+      "status": "partial",
+      "detail": "tsc exit 0 and production build exit 0 on g128; dist contains remoteDeployment; changed-file ESLint/Ruff not available in this environment",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-REL-01",
+      "status": "passed",
+      "artifacts": [
+        "candidate package with MANIFEST.json, SHA256SUMS, REHEARSAL.json"
+      ],
+      "detail": "1678 files, unpack/verify/tamper-reject/restore passed; original current untouched",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-REAL-01",
+      "status": "blocked",
+      "detail": "no local GPU; g128 V100S mostly occupied; no FastWAM/FineART weights found",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-REAL-02",
+      "status": "blocked",
+      "detail": "no language-labelled data or real FineART checkpoint",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-HW-01",
+      "status": "blocked",
+      "detail": "no device observation authorisation in this session",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    },
+    {
+      "case_id": "TC-HW-02",
+      "status": "blocked",
+      "detail": "no motion authorisation in this session",
+      "note": "carried from ../20261116T145909Z-m4m6/results.json; not re-run this round (no relevant change)"
+    }
+  ],
+  "provenance": {
+    "prior_ledger": "../20261116T145909Z-m4m6/results.json (kept, not modified)",
+    "independent_verification": "../20261116T154945Z-continuation-final/VERIFICATION.md",
+    "this_round_updates": [
+      "TC-CKP-02",
+      "TC-CLI-03",
+      "TC-SAF-05",
+      "TC-DAT-04",
+      "TC-UI-01"
+    ]
+  }
+}
