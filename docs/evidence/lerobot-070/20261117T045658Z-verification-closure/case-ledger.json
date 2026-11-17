@@ -1,0 +1,102 @@
+{
+  "run_id": "20261117T045658Z-verification-closure",
+  "branch": "codex/lerobot-070-integration",
+  "source_commit_start": "7b1667d8d9166a2ba7e5de29472c499b7ba0f250",
+  "commits": ["fa23bc7", "64527ac", "e9671f3"],
+  "python": "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python (3.12.3)",
+  "gpu_host": "g128 (V100S-PCIE-32GB, driver 535, torch 2.9.1+cu126)",
+  "env": {
+    "rlimit_as_bytes": 4294967296,
+    "nproc": 4096,
+    "blas_pinned": true,
+    "hf_endpoint": "https://hf-mirror.com"
+  },
+  "cases": [
+    {
+      "case_id": "VFY-01",
+      "status": "passed",
+      "command": ".venv/bin/python -m pytest releases/sanitized-20261024-01/lerobot/tests/verification/test_harness_selfcheck.py -q",
+      "detail": "17 passed in 0.43s; false/NaN/mismatch/exception + dependency paths; atomic report; required failure exits non-zero",
+      "artifacts": ["../../releases/sanitized-20261024-01/lerobot/tests/verification/test_harness_selfcheck.py"]
+    },
+    {
+      "case_id": "VFY-02",
+      "status": "passed",
+      "detail": "selfcheck reproduces the old queue-position diff and fails it; fixed comparison uses reset()+explicit noise on both sides",
+      "artifacts": ["../../releases/sanitized-20261024-01/lerobot/tests/verification/run_fastwam.py"]
+    },
+    {
+      "case_id": "VFY-03",
+      "status": "passed",
+      "command": "python run_fastwam.py --stages 1_integrity,2_load,3_chunk,4_save_reload,5_queue",
+      "detail": "exit 0; max_abs_diff=0.0 bitwise identical on save/reload; chunk [1,32,7] finite",
+      "artifacts": ["fastwam-verification-final.json", "fastwam-save-reload.json", "final-1to5.log"]
+    },
+    {
+      "case_id": "VFY-04",
+      "status": "passed",
+      "detail": "freeze_video_expert=true: 1 AdamW update completed on 34.08 GB, peak 21.67 GB, grads/state finite; freeze=false static bound 72.3 GB -> not run by design",
+      "artifacts": ["fastwam-stage5-freeze.json", "stage5-freeze.log", "STAGE5-MEMORY.md"]
+    },
+    {
+      "case_id": "SAF-DG-01",
+      "status": "passed",
+      "command": ".venv/bin/python -m pytest app_ros_mobile/tests/test_t4_hybrid_recording.py -q",
+      "detail": "26 passed in 25.71s; estop latches before lock/thread, response bounded while car save blocks",
+      "artifacts": ["ROS-ESTOP-CONTRACT.md"]
+    },
+    {
+      "case_id": "SAF-DG-02",
+      "status": "passed",
+      "detail": "sustained busy lock -> estop_confirmed=false + queued_pending_latch, worker latches later; repeated estop posts one session stop; state-advancing commands refused",
+      "artifacts": ["ROS-ESTOP-CONTRACT.md"]
+    },
+    {
+      "case_id": "SAF-DG-03",
+      "status": "passed",
+      "detail": "late save skips a new session; facade failure reported as facade_stop_ok=false, never as confirmed stop",
+      "artifacts": ["ROS-ESTOP-CONTRACT.md"]
+    },
+    {
+      "case_id": "FART-01",
+      "status": "blocked",
+      "detail": "checkpoint 8.71 GiB downloaded + SHA-256 verified; 1_integrity passed; 1b_tokenizer blocked (gated repo 403); 2_load failed at processor instantiation because the PaliGemma tokenizer is gated; 3/4 not_run",
+      "artifacts": ["fineart-verify.json", "fineart-run.log", "FINEART-STATUS.md", "fineart-inventory-g128.json"]
+    },
+    {
+      "case_id": "UI-DOM-01",
+      "status": "passed",
+      "command": "node dom_accept.mjs (Chromium, :8138)",
+      "detail": "31/31 assertions; FastWAM 6/6 dims on the wire; Chinese task + remote identity/units/timeout verbatim; 400 refusal surfaced; hard navigation serves SPA",
+      "artifacts": ["dom-acceptance.json", "dom-acceptance.log", "UI-ACCEPTANCE.md", "dom-01-training-filled.png", "dom-03-inference-remote.png", "dom-05-api-rejection.png"]
+    },
+    {
+      "case_id": "UI-BUILD-01",
+      "status": "passed",
+      "detail": "169 inputs -> 28 outputs; rebuild on g128 byte-identical (manifest sha 77028d17...); served bytes match manifest; local rebuild blocked by 4 GiB RLIMIT_AS (recorded)",
+      "artifacts": ["build-inputs.json", "frontend-inputs.sha256", "dist-manifest.sha256", "dist-manifest.rebuild-g128.sha256", "build-rebuild.log"]
+    },
+    {
+      "case_id": "PKG-01",
+      "status": "passed",
+      "detail": "app profile 1681 files, ros profile 1762 files; unpack/verify/tamper-reject/restore all passed for both",
+      "artifacts": ["lelab-app-070-20261117T070209Z/MANIFEST.json", "lelab-ros-070-20261117T070237Z/MANIFEST.json"]
+    },
+    {
+      "case_id": "TC-REAL-01",
+      "status": "partial",
+      "detail": "weights load and actions are finite, but the published base checkpoint has no action head/proprio encoder; action values come from freshly initialised layers",
+      "artifacts": ["STAGE5-MEMORY.md"]
+    },
+    {
+      "case_id": "TC-HW",
+      "status": "blocked",
+      "detail": "no device or motion authorisation; unchanged from previous rounds"
+    },
+    {
+      "case_id": "PROD-ACTIVATION",
+      "status": "not_run",
+      "detail": "no current switch, no deploy, no push"
+    }
+  ]
+}

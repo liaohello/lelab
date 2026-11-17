@@ -288,3 +288,8 @@ docs/evidence/**/*.mp4
 
 # Regenerable review candidate packages (tarballs and unpacked payloads).
 /docs/evidence/lerobot-070/*/lelab-lerobot070-*/
+
+# Profile candidates (app / ros): keep the reviewable manifest, checksums and
+# rehearsal record; the tarball and unpacked payload are regenerable artifacts.
+/docs/evidence/lerobot-070/*/lelab-*-070-*/candidate.tar.gz
+/docs/evidence/lerobot-070/*/lelab-*-070-*/payload/

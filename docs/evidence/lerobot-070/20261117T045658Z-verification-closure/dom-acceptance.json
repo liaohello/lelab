@@ -1,0 +1,170 @@
+{
+  "kind": "ui-dom-acceptance",
+  "base": "http://127.0.0.1:8138",
+  "ran_at": "2026-11-17T06:28:59.852Z",
+  "passed": 31,
+  "failed": 0,
+  "console_errors": [
+    "WebSocket connection to 'ws://127.0.0.1:8138/ws/joint-data' failed: Error during WebSocket handshake: Unexpected response code: 403",
+    "WebSocket connection to 'ws://127.0.0.1:8138/ws/joint-data' failed: Error during WebSocket handshake: Unexpected response code: 403",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  ],
+  "page_errors": [],
+  "assertions": [
+    {
+      "name": "landing renders",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "landing exposes a Training entry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "training form opens from the UI",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "policy defaults to ACT",
+      "ok": true,
+      "detail": "ACT (Action Chunking Transformer)"
+    },
+    {
+      "name": "dimension inputs hidden before switching",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "FastWAM dims start empty so 7/8 is never silently inherited",
+      "ok": true,
+      "detail": "{\"action\":\"\",\"proprio\":\"\"}"
+    },
+    {
+      "name": "Start is disabled with no dataset selected",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dataset selection unblocks Start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "browser POSTed exactly one training job",
+      "ok": true,
+      "detail": "posts=1"
+    },
+    {
+      "name": "wire carries fastwam + 6/6 dims from the DOM",
+      "ok": true,
+      "detail": "{\"p\":\"fastwam\",\"a\":6,\"s\":6}"
+    },
+    {
+      "name": "wire carries the dataset chosen in the DOM",
+      "ok": true,
+      "detail": "so101/pick_cube_local"
+    },
+    {
+      "name": "job page opens with the fake job",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Run on robot enabled once a checkpoint exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "inference dialog opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "remote target reveals deployment identity fields",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "remote dims default to the SO-101 6/6 pair",
+      "ok": true,
+      "detail": "{\"state\":\"6\",\"action\":\"6\",\"timeout\":\"5\"}"
+    },
+    {
+      "name": "Start Inference blocked until deployment/semantics are named",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Start Inference enabled with a complete remote contract",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "browser POSTed exactly one inference request",
+      "ok": true,
+      "detail": "posts=1"
+    },
+    {
+      "name": "Chinese task survives JS → JSON → schema",
+      "ok": true,
+      "detail": "\"把红色方块放进盒子里\""
+    },
+    {
+      "name": "remote identity/units travel verbatim",
+      "ok": true,
+      "detail": "{\"d\":\"so101_red\",\"s\":\"so101-degrees-gripper-percent-v1\"}"
+    },
+    {
+      "name": "remote dims + timeout come from the DOM",
+      "ok": true,
+      "detail": "{\"s\":6,\"a\":6,\"t\":6.5}"
+    },
+    {
+      "name": "policy type is carried for the remote server",
+      "ok": true,
+      "detail": "fastwam"
+    },
+    {
+      "name": "follower port/config come from the selected robot",
+      "ok": true,
+      "detail": "{\"p\":\"/dev/lelab-fake-follower\",\"c\":\"so101_follower\"}"
+    },
+    {
+      "name": "hard navigation to /training serves the SPA shell",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "cleared dimension reaches the backend and is refused",
+      "ok": true,
+      "detail": "posts=1"
+    },
+    {
+      "name": "backend refusal names the missing FastWAM dimension",
+      "ok": true,
+      "detail": "start_refused: fastwam requires explicit dimensions so the 7-action/8-state defaults are not applied to a 6- or 12-channel dataset; missing: ['policy_action_dim', 'policy_proprio_dim']"
+    },
+    {
+      "name": "refusal is shown to the operator, not swallowed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "failed submit stays on the form",
+      "ok": true,
+      "detail": "http://127.0.0.1:8138/training"
+    },
+    {
+      "name": "no uncaught JS exception during the flow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "console errors are limited to the deliberate refusal",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

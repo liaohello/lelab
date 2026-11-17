@@ -1,0 +1,217 @@
+{
+  "metadata": {
+    "runner": "run_fastwam.py",
+    "torch": "2.9.1+cu126",
+    "cuda_available": true,
+    "device": "Tesla V100S-PCIE-32GB",
+    "tolerance": {
+      "atol": 0.02,
+      "rtol": 0.02
+    },
+    "python": "3.12.16"
+  },
+  "stages": {
+    "1_integrity": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 12041526464
+          }
+        ],
+        "manifest": {
+          "policy": {
+            "repo": "lerobot/fastwam_base",
+            "commit": "385a4bd1df7a7895b24c6e530482092b7b08a783",
+            "bytes": 12041537389,
+            "files": 6
+          },
+          "wan_components": {
+            "repo": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
+            "commit": "b8fff7315c768468a5333511427288870b2e9635",
+            "bytes": 34203021834,
+            "files": 29
+          },
+          "tokenizer": {
+            "repo": "google/umt5-xxl",
+            "cache_dir": "/home/lfy/lelab-rmr/hf-cache/hub/models--google--umt5-xxl",
+            "files": [
+              "66cb9e7e85526fe440a945569e42c72fb6cbc0ad.json",
+              "added_tokens.json",
+              "config.json",
+              "generation_config.json",
+              "pytorch_model.bin.index.json",
+              "special_tokens_map.json",
+              "spiece.model",
+              "tokenizer.json",
+              "tokenizer_config.json"
+            ]
+          }
+        }
+      },
+      "seconds": 1.05
+    },
+    "2_load": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "load_seconds": 143.02,
+        "device": "cuda:0",
+        "config_dtype": "torch.bfloat16",
+        "text_encoder_device": "cpu",
+        "gradient_checkpointing": true,
+        "native_action_dim": 7,
+        "native_state_dim": 8,
+        "action_horizon": 32,
+        "n_action_steps": 32,
+        "registered_params_M": 6020.7,
+        "trainable_params_M": 6020.7,
+        "components": {
+          "vae": {
+            "numel_M": 704.7,
+            "registered_fraction": 0.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          },
+          "text_encoder": {
+            "numel_M": 5680.9,
+            "registered_fraction": 0.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cpu"
+            ]
+          },
+          "video_expert": {
+            "numel_M": 90.1,
+            "registered_fraction": 1.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          },
+          "action_expert": {
+            "numel_M": 12.9,
+            "registered_fraction": 1.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          },
+          "mot": {
+            "numel_M": 6020.7,
+            "registered_fraction": 1.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          },
+          "proprio_encoder": {
+            "numel_M": 0.0,
+            "registered_fraction": 1.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          }
+        }
+      },
+      "seconds": 143.02
+    },
+    "3_chunk": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "chunk": {
+          "shape": [
+            1,
+            32,
+            7
+          ],
+          "dtype": "torch.float32",
+          "numel": 224
+        },
+        "abs_max": 3.59375,
+        "sample": [
+          -1.2734,
+          -0.8906,
+          2.2656,
+          -1.5312
+        ]
+      },
+      "seconds": 44.68
+    },
+    "4_save_reload": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "determinism": {
+          "max_abs_diff": 0.0,
+          "mean_abs_diff": 0.0,
+          "reference_peak": 3.59375,
+          "tolerance": 0.09187500000000001,
+          "bitwise_identical": true
+        },
+        "comparison": {
+          "max_abs_diff": 0.0,
+          "mean_abs_diff": 0.0,
+          "reference_peak": 3.59375,
+          "tolerance": 0.09187500000000001,
+          "bitwise_identical": true
+        },
+        "saved_files": [
+          "config.json",
+          "model.safetensors"
+        ],
+        "saved_processor_files": [],
+        "reloaded_dtype": "torch.bfloat16",
+        "reloaded_text_encoder_device": "cpu"
+      },
+      "seconds": 253.96
+    },
+    "5_queue": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "rows_checked": 32
+      },
+      "seconds": 55.96
+    },
+    "6_backprop": {
+      "status": "not_run",
+      "reason": "not selected",
+      "required": false,
+      "seconds": 0.0
+    }
+  },
+  "selected": [
+    "1_integrity",
+    "2_load",
+    "3_chunk",
+    "4_save_reload",
+    "5_queue"
+  ],
+  "required_not_passed": [],
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T05:30:22Z"
+}

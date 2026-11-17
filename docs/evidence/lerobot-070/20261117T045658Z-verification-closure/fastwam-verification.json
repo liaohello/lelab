@@ -1,0 +1,198 @@
+{
+  "metadata": {
+    "runner": "run_fastwam.py",
+    "torch": "2.9.1+cu126",
+    "cuda_available": true,
+    "device": "Tesla V100S-PCIE-32GB",
+    "tolerance": {
+      "atol": 0.02,
+      "rtol": 0.02
+    },
+    "python": "3.12.16"
+  },
+  "stages": {
+    "1_integrity": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 12041526464
+          }
+        ],
+        "manifest": {
+          "policy": {
+            "repo": "lerobot/fastwam_base",
+            "commit": "385a4bd1df7a7895b24c6e530482092b7b08a783",
+            "bytes": 12041537389,
+            "files": 6
+          },
+          "wan_components": {
+            "repo": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
+            "commit": "b8fff7315c768468a5333511427288870b2e9635",
+            "bytes": 34203021834,
+            "files": 29
+          },
+          "tokenizer": {
+            "repo": "google/umt5-xxl",
+            "cache_dir": "/home/lfy/lelab-rmr/hf-cache/hub/models--google--umt5-xxl",
+            "files": [
+              "66cb9e7e85526fe440a945569e42c72fb6cbc0ad.json",
+              "added_tokens.json",
+              "config.json",
+              "generation_config.json",
+              "pytorch_model.bin.index.json",
+              "special_tokens_map.json",
+              "spiece.model",
+              "tokenizer.json",
+              "tokenizer_config.json"
+            ]
+          }
+        }
+      },
+      "seconds": 5.92
+    },
+    "2_load": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "load_seconds": 149.1,
+        "device": "cuda:0",
+        "config_dtype": "torch.bfloat16",
+        "text_encoder_device": "cpu",
+        "gradient_checkpointing": true,
+        "native_action_dim": 7,
+        "native_state_dim": 8,
+        "action_horizon": 32,
+        "n_action_steps": 32,
+        "registered_params_M": 6020.7,
+        "trainable_params_M": 6020.7,
+        "components": {
+          "vae": {
+            "numel_M": 704.7,
+            "registered_fraction": 0.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          },
+          "text_encoder": {
+            "numel_M": 5680.9,
+            "registered_fraction": 0.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cpu"
+            ]
+          },
+          "video_expert": {
+            "numel_M": 90.1,
+            "registered_fraction": 1.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          },
+          "action_expert": {
+            "numel_M": 12.9,
+            "registered_fraction": 1.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          },
+          "mot": {
+            "numel_M": 6020.7,
+            "registered_fraction": 1.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          },
+          "proprio_encoder": {
+            "numel_M": 0.0,
+            "registered_fraction": 1.0,
+            "dtypes": [
+              "bfloat16"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          }
+        }
+      },
+      "seconds": 149.1
+    },
+    "3_chunk": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "chunk": {
+          "shape": [
+            1,
+            32,
+            7
+          ],
+          "dtype": "torch.float32",
+          "numel": 224
+        },
+        "abs_max": 3.75,
+        "sample": [
+          -1.25,
+          -0.0918,
+          2.2031,
+          -0.2578
+        ]
+      },
+      "seconds": 45.33
+    },
+    "4_save_reload": {
+      "required": true,
+      "note": "",
+      "status": "blocked",
+      "blocked_reason": "need ~15 GB for a 12 GB checkpoint write; free=8.3 GB",
+      "data": {},
+      "seconds": 46.83
+    },
+    "5_queue": {
+      "required": true,
+      "note": "",
+      "status": "passed",
+      "data": {
+        "rows_checked": 32
+      },
+      "seconds": 46.1
+    },
+    "6_backprop": {
+      "status": "not_run",
+      "reason": "not selected",
+      "required": false,
+      "seconds": 0.0
+    }
+  },
+  "selected": [
+    "1_integrity",
+    "2_load",
+    "3_chunk",
+    "4_save_reload",
+    "5_queue"
+  ],
+  "required_not_passed": [
+    "4_save_reload"
+  ],
+  "exit_code": 1,
+  "finished_utc": "2026-11-17T05:05:42Z"
+}

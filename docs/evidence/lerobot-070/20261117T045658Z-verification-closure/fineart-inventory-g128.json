@@ -1,0 +1,233 @@
+{
+  "kind": "fineart-asset-inventory",
+  "case": "FART-01",
+  "checked_at": "2026-11-17T06:39:59Z",
+  "worktree": "/home/lfy/lelab-rmr",
+  "endpoint": "https://hf-mirror.com",
+  "source": {
+    "module": "releases/sanitized-20261024-01/lerobot/src/lerobot/policies/fineart_vla",
+    "classes": [
+      "FineARTVLAPolicy",
+      "FineARTVLAPytorch",
+      "_FlashRTNorms",
+      "_FlexMaskBuilder"
+    ],
+    "policy_class": "FineARTVLAPolicy",
+    "registered_type": "fineart_vla",
+    "base_config": "PI05Config",
+    "text_tokenizer_default": "MISSING",
+    "fast_tokenizer_default": "physical-intelligence/fast",
+    "processor_class": "MISSING",
+    "exports": [
+      "License",
+      "FineARTVLAConfig"
+    ],
+    "flash_kernels": [
+      [
+        "flashrt/flashrt-adarms-train",
+        "v1"
+      ],
+      [
+        "flashrt/flashrt-flex-attention-train",
+        "v1"
+      ]
+    ],
+    "selected_defaults": {
+      "text_loss_weight": "1.0",
+      "flow_loss_weight": "10.0",
+      "enable_fast_action_loss": "True",
+      "max_action_tokens": "256",
+      "fast_skip_tokens": "1152",
+      "knowledge_insulation": "True"
+    }
+  },
+  "checkpoint": {
+    "requested": "lerobot/fineart_vla_base",
+    "canonical": "lerobot/fineart_vla_base",
+    "revision": "b6cf4faf2630f971dd390bc32365e9d9c330da8e",
+    "last_modified": "2026-10-23T07:53:26.000Z",
+    "gated": false,
+    "file_count": 15,
+    "bytes": 9354537811,
+    "largest": [
+      {
+        "path": "model.safetensors",
+        "bytes": 9354050752,
+        "sha256": "9e384c7351e5e42008efa34c5e3485bf071ca0d5c00490aa6bb63167022dd197"
+      },
+      {
+        "path": "action_tokenizer/bpe_tokenizer/tokenizer.json",
+        "bytes": 421620,
+        "sha256": null
+      },
+      {
+        "path": "LICENSE",
+        "bytes": 10598,
+        "sha256": null
+      },
+      {
+        "path": "train_config.json",
+        "bytes": 9254,
+        "sha256": null
+      },
+      {
+        "path": "policy_preprocessor_step_3_normalizer_processor.safetensors",
+        "bytes": 8320,
+        "sha256": "5cb5578f0c78e5e476d9e803110fb249ced2c4bfba5aebf1bf19d5640312c23b"
+      },
+      {
+        "path": "policy_postprocessor_step_0_unnormalizer_processor.safetensors",
+        "bytes": 8304,
+        "sha256": "cb48672d240fe64311457e6545c84f54506f8848fb0fab8f3c72745df61a0392"
+      }
+    ],
+    "files": [
+      {
+        "path": "model.safetensors",
+        "bytes": 9354050752,
+        "sha256": "9e384c7351e5e42008efa34c5e3485bf071ca0d5c00490aa6bb63167022dd197"
+      },
+      {
+        "path": "action_tokenizer/bpe_tokenizer/tokenizer.json",
+        "bytes": 421620,
+        "sha256": null
+      },
+      {
+        "path": "LICENSE",
+        "bytes": 10598,
+        "sha256": null
+      },
+      {
+        "path": "train_config.json",
+        "bytes": 9254,
+        "sha256": null
+      },
+      {
+        "path": "policy_preprocessor_step_3_normalizer_processor.safetensors",
+        "bytes": 8320,
+        "sha256": "5cb5578f0c78e5e476d9e803110fb249ced2c4bfba5aebf1bf19d5640312c23b"
+      },
+      {
+        "path": "policy_postprocessor_step_0_unnormalizer_processor.safetensors",
+        "bytes": 8304,
+        "sha256": "cb48672d240fe64311457e6545c84f54506f8848fb0fab8f3c72745df61a0392"
+      },
+      {
+        "path": "policy_preprocessor.json",
+        "bytes": 8118,
+        "sha256": null
+      },
+      {
+        "path": "README.md",
+        "bytes": 7313,
+        "sha256": null
+      },
+      {
+        "path": "action_tokenizer/processing_action_tokenizer.py",
+        "bytes": 6145,
+        "sha256": null
+      },
+      {
+        "path": "config.json",
+        "bytes": 3928,
+        "sha256": null
+      },
+      {
+        "path": ".gitattributes",
+        "bytes": 1519,
+        "sha256": null
+      },
+      {
+        "path": "policy_postprocessor.json",
+        "bytes": 780,
+        "sha256": null
+      },
+      {
+        "path": "NOTICE",
+        "bytes": 573,
+        "sha256": null
+      },
+      {
+        "path": "action_tokenizer/bpe_tokenizer/tokenizer_config.json",
+        "bytes": 334,
+        "sha256": null
+      },
+      {
+        "path": "action_tokenizer/processor_config.json",
+        "bytes": 253,
+        "sha256": null
+      }
+    ]
+  },
+  "text_tokenizer": {
+    "repo": "google/paligemma-3b-pt-224",
+    "revision": "35e4f46485b4d07967e7e9935bc3786aad50687c",
+    "files": [
+      {
+        "path": "tokenizer.model",
+        "bytes": 4264023,
+        "sha256": "8986bb4f423f07f8c7f70d0dbe3526fb2316056c17bae71b1ea975e77a168fc6"
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "bytes": 62552,
+        "sha256": null
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 39968,
+        "sha256": null
+      },
+      {
+        "path": "config.json",
+        "bytes": 1027,
+        "sha256": null
+      },
+      {
+        "path": "preprocessor_config.json",
+        "bytes": 699,
+        "sha256": null
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 607,
+        "sha256": null
+      },
+      {
+        "path": "generation_config.json",
+        "bytes": 137,
+        "sha256": null
+      },
+      {
+        "path": "added_tokens.json",
+        "bytes": 24,
+        "sha256": null
+      }
+    ],
+    "bytes": 4369037
+  },
+  "fast_tokenizer": {
+    "repo": "physical-intelligence/fast",
+    "revision": "ec4d7aa71691cac0b8bed6942be45684db2110f4",
+    "bytes": 698459,
+    "note": "training-only; inference does not need it"
+  },
+  "budget": {
+    "checkpoint_bytes": 9354537811,
+    "text_tokenizer_bytes": 4369037,
+    "fast_tokenizer_bytes": 698459,
+    "download_total_bytes": 9358906848,
+    "training_extra_bytes": 698459,
+    "download_total_gib": 8.72,
+    "inference_weights_bf16_gib": 8.71,
+    "note": "download_total = checkpoint + tokenizer files; FAST is training-only; VRAM for activations is not derived from file size and is not claimed here.",
+    "projected_download_minutes": 60.5
+  },
+  "probe": {
+    "ok": true,
+    "bytes": 16777216,
+    "seconds": 6.52,
+    "mib_per_s": 2.46,
+    "target": "model.safetensors"
+  }
+}
