@@ -41,6 +41,49 @@ EXTRA_EXCLUDES = (
 )
 
 
+PROFILES: dict[str, dict] = {
+    "app": {
+        "components": {
+            "app": "releases/sanitized-20261024-01/app",
+            "lerobot": "releases/sanitized-20261024-01/lerobot",
+        },
+        "ui_dist": "releases/sanitized-20261024-01/app/frontend/dist",
+        "requires": [
+            "python>=3.12",
+            "lerobot[core_scripts,feetech,training,remote]>=0.7.0,<0.8.0",
+        ],
+        "notes": "web workbench: FastAPI backend + built frontend + sibling LeRobot fork",
+    },
+    "ros": {
+        "components": {
+            "app_ros_mobile": "app_ros_mobile",
+            "lerobot": "releases/sanitized-20261024-01/lerobot",
+            "lelab_mobile_agent": "ros2_ws/src/lelab_mobile_agent",
+        },
+        "ui_dist": "app_ros_mobile/frontend/dist",
+        "requires": [
+            "python>=3.12",
+            "lerobot[core_scripts,feetech,training,remote]>=0.7.0,<0.8.0",
+            "ROS 2 (rclpy, rosbag2_py) on the car host",
+            "lelab_mobile_agent launch/config from ros2_ws/src/lelab_mobile_agent",
+        ],
+        "notes": "ROS mobile station: ros_mobile backend + agent package; not covered by the app candidate",
+    },
+}
+
+
+def _profile_sources(worktree: Path, profile: str) -> tuple[dict[str, Path], str | None, list[str]]:
+    spec = PROFILES.get(profile)
+    if spec is None:
+        raise SystemExit(f"unknown profile {profile!r}; known: {sorted(PROFILES)}")
+    sources = {name: worktree / rel for name, rel in spec["components"].items()}
+    missing = [f"{name}: {path}" for name, path in sources.items() if not path.is_dir()]
+    if missing:
+        raise SystemExit("missing profile components:\n  " + "\n  ".join(missing))
+    ui = worktree / spec["ui_dist"] if spec.get("ui_dist") else None
+    return sources, (str(ui) if ui and ui.is_dir() else None), list(spec["requires"])
+
+
 def _excludes(worktree: Path) -> list[str]:
     source = worktree / "releases/sanitized-20261024-01/app/deploy/source-excludes.txt"
     patterns = list(EXTRA_EXCLUDES)
@@ -90,28 +133,25 @@ def _revision(worktree: Path) -> str:
         return "unknown"
 
 
-def build(worktree: Path, output: Path) -> dict[str, object]:
-    app = worktree / "releases/sanitized-20261024-01/app"
-    library = worktree / "releases/sanitized-20261024-01/lerobot"
-    dist = app / "frontend/dist"
-    for path in (app, library, dist):
-        if not path.is_dir():
-            raise SystemExit(f"missing required source directory: {path}")
-    index = dist / "index.html"
-    js_files = sorted((dist / "assets").glob("*.js"))
-    has_form = any("remoteDeployment" in path.read_text(errors="ignore") for path in js_files)
-    if not index.is_file() or not has_form:
-        raise SystemExit("dist does not contain the rebuilt remote-deployment form")
+def build(worktree: Path, output: Path, profile: str = "app") -> dict[str, object]:
+    sources, ui_dist, requires = _profile_sources(worktree, profile)
+    if profile == "app":
+        dist = Path(sources["app"]) / "frontend/dist"
+        index = dist / "index.html"
+        js_files = sorted((dist / "assets").glob("*.js"))
+        has_form = any("remoteDeployment" in p.read_text(errors="ignore") for p in js_files)
+        if not index.is_file() or not has_form:
+            raise SystemExit("dist does not contain the rebuilt remote-deployment form")
 
     patterns = _excludes(worktree)
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    package_root = output / f"lelab-lerobot070-{run_id}"
+    package_root = output / f"lelab-{profile}-070-{run_id}"
     package_root.mkdir(parents=True, exist_ok=False)
     payload = package_root / "payload"
     payload.mkdir()
 
     included: dict[str, dict[str, str]] = {}
-    for name, source in (("app", app), ("lerobot", library)):
+    for name, source in sources.items():
         target = payload / name
         shutil.copytree(
             source,
@@ -128,14 +168,14 @@ def build(worktree: Path, output: Path) -> dict[str, object]:
     }
     manifest = {
         "candidate": package_root.name,
+        "profile": profile,
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "revision": _revision(worktree),
         "branch": "codex/lerobot-070-integration",
-        "source": {
-            "app": "releases/sanitized-20261024-01/app",
-            "lerobot": "releases/sanitized-20261024-01/lerobot",
-            "frontend_dist": "releases/sanitized-20261024-01/app/frontend/dist",
-        },
+        "source": {name: str(path.relative_to(worktree)) for name, path in sources.items()},
+        "frontend_dist": str(Path(ui_dist).relative_to(worktree)) if ui_dist else None,
+        "requires": requires,
+        "profile_notes": PROFILES[profile]["notes"],
         "excludes": patterns,
         "file_count": len(hashes),
         "sha256": hashes,
@@ -174,7 +214,10 @@ def rehearse(package_root: Path) -> dict[str, object]:
             )
 
         result["verify"] = "passed" if verify() else "failed"
-        victim = next(name for name in expected if name.startswith("app/frontend/dist/"))
+        # Any payload file works as the tamper victim; prefer a built asset so the
+        # rehearsal also proves the dist is hashed, then fall back to the first.
+        preferred = [n for n in expected if "/frontend/dist/" in n]
+        victim = preferred[0] if preferred else sorted(expected)[0]
         target = payload / victim
         original = target.read_bytes()
         target.write_bytes(original + b"\n")
@@ -188,8 +231,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--worktree", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--profile", choices=sorted(PROFILES), default="app")
     args = parser.parse_args()
-    summary = build(args.worktree.resolve(), args.output.resolve())
+    summary = build(args.worktree.resolve(), args.output.resolve(), args.profile)
     print(json.dumps(summary, indent=2))
 
 
