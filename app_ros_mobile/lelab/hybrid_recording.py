@@ -638,7 +638,13 @@ class HybridRecordingController:
             return self.status()
 
     def estop(self, reason: str = "operator") -> dict[str, Any]:
-        """Preempt first; recording serialization and saving stay off the stop path."""
+        """Preempt first; recording serialization and saving stay off the stop path.
+
+        Thread creation for the deferred save is best effort: a host that cannot
+        start the worker thread must not turn the safety latch into an HTTP error
+        or lose the latch. The latch is applied before any deferral decision, and
+        a failed spawn falls back to finishing inline.
+        """
         facade_result: Any = None
         try:
             emergency_stop = getattr(self.facade, "emergency_stop", None)
@@ -652,17 +658,17 @@ class HybridRecordingController:
         if acquired:
             try:
                 pending = self._latch_estop_locked(reason)
+                save_mode = "none"
                 if pending:
-                    if self.background:
-                        thread = threading.Thread(
-                            target=self._finish_after_estop,
-                            args=(reason,), name="hybrid-estop-save", daemon=True)
-                        self._pending_estop_save = thread
-                        thread.start()
+                    if self.background and self._spawn_estop_thread(
+                            self._finish_after_estop, (reason,), "hybrid-estop-save"):
+                        save_mode = "deferred"
                     else:
                         self._finish_after_estop(reason)
+                        save_mode = "inline"
                 return {
                     "estop": True, "save_deferred": bool(pending),
+                    "save_mode": save_mode,
                     "preempted_recording_lock": False,
                     "outputs_enabled": False, "facade": facade_result,
                     "recording": self.status(),
@@ -673,20 +679,64 @@ class HybridRecordingController:
         # Another recording/car operation owns the controller lock.  The facade
         # stop above has already run; finish latching and persistence asynchronously.
         with self._estop_worker_lock:
-            if not self._estop_worker_started:
+            worker_needed = not self._estop_worker_started
+            if worker_needed:
                 self._estop_worker_started = True
-                thread = threading.Thread(
-                    target=self._finish_queued_estop, args=(reason,),
-                    name="hybrid-estop-preempt", daemon=True)
-                self._pending_estop_save = thread
-                thread.start()
-        return {
-            "estop": True, "save_deferred": True, "preempted_recording_lock": True,
-            "outputs_enabled": False, "facade": facade_result,
-            "recording": {"status": "estop_pending",
-                          "session_id": self.session_id,
-                          "session_epoch": self.session_epoch},
-        }
+        if worker_needed and self._spawn_estop_thread(
+                self._finish_queued_estop, (reason,), "hybrid-estop-preempt"):
+            return {
+                "estop": True, "save_deferred": True, "save_mode": "deferred",
+                "preempted_recording_lock": True,
+                "outputs_enabled": False, "facade": facade_result,
+                "recording": {"status": "estop_pending",
+                              "session_id": self.session_id,
+                              "session_epoch": self.session_epoch},
+            }
+        if not worker_needed:
+            # An earlier worker already owns the latching; report the pending
+            # state without duplicating it.
+            return {
+                "estop": True, "save_deferred": True, "save_mode": "deferred",
+                "preempted_recording_lock": True,
+                "outputs_enabled": False, "facade": facade_result,
+                "recording": {"status": "estop_pending",
+                              "session_id": self.session_id,
+                              "session_epoch": self.session_epoch},
+            }
+        # The worker thread could not start (e.g. host thread exhaustion). The
+        # latch is still mandatory: wait briefly for the lock and apply it inline
+        # rather than reporting the stop as a mere conflict.
+        with self._estop_worker_lock:
+            self._estop_worker_started = False
+        if self.lock.acquire(timeout=self._ESTOP_INLINE_LATCH_TIMEOUT_S):
+            try:
+                pending = self._latch_estop_locked(reason)
+                if pending:
+                    self._finish_after_estop(reason)
+                return {
+                    "estop": True, "save_deferred": bool(pending),
+                    "save_mode": "inline" if pending else "none",
+                    "preempted_recording_lock": True,
+                    "outputs_enabled": False, "facade": facade_result,
+                    "recording": self.status(),
+                }
+            finally:
+                self.lock.release()
+        raise RuntimeError("estop_latch_unavailable")
+
+    _ESTOP_INLINE_LATCH_TIMEOUT_S = 5.0
+
+    def _spawn_estop_thread(self, target, args, name: str) -> bool:
+        """Start one daemon worker; return False instead of raising when the host
+        cannot create threads, so callers can finish inline."""
+        thread = threading.Thread(target=target, args=args, name=name, daemon=True)
+        self._pending_estop_save = thread
+        try:
+            thread.start()
+        except (RuntimeError, OSError):
+            self._pending_estop_save = None
+            return False
+        return True
 
     def _latch_estop_locked(self, reason: str) -> bool:
         was_active = self.status_value == ACTIVE

@@ -368,8 +368,28 @@ def test_calibration_strict_policy_rejects_examples_mismatch_and_over_age():
     assets = calibration_assets_fixture()
     now_ts = datetime.fromisoformat("2026-11-04T00:00:00+00:00").timestamp()
     assert validate_asset_strict("base", assets["base"], now_ts=now_ts) == []
-    example = json.loads((ROOT / "docs/evidence/parallel-20261104/T3/calibration-schema-example.json").read_text())
-    assert not validate_bundle(example["bundle"], example["assets"])["ready"]
+    # A schema *example* document (assets that are not measured hardware evidence)
+    # must never satisfy the bundle gate. The historical case lived in a private
+    # evidence tree; it is regenerated here from the version-controlled simulated
+    # fixture so the rejection contract stays reproducible without copying
+    # private device records.
+    example_assets = copy.deepcopy(assets)
+    for kind, asset in example_assets.items():
+        asset["identity"] = f"schema-example-{kind}"
+        asset["measured"] = False
+        asset["example"] = True
+        asset.pop("content_sha256", None)
+        asset.pop("version", None)
+    example_bundle = {
+        "schema_version": 1,
+        "kind": "rig_bundle",
+        "assets": {kind: {"identity": asset["identity"]} for kind, asset in example_assets.items()},
+    }
+    example_result = validate_bundle(example_bundle, example_assets)
+    assert not example_result["ready"]
+    assert any(reason.endswith("unmeasured_example") for reason in example_result["reasons"]), (
+        example_result["reasons"]
+    )
 
     wrong_role = copy.deepcopy(assets["base"])
     wrong_role["role"] = "so101_leader"

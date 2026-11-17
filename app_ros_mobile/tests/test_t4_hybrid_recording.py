@@ -471,3 +471,71 @@ def test_the_event_journal_keeps_session_epoch_and_never_claims_output():
     assert [e['kind'] for e in controller.events] == [
         'recording_session_started', 'episode_started', 'phase_started', 'episode_ended']
     assert all(e['session_epoch'] == 4242 and e['clock_epoch'] for e in controller.events)
+
+
+
+def test_estop_latches_even_when_the_host_cannot_start_threads(monkeypatch):
+    """A thread-exhausted host must not turn the safety latch into an HTTP error.
+
+    `_hybrid_guard` maps RuntimeError to 409, so a `threading.Thread.start()`
+    failure inside the estop path surfaced as "conflict" — and on the busy-lock
+    fallback it silently dropped the latch entirely. The estop must latch first
+    and finish the deferred save inline instead. The failure is simulated at the
+    controller's own spawn helper, which is exactly where host thread exhaustion
+    raises, without breaking the TestClient's portal threads.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import t4_fixtures as fx
+
+    monkeypatch.setattr(
+        ros_mobile.HybridRecordingController, "_spawn_estop_thread",
+        lambda self, target, args, name: False)
+
+    # --- primary path: latch applied, deferred save falls back to inline ---
+    facade = fx.FakeFacade()
+    car = fx.FakeCar()
+    controller = ros_mobile.HybridRecordingController(
+        facade, car, clock_ns=lambda: 1, wall_ns=lambda: 2, background=True)
+    monkeypatch.setattr(ros_mobile, '_HYBRID_RECORDING', controller)
+    app = FastAPI(); app.include_router(ros_mobile.router)
+    client = TestClient(app)
+    client.post('/ros-mobile/hybrid/recording', json={'action': 'start_session'})
+    client.post('/ros-mobile/hybrid/recording', json={'action': 'start_episode'})
+    response = client.post('/ros-mobile/hybrid/control',
+                           json={'action': 'estop', 'reason': 'operator'})
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload['estop'] is True and payload['outputs_enabled'] is False
+    assert payload['save_mode'] == 'inline'
+    assert controller.status()['status'] == 'invalid'
+    ended = [c for c in car.calls if c[0] == '/recording/end_episode']
+    assert ended and ended[-1][1].get('discarded') is True
+
+    # --- fallback path: lock held by ANOTHER thread, no worker thread available ---
+    import threading
+    import time
+
+    controller2 = ros_mobile.HybridRecordingController(
+        fx.FakeFacade(), fx.FakeCar(), clock_ns=lambda: 1, wall_ns=lambda: 2,
+        background=True)
+    holder_ready = threading.Event()
+
+    def hold_lock_briefly():
+        with controller2.lock:
+            holder_ready.set()
+            time.sleep(0.5)  # release while the estop's bounded latch waits
+    holder = threading.Thread(target=hold_lock_briefly, name="estop-lock-holder", daemon=True)
+    holder.start()
+    assert holder_ready.wait(timeout=5)
+    try:
+        # The estop cannot take the lock now and cannot spawn the worker, so it
+        # must fall back to the bounded inline latch instead of erroring out.
+        result = controller2.estop('operator')
+    finally:
+        holder.join(timeout=5)
+    assert result['estop'] is True and result['outputs_enabled'] is False
+    assert result['preempted_recording_lock'] is True
+    # A fresh controller has no open session data, so there is nothing to save;
+    # the latch itself must still be applied.
+    assert result['save_mode'] == 'none' and result['save_deferred'] is False
+    assert controller2.status()['status'] == 'invalid'
