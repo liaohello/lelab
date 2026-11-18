@@ -74,7 +74,10 @@ def iter_anchor_samples(view: Path, episodes, fps: float, camera_keys, horizon: 
                 "action": [i / fps for i in range(horizon)],
             },
             video_backend=video_backend,
-            return_uint8=True,
+            # float32 in [0,1], exactly what the training loader fed the model.
+            # `return_uint8=True` breaks the model's bilinear resize:
+            # "upsample_bilinear2d_out_frame" is not implemented for Byte.
+            return_uint8=False,
         )
         for offset in anchor_indices(ep_len):
             sample = ds[offset]
@@ -118,6 +121,8 @@ def main() -> int:
     ap.add_argument("--out", required=True, type=Path)
     ap.add_argument("--report", required=True, type=Path)
     ap.add_argument("--device", default="cuda")
+    ap.add_argument("--text-encoder-device", default="cpu",
+                    help="keep UMT5 off the GPU: 12 GB DiT + 10 GB text encoder does not fit 32 GB")
     ap.add_argument("--label", default="")
     args = ap.parse_args()
 
@@ -146,6 +151,7 @@ def main() -> int:
         n_action_steps=HORIZON,
         dtype=torch.bfloat16,
         device=args.device,
+        text_encoder_device=args.text_encoder_device,
     )
     cfg.set_dataset_feature_metadata(info["features"])
 
@@ -217,6 +223,7 @@ def main() -> int:
         "role": args.role,
         "policy_source": source,
         "device": args.device,
+        "text_encoder_device": args.text_encoder_device,
         "action_dim": action_dim,
         "state_dim": state_dim,
         "camera_keys": camera_keys,

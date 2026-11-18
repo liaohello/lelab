@@ -79,7 +79,9 @@ def main() -> int:
             # unequal and would report a false failure.
             images[key] = {"shape": list(frame.shape), "dtype": str(frame.dtype)}
             expected_frames = len(range(0, args.horizon + 1, 4))
-            if frame.shape[0] != expected_frames or frame.dtype != torch.uint8:
+            # float32 [0,1] is the training-parity dtype; uint8 breaks the model's
+            # bilinear resize inside _stack_video_from_images.
+            if frame.shape[0] != expected_frames or frame.dtype != torch.float32:
                 images_ok = False
         # A window that starts near the end must be padded, an interior one must not.
         remaining = lengths[ep] - offset
@@ -102,7 +104,7 @@ def main() -> int:
     )
     checks["chunk_shapes_ok"] = shapes_ok
     checks["pad_mask_present_and_explained"] = pad_ok
-    checks["nine_video_frames_uint8"] = images_ok
+    checks["nine_video_frames_float"] = images_ok
     checks["anchors_unique"] = len({(e, f) for e, f, _, _ in seen}) == len(seen)
 
     tail = None
@@ -118,7 +120,7 @@ def main() -> int:
                 **{k: [i / fps for i in range(0, args.horizon + 1, 4)] for k in camera_keys},
                 "action": [i / fps for i in range(args.horizon)],
             },
-            video_backend="pyav", return_uint8=True,
+            video_backend="pyav", return_uint8=False,
         )
         sample = ds[last]
         pad = sample["action_is_pad"].numpy().astype(bool)

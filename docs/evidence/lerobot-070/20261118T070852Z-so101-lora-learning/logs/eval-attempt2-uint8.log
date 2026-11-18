@@ -1,0 +1,42 @@
+=== step0 reference (no adapter) 00:11:58 ===
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+Loading weights:   0%|          | 0/242 [00:00<?, ?it/s]Loading weights: 100%|██████████| 242/242 [00:00<00:00, 5736.92it/s]
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py:206: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
+  warnings.warn(
+The config attributes {'clip_output': False} were passed to AutoencoderKLWan, but are not expected and will be ignored. Please verify your config.json configuration file.
+There are modules in AutoencoderKLWan that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+[transformers] The tokenizer you are loading from 'google/umt5-xxl' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+WARNING:root:Missing key(s) when loading model: {'model.mot.mixtures.action.head.weight', 'model.mot.mixtures.action.action_encoder.bias', 'model.proprio_encoder.bias', 'model.mot.mixtures.action.head.bias', 'model.proprio_encoder.weight', 'model.mot.mixtures.action.action_encoder.weight'}
+Loading weights from local directory
+Traceback (most recent call last):
+  File "/home/lfy/lelab-rmr/closure/so101-lora/collect_predictions.py", line 243, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/lfy/lelab-rmr/closure/so101-lora/collect_predictions.py", line 186, in main
+    chunk = policy.predict_action_chunk(batch, noise=noise)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/fastwam/modeling_fastwam.py", line 355, in predict_action_chunk
+    infer_kwargs = _batch_to_infer_kwargs(batch=batch, config=self.config)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/fastwam/modeling_fastwam.py", line 473, in _batch_to_infer_kwargs
+    "input_image": _input_image_from_batch(batch, config),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/fastwam/modeling_fastwam.py", line 587, in _input_image_from_batch
+    video = _stack_video_from_images(batch, config)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/fastwam/modeling_fastwam.py", line 568, in _stack_video_from_images
+    images = [_resize_frames(batch[key], per_cam) for key in image_keys]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/fastwam/modeling_fastwam.py", line 555, in _resize_frames
+    flat = torch.nn.functional.interpolate(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/torch/nn/functional.py", line 4755, in interpolate
+    return torch._C._nn._upsample_bilinear2d_aa(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NotImplementedError: "upsample_bilinear2d_out_frame" not implemented for 'Byte'
+[W1119 00:14:22.739430904 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())

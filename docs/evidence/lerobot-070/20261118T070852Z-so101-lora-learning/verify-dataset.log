@@ -1,0 +1,20 @@
+{
+  "episodes": 120,
+  "frames": 89194,
+  "missing": 0,
+  "frames_match": true,
+  "split": [
+    100,
+    20
+  ],
+  "dt_ok": [
+    true,
+    true,
+    true
+  ],
+  "stats": {
+    "declared_episodes": 100,
+    "declared_frames": 74131,
+    "state_mean_max_abs_diff": 0.02383954272427502
+  }
+}

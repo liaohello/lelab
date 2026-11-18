@@ -1,0 +1,41 @@
+=== step0 reference (no adapter) 00:07:04 ===
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+Loading weights:   0%|          | 0/242 [00:00<?, ?it/s]Loading weights: 100%|██████████| 242/242 [00:00<00:00, 5534.56it/s]
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py:206: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
+  warnings.warn(
+The config attributes {'clip_output': False} were passed to AutoencoderKLWan, but are not expected and will be ignored. Please verify your config.json configuration file.
+There are modules in AutoencoderKLWan that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+[transformers] The tokenizer you are loading from 'google/umt5-xxl' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+Loading weights from local directory
+Traceback (most recent call last):
+  File "/home/lfy/lelab-rmr/closure/so101-lora/collect_predictions.py", line 239, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/lfy/lelab-rmr/closure/so101-lora/collect_predictions.py", line 161, in main
+    policy, source = _load_policy(args, cfg)
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/closure/so101-lora/collect_predictions.py", line 94, in _load_policy
+    base = FastWAMPolicy.from_pretrained(args.base_checkpoint, config=cfg)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/fastwam/modeling_fastwam.py", line 166, in from_pretrained
+    return super().from_pretrained(pretrained_name_or_path, config=config, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/pretrained.py", line 200, in from_pretrained
+    policy = cls._load_as_safetensor(instance, model_file, device, strict)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/fastwam/modeling_fastwam.py", line 194, in _load_as_safetensor
+    return super()._load_as_safetensor(model, model_file, map_location, strict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/releases/sanitized-20261024-01/lerobot/src/lerobot/policies/pretrained.py", line 224, in _load_as_safetensor
+    missing_keys, unexpected_keys = load_model_as_safetensor(
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/safetensors/torch.py", line 228, in load_model
+    state_dict = load_file(filename, device=device, backend=backend)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/safetensors/torch.py", line 360, in load_file
+    return f.get_tensors()
+           ^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 18.00 MiB. GPU 0 has a total capacity of 31.74 GiB of which 30.75 MiB is free. Including non-PyTorch memory, this process has 31.71 GiB memory in use. Of the allocated memory 31.39 GiB is allocated by PyTorch, and 12.46 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[W1119 00:09:34.491866856 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
