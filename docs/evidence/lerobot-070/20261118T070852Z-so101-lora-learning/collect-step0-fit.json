@@ -1,0 +1,104 @@
+{
+  "kind": "so101-anchor-predictions",
+  "label": "fit-step0",
+  "role": "train",
+  "policy_source": "base",
+  "device": "cuda",
+  "text_encoder_device": "cpu",
+  "action_dim": 12,
+  "state_dim": 12,
+  "camera_keys": [
+    "observation.images.central",
+    "observation.images.left_wrist",
+    "observation.images.right_wrist"
+  ],
+  "stacked_width": 672,
+  "horizon": 32,
+  "noise_seed": 2026,
+  "anchors_per_episode": [
+    0.0,
+    0.25,
+    0.5,
+    0.75
+  ],
+  "episodes": [
+    0,
+    50
+  ],
+  "num_anchors": 8,
+  "wall_seconds": 143.9,
+  "per_anchor": [
+    {
+      "episode": 0,
+      "frame": 0,
+      "episode_length": 720,
+      "seconds": 55.901,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 119.54141235351562
+    },
+    {
+      "episode": 0,
+      "frame": 180,
+      "episode_length": 720,
+      "seconds": 12.055,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 123.74459075927734
+    },
+    {
+      "episode": 0,
+      "frame": 360,
+      "episode_length": 720,
+      "seconds": 12.056,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 122.26111602783203
+    },
+    {
+      "episode": 0,
+      "frame": 540,
+      "episode_length": 720,
+      "seconds": 12.096,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 119.54141235351562
+    },
+    {
+      "episode": 50,
+      "frame": 0,
+      "episode_length": 776,
+      "seconds": 12.11,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 119.29417419433594
+    },
+    {
+      "episode": 50,
+      "frame": 194,
+      "episode_length": 776,
+      "seconds": 12.16,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 122.26111602783203
+    },
+    {
+      "episode": 50,
+      "frame": 388,
+      "episode_length": 776,
+      "seconds": 12.167,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 120.5303955078125
+    },
+    {
+      "episode": 50,
+      "frame": 582,
+      "episode_length": 776,
+      "seconds": 12.215,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 119.78866577148438
+    }
+  ]
+}

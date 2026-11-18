@@ -1,0 +1,77 @@
+=== step0 on fit episodes 01:02:57 ===
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+Loading weights:   0%|          | 0/242 [00:00<?, ?it/s]Loading weights: 100%|██████████| 242/242 [00:00<00:00, 5737.34it/s]
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py:206: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
+  warnings.warn(
+The config attributes {'clip_output': False} were passed to AutoencoderKLWan, but are not expected and will be ignored. Please verify your config.json configuration file.
+There are modules in AutoencoderKLWan that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+[transformers] The tokenizer you are loading from 'google/umt5-xxl' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+WARNING:root:Missing key(s) when loading model: {'model.mot.mixtures.action.action_encoder.weight', 'model.proprio_encoder.bias', 'model.proprio_encoder.weight', 'model.mot.mixtures.action.head.weight', 'model.mot.mixtures.action.head.bias', 'model.mot.mixtures.action.action_encoder.bias'}
+Loading weights from local directory
+{
+  "label": "fit-step0",
+  "role": "train",
+  "policy_source": "base",
+  "num_anchors": 8,
+  "wall_seconds": 143.9
+}
+[W1119 01:07:43.828880711 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+=== L4 adapter on the same 8 windows 01:07:43 ===
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+Loading weights:   0%|          | 0/242 [00:00<?, ?it/s]Loading weights: 100%|██████████| 242/242 [00:00<00:00, 6392.51it/s]
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py:206: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
+  warnings.warn(
+The config attributes {'clip_output': False} were passed to AutoencoderKLWan, but are not expected and will be ignored. Please verify your config.json configuration file.
+There are modules in AutoencoderKLWan that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+[transformers] The tokenizer you are loading from 'google/umt5-xxl' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+WARNING:root:Missing key(s) when loading model: {'model.mot.mixtures.action.head.weight', 'model.mot.mixtures.action.action_encoder.bias', 'model.proprio_encoder.weight', 'model.mot.mixtures.action.action_encoder.weight', 'model.mot.mixtures.action.head.bias', 'model.proprio_encoder.bias'}
+Loading weights from local directory
+{
+  "label": "fit-l4",
+  "role": "train",
+  "policy_source": "base+adapter(/home/lfy/lelab-rmr/runs/so101-lora/l4/checkpoints/last/pretrained_model)",
+  "num_anchors": 8,
+  "wall_seconds": 148.6
+}
+[W1119 01:12:46.582756408 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+=== score 01:12:47 ===
+{
+  "status": "not_passed",
+  "candidate": {
+    "scaled_active": 0.4805,
+    "raw_all": 5.612
+  },
+  "baselines": {
+    "zero": {
+      "scaled_active": 1.1077,
+      "raw_all": 23.535
+    },
+    "train_mean": {
+      "scaled_active": 0.9316,
+      "raw_all": 10.883
+    },
+    "state_copy": {
+      "scaled_active": 0.1172,
+      "raw_all": 1.336
+    },
+    "step0": {
+      "scaled_active": 1.2669,
+      "raw_all": 14.724
+    }
+  },
+  "verdict": {
+    "checks": {
+      "finite": true,
+      "beats_best_baseline_active_scaled": false,
+      "beats_best_baseline_all_raw": false,
+      "static_dims_not_degraded": true
+    },
+    "improvement_active_scaled": -3.1009877405756328,
+    "improvement_all_raw": -3.201187332620676,
+    "static_ratio_vs_best": 1.3921666743460164
+  }
+}

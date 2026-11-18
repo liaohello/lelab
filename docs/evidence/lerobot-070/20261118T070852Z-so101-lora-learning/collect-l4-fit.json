@@ -1,0 +1,104 @@
+{
+  "kind": "so101-anchor-predictions",
+  "label": "fit-l4",
+  "role": "train",
+  "policy_source": "base+adapter(/home/lfy/lelab-rmr/runs/so101-lora/l4/checkpoints/last/pretrained_model)",
+  "device": "cuda",
+  "text_encoder_device": "cpu",
+  "action_dim": 12,
+  "state_dim": 12,
+  "camera_keys": [
+    "observation.images.central",
+    "observation.images.left_wrist",
+    "observation.images.right_wrist"
+  ],
+  "stacked_width": 672,
+  "horizon": 32,
+  "noise_seed": 2026,
+  "anchors_per_episode": [
+    0.0,
+    0.25,
+    0.5,
+    0.75
+  ],
+  "episodes": [
+    0,
+    50
+  ],
+  "num_anchors": 8,
+  "wall_seconds": 148.6,
+  "per_anchor": [
+    {
+      "episode": 0,
+      "frame": 0,
+      "episode_length": 720,
+      "seconds": 56.65,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 61.25687789916992
+    },
+    {
+      "episode": 0,
+      "frame": 180,
+      "episode_length": 720,
+      "seconds": 12.629,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 108.90985870361328
+    },
+    {
+      "episode": 0,
+      "frame": 360,
+      "episode_length": 720,
+      "seconds": 12.65,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 103.96495056152344
+    },
+    {
+      "episode": 0,
+      "frame": 540,
+      "episode_length": 720,
+      "seconds": 12.64,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 113.85476684570312
+    },
+    {
+      "episode": 50,
+      "frame": 0,
+      "episode_length": 776,
+      "seconds": 12.728,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 61.25687789916992
+    },
+    {
+      "episode": 50,
+      "frame": 194,
+      "episode_length": 776,
+      "seconds": 12.746,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 103.470458984375
+    },
+    {
+      "episode": 50,
+      "frame": 388,
+      "episode_length": 776,
+      "seconds": 12.736,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 103.22320556640625
+    },
+    {
+      "episode": 50,
+      "frame": 582,
+      "episode_length": 776,
+      "seconds": 12.722,
+      "padded_steps": 0,
+      "pred_finite": true,
+      "pred_abs_max": 122.75560760498047
+    }
+  ]
+}
