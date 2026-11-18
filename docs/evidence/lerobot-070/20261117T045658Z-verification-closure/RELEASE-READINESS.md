@@ -15,8 +15,8 @@ Run：`20261117T045658Z-verification-closure`。分支 `codex/lerobot-070-integr
 | FastWAM 保存/重载 | **passed** | `4_save_reload`：同输入/同显式噪声/两侧 reset，`max_abs_diff=0.0`、`bitwise_identical=true`，容差 0.0919；旧的 1.6016 是 select_action 队列位置错误，已修复 |
 | FastWAM 短反传/更新 | **passed（冻结配置）/ blocked（原样配置）** | 冻结：1 次更新完成，峰值 **21.67 GB** / 34.08 GB；原样（6020.7M 全可训练）训练态下界 **72.3 GB**，34/40 GB 都不够，未做必败试跑 |
 | FastWAM LoRA 微调 | **passed（1 次更新）** | r=16/alpha=32：可训练 **7.92M**、训练态下界 0.13 GB、峰值 **16.12 GB**，梯度与优化器状态有限；表单/后端/DOM 已接通（37 条断言含 3 条 LoRA） |
-| FineART 资产与加载 | **blocked（待复验）** | 权重 8.71 GiB 下载完成且 SHA-256 与 Hub 一致；但 `google/paligemma-3b-pt-224` 门禁 403，processor 无法实例化；`fineart-verify.json` |
-| FineART 动作 | **not_run** | 依赖上一步 |
+| FineART 资产与加载 | **passed** | 8.71 GiB 权重哈希一致；tokenizer 经 ModelScope 镜像（字节一致）进离线缓存；`FineARTVLAPolicy` 4143.4M 参数加载 153 s，处理器构建成功 |
+| FineART 动作 | **passed（管线）** | 真实 tokenize 指令 → `[1,50,14]` finite，1.08 s；保存/重载 `max_abs_diff=0.0` 逐位相同 |
 | 语言规划 | **未开始** | 只有任务字段透传；无语言标注数据与权重验证 |
 | SO-101 6/12 维适配 | **未验证** | 表单/后端门禁到位（本轮 DOM 已验证拒绝路径）；无 6/12 维权重、无实机 |
 | ROS 安全（急停降级） | **passed（契约层）** | 26 tests；闩锁先于锁与线程，响应有界，迟到保存不污染新会话；物理停止未验证 |

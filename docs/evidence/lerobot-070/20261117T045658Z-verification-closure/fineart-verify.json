@@ -6,7 +6,7 @@
     "cuda": "12.6",
     "gpu": "Tesla V100S-PCIE-32GB",
     "checkpoint_dir": "/home/lfy/lelab-rmr/fineart-ckpt",
-    "tokenizer_dir": "/home/lfy/lelab-rmr/fineart-ckpt/_tokenizer"
+    "tokenizer_dir": "/home/lfy/lelab-rmr/pg-tok"
   },
   "stages": {
     "1_integrity": {
@@ -19,39 +19,149 @@
         "weights_sha256": "9e384c7351e5e42008efa34c5e3485bf071ca0d5c00490aa6bb63167022dd197",
         "weights_sha256_source": "hub lfs metadata"
       },
-      "seconds": 10.65
+      "seconds": 10.83
     },
     "1b_tokenizer": {
       "required": false,
       "note": "",
-      "status": "blocked",
-      "blocked_reason": "google/paligemma-3b-pt-224 is a gated repo; its files return 403 without an accepted licence on this host",
+      "status": "passed",
       "data": {
-        "tokenizer_dir": "/home/lfy/lelab-rmr/fineart-ckpt/_tokenizer",
-        "files": [],
-        "declared_by_config": "google/paligemma-3b-pt-224 @ 35e4f46485b4d07967e7e9935bc3786aad50687c"
+        "files": [
+          "added_tokens.json",
+          "config.json",
+          "generation_config.json",
+          "model.safetensors.index.json",
+          "preprocessor_config.json",
+          "special_tokens_map.json",
+          "tokenizer.json",
+          "tokenizer.model",
+          "tokenizer_config.json"
+        ],
+        "tokenizer_dir": "/home/lfy/lelab-rmr/pg-tok"
       },
       "seconds": 0.0
     },
     "2_load": {
       "required": true,
       "note": "",
-      "status": "failed",
-      "failure_kind": "ValueError",
-      "failure_reason": "Failed to instantiate processor step 'action_tokenizer_processor' with config: {'trust_remote_code': True, 'max_action_tokens': 384, 'fast_skip_tokens': 128, 'paligemma_tokenizer_name': 'google/paligemma-3b-pt-224', 'allow_truncation': False, 'action_tokenizer_name': '/home/lfy/lelab-rmr/fineart-ckpt/action_tokenizer'}. Error: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.",
-      "seconds": 147.16
+      "status": "passed",
+      "data": {
+        "class": "FineARTVLAPolicy",
+        "config_class": "FineARTVLAConfig",
+        "registered_type": "fineart_vla",
+        "load_seconds": 146.7,
+        "params_M": 4143.4,
+        "param_dtypes": [
+          "bfloat16",
+          "float32"
+        ],
+        "components": {
+          "model": {
+            "numel_M": 4143.4,
+            "dtypes": [
+              "bfloat16",
+              "float32"
+            ],
+            "devices": [
+              "cuda:0"
+            ]
+          }
+        },
+        "chunk_size": 50,
+        "n_action_steps": 50,
+        "image_resolution": [
+          224,
+          224
+        ],
+        "input_features": {
+          "observation.state": [
+            14
+          ],
+          "observation.images.cam_high": [
+            3,
+            360,
+            640
+          ],
+          "observation.images.cam_left_wrist": [
+            3,
+            360,
+            640
+          ],
+          "observation.images.cam_right_wrist": [
+            3,
+            360,
+            640
+          ]
+        },
+        "output_features": {
+          "action": [
+            14
+          ]
+        },
+        "processor_steps": {
+          "pre": [
+            "RenameObservationsProcessorStep",
+            "AddBatchDimensionProcessorStep",
+            "RelativeActionsProcessorStep",
+            "NormalizerProcessorStep",
+            "RenderRuntimeMessagesStep",
+            "RenderTrainingMessagesStep",
+            "FineARTVLATextTokenizerStep",
+            "ActionTokenizerProcessorStep",
+            "DeviceProcessorStep"
+          ],
+          "post": [
+            "UnnormalizerProcessorStep",
+            "AbsoluteActionsProcessorStep",
+            "DeviceProcessorStep"
+          ]
+        },
+        "gpu_allocated_GB": 9.36
+      },
+      "seconds": 153.01
     },
     "3_action": {
-      "status": "not_run",
-      "reason": "prerequisite not passed: {'2_load': 'failed'}",
       "required": true,
-      "seconds": 0.0
+      "note": "",
+      "status": "passed",
+      "data": {
+        "action_dim": 14,
+        "noise_dim": 32,
+        "chunk_shape": [
+          1,
+          50,
+          14
+        ],
+        "dtype": "torch.float32",
+        "finite": true,
+        "seconds": 1.08,
+        "task": "put the red cube into the box",
+        "token_source": "real tokenizer (/home/lfy/lelab-rmr/pg-tok)",
+        "language_conditioning": "real tokens",
+        "noise_seed": 21
+      },
+      "seconds": 2.07
     },
     "4_save_reload": {
-      "status": "not_run",
-      "reason": "prerequisite not passed: {'3_action': 'not_run'}",
       "required": true,
-      "seconds": 0.0
+      "note": "",
+      "status": "passed",
+      "data": {
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "reference_peak": 0.7129656672477722,
+        "tolerance": {
+          "atol": 0.02,
+          "rtol": 0.02
+        },
+        "bitwise_identical": true,
+        "saved_files": [
+          "config.json",
+          "model.safetensors"
+        ],
+        "save_and_reload_seconds": 171.3
+      },
+      "seconds": 172.23
     }
   },
   "selected": [
@@ -61,11 +171,7 @@
     "3_action",
     "4_save_reload"
   ],
-  "required_not_passed": [
-    "2_load",
-    "3_action",
-    "4_save_reload"
-  ],
-  "exit_code": 1,
-  "finished_utc": "2026-11-17T07:04:37Z"
+  "required_not_passed": [],
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T16:29:27Z"
 }

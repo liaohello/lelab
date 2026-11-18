@@ -178,7 +178,14 @@ def _batch_and_noise(policy, cfg) -> tuple[dict, torch.Tensor]:
             batch[name] = torch.randn(shape, generator=g).cuda()
     out_dim = int(cfg.output_features["action"].shape[0])
     chunk = int(getattr(cfg, "chunk_size", 1) or 1)
-    noise = torch.randn(1, chunk, out_dim, generator=g).cuda()
+    # Pi0.5 pads actions to `max_action_dim` before projection; the noise must live in
+    # that padded space ([1, chunk, 32]) or `action_in_proj` sees 14 vs 32 and Dynamo
+    # raises "a and b must have same reduction dim".
+    padded = int(getattr(cfg, "max_action_dim", 0) or out_dim)
+    noise_dim = max(out_dim, padded)
+    noise = torch.randn(1, chunk, noise_dim, generator=g).cuda()
+    CTX["noise_dim"] = noise_dim
+    CTX["out_dim"] = out_dim
     CTX.update(batch=batch, noise=noise, text=text, token_source=token_source)
     return batch, noise
 
@@ -194,6 +201,7 @@ def stage_action(ctx: dict) -> dict:
     CTX["chunk"] = chunk.detach().clone()
     return {
         "action_dim": metrics["shape"][-1],
+        "noise_dim": CTX.get("noise_dim"),
         "chunk_shape": metrics["shape"],
         "dtype": metrics["dtype"],
         "finite": True,
