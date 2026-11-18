@@ -70,3 +70,36 @@ Run：`20261118T070852Z-so101-lora-learning`。本文件在**任何 GPU 训练�
 - adapter（`adapter_model.safetensors` + `adapter_config.json`）、`modules_to_save` 权重、
   policy config、pre/post processor、train-only stats、训练日志、评估 JSON。
 - 权重与数据留在 g128 运行目录，不入 Git；本目录只放脱敏报告与脚本。
+
+## 7. 修正案 1 —— 指标定义的补全（写于**任何**训练结果存在之前）
+
+时间：`2026-11-18T15:0xZ`，此时 L3 的状态是 **unknown**（g128 失联，见 `BLOCKERS.md`），
+没有任何 step 级 loss、没有 adapter、没有预测结果。此修正只把 §3 里一处**无法执行**的写法
+换成可执行且更严的判定，不放宽任何门槛。
+
+### 7.1 原写法的问题
+
+§3 写"低方差通道（std<1°）的缩放 MAE 不低于 0.5（防止靠静态维度刷分）"。用 train-only
+统计核对后发现两件事：
+
+- 第 6 维与第 10 维的 std **正好是 0.0**（`train_stats.json`），缩放 MAE 是 0/0，不是"0.5"能描述的；
+- "不低于 0.5"的方向与该句的目的相反：静态维度越准，缩放误差越小，取值只会更低。
+
+### 7.2 采纳的判定（更严，见 `tools/score_predictions.py::verdict`）
+
+12 维中 std≥1° 的只有第 0–5 维（18.0–31.6°，左臂），第 6–11 维 std 为 0.0–0.12°。因此：
+
+1. **主判定** `mae_scaled_active`：std≥1° 维度上的 `mean|err|/std`，必须比**最优基线**好 **≥25%**；
+2. **次判定** `mae_raw_all`：全部 12 维的原始 MAE（度，等权），同样要 **≥25%**；
+3. **静态维度不得被牺牲**：静态维原始 MAE ≤ 最优基线的 **1.5 倍**。
+
+三条同时成立才算通过。基线固定为 `zero` / `train_mean` / `state_copy` / `step0`（随机动作头），
+全部在同一锚点、同一噪声（seed 2026）、同一反归一化下计算。
+
+### 7.3 与 §3 的关系
+
+- 预算、停止条件、锚点规则、噪声种子、数据划分**完全不变**；
+- 判定从"一个数"变成"三条同时满足"，比原写法更难通过；
+- 该修正与 `score_predictions.py` 的 9 条 tiny/fake 自测一起固化
+  （`test_score_logic.py`：完美预测通过、保持姿态不通过、只赢静态维不通过、
+  NaN 不通过、形状不符报错、全 padding 切片为 NaN、std=0 维度被排除）。
