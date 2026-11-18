@@ -96,3 +96,19 @@ python $C/score_predictions.py --preds $C/preds-l5-dev.npz \
 - dev 锚点在 `collect_predictions.py` 里按 episode 长度取 0 / 1/4 / 1/2 / 3/4，与训练集同一规则；
 - 同一 episode 只建一个 `LeRobotDataset(episodes=[ep])`，索引 `i` 就是该集第 `i` 帧，
   脚本会断言 `episode_index` 与 `frame_index`，不依赖多集子集的枚举顺序。
+
+## 6. 发令前的离线预检（新增，用于避免重复失败）
+
+前三次失败全部发生在解析参数阶段，本机一秒就能发现。现在每次远端发令前先跑：
+
+```bash
+python tools/preflight_train_args.py <与远端完全相同的 argv>
+```
+
+它只做 `draccus.parse(TrainPipelineConfig, argv)`，不建模型、不开数据集、不碰 GPU。
+结果存 `preflight-l3.log`：L3 的 argv **解析通过**（`"parsed": true`，r=16/alpha=32/12 维/
+`image_size [224,672]`/`push_to_hub false`/episodes 3 个 int）。这只能证明命令不会再死于
+参数解析，**不能**证明训练能跑。
+
+一个坑：`--policy.type` 的候选值来自策略注册表，只有 `import lerobot.policies` 之后才非空；
+只 import `configs.train` 会得到 "invalid choice (choose from )" 的假警报。
