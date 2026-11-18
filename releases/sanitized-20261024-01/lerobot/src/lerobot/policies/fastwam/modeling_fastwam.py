@@ -300,7 +300,13 @@ class FastWAMPolicy(PreTrainedPolicy):
                     "FastWAM training requires a `task`/`prompt` to encode text context, "
                     "or precomputed `context`/`context_mask` in the batch."
                 )
-            sample["context"], sample["context_mask"] = self.model.encode_prompt(prompt)
+            # Cache across steps: with `text_encoder_device='cpu'` a UMT5-XXL forward per
+            # update dominates the step (measured 47 s/step vs 5.7 s with the cache on a
+            # single-task dataset). The embedding depends only on the instruction, so
+            # recomputing it is pure waste — and on a one-task dataset the cache hits
+            # every step after the first. The encoder is frozen, so the cached tensors
+            # carry no autograd graph.
+            sample["context"], sample["context_mask"] = self._encode_prompt_cached(prompt)
         if self.config.proprio_dim is not None and "proprio" not in sample:
             state = sample.get(OBS_STATE)
             if state is not None:
