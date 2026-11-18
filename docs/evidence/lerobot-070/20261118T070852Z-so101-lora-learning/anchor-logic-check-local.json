@@ -1,0 +1,222 @@
+{
+  "kind": "anchor-logic-check",
+  "view": "/home/liaozhengyan/Desktop/lelab/work/stage7_ik_dataset_v2/published/stage7_ik_dev_pilot_002/dataset",
+  "fps": 20.0,
+  "camera_keys": [
+    "observation.images.left_wrist",
+    "observation.images.right_wrist",
+    "observation.images.top"
+  ],
+  "action_dim": 12,
+  "state_dim": 12,
+  "horizon": 32,
+  "episodes": [
+    0
+  ],
+  "planned_anchors": [
+    {
+      "episode": 0,
+      "length": 578,
+      "anchors": [
+        0,
+        144,
+        289,
+        433
+      ]
+    }
+  ],
+  "anchors_evaluated": 4,
+  "checks": {
+    "anchors_in_range_and_increasing": true,
+    "episode_and_frame_match_request": true,
+    "chunk_shapes_ok": true,
+    "pad_mask_present_and_explained": true,
+    "nine_video_frames_uint8": true,
+    "anchors_unique": true,
+    "tail_window_is_padded": true,
+    "tail_window_first_step_not_padded": true
+  },
+  "detail": [
+    {
+      "episode": 0,
+      "frame": 0,
+      "remaining_frames": 578,
+      "padded_steps": 0,
+      "expect_pad": false,
+      "action_shape": [
+        32,
+        12
+      ],
+      "state_shape": [
+        12
+      ],
+      "images": {
+        "observation.images.left_wrist": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        },
+        "observation.images.right_wrist": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        },
+        "observation.images.top": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        }
+      }
+    },
+    {
+      "episode": 0,
+      "frame": 144,
+      "remaining_frames": 434,
+      "padded_steps": 0,
+      "expect_pad": false,
+      "action_shape": [
+        32,
+        12
+      ],
+      "state_shape": [
+        12
+      ],
+      "images": {
+        "observation.images.left_wrist": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        },
+        "observation.images.right_wrist": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        },
+        "observation.images.top": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        }
+      }
+    },
+    {
+      "episode": 0,
+      "frame": 289,
+      "remaining_frames": 289,
+      "padded_steps": 0,
+      "expect_pad": false,
+      "action_shape": [
+        32,
+        12
+      ],
+      "state_shape": [
+        12
+      ],
+      "images": {
+        "observation.images.left_wrist": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        },
+        "observation.images.right_wrist": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        },
+        "observation.images.top": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        }
+      }
+    },
+    {
+      "episode": 0,
+      "frame": 433,
+      "remaining_frames": 145,
+      "padded_steps": 0,
+      "expect_pad": false,
+      "action_shape": [
+        32,
+        12
+      ],
+      "state_shape": [
+        12
+      ],
+      "images": {
+        "observation.images.left_wrist": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        },
+        "observation.images.right_wrist": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        },
+        "observation.images.top": {
+          "shape": [
+            9,
+            3,
+            360,
+            640
+          ],
+          "dtype": "torch.uint8"
+        }
+      }
+    }
+  ],
+  "tail": {
+    "episode": 0,
+    "frame": 577,
+    "episode_length": 578,
+    "padded_steps": 31,
+    "first_step_padded": false,
+    "frame_index": 577
+  },
+  "status": "passed"
+}

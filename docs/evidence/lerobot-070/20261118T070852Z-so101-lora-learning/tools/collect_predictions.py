@@ -41,6 +41,53 @@ def _episode_lengths(view: Path) -> dict[int, int]:
     return {int(r["episode_index"]): int(r["length"]) for r in rows}
 
 
+def anchor_indices(length: int, fractions=ANCHOR_FRACTIONS) -> list[int]:
+    """Frame offsets used as evaluation anchors (pre-registered rule)."""
+    if length <= 0:
+        raise ValueError(f"episode length must be positive, got {length}")
+    return [min(int(length * f), length - 1) for f in fractions]
+
+
+def iter_anchor_samples(view: Path, episodes, fps: float, camera_keys, horizon: int,
+                        video_backend: str = "pyav"):
+    """Yield `(episode, frame_offset, sample, dataset)` for every anchor.
+
+    One dataset is built per episode, so index `i` is unambiguously frame `i` of
+    that episode and the returned `episode_index`/`frame_index` can be asserted
+    against the request instead of trusting a multi-episode subset ordering.
+    """
+    from lerobot.datasets.lerobot_dataset import LeRobotDataset
+
+    lengths = _episode_lengths(view)
+    # FastWAM reads `num_video_frames = horizon + 1` frames at `action_video_freq_ratio`
+    # stride, i.e. 9 frames spanning t=0..32 for a 32-step chunk. Off-by-one here
+    # silently changes the model's temporal window.
+    camera_slice = list(range(0, horizon + 1, 4))
+    for ep in episodes:
+        ep_len = lengths[int(ep)]
+        ds = LeRobotDataset(
+            repo_id=f"local/{view.name}",
+            root=view,
+            episodes=[int(ep)],
+            delta_timestamps={
+                **{k: [i / fps for i in camera_slice] for k in camera_keys},
+                "action": [i / fps for i in range(horizon)],
+            },
+            video_backend=video_backend,
+            return_uint8=True,
+        )
+        for offset in anchor_indices(ep_len):
+            sample = ds[offset]
+            got_ep = int(sample["episode_index"])
+            if got_ep != int(ep):
+                raise SystemExit(f"anchor lookup: asked episode {ep}, dataset returned {got_ep}")
+            if int(sample["frame_index"]) != offset:
+                raise SystemExit(
+                    f"episode {ep}: asked frame {offset}, dataset returned {sample['frame_index']}"
+                )
+            yield int(ep), offset, sample, ds
+
+
 def _load_policy(args, cfg):
     from lerobot.policies.fastwam import FastWAMPolicy
 
@@ -74,7 +121,6 @@ def main() -> int:
     ap.add_argument("--label", default="")
     args = ap.parse_args()
 
-    from lerobot.datasets.lerobot_dataset import LeRobotDataset
     from lerobot.lerobot_types import PolicyAction
     from lerobot.policies.fastwam import FastWAMConfig
     from lerobot.policies.fastwam.processor_fastwam import make_fastwam_pre_post_processors
@@ -118,63 +164,43 @@ def main() -> int:
     preds, gts, pads, states, eps_out, anchors_out = [], [], [], [], [], []
     per_anchor = []
     started = time.time()
-    for ep in episodes:
-        ep_len = lengths[ep]
-        ds = LeRobotDataset(
-            repo_id=f"local/{args.view.name}",
-            root=args.view,
-            episodes=[ep],
-            delta_timestamps={
-                **{k: [i / fps for i in range(0, 33, 4)] for k in camera_keys},
-                "action": [i / fps for i in range(HORIZON)],
-            },
-            video_backend="pyav",
-            return_uint8=True,
-        )
-        for frac in ANCHOR_FRACTIONS:
-            offset = min(int(ep_len * frac), max(ep_len - 1, 0))
-            sample = ds[offset]
-            got_ep = int(sample["episode_index"])
-            if got_ep != ep:
-                raise SystemExit(f"anchor lookup: asked episode {ep}, dataset returned {got_ep}")
-            if int(sample["frame_index"]) != offset:
-                raise SystemExit(
-                    f"episode {ep}: asked frame {offset}, dataset returned {sample['frame_index']}"
-                )
+    lengths = _episode_lengths(args.view)
+    for ep, offset, sample, _ds in iter_anchor_samples(
+        args.view, episodes, fps, camera_keys, HORIZON
+    ):
+        raw_gt = sample["action"].float().numpy().copy()
+        pad = sample["action_is_pad"].numpy().astype(bool).copy()
+        state = sample["observation.state"].float().numpy().copy()
 
-            raw_gt = sample["action"].float().numpy().copy()
-            pad = sample["action_is_pad"].numpy().astype(bool).copy()
-            state = sample["observation.state"].float().numpy().copy()
+        batch = pre(dict(sample))
+        noise = torch.randn(
+            1, HORIZON, action_dim,
+            generator=torch.Generator().manual_seed(SEED),
+            dtype=torch.float32,
+        ).to(device)
+        t0 = time.time()
+        with torch.no_grad():
+            chunk = policy.predict_action_chunk(batch, noise=noise)
+        elapsed = time.time() - t0
+        raw_pred = post(PolicyAction(chunk.float())).float().cpu().numpy()[0]
 
-            batch = pre(dict(sample))
-            noise = torch.randn(
-                1, HORIZON, action_dim,
-                generator=torch.Generator().manual_seed(SEED),
-                dtype=torch.float32,
-            ).to(device)
-            t0 = time.time()
-            with torch.no_grad():
-                chunk = policy.predict_action_chunk(batch, noise=noise)
-            elapsed = time.time() - t0
-            raw_pred = post(PolicyAction(chunk.float())).float().cpu().numpy()[0]
-
-            preds.append(raw_pred)
-            gts.append(raw_gt)
-            pads.append(pad)
-            states.append(state)
-            eps_out.append(ep)
-            anchors_out.append(offset)
-            per_anchor.append({
-                "episode": ep,
-                "frame": offset,
-                "episode_length": ep_len,
-                "seconds": round(elapsed, 3),
-                "padded_steps": int(pad.sum()),
-                "pred_finite": bool(np.isfinite(raw_pred).all()),
-                "pred_abs_max": float(np.abs(raw_pred).max()),
-            })
-            if not np.isfinite(raw_pred).all():
-                raise SystemExit(f"non-finite prediction at episode {ep} frame {offset}")
+        preds.append(raw_pred)
+        gts.append(raw_gt)
+        pads.append(pad)
+        states.append(state)
+        eps_out.append(ep)
+        anchors_out.append(offset)
+        per_anchor.append({
+            "episode": ep,
+            "frame": offset,
+            "episode_length": lengths[ep],
+            "seconds": round(elapsed, 3),
+            "padded_steps": int(pad.sum()),
+            "pred_finite": bool(np.isfinite(raw_pred).all()),
+            "pred_abs_max": float(np.abs(raw_pred).max()),
+        })
+        if not np.isfinite(raw_pred).all():
+            raise SystemExit(f"non-finite prediction at episode {ep} frame {offset}")
 
     np.savez_compressed(
         args.out,
