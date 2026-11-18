@@ -1,0 +1,72 @@
+{
+  "kind": "tiny-peft-check",
+  "checks": {
+    "targets_are_action_only": true,
+    "no_video_lora": true,
+    "lora_module_count_expected": false,
+    "modules_to_save_present": false,
+    "optimizer_ids_unique": true,
+    "optimizer_covers_all_trainable": true,
+    "optimizer_excludes_frozen": true,
+    "trainable_nonempty": true,
+    "lora_moved": true,
+    "saved_modules_moved": true,
+    "frozen_base_unchanged": true,
+    "loss_decreased": true,
+    "adapter_has_weights": true,
+    "adapter_has_config": true,
+    "reload_in_new_process_matches": true,
+    "missing_adapter_weights_rejected": true,
+    "resume_ran_two_plus_updates": true,
+    "resume_matches_uninterrupted": true,
+    "optimizer_state_shape_mismatch_rejected": true
+  },
+  "lora_module_count": 16,
+  "lora_module_names": [
+    "base_model.model.model.mot.layers.0.blocks.action.self_attn.q.lora_A",
+    "base_model.model.model.mot.layers.0.blocks.action.self_attn.q.lora_A.default",
+    "base_model.model.model.mot.layers.0.blocks.action.self_attn.v.lora_A",
+    "base_model.model.model.mot.layers.0.blocks.action.self_attn.v.lora_A.default",
+    "base_model.model.model.mot.layers.0.blocks.action.cross_attn.q.lora_A",
+    "base_model.model.model.mot.layers.0.blocks.action.cross_attn.q.lora_A.default"
+  ],
+  "trainable_tensor_count": 22,
+  "trainable_params_M": 0.0013,
+  "moved_by_group": {
+    "lora": 16,
+    "modules_to_save": 2,
+    "base": 0
+  },
+  "losses": [
+    1.049136,
+    1.271705,
+    1.0426,
+    0.781268
+  ],
+  "adapter_files": [
+    "README.md",
+    "adapter_config.json",
+    "adapter_model.safetensors",
+    "saved_config.json"
+  ],
+  "reload_child": {
+    "returncode": 0,
+    "stdout": "MATCH",
+    "stderr": ""
+  },
+  "missing_weights_child": {
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "onError(f\"Repo id must be a string, not {type(repo_id)}: '{repo_id}'.\")\nhuggingface_hub.errors.HFValidationError: Repo id must be a string, not <class 'pathlib.PosixPath'>: '/tmp/tmptyq5dzrx/adapter'."
+  },
+  "resume": {
+    "post_resume_updates": 3,
+    "post_resume_losses": [
+      0.781268,
+      2.363468,
+      1.302371
+    ]
+  },
+  "resume_max_abs_diff": 0.0,
+  "status": "failed"
+}

@@ -1,0 +1,154 @@
+{
+  "kind": "loader-check",
+  "view": {
+    "view": "/home/lfy/lelab-rmr/assets/so101_left_red_view",
+    "train": 100,
+    "validation": 20
+  },
+  "dataset_length": 74131,
+  "fps": 50.0,
+  "batch_keys": [
+    "action",
+    "action_is_pad",
+    "episode_index",
+    "frame_index",
+    "index",
+    "observation.images.central",
+    "observation.images.central_is_pad",
+    "observation.images.left_wrist",
+    "observation.images.left_wrist_is_pad",
+    "observation.images.right_wrist",
+    "observation.images.right_wrist_is_pad",
+    "observation.state",
+    "task",
+    "task_index",
+    "timestamp"
+  ],
+  "shapes": {
+    "observation.state": [
+      2,
+      12
+    ],
+    "action": [
+      2,
+      32,
+      12
+    ],
+    "timestamp": [
+      2
+    ],
+    "frame_index": [
+      2
+    ],
+    "episode_index": [
+      2
+    ],
+    "index": [
+      2
+    ],
+    "task_index": [
+      2
+    ],
+    "observation.images.central_is_pad": [
+      2,
+      9
+    ],
+    "observation.images.left_wrist_is_pad": [
+      2,
+      9
+    ],
+    "observation.images.right_wrist_is_pad": [
+      2,
+      9
+    ],
+    "action_is_pad": [
+      2,
+      32
+    ],
+    "observation.images.central": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ],
+    "observation.images.left_wrist": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ],
+    "observation.images.right_wrist": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ]
+  },
+  "dtypes": {
+    "observation.state": "torch.float32",
+    "action": "torch.float32",
+    "timestamp": "torch.float32",
+    "frame_index": "torch.int64",
+    "episode_index": "torch.int64",
+    "index": "torch.int64",
+    "task_index": "torch.int64",
+    "observation.images.central_is_pad": "torch.bool",
+    "observation.images.left_wrist_is_pad": "torch.bool",
+    "observation.images.right_wrist_is_pad": "torch.bool",
+    "action_is_pad": "torch.bool",
+    "observation.images.central": "torch.uint8",
+    "observation.images.left_wrist": "torch.uint8",
+    "observation.images.right_wrist": "torch.uint8"
+  },
+  "per_camera_pixels": [
+    [
+      480,
+      640
+    ],
+    [
+      480,
+      640
+    ],
+    [
+      480,
+      640
+    ]
+  ],
+  "camera_order": [
+    "observation.images.central",
+    "observation.images.left_wrist",
+    "observation.images.right_wrist"
+  ],
+  "absolute_semantics": {
+    "mean_abs_action0_minus_state0": 0.2032
+  },
+  "tail_padding": {
+    "padded_steps": 31,
+    "first_padded": 1,
+    "image_pad_keys": [
+      "observation.images.central_is_pad",
+      "observation.images.left_wrist_is_pad",
+      "observation.images.right_wrist_is_pad"
+    ],
+    "image_pad_true_counts": {
+      "observation.images.central_is_pad": 8,
+      "observation.images.left_wrist_is_pad": 8,
+      "observation.images.right_wrist_is_pad": 8
+    }
+  },
+  "checks": {
+    "actions_shape_ok": true,
+    "state_shape_ok": true,
+    "camera_frames_ok": true,
+    "images_uint8": true,
+    "action_pad_present": true,
+    "finite": true,
+    "tail_padding_marks_pad": true,
+    "image_pad_masks_present": true,
+    "mid_window_unpadded": true
+  },
+  "status": "passed"
+}

@@ -1,0 +1,198 @@
+{
+  "kind": "processor-check",
+  "camera_keys": [
+    "observation.images.central",
+    "observation.images.left_wrist",
+    "observation.images.right_wrist"
+  ],
+  "policy_input_features": {
+    "observation.images.central": [
+      3,
+      224,
+      224
+    ],
+    "observation.images.left_wrist": [
+      3,
+      224,
+      224
+    ],
+    "observation.images.right_wrist": [
+      3,
+      224,
+      224
+    ],
+    "observation.state": [
+      12
+    ]
+  },
+  "stacked_width": 672,
+  "per_camera_width": 224,
+  "processed_keys": [
+    "action",
+    "action_is_pad",
+    "episode_index",
+    "frame_index",
+    "index",
+    "info",
+    "next.done",
+    "next.reward",
+    "next.truncated",
+    "observation.images.central",
+    "observation.images.central_is_pad",
+    "observation.images.left_wrist",
+    "observation.images.left_wrist_is_pad",
+    "observation.images.right_wrist",
+    "observation.images.right_wrist_is_pad",
+    "observation.state",
+    "task",
+    "task_index",
+    "timestamp"
+  ],
+  "raw_shapes": {
+    "observation.state": [
+      2,
+      12
+    ],
+    "action": [
+      2,
+      32,
+      12
+    ],
+    "timestamp": [
+      2
+    ],
+    "frame_index": [
+      2
+    ],
+    "episode_index": [
+      2
+    ],
+    "index": [
+      2
+    ],
+    "task_index": [
+      2
+    ],
+    "observation.images.central_is_pad": [
+      2,
+      9
+    ],
+    "observation.images.left_wrist_is_pad": [
+      2,
+      9
+    ],
+    "observation.images.right_wrist_is_pad": [
+      2,
+      9
+    ],
+    "action_is_pad": [
+      2,
+      32
+    ],
+    "observation.images.central": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ],
+    "observation.images.left_wrist": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ],
+    "observation.images.right_wrist": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ]
+  },
+  "processed_shapes": {
+    "action": [
+      2,
+      32,
+      12
+    ],
+    "observation.images.central_is_pad": [
+      2,
+      9
+    ],
+    "observation.images.left_wrist_is_pad": [
+      2,
+      9
+    ],
+    "observation.images.right_wrist_is_pad": [
+      2,
+      9
+    ],
+    "action_is_pad": [
+      2,
+      32
+    ],
+    "index": [
+      2
+    ],
+    "task_index": [
+      2
+    ],
+    "episode_index": [
+      2
+    ],
+    "frame_index": [
+      2
+    ],
+    "timestamp": [
+      2
+    ],
+    "observation.state": [
+      2,
+      12
+    ],
+    "observation.images.central": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ],
+    "observation.images.left_wrist": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ],
+    "observation.images.right_wrist": [
+      2,
+      9,
+      3,
+      480,
+      640
+    ]
+  },
+  "action_roundtrip_max_abs": 1.9073486328125e-06,
+  "max_action_dim": 0,
+  "task_value": [
+    "Put the red block into the red tray.",
+    "Put the red block into the red tray."
+  ],
+  "prompt_from_batch": [
+    "A video recorded from a robot's point of view executing the following instruction: Put the red block into the red tray.",
+    "A video recorded from a robot's point of view executing the following instruction: Put the red block into the red tray."
+  ],
+  "checks": {
+    "three_cameras_declared": true,
+    "per_camera_width_native": true,
+    "state_normalized_finite": true,
+    "action_normalized_finite": true,
+    "action_roundtrip_within_1e-3": true,
+    "action_padded_to_max_dim": true,
+    "task_text_present": true,
+    "prompt_contains_dataset_task": true
+  },
+  "status": "passed"
+}
