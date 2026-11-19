@@ -109,6 +109,21 @@ def make_fastwam_pre_post_processors(
     # One shared instance, following OpenPI's order: raw -> relative -> normalize -> model ->
     # unnormalize -> absolute. The SAME object is handed to AbsoluteActionsProcessorStep below so
     # the raw state it caches during preprocessing is what postprocessing adds back.
+    if (
+        config.use_relative_actions
+        and config.relative_exclude_joints
+        and not config.action_feature_names
+    ):
+        # `RelativeActionsProcessorStep._build_mask` falls back to "convert every
+        # dimension" when it has no names, which would silently turn the grippers
+        # into relative values — the opposite of what `relative_exclude_joints`
+        # asks for. Fail here instead of training a wrong target.
+        raise ValueError(
+            "use_relative_actions with relative_exclude_joints="
+            f"{config.relative_exclude_joints!r} requires action_feature_names "
+            "(the dataset's action dimension names); without them the exclusion "
+            "mask cannot be built and every dimension would be converted."
+        )
     relative_step = RelativeActionsProcessorStep(
         enabled=config.use_relative_actions,
         exclude_joints=config.relative_exclude_joints,
