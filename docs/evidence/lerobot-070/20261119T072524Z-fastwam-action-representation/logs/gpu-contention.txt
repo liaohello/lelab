@@ -1,0 +1,8 @@
+== date
+Thu 19 Nov 2026 04:05:18 PM CST
+== gpu
+20108 MiB, 78 %
+== compute apps
+464906, 19264 MiB
+== owner
+ 464906 chenhao        02:11 /usr/local/bin/ollama runner --model /usr/share/ollama/.ollama/models/blobs/sha256-2bada8a7

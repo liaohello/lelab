@@ -79,6 +79,9 @@ def main() -> int:
     ap.add_argument("--report", required=True, type=Path)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--label", default="")
+    ap.add_argument("--app-root", type=Path, default=None,
+                    help="app source root; when given, the checkpoint's own contract is run "
+                         "through the app's validate_bimanual_policy_contract")
     ap.add_argument("--isolation-check", action="store_true",
                     help="re-run the first anchor with the future frames zeroed and with the "
                          "label replaced, to prove neither reaches the model")
@@ -94,6 +97,29 @@ def main() -> int:
     # The checkpoint's own `pretrained_path` names the base; `--base-checkpoint`
     # only overrides it in memory. The artefact on disk is never rewritten.
     cfg, policy = load_policy(args.checkpoint, args.device, args.base_checkpoint)
+
+    app_contract = {}
+    if args.app_root is not None:
+        import sys as _sys
+        _sys.path.insert(0, str(args.app_root))
+        from lelab.remote_inference import validate_bimanual_policy_contract
+
+        contract = {
+            "state_dim": int(cfg.proprio_dim),
+            "action_dim": int(cfg.action_dim),
+            "camera_keys": sorted(k for k in (cfg.input_features or {}) if k.startswith("observation.images.")),
+            "normalization_mapping": dict(getattr(cfg, "normalization_mapping", {}) or {}),
+            "processor": "fastwam-v1",
+            "action_semantics": "sent_target_after_local_safety_clamps",
+            "use_relative_actions": bool(cfg.use_relative_actions),
+        }
+        cameras = [k.split("observation.images.")[-1] for k in contract["camera_keys"]]
+        try:
+            validate_bimanual_policy_contract(contract, cameras)
+            app_contract = {"accepted": True, "contract": contract, "cameras": cameras}
+        except Exception as exc:  # noqa: BLE001 - the message is the evidence
+            app_contract = {"accepted": False, "error": f"{type(exc).__name__}: {exc}",
+                            "contract": contract, "cameras": cameras}
     pre, post = make_fastwam_pre_post_processors_from_pretrained(cfg, args.checkpoint)
     relative_step = bind_relative_anchor(policy, pre)
 
@@ -197,6 +223,7 @@ def main() -> int:
         "wall_seconds": round(time.time() - started, 1),
         "per_anchor": rows,
         "isolation": isolation,
+        "app_contract": app_contract,
     }
     args.report.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps({k: report[k] for k in

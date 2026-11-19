@@ -1,0 +1,6 @@
+start_epoch=1795074074
+deadline_epoch=1795074974
+deadline_sec=900
+gpu_wait=1
+cmd=bash closure/so101-ab/run_arm.sh a 100 /home/lfy/lelab-rmr/runs/so101-ab/a
+pid=411302

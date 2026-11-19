@@ -22,6 +22,7 @@ CKPT_DIR=""
 LOG=""
 GPU_WAIT=0
 FREE_GB=0
+PREGATE_SEC=900
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -31,6 +32,7 @@ while [ $# -gt 0 ]; do
     --log) LOG="$2"; shift 2 ;;
     --gpu-wait) GPU_WAIT=1; shift ;;
     --free-gb) FREE_GB="$2"; shift 2 ;;
+    --pregate-sec) PREGATE_SEC="$2"; shift 2 ;;
     --) shift; break ;;
     *) echo "unknown option: $1" >&2; exit 64 ;;
   esac
@@ -51,6 +53,7 @@ gpu_total_mib() {
 }
 
 PREWAIT=0
+PREGATE_FAILED=0
 if [ "$FREE_GB" -gt 0 ] && command -v nvidia-smi >/dev/null 2>&1; then
   TOTAL=$(gpu_total_mib)
   NEED=$(( FREE_GB * 1024 ))
@@ -59,8 +62,9 @@ if [ "$FREE_GB" -gt 0 ] && command -v nvidia-smi >/dev/null 2>&1; then
     USED=$(gpu_used_mib)
     [ -n "$USED" ] || break
     if [ $(( TOTAL - USED )) -ge "$NEED" ]; then break; fi
-    if [ $(( $(date +%s) - PRE_START )) -ge 900 ]; then
-      echo "still only $(( TOTAL - USED )) MiB free after 900s; starting anyway" | tee -a "$OUTDIR/deadline.log"
+    if [ $(( $(date +%s) - PRE_START )) -ge "$PREGATE_SEC" ]; then
+      echo "still only $(( TOTAL - USED )) MiB free after ${PREGATE_SEC}s; not starting" | tee -a "$OUTDIR/deadline.log"
+      PREGATE_FAILED=1
       break
     fi
     echo "waiting for GPU: $(( TOTAL - USED )) MiB free, need $NEED" >> "$OUTDIR/deadline.log"
@@ -79,6 +83,33 @@ DEADLINE=$(( START + DEADLINE_SEC ))
   echo "gpu_wait=$GPU_WAIT"
   echo "cmd=$*"
 } > "$OUTDIR/run-meta.txt"
+
+if [ "$PREGATE_FAILED" -eq 1 ]; then
+  # Another tenant still owns the card. Refuse to start rather than OOM: a doomed
+  # run costs the same wall clock and leaves nothing behind.
+  cat > "$OUTDIR/timeline.json" <<JSON
+{
+  "start_epoch": $START,
+  "end_epoch": $START,
+  "wall_seconds": 0,
+  "deadline_sec": $DEADLINE_SEC,
+  "deadline_fired": 0,
+  "exit_code": 75,
+  "pid": 0,
+  "leftover_children": "",
+  "vram_free_after_seconds": "",
+  "device_used_mib_after": "$(gpu_used_mib)",
+  "pregate_wait_seconds": $PREWAIT,
+  "free_gb_target": $FREE_GB,
+  "ckpt_dir": "${CKPT_DIR:-$OUTDIR}",
+  "last_checkpoint": "",
+  "log": "$LOG",
+  "refused": "insufficient_free_gpu_memory"
+}
+JSON
+  echo "refused: only $(( $(gpu_total_mib) - $(gpu_used_mib) )) MiB free, wanted ${FREE_GB} GiB"
+  exit 75
+fi
 
 "$@" > "$LOG" 2>&1 &
 PID=$!

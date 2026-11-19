@@ -1,0 +1,401 @@
+WARNING:lerobot.utils.import_utils:Could not load this library: /home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_image.so
+'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
+WARNING:lerobot.utils.import_utils:Could not load this library: /home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_image.so
+'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
+INFO 2026-11-19 15:41:22 ot_train.py:584 {'accelerator': {'activation_checkpointing': {'mode': <ActivationCheckpointingMode.NONE: 'none'>},
+                 'compile': {'backend': 'inductor',
+                             'enabled': False,
+                             'mode': None,
+                             'regional': True},
+                 'ddp': {'find_unused_parameters': True,
+                         'gradient_as_bucket_view': False,
+                         'static_graph': False},
+                 'fsdp': {'cpu_offload': False,
+                          'ignored_modules': None,
+                          'min_num_params': None,
+                          'mixed_precision_policy': {'cast_forward_inputs': True,
+                                                     'output_dtype': None,
+                                                     'param_dtype': None,
+                                                     'reduce_dtype': None},
+                          'reshard_after_forward': True,
+                          'wrap_modules': None},
+                 'grad_scaler': {'backoff_factor': 0.5,
+                                 'growth_factor': 2.0,
+                                 'growth_interval': 2000,
+                                 'init_scale': 65536.0},
+                 'gradient_accumulation': {'steps': 1,
+                                           'sync_each_batch': False},
+                 'init_process_group': {'backend': 'nccl',
+                                        'init_method': None,
+                                        'timeout': None},
+                 'mixed_precision': 'no'},
+ 'action_loss_groups': None,
+ 'batch_size': 1,
+ 'checkpoint_format': <CheckpointFormat.SAFETENSORS: 'safetensors'>,
+ 'checkpoint_path': None,
+ 'cudnn_deterministic': False,
+ 'dataloader_multiprocessing_context': 'spawn',
+ 'dataset': {'depth_output_unit': 'mm',
+             'episodes': [0,
+                          1,
+                          2,
+                          3,
+                          4,
+                          5,
+                          6,
+                          7,
+                          8,
+                          11,
+                          12,
+                          13,
+                          14,
+                          15,
+                          16,
+                          17,
+                          18,
+                          19,
+                          20,
+                          22,
+                          24,
+                          25,
+                          26,
+                          27,
+                          28,
+                          29,
+                          30,
+                          31,
+                          32,
+                          33,
+                          34,
+                          35,
+                          36,
+                          37,
+                          38,
+                          39,
+                          41,
+                          42,
+                          44,
+                          45,
+                          46,
+                          47,
+                          48,
+                          49,
+                          50,
+                          51,
+                          52,
+                          55,
+                          56,
+                          57,
+                          58,
+                          60,
+                          61,
+                          63,
+                          64,
+                          65,
+                          66,
+                          68,
+                          69,
+                          70,
+                          73,
+                          74,
+                          75,
+                          76,
+                          77,
+                          78,
+                          79,
+                          80,
+                          81,
+                          82,
+                          83,
+                          84,
+                          87,
+                          88,
+                          89,
+                          90,
+                          91,
+                          93,
+                          94,
+                          95,
+                          96,
+                          97,
+                          98,
+                          101,
+                          102,
+                          103,
+                          104,
+                          105,
+                          106,
+                          107,
+                          108,
+                          109,
+                          110,
+                          111,
+                          112,
+                          113,
+                          114,
+                          116,
+                          118,
+                          119],
+             'eval_episodes': None,
+             'eval_split': 0.0,
+             'exclude_episodes': None,
+             'image_transforms': {'backend': 'dataloader',
+                                  'enable': False,
+                                  'gpu_chunk_size': 32,
+                                  'gpu_compile': True,
+                                  'max_num_transforms': 3,
+                                  'random_order': False,
+                                  'tfs': {'affine': {'kwargs': {'degrees': [-5.0,
+                                                                            5.0],
+                                                                'translate': [0.05,
+                                                                              0.05]},
+                                                     'type': 'RandomAffine',
+                                                     'weight': 1.0},
+                                          'brightness': {'kwargs': {'brightness': [0.8,
+                                                                                   1.2]},
+                                                         'type': 'ColorJitter',
+                                                         'weight': 1.0},
+                                          'contrast': {'kwargs': {'contrast': [0.8,
+                                                                               1.2]},
+                                                       'type': 'ColorJitter',
+                                                       'weight': 1.0},
+                                          'hue': {'kwargs': {'hue': [-0.05,
+                                                                     0.05]},
+                                                  'type': 'ColorJitter',
+                                                  'weight': 1.0},
+                                          'saturation': {'kwargs': {'saturation': [0.5,
+                                                                                   1.5]},
+                                                         'type': 'ColorJitter',
+                                                         'weight': 1.0},
+                                          'sharpness': {'kwargs': {'sharpness': [0.5,
+                                                                                 1.5]},
+                                                        'type': 'SharpnessJitter',
+                                                        'weight': 1.0}}},
+             'repo_id': 'local/so101_scene1_left_red_v1',
+             'repo_type': 'dataset',
+             'return_uint8': False,
+             'revision': None,
+             'root': '/home/lfy/lelab-rmr/assets/so101_left_red_view',
+             'sample_weights_file': None,
+             'streaming': False,
+             'streaming_byte_budget_gb': 8.0,
+             'streaming_decode_threads': 2,
+             'streaming_decoded_queue_size': 8,
+             'streaming_episode_pool_size': None,
+             'streaming_native_http_connections': None,
+             'streaming_native_http_subranges': 1,
+             'streaming_prefetch_episodes': 8,
+             'streaming_sampling_strategy': <StreamingSamplingStrategy.REMAINING: 'remaining'>,
+             'streaming_sidecar_lock_timeout_s': 1800,
+             'use_imagenet_stats': True,
+             'video_backend': 'pyav',
+             'video_decoder_cache_size': None},
+ 'ema': None,
+ 'env': None,
+ 'env_eval_freq': 20000,
+ 'eval': {'batch_size': 50,
+          'max_episode_steps': None,
+          'n_episodes': 50,
+          'recording': False,
+          'recording_private': False,
+          'recording_repo_id': None,
+          'use_async_envs': True},
+ 'eval_steps': 0,
+ 'job': {'detach': False,
+         'image': 'huggingface/lerobot-gpu:latest',
+         'tags': [],
+         'target': None,
+         'timeout': '2d'},
+ 'job_name': 'ab-a',
+ 'log_freq': 10,
+ 'max_eval_samples': 0,
+ 'num_workers': 0,
+ 'optimizer': {'betas': [0.9, 0.999],
+               'eps': 1e-08,
+               'fused': None,
+               'grad_clip_norm': 10.0,
+               'lr': 0.0001,
+               'type': 'adamw',
+               'weight_decay': 0.01},
+ 'optimizer_overrides': None,
+ 'output_dir': '/home/lfy/lelab-rmr/runs/so101-ab/a',
+ 'parallelism': {'cfg_parallel': 1,
+                 'context_parallel': {'ring_degree': 1, 'ulysses_degree': 1},
+                 'dp_replicate': 1,
+                 'dp_shard': 1},
+ 'peft': {'full_training_modules': None,
+          'init_type': None,
+          'lora_alpha': 32,
+          'method_type': 'LORA',
+          'r': 16,
+          'target_modules': None},
+ 'persistent_workers': True,
+ 'policy': {'action_dim': 12,
+            'action_dit_config': {'action_dim': 12,
+                                  'attn_head_dim': 128,
+                                  'eps': 1e-06,
+                                  'ffn_dim': 4096,
+                                  'fp32_attention': True,
+                                  'freq_dim': 256,
+                                  'hidden_dim': 1024,
+                                  'num_heads': 24,
+                                  'num_layers': 30,
+                                  'text_dim': 4096,
+                                  'use_gradient_checkpointing': False,
+                                  'use_text_cross_attention': True},
+            'action_expert_layers': None,
+            'action_feature_names': None,
+            'action_horizon': 32,
+            'action_scheduler': {'infer_shift': 5.0,
+                                 'num_train_timesteps': 1000,
+                                 'train_shift': 5.0},
+            'action_video_freq_ratio': 4,
+            'base_model_id': 'lerobot/fastwam_base',
+            'compile_action_infer': False,
+            'context_len': 128,
+            'device': 'cuda',
+            'dtype': 'bfloat16',
+            'fp32_attention': True,
+            'freeze_video_expert': True,
+            'image_size': [224, 672],
+            'inference_seed': 42,
+            'input_features': {'observation.images.image': {'shape': [3,
+                                                                      224,
+                                                                      672],
+                                                            'type': <FeatureType.VISUAL: 'VISUAL'>},
+                               'observation.state': {'shape': [12],
+                                                     'type': <FeatureType.STATE: 'STATE'>}},
+            'license': None,
+            'lite_kv_fusion': False,
+            'load_text_encoder': True,
+            'loss': {'lambda_action': 1.0, 'lambda_video': 1.0},
+            'model_id': 'Wan-AI/Wan2.2-TI2V-5B',
+            'mot_checkpoint_mixed_attn': False,
+            'n_action_steps': 32,
+            'n_obs_steps': 1,
+            'negative_prompt': '',
+            'normalization_mapping': {'ACTION': <NormalizationMode.MEAN_STD: 'MEAN_STD'>,
+                                      'STATE': <NormalizationMode.MEAN_STD: 'MEAN_STD'>,
+                                      'VISUAL': <NormalizationMode.IDENTITY: 'IDENTITY'>},
+            'num_inference_steps': 10,
+            'num_video_frames': 33,
+            'optimizer_lr': 0.0001,
+            'optimizer_weight_decay': 0.01,
+            'output_features': {'action': {'shape': [12],
+                                           'type': <FeatureType.ACTION: 'ACTION'>}},
+            'pretrained_path': '/home/lfy/lelab-rmr/fastwam-ckpt',
+            'pretrained_revision': None,
+            'private': None,
+            'prompt_template': "A video recorded from a robot's point of view "
+                               'executing the following instruction: {task}',
+            'proprio_dim': 12,
+            'push_to_hub': False,
+            'rand_device': 'cpu',
+            'relative_exclude_joints': ['gripper'],
+            'repo_id': None,
+            'retracted_1d_rope': False,
+            'sigma_shift': None,
+            'tags': None,
+            'text_cfg_scale': 1.0,
+            'text_encoder_device': 'cpu',
+            'text_encoder_model_id': 'Wan-AI/Wan2.2-TI2V-5B-Diffusers',
+            'tiled': False,
+            'toggle_action_dimensions': [],
+            'tokenizer_max_len': 128,
+            'tokenizer_model_id': 'google/umt5-xxl',
+            'torch_dtype': None,
+            'type': 'fastwam',
+            'use_amp': False,
+            'use_gradient_checkpointing': False,
+            'use_peft': True,
+            'use_relative_actions': False,
+            'video_dit_config': {'action_conditioned': False,
+                                 'action_dim': 12,
+                                 'action_group_causal_mask_mode': 'group_diagonal',
+                                 'attn_head_dim': 128,
+                                 'eps': 1e-06,
+                                 'ffn_dim': 14336,
+                                 'fp32_attention': True,
+                                 'freq_dim': 256,
+                                 'hidden_dim': 3072,
+                                 'in_dim': 48,
+                                 'num_heads': 24,
+                                 'num_layers': 30,
+                                 'out_dim': 48,
+                                 'patch_size': [1, 2, 2],
+                                 'seperated_timestep': True,
+                                 'text_dim': 4096,
+                                 'use_gradient_checkpointing': False,
+                                 'video_attention_mask_mode': 'first_frame_causal'},
+            'video_scheduler': {'infer_shift': 5.0,
+                                'num_train_timesteps': 1000,
+                                'train_shift': 5.0},
+            'world_model_only_conditioning': False},
+ 'prefetch_factor': 4,
+ 'rename_map': {},
+ 'resume': False,
+ 'reward_model': None,
+ 'sample_weighting': None,
+ 'save_checkpoint': True,
+ 'save_checkpoint_to_hub': False,
+ 'save_freq': 50,
+ 'scheduler': None,
+ 'scheduler_overrides': None,
+ 'seed': 1003,
+ 'steps': 100,
+ 'tf32': True,
+ 'tolerance_s': 0.0001,
+ 'trackio': {'capture_console': True,
+             'disable_artifact': True,
+             'enable': False,
+             'private': None,
+             'project': 'lerobot',
+             'resume': None,
+             'run_name': None,
+             'space_id': None},
+ 'use_policy_training_preset': True,
+ 'weight_norm_freq': 0}
+INFO 2026-11-19 15:41:22 ot_train.py:591 Logs will be saved locally.
+INFO 2026-11-19 15:41:22 ot_train.py:608 Creating dataset
+INFO 2026-11-19 15:41:23 ot_train.py:647 Creating policy
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+INFO 2026-11-19 15:41:23 ice_utils.py:26 Cuda backend detected, using cuda.
+WARNING 2026-11-19 15:41:23 /policies.py:94 Device 'None' is not available. Switching to 'cuda'.
+INFO 2026-11-19 15:43:30 /modular.py:780 Initialized MoT with experts: ['video', 'action'], num_layers=30
+INFO 2026-11-19 15:43:30 /modular.py:783   Expert 'video': num_params=5.00 B
+INFO 2026-11-19 15:43:30 /modular.py:783   Expert 'action': num_params=1.02 B
+Loading weights:   0%|          | 0/242 [00:00<?, ?it/s]Loading weights: 100%|██████████| 242/242 [00:00<00:00, 5895.15it/s]
+/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py:206: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
+  warnings.warn(
+The config attributes {'clip_output': False} were passed to AutoencoderKLWan, but are not expected and will be ignored. Please verify your config.json configuration file.
+There are modules in AutoencoderKLWan that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+[transformers] The tokenizer you are loading from 'google/umt5-xxl' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+Loading weights from local directory
+WARNING 2026-11-19 15:43:37 ies/utils.py:95 Missing key(s) when loading model: {'model.mot.mixtures.action.head.bias', 'model.mot.mixtures.action.action_encoder.bias', 'model.mot.mixtures.action.head.weight', 'model.proprio_encoder.weight', 'model.proprio_encoder.bias', 'model.mot.mixtures.action.action_encoder.weight'}
+INFO 2026-11-19 15:43:37 ot_train.py:665 Using PEFT! Wrapping model.
+INFO 2026-11-19 15:43:38 etrained.py:517 Wrapped fastwam with PEFT (LoraConfig)
+INFO 2026-11-19 15:43:38 ot_train.py:757 Creating optimizer and scheduler
+INFO 2026-11-19 15:43:38 ot_train.py:847 Output dir: /home/lfy/lelab-rmr/runs/so101-ab/a
+INFO 2026-11-19 15:43:38 ot_train.py:854 cfg.steps=100 (100)
+INFO 2026-11-19 15:43:38 ot_train.py:855 dataset.num_frames=74131 (74K)
+INFO 2026-11-19 15:43:38 ot_train.py:856 dataset.num_episodes=100
+INFO 2026-11-19 15:43:38 ot_train.py:857 Effective batch size: 1 x 1 dp workers x 1 grad accum = 1 (topology: dp_replicate=1, dp_shard=1)
+INFO 2026-11-19 15:43:38 ot_train.py:862 num_learnable_params=7943180 (8M)
+INFO 2026-11-19 15:43:38 ot_train.py:863 num_total_params=6028680408 (6B)
+Training:   0%|          | 0/100 [00:00<?, ?step/s]INFO 2026-11-19 15:43:38 ot_train.py:911 Start offline training on a fixed dataset, with effective batch size: 1
+Training:   1%|          | 1/100 [00:46<1:16:59, 46.67s/step]Training:   2%|▏         | 2/100 [00:49<33:46, 20.68s/step]  Training:   3%|▎         | 3/100 [00:51<19:58, 12.35s/step]Training:   4%|▍         | 4/100 [00:54<13:30,  8.45s/step]Training:   5%|▌         | 5/100 [00:56<09:57,  6.29s/step]Training:   6%|▌         | 6/100 [00:58<07:45,  4.96s/step]Training:   7%|▋         | 7/100 [01:01<06:23,  4.12s/step]Training:   8%|▊         | 8/100 [01:03<05:30,  3.59s/step]Training:   9%|▉         | 9/100 [01:06<04:54,  3.24s/step]Training:  10%|█         | 10/100 [01:08<04:30,  3.00s/step]INFO 2026-11-19 15:44:46 ot_train.py:957 step:10 smpl:10 ep:0 epch:0.00 loss:2.089 grdn:7.038 lr:1.0e-04 data_s:0.377 prep_s:0.002 updt_s:6.486 step_s:6.870 smp/s:0 mem_gb:16.02 loss_video:0.215 loss_action:1.874
+Training:  11%|█         | 11/100 [01:11<04:13,  2.85s/step]Training:  12%|█▏        | 12/100 [01:13<04:01,  2.74s/step]Training:  13%|█▎        | 13/100 [01:16<03:50,  2.65s/step]Training:  14%|█▍        | 14/100 [01:18<03:43,  2.60s/step]Training:  15%|█▌        | 15/100 [01:20<03:35,  2.54s/step]Training:  16%|█▌        | 16/100 [01:23<03:31,  2.52s/step]Training:  17%|█▋        | 17/100 [01:25<03:28,  2.51s/step]Training:  18%|█▊        | 18/100 [01:28<03:25,  2.50s/step]Training:  19%|█▉        | 19/100 [01:30<03:22,  2.50s/step]Training:  20%|██        | 20/100 [01:33<03:20,  2.50s/step]INFO 2026-11-19 15:45:11 ot_train.py:957 step:20 smpl:20 ep:0 epch:0.00 loss:1.239 grdn:4.161 lr:1.0e-04 data_s:0.337 prep_s:0.000 updt_s:2.134 step_s:2.475 smp/s:0 mem_gb:16.03 loss_video:0.234 loss_action:1.005
+Training:  21%|██        | 21/100 [01:35<03:17,  2.50s/step]Training:  22%|██▏       | 22/100 [01:38<03:15,  2.51s/step]Training:  23%|██▎       | 23/100 [01:40<03:12,  2.51s/step]Training:  24%|██▍       | 24/100 [01:43<03:09,  2.49s/step]Training:  25%|██▌       | 25/100 [01:45<03:07,  2.50s/step]Training:  26%|██▌       | 26/100 [01:48<03:03,  2.47s/step]Training:  27%|██▋       | 27/100 [01:50<03:00,  2.47s/step]Training:  28%|██▊       | 28/100 [01:53<02:58,  2.48s/step]Training:  29%|██▉       | 29/100 [01:55<02:56,  2.49s/step]Training:  30%|███       | 30/100 [01:58<02:54,  2.50s/step]INFO 2026-11-19 15:45:36 ot_train.py:957 step:30 smpl:30 ep:0 epch:0.00 loss:3.880 grdn:10.527 lr:1.0e-04 data_s:0.334 prep_s:0.000 updt_s:2.151 step_s:2.489 smp/s:0 mem_gb:16.03 loss_video:0.195 loss_action:3.685
+Training:  31%|███       | 31/100 [02:00<02:52,  2.49s/step]Training:  32%|███▏      | 32/100 [02:03<02:49,  2.49s/step]Training:  33%|███▎      | 33/100 [02:05<02:44,  2.45s/step]Training:  34%|███▍      | 34/100 [02:08<02:42,  2.47s/step]Training:  35%|███▌      | 35/100 [02:10<02:42,  2.49s/step]Training:  36%|███▌      | 36/100 [02:13<02:40,  2.50s/step]Training:  37%|███▋      | 37/100 [02:15<02:37,  2.49s/step]Training:  38%|███▊      | 38/100 [02:18<02:34,  2.49s/step]Training:  39%|███▉      | 39/100 [02:20<02:33,  2.52s/step]Training:  40%|████      | 40/100 [02:23<02:32,  2.54s/step]INFO 2026-11-19 15:46:01 ot_train.py:957 step:40 smpl:40 ep:0 epch:0.00 loss:2.015 grdn:7.997 lr:1.0e-04 data_s:0.332 prep_s:0.000 updt_s:2.167 step_s:2.503 smp/s:0 mem_gb:16.03 loss_video:0.205 loss_action:1.811
+Training:  41%|████      | 41/100 [02:25<02:30,  2.55s/step]Training:  42%|████▏     | 42/100 [02:28<02:28,  2.57s/step]Training:  43%|████▎     | 43/100 [02:31<02:28,  2.61s/step]Training:  44%|████▍     | 44/100 [02:34<02:29,  2.68s/step]Training:  45%|████▌     | 45/100 [02:36<02:28,  2.69s/step]Training:  46%|████▌     | 46/100 [02:39<02:28,  2.74s/step]Training:  47%|████▋     | 47/100 [02:42<02:20,  2.66s/step]Training:  48%|████▊     | 48/100 [02:44<02:16,  2.62s/step]Training:  49%|████▉     | 49/100 [02:47<02:11,  2.58s/step]Training:  50%|█████     | 50/100 [02:49<02:07,  2.54s/step]INFO 2026-11-19 15:46:27 ot_train.py:957 step:50 smpl:50 ep:0 epch:0.00 loss:0.989 grdn:4.072 lr:1.0e-04 data_s:0.310 prep_s:0.000 updt_s:2.311 step_s:2.625 smp/s:0 mem_gb:16.03 loss_video:0.186 loss_action:0.804
+INFO 2026-11-19 15:46:27 t_train.py:1115 Checkpoint policy after step 50
+Training:  51%|█████     | 51/100 [02:52<02:05,  2.57s/step]Training:  52%|█████▏    | 52/100 [02:54<02:02,  2.56s/step]Training:  53%|█████▎    | 53/100 [02:57<01:59,  2.54s/step]Training:  54%|█████▍    | 54/100 [02:59<01:56,  2.53s/step]Training:  55%|█████▌    | 55/100 [03:02<01:53,  2.51s/step]Training:  56%|█████▌    | 56/100 [03:04<01:50,  2.51s/step]Training:  57%|█████▋    | 57/100 [03:07<01:46,  2.49s/step]Training:  58%|█████▊    | 58/100 [03:09<01:44,  2.50s/step]Training:  59%|█████▉    | 59/100 [03:12<01:41,  2.48s/step]Training:  60%|██████    | 60/100 [03:14<01:39,  2.49s/step]INFO 2026-11-19 15:46:52 ot_train.py:957 step:60 smpl:60 ep:0 epch:0.00 loss:2.214 grdn:8.468 lr:1.0e-04 data_s:0.324 prep_s:0.000 updt_s:2.158 step_s:2.486 smp/s:0 mem_gb:16.03 loss_video:0.218 loss_action:1.996
+Training:  61%|██████    | 61/100 [03:17<01:37,  2.50s/step]Training:  62%|██████▏   | 62/100 [03:19<01:34,  2.50s/step]Training:  63%|██████▎   | 63/100 [03:22<01:32,  2.50s/step]Training:  64%|██████▍   | 64/100 [03:24<01:30,  2.51s/step]Training:  65%|██████▌   | 65/100 [03:27<01:27,  2.50s/step]Training:  66%|██████▌   | 66/100 [03:29<01:24,  2.49s/step]Training:  67%|██████▋   | 67/100 [03:32<01:22,  2.49s/step]Training:  68%|██████▊   | 68/100 [03:34<01:18,  2.46s/step]Training:  69%|██████▉   | 69/100 [03:37<01:16,  2.47s/step]Training:  70%|███████   | 70/100 [03:39<01:14,  2.48s/step]INFO 2026-11-19 15:47:17 ot_train.py:957 step:70 smpl:70 ep:0 epch:0.00 loss:0.927 grdn:3.663 lr:1.0e-04 data_s:0.323 prep_s:0.000 updt_s:2.159 step_s:2.486 smp/s:0 mem_gb:16.03 loss_video:0.207 loss_action:0.719
+Training:  71%|███████   | 71/100 [03:42<01:11,  2.48s/step]Training:  72%|███████▏  | 72/100 [03:44<01:09,  2.49s/step]Training:  73%|███████▎  | 73/100 [03:47<01:07,  2.49s/step]Training:  74%|███████▍  | 74/100 [03:49<01:04,  2.48s/step]Training:  75%|███████▌  | 75/100 [03:52<01:02,  2.49s/step]Training:  76%|███████▌  | 76/100 [03:54<00:59,  2.49s/step]Training:  77%|███████▋  | 77/100 [03:57<00:57,  2.50s/step]Training:  78%|███████▊  | 78/100 [03:59<00:54,  2.48s/step]Training:  79%|███████▉  | 79/100 [04:01<00:52,  2.49s/step]Training:  80%|████████  | 80/100 [04:04<00:49,  2.50s/step]INFO 2026-11-19 15:47:42 ot_train.py:957 step:80 smpl:80 ep:0 epch:0.00 loss:1.471 grdn:6.889 lr:1.0e-04 data_s:0.337 prep_s:0.000 updt_s:2.154 step_s:2.494 smp/s:0 mem_gb:16.03 loss_video:0.187 loss_action:1.284
+Training:  81%|████████  | 81/100 [04:06<00:47,  2.49s/step]Training:  82%|████████▏ | 82/100 [04:09<00:44,  2.47s/step]Training:  83%|████████▎ | 83/100 [04:11<00:42,  2.49s/step]Training:  84%|████████▍ | 84/100 [04:14<00:39,  2.49s/step]Training:  85%|████████▌ | 85/100 [04:16<00:36,  2.47s/step]Training:  86%|████████▌ | 86/100 [04:19<00:34,  2.47s/step]Training:  87%|████████▋ | 87/100 [04:21<00:32,  2.48s/step]Training:  88%|████████▊ | 88/100 [04:24<00:29,  2.49s/step]Training:  89%|████████▉ | 89/100 [04:26<00:27,  2.50s/step]Training:  90%|█████████ | 90/100 [04:29<00:25,  2.50s/step]INFO 2026-11-19 15:48:07 ot_train.py:957 step:90 smpl:90 ep:0 epch:0.00 loss:1.262 grdn:5.074 lr:1.0e-04 data_s:0.329 prep_s:0.000 updt_s:2.153 step_s:2.485 smp/s:0 mem_gb:16.03 loss_video:0.247 loss_action:1.015
+Training:  91%|█████████ | 91/100 [04:31<00:22,  2.50s/step]Training:  92%|█████████▏| 92/100 [04:34<00:20,  2.50s/step]Training:  93%|█████████▎| 93/100 [04:36<00:17,  2.50s/step]Training:  94%|█████████▍| 94/100 [04:39<00:15,  2.50s/step]Training:  95%|█████████▌| 95/100 [04:41<00:12,  2.50s/step]Training:  96%|█████████▌| 96/100 [04:44<00:09,  2.48s/step]Training:  97%|█████████▋| 97/100 [04:46<00:07,  2.49s/step]Training:  98%|█████████▊| 98/100 [04:49<00:04,  2.49s/step]Training:  99%|█████████▉| 99/100 [04:51<00:02,  2.49s/step]Training: 100%|██████████| 100/100 [04:54<00:00,  2.49s/step]INFO 2026-11-19 15:48:32 ot_train.py:957 step:100 smpl:100 ep:0 epch:0.00 loss:1.076 grdn:4.394 lr:1.0e-04 data_s:0.336 prep_s:0.000 updt_s:2.152 step_s:2.493 smp/s:0 mem_gb:16.03 loss_video:0.211 loss_action:0.866
+INFO 2026-11-19 15:48:32 t_train.py:1115 Checkpoint policy after step 100
+Training: 100%|██████████| 100/100 [04:54<00:00,  2.94s/step]
+INFO 2026-11-19 15:48:32 t_train.py:1332 End of training
+[W1119 15:48:34.712609149 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())

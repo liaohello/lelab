@@ -45,6 +45,7 @@ collect() {  # $1 label  $2 checkpoint dir
   echo "=== collect $1 $(date +%H:%M:%S) ==="
   env -u PYTHONPATH $PY $C/collect_ab.py --checkpoint "$2" --view "$V" --role dev \
     --episodes "$ANCHOR_EPS" --label "$1" --isolation-check \
+    --app-root /home/lfy/lelab-rmr/releases/sanitized-20261024-01/app \
     --out "$OUT/preds-$1.npz" --report "$OUT/collect-$1.json" || echo "COLLECT_FAILED $1"
 }
 
