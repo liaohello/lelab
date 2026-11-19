@@ -1,0 +1,18 @@
+{
+  "start_epoch": 1795076097,
+  "end_epoch": 1795076231,
+  "wall_seconds": 134,
+  "deadline_sec": 900,
+  "deadline_fired": 0,
+  "exit_code": 1,
+  "pid": 474101,
+  "leftover_children": "",
+  "vram_free_after_seconds": "82",
+  "device_used_mib_after": "1150",
+  "pregate_wait_seconds": 361,
+  "free_gb_target": 20,
+  "gpu_wait_enabled": 1,
+  "ckpt_dir": "/home/lfy/lelab-rmr/runs/so101-ab/b",
+  "last_checkpoint": "",
+  "log": "/home/lfy/lelab-rmr/runs/so101-ab/b.log"
+}

@@ -2,7 +2,7 @@ WARNING:lerobot.utils.import_utils:Could not load this library: /home/lfy/lelab-
 'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
 WARNING:lerobot.utils.import_utils:Could not load this library: /home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/torchcodec/libtorchcodec_image.so
 'torchcodec' is installed but cannot decode videos (see the error above). Falling back to 'pyav' as a default decoder.
-INFO 2026-11-19 16:02:20 ot_train.py:584 {'accelerator': {'activation_checkpointing': {'mode': <ActivationCheckpointingMode.NONE: 'none'>},
+INFO 2026-11-19 16:15:05 ot_train.py:584 {'accelerator': {'activation_checkpointing': {'mode': <ActivationCheckpointingMode.NONE: 'none'>},
                  'compile': {'backend': 'inductor',
                              'enabled': False,
                              'mode': None,
@@ -355,17 +355,17 @@ INFO 2026-11-19 16:02:20 ot_train.py:584 {'accelerator': {'activation_checkpoint
              'space_id': None},
  'use_policy_training_preset': True,
  'weight_norm_freq': 0}
-INFO 2026-11-19 16:02:20 ot_train.py:591 Logs will be saved locally.
-INFO 2026-11-19 16:02:20 ot_train.py:608 Creating dataset
-INFO 2026-11-19 16:02:20 ot_train.py:647 Creating policy
+INFO 2026-11-19 16:15:05 ot_train.py:591 Logs will be saved locally.
+INFO 2026-11-19 16:15:05 ot_train.py:608 Creating dataset
+INFO 2026-11-19 16:15:05 ot_train.py:647 Creating policy
 /home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
   instance = origin(**init_args)
-INFO 2026-11-19 16:02:20 ice_utils.py:26 Cuda backend detected, using cuda.
-WARNING 2026-11-19 16:02:20 /policies.py:94 Device 'None' is not available. Switching to 'cuda'.
-INFO 2026-11-19 16:04:31 /modular.py:780 Initialized MoT with experts: ['video', 'action'], num_layers=30
-INFO 2026-11-19 16:04:31 /modular.py:783   Expert 'video': num_params=5.00 B
-INFO 2026-11-19 16:04:31 /modular.py:783   Expert 'action': num_params=1.02 B
-Loading weights:   0%|          | 0/242 [00:00<?, ?it/s]Loading weights: 100%|██████████| 242/242 [00:00<00:00, 5259.12it/s]
+INFO 2026-11-19 16:15:05 ice_utils.py:26 Cuda backend detected, using cuda.
+WARNING 2026-11-19 16:15:05 /policies.py:94 Device 'None' is not available. Switching to 'cuda'.
+INFO 2026-11-19 16:17:07 /modular.py:780 Initialized MoT with experts: ['video', 'action'], num_layers=30
+INFO 2026-11-19 16:17:07 /modular.py:783   Expert 'video': num_params=5.00 B
+INFO 2026-11-19 16:17:07 /modular.py:783   Expert 'action': num_params=1.02 B
+Loading weights:   0%|          | 0/242 [00:00<?, ?it/s]Loading weights: 100%|██████████| 242/242 [00:00<00:00, 5408.37it/s]
 /home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py:206: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
   warnings.warn(
 The config attributes {'clip_output': False} were passed to AutoencoderKLWan, but are not expected and will be ignored. Please verify your config.json configuration file.
@@ -423,5 +423,5 @@ Traceback (most recent call last):
   File "/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1357, in convert
     return t.to(
            ^^^^^
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 54.00 MiB. GPU 0 has a total capacity of 31.74 GiB of which 36.25 MiB is free. Including non-PyTorch memory, this process has 12.07 GiB memory in use. Process 464906 has 18.81 GiB memory in use. Of the allocated memory 11.77 GiB is allocated by PyTorch, and 2.46 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-[W1119 16:04:33.492096879 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 54.00 MiB. GPU 0 has a total capacity of 31.74 GiB of which 34.25 MiB is free. Including non-PyTorch memory, this process has 12.07 GiB memory in use. Process 474224 has 18.81 GiB memory in use. Of the allocated memory 11.77 GiB is allocated by PyTorch, and 2.46 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[W1119 16:17:09.113850812 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())

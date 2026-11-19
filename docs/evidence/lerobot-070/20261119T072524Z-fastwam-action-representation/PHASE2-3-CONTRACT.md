@@ -96,3 +96,29 @@
    见 `processor_fastwam.py`：没有名字时 `_build_mask` 会静默返回全 True）；
 7. 后处理器在没有缓存锚点时抛错；
 8. 关闭相对动作时行为与纯绝对一致。
+
+### 3.5 端到端目标值（真实数据，2 条）
+
+`tools/test_relative_targets.py` 取 train 集一个真实 32 步窗口，走 B 组的完整预处理器，
+再与手算的 `(action - state_anchor)`（关节）／`action`（夹爪）比对：
+
+- **原始单位**下最大差 < 1e-4；这条必须用原始单位比，用归一化单位会把静态维（std≈0.09）
+  的 float32 舍入放大成 0.07 的"差异"；
+- 首步关节残差在归一化空间里 < 0.5，而绝对目标在同一位置约 -4 —— 这就是相对表示预期的收益来源。
+
+跑测试时注意：单个（未批处理）样本的 `action` 不会被 `add_batch_dim` 加批维，
+而 `observation.state` 会；`action - state` 靠广播对齐。这一点与训练时 dataloader 给的
+`[B,32,12]` 不同，写测试时踩过。
+
+### 3.6 回归汇总
+
+| 套件 | 结果 |
+| --- | --- |
+| `tests/policies/fastwam/test_fastwam_relative_actions.py` | 8 passed |
+| `tests/policies/fastwam/test_fastwam_prompt_cache.py` | 4 passed |
+| `tests/policies/fastwam/test_fastwam_peft_targets.py` | 5 passed |
+| `tests/policies/fastwam/*`（全部） | 38 passed, 2 skipped, 1 failed（`test_vae_adapter_empty_build_encode_decode_shapes`：本机 4 GiB 地址空间不足，`Cannot allocate memory`，与本次改动无关） |
+| `app/tests/test_fastwam_adapter_contract.py` | 7 passed, 1 skipped（检查点不在本机） |
+| `tools/test_score_v2.py` | 11 passed |
+| `tools/test_relative_targets.py` | 2 passed |
+| `tools/test_deadline_runner.sh` | 7 passed |
