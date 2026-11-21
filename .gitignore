@@ -293,3 +293,8 @@ docs/evidence/**/*.mp4
 # rehearsal record; the tarball and unpacked payload are regenerable artifacts.
 /docs/evidence/lerobot-070/*/lelab-*-070-*/candidate.tar.gz
 /docs/evidence/lerobot-070/*/lelab-*-070-*/payload/
+
+# Acceptance runs unpack the candidate, build an isolated environment and start
+# the packaged service. The artefacts reviewed in Git are the reports; the trees
+# themselves are regenerable from candidate.tar.gz.
+/acceptance-run/
