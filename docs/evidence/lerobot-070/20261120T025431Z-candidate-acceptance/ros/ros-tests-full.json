@@ -1,0 +1,5038 @@
+{
+  "argv": [
+    "/home/lfy/lelab-rmr/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests",
+    "-q",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml=/home/lfy/lelab-accept/ros-full.xml"
+  ],
+  "cases": [
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_a_pair_measured_on_this_bench_is_accepted",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_swapping_the_two_ports_is_refused",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_selecting_another_rigs_file_for_a_bound_port_is_refused",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_an_unbound_port_warns_but_still_starts",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_a_hand_edited_calibration_warns_instead_of_refusing",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_one_port_cannot_be_both_arms",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_ids_that_disagree_with_the_bus_are_refused",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_a_bus_without_a_motor_table_skips_the_id_check",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_left_rig_and_left_rig_json_are_the_same_calibration",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_a_missing_calibration_file_warns",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_a_calibration_name_cannot_escape_the_calibration_tree",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_a_damaged_binding_table_does_not_block_teleoperation",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_recalibrating_a_port_replaces_the_previous_binding",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_record_refuses_an_unknown_device_type",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_workbench_inventory_binds_ports_to_calibration_identity",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_built_in_uart_nodes_are_not_offered_as_arms",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_devices_endpoint_answers_with_the_table_and_session_state",
+      "outcome": "passed",
+      "time": 0.05
+    },
+    {
+      "classname": "tests.test_arm_bindings",
+      "name": "test_identity_endpoint_refuses_the_swapped_pair_over_http",
+      "outcome": "passed",
+      "time": 0.026
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[-5-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[0-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[1-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[100-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[2000-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[4095-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[4999-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[5000-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_is_valid_position_boundaries[6000-False]",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_calibration_status_defaults_to_idle",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_calibration_request_dataclass_round_trip",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_calibration_manager_starts_idle",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_calibration_manager_get_status_when_idle_returns_status_object",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_calibration_bus_reads_are_serialized",
+      "outcome": "passed",
+      "time": 0.042
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_calibration_manager_rejects_double_start_via_message",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_cleanup_device_force_releases_and_clears_when_disconnect_fails",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_completing_a_calibration_binds_the_file_lerobot_actually_wrote",
+      "outcome": "passed",
+      "time": 0.008
+    },
+    {
+      "classname": "tests.test_calibrate",
+      "name": "test_a_binding_written_by_the_wizard_makes_the_other_side_refuse",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_calibration_limits",
+      "name": "test_inside_limits_is_untouched",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibration_limits",
+      "name": "test_outside_limits_is_clamped",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibration_limits",
+      "name": "test_positive_margin_shrinks_and_negative_margin_expands",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibration_limits",
+      "name": "test_motor_map_margin_is_per_joint",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_calibration_limits",
+      "name": "test_margin_wider_than_range_pins_the_midpoint",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_camera_live_preview",
+      "name": "test_latest_preview_requires_advancing_source_identity",
+      "outcome": "passed",
+      "time": 0.028
+    },
+    {
+      "classname": "tests.test_camera_live_preview",
+      "name": "test_fresh_polling_without_viewer_identity_is_refused",
+      "outcome": "passed",
+      "time": 0.032
+    },
+    {
+      "classname": "tests.test_camera_live_preview",
+      "name": "test_two_viewers_track_frame_progress_independently",
+      "outcome": "passed",
+      "time": 0.029
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_compatibility_reports_missing_seal",
+      "outcome": "passed",
+      "time": 0.064
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_compatibility_reports_cached_composite",
+      "outcome": "passed",
+      "time": 0.054
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_compatibility_survives_unreachable_train_server",
+      "outcome": "passed",
+      "time": 0.048
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_build_refuses_blocked_selection",
+      "outcome": "passed",
+      "time": 0.031
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_build_starts_on_training_server",
+      "outcome": "passed",
+      "time": 0.04
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_build_reuses_ready_composite",
+      "outcome": "passed",
+      "time": 0.044
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_composite_status_returns_build_and_remote",
+      "outcome": "passed",
+      "time": 0.021
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_composite_list_surfaces_remote_errors",
+      "outcome": "passed",
+      "time": 0.027
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_trash_composite_is_refused_while_training",
+      "outcome": "passed",
+      "time": 0.024
+    },
+    {
+      "classname": "tests.test_composite_api",
+      "name": "test_trash_and_restore_composite",
+      "outcome": "passed",
+      "time": 0.025
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_requires_at_least_two_members",
+      "outcome": "passed",
+      "time": 0.01
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_requires_sealed_members",
+      "outcome": "passed",
+      "time": 0.01
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_accepts_matching_sealed_members",
+      "outcome": "passed",
+      "time": 0.013
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_rejects_fps_mismatch",
+      "outcome": "passed",
+      "time": 0.013
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_rejects_camera_key_mismatch",
+      "outcome": "passed",
+      "time": 0.013
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_rejects_feature_shape_mismatch",
+      "outcome": "passed",
+      "time": 0.013
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_rejects_codebase_version_mismatch",
+      "outcome": "passed",
+      "time": 0.013
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_hash_depends_on_member_order",
+      "outcome": "passed",
+      "time": 0.018
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_normalizes_weights",
+      "outcome": "passed",
+      "time": 0.031
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_plan_does_not_change_with_weights",
+      "outcome": "passed",
+      "time": 0.018
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_build_composite_merges_and_leaves_sources_untouched",
+      "outcome": "passed",
+      "time": 6.889
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_build_refuses_when_member_metadata_changed",
+      "outcome": "passed",
+      "time": 0.098
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_build_composite_with_videos_decodes_every_episode",
+      "outcome": "passed",
+      "time": 7.644
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_list_remote_composites_parses_python_output",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_trash_remote_composite_rejects_foreign_ids",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_trash_remote_composite_reports_missing_ready",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_build_manager_streams_the_builder_over_ssh",
+      "outcome": "passed",
+      "time": 0.025
+    },
+    {
+      "classname": "tests.test_composites",
+      "name": "test_build_manager_local_runner_produces_a_ready_composite",
+      "outcome": "passed",
+      "time": 6.916
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_local_listing_carries_summary_fields",
+      "outcome": "passed",
+      "time": 0.049
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_listing_ignores_hidden_trash_directory",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_summary_endpoint_reports_unfinalized_dataset",
+      "outcome": "passed",
+      "time": 0.036
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_summary_endpoint_rejects_traversal",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_summary_endpoint_404_for_missing_dataset",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_integrity_flags_missing_episode_index",
+      "outcome": "passed",
+      "time": 0.031
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_integrity_ok_for_complete_dataset",
+      "outcome": "passed",
+      "time": 0.029
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_schema_endpoint_exposes_features",
+      "outcome": "passed",
+      "time": 0.035
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_files_endpoint_returns_templates",
+      "outcome": "passed",
+      "time": 0.039
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_trash_and_restore_round_trip",
+      "outcome": "passed",
+      "time": 0.052
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_restore_refuses_to_overwrite",
+      "outcome": "passed",
+      "time": 0.033
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_trash_is_refused_while_recording",
+      "outcome": "passed",
+      "time": 0.026
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_trash_is_refused_while_training",
+      "outcome": "passed",
+      "time": 0.026
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_sync_dry_run_lists_commands_without_transferring",
+      "outcome": "passed",
+      "time": 0.068
+    },
+    {
+      "classname": "tests.test_dataset_management",
+      "name": "test_sync_without_configuration_fails_cleanly",
+      "outcome": "passed",
+      "time": 0.022
+    },
+    {
+      "classname": "tests.test_dataset_quality",
+      "name": "test_clean_batch_has_no_errors",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_dataset_quality",
+      "name": "test_pause_jerk_and_start_shift_are_attributed",
+      "outcome": "passed",
+      "time": 0.015
+    },
+    {
+      "classname": "tests.test_dataset_quality",
+      "name": "test_calibration_check_reports_offending_episodes",
+      "outcome": "passed",
+      "time": 0.01
+    },
+    {
+      "classname": "tests.test_dataset_quality",
+      "name": "test_cli_json_and_listing",
+      "outcome": "passed",
+      "time": 0.013
+    },
+    {
+      "classname": "tests.test_dataset_quality",
+      "name": "test_render_text_lists_worst_episode_first",
+      "outcome": "passed",
+      "time": 0.013
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_chunk_file_parses_indices_from_path",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_chunk_file_rejects_unexpected_layout",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_absent_dataset_is_left_to_the_normal_hub_path",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_readable_dataset_is_not_touched",
+      "outcome": "passed",
+      "time": 0.081
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_repo_id_cannot_escape_the_cache_directory[../escape]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_repo_id_cannot_escape_the_cache_directory[repair_test/../../escape]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_repo_id_cannot_escape_the_cache_directory[/etc]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_missing_episode_index_is_rebuilt_from_the_data_files[False]",
+      "outcome": "passed",
+      "time": 0.095
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_missing_episode_index_is_rebuilt_from_the_data_files[True]",
+      "outcome": "passed",
+      "time": 0.354
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_repair_is_idempotent",
+      "outcome": "passed",
+      "time": 0.064
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_truncated_data_file_is_moved_out_of_the_readers_way",
+      "outcome": "passed",
+      "time": 0.075
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_episodes_without_video_lose_their_frames_and_stats_too",
+      "outcome": "passed",
+      "time": 0.33
+    },
+    {
+      "classname": "tests.test_dataset_repair",
+      "name": "test_unrecoverable_dataset_reports_instead_of_hitting_the_hub",
+      "outcome": "passed",
+      "time": 0.047
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_resolve_dataset_path_rejects_unsafe_repo_ids[../secret]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_resolve_dataset_path_rejects_unsafe_repo_ids[team/../../secret]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_resolve_dataset_path_rejects_unsafe_repo_ids[/absolute]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_resolve_dataset_path_rejects_unsafe_repo_ids[team\\\\secret]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_resolve_dataset_path_rejects_unsafe_repo_ids[C:/secret]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_resolve_dataset_path_rejects_unsafe_repo_ids[team//secret]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_resolve_dataset_path_rejects_unsafe_repo_ids[.]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_resolve_dataset_path_accepts_hf_repo_id",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_dataset_detail_exposes_format_tree_and_unavailable_parquet",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_dataset_file_tree_obeys_entry_and_depth_limits",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_storage_summary_finds_local_dataset_and_capacity",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_dataset_disk_capacity_does_not_walk_dataset_files",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_dataset_detail_rejects_non_dataset",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_dataset_detail_reports_invalid_metadata_without_throwing",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_dataset_storage",
+      "name": "test_dataset_detail_normalizes_non_finite_json_numbers",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_datasets",
+      "name": "test_list_local_datasets_empty_when_root_missing",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_datasets",
+      "name": "test_list_local_datasets_finds_top_level_dataset",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_datasets",
+      "name": "test_list_local_datasets_finds_nested_user_dataset",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_datasets",
+      "name": "test_list_local_datasets_skips_non_dataset_dirs",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_datasets",
+      "name": "test_list_user_datasets_returns_empty_when_not_logged_in",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_datasets",
+      "name": "test_list_all_datasets_merges_hub_and_local",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_desktop_follow.TestCapture",
+      "name": "test_a_measured_pair_becomes_the_reference",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_desktop_follow.TestCapture",
+      "name": "test_a_joint_the_follower_cannot_report_refuses_the_whole_alignment",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_desktop_follow.TestCapture",
+      "name": "test_a_null_reading_counts_as_missing_rather_than_zero",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_desktop_follow.TestFollowTarget",
+      "name": "test_a_still_leader_holds_the_follower_where_it_is",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_desktop_follow.TestFollowTarget",
+      "name": "test_the_target_moves_by_the_leaders_change_not_to_the_leaders_pose",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_desktop_follow.TestFollowTarget",
+      "name": "test_a_continuous_joint_is_wrapped_so_it_never_commands_a_full_sweep",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_desktop_follow.TestFollowTarget",
+      "name": "test_a_non_wrapped_joint_is_left_alone",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_desktop_follow.TestFollowTarget",
+      "name": "test_a_joint_without_a_reference_is_dropped_not_invented",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_devices",
+      "name": "test_safe_disconnect_force_closes_serial_port_after_disconnect_failure",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_devices",
+      "name": "test_safe_disconnect_uses_normal_disconnect_when_it_succeeds",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_invalid_measured_position_is_named_before_enable[-51]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_invalid_measured_position_is_named_before_enable[1001]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_invalid_measured_position_is_named_before_enable[True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_invalid_measured_position_is_named_before_enable[None]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_invalid_measured_position_is_named_before_enable[nan]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_invalid_measured_position_is_named_before_enable[inf]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_preflight_preserves_the_existing_emitter_domain[-50]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_preflight_preserves_the_existing_emitter_domain[0]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_preflight_preserves_the_existing_emitter_domain[500]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_preflight_preserves_the_existing_emitter_domain[1000]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_configured_negative_measurement_limit_is_read_from_the_car",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_bad_pose_never_requests_output_permission[tcp]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_bad_pose_never_requests_output_permission[dds]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_torque_failure_is_reported_even_when_outputs_never_enabled",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_old_refusal_is_only_diagnostic_on_timeout",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_emitter_enable_preflight",
+      "name": "test_historical_refusal_does_not_block_a_successful_new_enable",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_route_table_is_the_frozen_contract",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_proxy_forwards_each_action_to_its_car_path",
+      "outcome": "passed",
+      "time": 0.042
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_manual_ranges_are_part_of_the_narrow_proxy_contract",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_proxy_preserves_car_safety_rejection_status",
+      "outcome": "passed",
+      "time": 0.02
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_browser_cannot_save_a_follower_asset_directly",
+      "outcome": "passed",
+      "time": 0.023
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_builds_a_server_owned_v2_asset",
+      "outcome": "passed",
+      "time": 0.031
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_accepts_explicit_operator_entered_ranges",
+      "outcome": "passed",
+      "time": 0.029
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_ignores_browser_claims_about_measurement_time_and_serial",
+      "outcome": "passed",
+      "time": 0.028
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-evidence_source_untrusted]",
+      "outcome": "passed",
+      "time": 0.028
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-evidence_incomplete]",
+      "outcome": "passed",
+      "time": 0.025
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-evidence_feedback_stale]",
+      "outcome": "passed",
+      "time": 0.025
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-gripper:repeatability_rounds_missing]",
+      "outcome": "passed",
+      "time": 0.027
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-gripper:repeatability_exceeded]",
+      "outcome": "passed",
+      "time": 0.027
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-joint3:span_too_small]",
+      "outcome": "passed",
+      "time": 0.065
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-joint2:invalid]",
+      "outcome": "passed",
+      "time": 0.028
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-evidence_controller_owner_mismatch]",
+      "outcome": "passed",
+      "time": 0.025
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-evidence_servo_ids_mismatch]",
+      "outcome": "passed",
+      "time": 0.023
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-sample_log_digest_mismatch]",
+      "outcome": "passed",
+      "time": 0.025
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-gripper:mechanical_limits_not_proven]",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-evidence_time_reversed]",
+      "outcome": "passed",
+      "time": 0.027
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_refuses_incomplete_or_tampered_evidence[<lambda>-evidence_schema_mismatch]",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_expired_evidence_is_refused",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_commit_requires_a_token",
+      "outcome": "passed",
+      "time": 0.028
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_new_follower_asset_invalidates_the_old_mapping",
+      "outcome": "passed",
+      "time": 0.031
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_mapping_bound_to_another_follower_is_left_alone",
+      "outcome": "passed",
+      "time": 0.029
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_readback_returns_the_saved_asset",
+      "outcome": "passed",
+      "time": 0.033
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_v1_follower_files_stay_readable_and_v2_is_the_only_save_path",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_v2_follower_requires_the_full_evidence_chain",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_asset_round_trip_hash_matches_content",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_validate_evidence_accepts_the_reference_document",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_validate_evidence_rejects_a_follower_asset_pasted_as_evidence",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_follower_calibration_api",
+      "name": "test_json_serialisable_asset",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_gpu_gate",
+      "name": "test_auto_picks_the_freest_card",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_gpu_gate",
+      "name": "test_explicit_card_must_clear_the_floor",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_gpu_gate",
+      "name": "test_refuses_when_no_card_qualifies_and_lists_numbers",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_gpu_gate",
+      "name": "test_refuses_unknown_card_and_missing_gpus",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_gpu_gate",
+      "name": "test_disk_watermark_blocks_below_ten_percent",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_gpu_gate",
+      "name": "test_default_floor_is_configurable",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_gpu_gate",
+      "name": "test_concurrent_job_ids_do_not_collide",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_acquire_grants_exclusive_lease",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_second_acquire_reports_current_holder",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_same_task_cannot_stack",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_observers_cannot_take_control",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_unknown_task_is_rejected",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_release_requires_the_token_or_task",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_stop_endpoint_release_by_task",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_renew_extends_only_with_the_token",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_renew_accepts_task_and_owner_instead_of_the_token",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_status_never_exposes_the_token",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_expiry_releases_and_stops_the_task",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_expiry_without_stop_on_expiry_still_releases",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_finished_task_releases_after_the_activity_grace",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_emergency_preempt_drops_any_lease",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_forced_acquire_preempts_the_previous_holder",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_stop_task_runs_the_hook_for_any_task",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_broken_stop_hook_does_not_strand_the_lease",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_hardware_lease",
+      "name": "test_ttl_is_clamped_to_safe_bounds",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_lease_lifecycle_over_http",
+      "outcome": "passed",
+      "time": 0.049
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_conflicting_acquire_reports_the_holder",
+      "outcome": "passed",
+      "time": 0.032
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_observer_cannot_acquire_over_http",
+      "outcome": "passed",
+      "time": 0.033
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_start_endpoint_refuses_when_another_task_holds_the_lease",
+      "outcome": "passed",
+      "time": 0.037
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_failed_start_releases_the_lease",
+      "outcome": "passed",
+      "time": 0.034
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_stop_endpoint_releases_the_lease",
+      "outcome": "passed",
+      "time": 0.037
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_start_uses_client_headers_as_the_owner",
+      "outcome": "passed",
+      "time": 0.033
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_observer_header_blocks_start",
+      "outcome": "passed",
+      "time": 0.034
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_emergency_stop_preempts_and_stops_every_task",
+      "outcome": "passed",
+      "time": 0.04
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_a_live_mobile_teleop_session_is_an_active_teleoperation_task",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_the_lease_stop_hook_releases_the_mobile_session_with_the_reason",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_hybrid_teleoperation_is_an_active_leasable_task",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hardware_lease_api",
+      "name": "test_shutdown_does_not_construct_a_coordinator_that_was_never_used",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_two_episode_full_flow",
+      "outcome": "passed",
+      "time": 0.016
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_discard_and_rerecord_keep_old_attempts",
+      "outcome": "passed",
+      "time": 0.017
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_duplicate_request_id_never_duplicates_episode_or_save",
+      "outcome": "passed",
+      "time": 0.006
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_session_generation_change_interrupts_and_never_inherits_rec",
+      "outcome": "passed",
+      "time": 0.006
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_service_restart_recovers_from_disk_without_inherited_rec",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "message": "AssertionError: assert 'invalid' == 'active' - active + invalid",
+      "name": "test_estop_without_recording_does_not_wedge_next_dataset",
+      "outcome": "failure",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_pause_mid_episode_shows_not_recording_and_resume_is_explicit",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_camera_gate_blocks_rec_before_attempt_exists",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_close_with_pending_review_stops_first_and_never_silent_discard",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_append_compatibility_is_checked",
+      "outcome": "passed",
+      "time": 0.009
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_failed_start_keeps_evidence_and_single_reason",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_hybrid_capture",
+      "name": "test_close_dataset_tolerates_already_closed_car_session",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_hybrid_dds_transport",
+      "name": "test_connect_ignores_a_closed_previous_stream_epoch",
+      "outcome": "passed",
+      "time": 0.052
+    },
+    {
+      "classname": "tests.test_hybrid_hardware",
+      "name": "test_three_layer_observer_is_real_data_only_and_preview_never_outputs",
+      "outcome": "passed",
+      "time": 0.026
+    },
+    {
+      "classname": "tests.test_hybrid_hardware",
+      "name": "test_missing_three_layers_keeps_preview_closed",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_hybrid_hardware",
+      "name": "test_observer_never_promotes_invalid_feedback",
+      "outcome": "passed",
+      "time": 0.006
+    },
+    {
+      "classname": "tests.test_hybrid_hardware",
+      "name": "test_readiness_rejects_mapping_bound_to_another_leader",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_hybrid_hardware",
+      "name": "test_mapping_anchor_editor_saves_a_new_version_without_a_session",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_hybrid_hardware",
+      "name": "test_mapping_anchor_editor_rejects_out_of_range_values",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_hybrid_hardware",
+      "name": "test_engage_allows_only_absolute_axes_to_enter_controlled_approach",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_hardware",
+      "name": "test_engage_still_rejects_relative_jump_and_large_clipped_absolute_target",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_requested_pose_is_planned_from_live_raw_without_output",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_each_next_step_uses_a_new_actual_measurement",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_live_servo_deadband_bias_within_five_ticks_is_complete",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_single_axis_target_keeps_other_five_at_measured_raw",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_refuses_stale_or_untrusted_feedback[age_s-0.51]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_refuses_stale_or_untrusted_feedback[age_s-nan]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_refuses_stale_or_untrusted_feedback[source_kind-command_cache]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_refuses_stale_or_untrusted_feedback[servo_id-1]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_refuses_stale_or_untrusted_feedback[calibration_hash-other]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_refuses_stale_or_untrusted_feedback[raw_position-inf]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_refuses_stale_or_untrusted_feedback[valid-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_rejects_outside_limits_and_does_not_confuse_gripper_units",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_home_plan",
+      "name": "test_plan_does_not_modify_feedback_or_saved_calibration",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_existing_session_drives_complete_frames_and_release_stops",
+      "outcome": "passed",
+      "time": 0.631
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_homing_walks_nonzero_axes_to_requested_raw_one_at_a_time",
+      "outcome": "passed",
+      "time": 2.571
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_homing_cancel_stops_without_waiting_for_a_stall",
+      "outcome": "passed",
+      "time": 0.153
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_single_axis_homing_moves_only_joint1",
+      "outcome": "passed",
+      "time": 0.72
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_factory_requires_explicit_supported_transport",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_frame_lease_rejects_legacy_agent",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_status_polling_does_not_advance_mapper_before_engage",
+      "outcome": "passed",
+      "time": 0.255
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_trial_cap_tightens_runtime_mapping_without_rewriting_calibration",
+      "outcome": "passed",
+      "time": 0.105
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_engage_rebases_after_leader_reposition_and_rejects_stale_identity",
+      "outcome": "passed",
+      "time": 0.195
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_absolute_mapping_engages_through_bounded_controlled_approach",
+      "outcome": "passed",
+      "time": 0.177
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_emergency_preempts_sender_and_old_frames",
+      "outcome": "passed",
+      "time": 2.433
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_a_clear_needs_the_emitter_to_report_its_own_stop_lifted",
+      "outcome": "passed",
+      "time": 4.016
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_unbound_clear_estop_reaches_the_car_latch",
+      "outcome": "passed",
+      "time": 0.057
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_clear_estop_uses_the_client_recorded_by_the_car",
+      "outcome": "passed",
+      "time": 0.054
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_clear_estop_uses_a_temporary_token_when_no_owner_is_recorded",
+      "outcome": "passed",
+      "time": 0.055
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_wrong_session_cannot_stop_worker_or_observer",
+      "outcome": "passed",
+      "time": 0.161
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_stalled_leader_does_not_replay_old_sample",
+      "outcome": "passed",
+      "time": 1.614
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_reengage_requires_fresh_epoch_binding",
+      "outcome": "passed",
+      "time": 0.321
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_offline_6d_requires_simulated_identity_and_records_car_id",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_phase_barrier_confirms_quiescence_and_applied_context",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_heartbeat_releases_facade_lock_before_recording_status",
+      "outcome": "passed",
+      "time": 0.204
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_a_stale_observation_cache_probes_the_car_instead_of_blaming_the_lease",
+      "outcome": "passed",
+      "time": 1.156
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_a_stale_cache_probes_at_most_once_per_freshness_window",
+      "outcome": "passed",
+      "time": 1.155
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_an_unreachable_car_still_parks_the_session",
+      "outcome": "passed",
+      "time": 1.156
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_a_retracted_car_lease_is_named_in_the_facade_error",
+      "outcome": "passed",
+      "time": 0.206
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_the_upper_lease_reports_its_own_reason",
+      "outcome": "passed",
+      "time": 0.058
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_status_carries_heartbeat_and_cache_timing",
+      "outcome": "passed",
+      "time": 0.053
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_follow_refreshes_a_late_observer_cache_before_rejecting_it",
+      "outcome": "passed",
+      "time": 0.053
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_cache_refresh_total_budget_includes_poll_lock_wait",
+      "outcome": "passed",
+      "time": 0.109
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_one_missed_feedback_scan_is_recovered_without_sending_stale_data",
+      "outcome": "passed",
+      "time": 0.103
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_persistent_feedback_gap_still_faults_after_the_retry_window",
+      "outcome": "passed",
+      "time": 0.357
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_a_fault_stops_once_and_preserves_the_primary_cause",
+      "outcome": "passed",
+      "time": 0.057
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_episode_start_quiesces_before_the_car_opens_the_window",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_an_unconfirmed_quiescence_refuses_the_episode_without_opening_it",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_homing_faults_when_the_feedback_owner_changes",
+      "outcome": "passed",
+      "time": 0.702
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_homing_refuses_a_publisher_without_an_instance",
+      "outcome": "passed",
+      "time": 0.056
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_single_axis_homing_stops_on_unselected_axis_drift",
+      "outcome": "passed",
+      "time": 0.296
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_single_axis_homing_detects_reverse_motion",
+      "outcome": "passed",
+      "time": 0.672
+    },
+    {
+      "classname": "tests.test_hybrid_stream_hardware",
+      "name": "test_single_axis_homing_detects_oscillation",
+      "outcome": "passed",
+      "time": 0.568
+    },
+    {
+      "classname": "tests.test_inference_diag",
+      "name": "test_parse_client_log_reports_loop_queue_and_clamps",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_inference_diag",
+      "name": "test_workspace_clamp_is_marked_pinned_only_when_repeated",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_inference_diag",
+      "name": "test_parse_server_log_separates_cold_start",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_inference_diag",
+      "name": "test_findings_flag_stalls_and_saturated_limits",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_inference_diag",
+      "name": "test_findings_flag_queue_starvation",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_inference_diag",
+      "name": "test_findings_report_client_round_trip",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_inference_diag",
+      "name": "test_cli_emits_json",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_inference_diag",
+      "name": "test_cli_rejects_missing_logs",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_production_routes_reject_old_identity_but_estop_can_preempt",
+      "outcome": "passed",
+      "time": 0.101
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_recording_controller_is_the_single_public_recording_source",
+      "outcome": "passed",
+      "time": 0.055
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_capabilities_expose_profile_actions_and_explicit_simulation",
+      "outcome": "passed",
+      "time": 0.029
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_hybrid_calibration_route_preserves_identity_and_payload",
+      "outcome": "passed",
+      "time": 0.056
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_homing_routes_require_current_identity_and_forward_only_start_cancel",
+      "outcome": "passed",
+      "time": 0.037
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_car_request_bodies_carry_the_authoritative_identity",
+      "outcome": "passed",
+      "time": 0.036
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_estop_preempts_a_blocked_recording_request",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_env_opt_in_builds_the_production_route_with_simulated_fixtures",
+      "outcome": "passed",
+      "time": 0.062
+    },
+    {
+      "classname": "tests.test_integration_upper",
+      "name": "test_preview_headers_are_exact_monotonic_and_status_bound",
+      "outcome": "passed",
+      "time": 0.047
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_extract_wandb_run_url_finds_canonical_url",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_extract_wandb_run_url_returns_none_when_absent",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_parse_duration_handles_mm_ss_and_hh_mm_ss",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_parse_metrics_into_extracts_loss_and_step",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_parse_metrics_into_extracts_tqdm_progress",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_parse_metrics_into_ignores_unrelated_lines",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_log_line_round_trips_to_json",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_pid_alive_returns_false_for_unlikely_pid",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_hub_checkpoints_from_files_parses_tree",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_list_imported_local_single_model",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_list_imported_local_checkpoints_tree",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_list_imported_local_empty_when_no_model",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_list_imported_hub_single_model",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_list_imported_hub_prefers_checkpoints_tree",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_list_imported_hub_empty_when_no_model",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_read_checkpoint_config_local_reads_config_json",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_read_checkpoint_config_hub_root",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_read_checkpoint_config_hub_tree",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_register_imported_local_dir",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_register_imported_rejects_unusable_source",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_jobs",
+      "name": "test_register_imported_hub_repo",
+      "outcome": "passed",
+      "time": 0.014
+    },
+    {
+      "classname": "tests.test_mobile_leader_bus_api",
+      "name": "test_build_bus_uses_the_installed_lerobot_api",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_leader_bus_api",
+      "name": "test_reader_refuses_to_open_without_a_leader_calibration",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_leader_bus_api",
+      "name": "test_partial_calibration_is_refused_instead_of_zero_filled",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_leader_bus_api",
+      "name": "test_calibration_missing_a_joint_is_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_coordinator",
+      "name": "test_gate_reads_feedback_and_teleop_from_the_deployed_nested_control_block",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_coordinator",
+      "name": "test_gate_still_accepts_a_flat_status_shape",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_coordinator",
+      "name": "test_a_missing_nested_feedback_is_the_only_follower_blocker",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_coordinator",
+      "name": "test_control_held_by_another_client_is_not_exclusive",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_coordinator",
+      "name": "test_status_reports_the_observed_chassis_state_not_the_profile_default",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_coordinator",
+      "name": "test_acquire_reopens_nothing_when_the_same_leader_is_already_live",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_coordinator",
+      "name": "test_switching_to_a_different_leader_port_is_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_example_guard",
+      "message": "FileNotFoundError: [Errno 2] No such file or directory: '/home/lfy/lelab-accept/ros-restored/payload/configs/mobile_teleop/leader.example.json'",
+      "name": "test_the_shipped_templates_refuse_to_pass_readiness",
+      "outcome": "failure",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_example_guard",
+      "message": "FileNotFoundError: [Errno 2] No such file or directory: '/home/lfy/lelab-accept/ros-restored/payload/configs/mobile_teleop/leader.example.json'",
+      "name": "test_only_the_markers_separate_the_template_from_a_ready_layer",
+      "outcome": "failure",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_example_guard",
+      "name": "test_the_scan_names_the_exact_json_path",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_mobile_teleop_example_guard",
+      "name": "test_prose_that_describes_the_convention_is_not_a_marker",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_model_store",
+      "name": "test_list_is_newest_first_and_reports_size",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_model_store",
+      "name": "test_retention_moves_old_models_to_trash",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_model_store",
+      "name": "test_restore_and_purge_round_trip",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_model_store",
+      "name": "test_restore_refuses_to_overwrite",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_model_store",
+      "name": "test_keep_and_root_are_configurable",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_model_store",
+      "name": "test_pull_state_starts_idle",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_observation_sender",
+      "name": "test_submit_never_blocks_the_caller",
+      "outcome": "passed",
+      "time": 2.009
+    },
+    {
+      "classname": "tests.test_observation_sender",
+      "name": "test_must_go_survives_being_replaced",
+      "outcome": "passed",
+      "time": 0.024
+    },
+    {
+      "classname": "tests.test_observation_sender",
+      "name": "test_send_failure_does_not_kill_the_thread",
+      "outcome": "passed",
+      "time": 0.173
+    },
+    {
+      "classname": "tests.test_observation_sender",
+      "name": "test_stop_ends_the_thread",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_policy_refs",
+      "name": "test_absolute_path_is_local",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_policy_refs",
+      "name": "test_home_relative_path_is_local",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_policy_refs",
+      "name": "test_checkpoint_tree_ref",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_policy_refs",
+      "name": "test_repo_root_ref",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_policy_refs",
+      "name": "test_unparsable_refs_raise[]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_policy_refs",
+      "name": "test_unparsable_refs_raise[   ]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_policy_refs",
+      "name": "test_unparsable_refs_raise[not-a-ref]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_policy_refs",
+      "name": "test_unparsable_refs_raise[user/repo@checkpoints/abc]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_recording_request_rejects_missing_required_fields",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_recording_status_handler_exposes_state_fields",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_prepare_dataset_repo_id_adds_local_namespace_and_timestamp",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_prepare_dataset_repo_id_preserves_explicit_namespace",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_prepare_dataset_repo_id_rejects_invalid_ids[]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_prepare_dataset_repo_id_rejects_invalid_ids[   ]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_prepare_dataset_repo_id_rejects_invalid_ids[.]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_prepare_dataset_repo_id_rejects_invalid_ids[..]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_prepare_dataset_repo_id_rejects_invalid_ids[/dataset]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_prepare_dataset_repo_id_rejects_invalid_ids[owner/]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_handle_stop_recording_when_idle_returns_dict",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_create_record_config_pins_dshow_on_windows",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_build_camera_configs_uses_default_backend_when_unset",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_build_camera_configs_defaults_v4l2_cameras_to_mjpg",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_build_camera_configs_passes_fourcc_through",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_build_camera_configs_explicit_backend_overrides_default",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_build_camera_configs_invalid_backend_raises",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_build_camera_configs_skips_non_opencv_type",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_recording_writes_the_calibration_only_after_the_identity_check",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_record",
+      "name": "test_recording_refuses_a_calibration_measured_on_the_other_arm",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_remote_inference",
+      "name": "test_client_command_targets_the_tunnel",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_inference",
+      "name": "test_client_command_omits_empty_task",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_inference",
+      "name": "test_remote_env_carries_mirror_proxy_and_token",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_inference",
+      "name": "test_stage_policy_parses_the_remote_path",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_inference",
+      "name": "test_stage_policy_reports_failure",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_config_requires_host_user_and_root",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_config_rejects_unsafe_values[overrides0-unsupported characters]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_config_rejects_unsafe_values[overrides1-not a valid SSH user]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_config_rejects_unsafe_values[overrides2-between 1 and 65535]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_config_rejects_unsafe_values[overrides3-must be an integer]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_config_rejects_unsafe_values[overrides4-absolute path]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_config_rejects_unsafe_values[overrides5-normalized directory]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_config_accepts_a_tilde_root",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_profile_file_supplies_defaults_and_env_wins",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_policy_endpoint_defaults_to_loopback_28081",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_dry_run_builds_parameter_arrays_and_launches_nothing",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_sync_rejects_repo_ids_outside_the_root",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_sync_requires_an_existing_dataset",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_remote_sync",
+      "name": "test_repo_id_is_quoted_in_the_remote_script",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_inference_request_rejects_missing_required_fields",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_inference_request_has_expected_defaults",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_rollout_safety_cli_defaults_are_local_and_conservative",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_detect_device_returns_cpu_when_neither_cuda_nor_mps",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_detect_device_prefers_cuda_over_mps",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_detect_device_falls_back_to_mps_when_no_cuda",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_detect_device_returns_cpu_when_torch_probe_raises",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_detect_device_rejects_jetson_cuda_wheel_without_sm87",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_detect_device_accepts_jetson_cuda_wheel_with_sm87",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_resolve_policy_path_returns_local_dir_unchanged",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_resolve_policy_path_raises_on_unparsable_ref",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_resolve_policy_path_resolves_hub_ref",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_resolve_policy_path_resolves_hub_root_ref",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_format_cameras_arg_empty_yields_empty_braces",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_format_cameras_arg_renames_camera_index_to_index_or_path",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_format_cameras_arg_omits_none_values",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_format_cameras_arg_handles_multiple_cameras",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_format_cameras_arg_defaults_linux_opencv_to_v4l2_mjpg",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_format_cameras_arg_preserves_explicit_linux_capture_mode",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_handle_stop_inference_when_idle_returns_409",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_handle_inference_status_when_idle_returns_dict_with_expected_keys",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_handle_start_inference_blocked_when_teleoperation_active",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_handle_start_inference_blocked_when_recording_active",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_handle_start_inference_blocked_when_already_active",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_handle_start_inference_closes_log_when_popen_fails",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_classify_outcome_ok_warns_and_fails",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_rollout_inference_args_uses_rtc_for_relative_action_policies",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_rollout_inference_args_omits_rtc_for_absolute_policies",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_rollout_inference_args_uses_groot_chunk_default_when_missing",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_friendly_hint_maps_common_failures",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_rollout",
+      "name": "test_extract_error_from_log_pulls_exception_tail",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "name": "test_jpeg_dimensions_reads_sof0",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "message": "lelab.ros_mobile.BridgeError: hardware profile not found: /home/lfy/lelab-accept/ros-restored/payload/configs/ros2_collection/hardware-readonly-v1.json",
+      "name": "test_repository_profile_is_readonly_and_refuses_training_export",
+      "outcome": "failure",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "name": "test_missing_profile_reports_the_path",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "message": "fastapi.exceptions.HTTPException: 404: hardware profile not found: /home/lfy/lelab-accept/ros-restored/payload/configs/ros2_collection/hardware-readonly-v1.json",
+      "name": "test_overview_merges_profile_with_live_readonly_status",
+      "outcome": "failure",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "message": "fastapi.exceptions.HTTPException: 404: hardware profile not found: /home/lfy/lelab-accept/ros-restored/payload/configs/ros2_collection/hardware-readonly-v1.json",
+      "name": "test_overview_survives_an_unreachable_agent",
+      "outcome": "failure",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "message": "assert None is True",
+      "name": "test_snapshot_keeps_frame_bytes_and_matching_size",
+      "outcome": "failure",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "message": "assert None is False",
+      "name": "test_snapshot_records_a_size_mismatch_instead_of_hiding_it",
+      "outcome": "failure",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "name": "test_snapshot_without_a_frame_still_saves_the_status",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ros_hardware_readonly",
+      "message": "AssertionError: assert 'snapshot-202...33857Z-19fbbc' == 'snapshot-202...33857Z-3c6163' - snapshot-20261120T033857Z-3c6163 ? ^ ---- + snapshot-20261120T033857Z-19fbbc ? ^^^^^",
+      "name": "test_snapshots_are_listed_newest_first",
+      "outcome": "failure",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_ros_mobile_bridge",
+      "name": "test_readonly_status_is_loaded_before_recording",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_bridge",
+      "name": "test_controllable_agent_still_requires_a_token",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_bridge",
+      "name": "test_tunnel_stall_is_a_defined_agent_failure_not_an_unhandled_crash[failure0]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_bridge",
+      "name": "test_tunnel_stall_is_a_defined_agent_failure_not_an_unhandled_crash[failure1]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_bridge",
+      "name": "test_command_timeout_detail_does_not_claim_the_car_stopped",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_export_schema",
+      "name": "test_simulation_schema_keeps_the_published_nine_dimension_layout",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_export_schema",
+      "name": "test_teleop_schema_is_six_dimension_arm_and_gripper_only",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_export_schema",
+      "name": "test_resolve_action_holds_arm_and_gripper_separately",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_export_schema",
+      "name": "test_resolve_action_refuses_when_one_command_stream_is_missing",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_export_schema",
+      "name": "test_resolve_action_sim_path_uses_the_nine_dimension_event_vector",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_export_schema",
+      "name": "test_read_bag_routes_teleop_commands_and_survives_a_missing_base_topic",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_sync",
+      "message": "hardware-profile rehearsal evidence is not present",
+      "name": "test_tampered_payload_is_rejected",
+      "outcome": "skipped",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ros_mobile_sync",
+      "message": "hardware-profile rehearsal evidence is not present",
+      "name": "test_tampered_ready_marker_is_rejected",
+      "outcome": "skipped",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ros_mobile_sync",
+      "name": "test_stalled_transfer_is_a_defined_503_and_publishes_nothing",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_ros_mobile_sync",
+      "name": "test_failure_before_the_file_opens_does_not_mask_the_real_error",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ros_mobile_sync",
+      "name": "test_session_list_survives_a_dropped_tunnel",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ros_mobile_sync",
+      "name": "test_agent_sessions_are_merged_with_local_copies",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_a_teleop_session_writes_and_reads_back_as_six_dimension_arm_gripper_data",
+      "outcome": "passed",
+      "time": 0.289
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_per_frame_provenance_keeps_leader_pre_clip_and_sent_targets_separate",
+      "outcome": "passed",
+      "time": 0.199
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_only_explicit_failure_labels_are_dropped_by_default",
+      "outcome": "passed",
+      "time": 0.163
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_include_failed_keeps_manually_labelled_failures",
+      "outcome": "passed",
+      "time": 0.246
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_re_exporting_a_session_is_refused_rather_than_overwriting",
+      "outcome": "passed",
+      "time": 0.15
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_a_teleop_episode_without_command_events_is_refused_instead_of_inventing_actions",
+      "outcome": "passed",
+      "time": 0.008
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_the_rounded_sampling_rate_keeps_dataset_and_video_timestamps_agreeing",
+      "outcome": "passed",
+      "time": 1.866
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_the_web_dataset_viewer_serves_the_exported_teleop_episode",
+      "outcome": "passed",
+      "time": 0.205
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_the_mimic_set_the_car_records_collapses_to_one_gripper_action_column",
+      "outcome": "passed",
+      "time": 0.237
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_the_offline_contract_is_the_only_entry_that_accepts_a_simulated_session",
+      "outcome": "passed",
+      "time": 0.164
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_the_simulated_dataset_labels_its_sources_and_refuses_to_claim_measurement",
+      "outcome": "passed",
+      "time": 0.272
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_a_row_that_disagrees_with_the_manifest_phase_stops_the_export",
+      "outcome": "passed",
+      "time": 0.008
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_an_uncontexted_row_is_refused_rather_than_placed_in_an_episode",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_a_stale_row_feedback_is_refused_even_though_the_row_stamp_is_fresh",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_export",
+      "name": "test_the_contract_closes_when_a_single_identity_fact_is_missing",
+      "outcome": "passed",
+      "time": 0.006
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_routes",
+      "name": "test_preview_route_reports_no_actuator_output",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_routes",
+      "name": "test_devices_route_lists_leader_ports_and_states_serial_ownership",
+      "outcome": "passed",
+      "time": 0.026
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_routes",
+      "name": "test_leader_calibrations_route_reuses_the_existing_so101_wizard_files",
+      "outcome": "passed",
+      "time": 0.04
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_routes",
+      "name": "test_leader_open_and_close_are_routed",
+      "outcome": "passed",
+      "time": 0.047
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_routes",
+      "name": "test_bridge_errors_carry_their_status_and_reason",
+      "outcome": "passed",
+      "time": 0.037
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_routes",
+      "name": "test_leader_is_opened_before_any_lease_is_taken",
+      "outcome": "passed",
+      "time": 0.029
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_routes",
+      "name": "test_recording_joins_the_existing_teleop_session_route",
+      "outcome": "passed",
+      "time": 0.027
+    },
+    {
+      "classname": "tests.test_ros_mobile_teleop_routes",
+      "name": "test_calibration_roundtrip_through_the_routes",
+      "outcome": "passed",
+      "time": 0.046
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_on_line_parses_submission_markers",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_on_line_ignores_unrelated_lines",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_on_line_keeps_first_job_id",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_reattach_streams_remote_logs_through_pipeline",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_reattach_survives_fetch_job_logs_error",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_stop_cancels_remote_job_when_id_known",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_stop_without_id_does_not_cancel",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_stop_ignores_cancel_job_failure",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_reattach_stage_maps_to_liveness_and_returncode",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_reattach_stage_poll_is_throttled",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_runners_hf_cloud",
+      "name": "test_reattach_handles_jobstage_enum",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_conservative_defaults_are_enabled",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_environment_can_override_or_disable_limits",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_calibration_margin_accepts_negative_expansion",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_calibration_margin_can_be_disabled",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_calibration_margin_motor_map",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_json_motor_map_is_supported",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_invalid_environment_value_fails_closed[]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_invalid_environment_value_fails_closed[0]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_invalid_environment_value_fails_closed[-1]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_invalid_environment_value_fails_closed[garbage]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_invalid_environment_value_fails_closed[{}]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_safety",
+      "name": "test_invalid_environment_value_fails_closed[{\"gripper\": 0}]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_wait_for_port_returns_true_when_port_is_open",
+      "outcome": "passed",
+      "time": 0.033
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_wait_for_port_returns_false_when_port_never_opens",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_wait_for_port_returns_true_immediately_for_already_open_port",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_ensure_port_available_exits_with_actionable_message",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_frontend_install_is_skipped_when_node_modules_exists",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_frontend_install_runs_when_node_modules_is_missing",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_browser_can_be_suppressed",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_run_prod_no_open_reaches_uvicorn_without_browser",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_run_prod_rebuilds_before_starting_uvicorn",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_run_prod_accepts_lan_bind_host",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_dev_launcher_builds_expected_subprocess_commands",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_child_process_kwargs_use_windows_creation_group",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_stop_process_terminates_tree_without_unix_process_group",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_missing_command_reports_install_hint",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_resolve_command_prefers_cmd_shim_on_windows",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_start_process_uses_resolved_executable",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_missing_frontend_dist_reports_rebuild_hint",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_scripts_lelab",
+      "name": "test_dev_launcher_reports_frontend_exit_before_ready",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_summary_reports_unsealed_by_default",
+      "outcome": "passed",
+      "time": 0.041
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_seal_hashes_payload_and_marks_dataset_sealed",
+      "outcome": "passed",
+      "time": 0.076
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_seal_is_idempotent",
+      "outcome": "passed",
+      "time": 0.075
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_seal_refused_for_unfinalized_dataset",
+      "outcome": "passed",
+      "time": 0.034
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_sealed_dataset_cannot_be_trashed_or_deleted",
+      "outcome": "passed",
+      "time": 0.067
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_unseal_restores_mutability",
+      "outcome": "passed",
+      "time": 0.073
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_verify_detects_changed_payload",
+      "outcome": "passed",
+      "time": 0.082
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_resume_recording_into_sealed_dataset_is_refused",
+      "outcome": "passed",
+      "time": 0.075
+    },
+    {
+      "classname": "tests.test_sealing",
+      "name": "test_sync_is_still_allowed_for_sealed_dataset",
+      "outcome": "passed",
+      "time": 0.073
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_app_exposes_required_endpoints",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_health_endpoint_returns_200",
+      "outcome": "passed",
+      "time": 0.026
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_health_endpoint_returns_dict",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_start_inference_dispatches_remote_target",
+      "outcome": "passed",
+      "time": 0.032
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_start_inference_releases_camera_previews_first",
+      "outcome": "passed",
+      "time": 0.026
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_remote_policy_server_status_endpoint",
+      "outcome": "passed",
+      "time": 0.031
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_system_status_endpoint_exposes_dashboard_aliases",
+      "outcome": "passed",
+      "time": 0.032
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_storage_summary_endpoint_marks_critical_capacity",
+      "outcome": "passed",
+      "time": 0.037
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_recording_is_blocked_below_five_percent_free_space",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_release_camera_previews_waits_for_device_release",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_cancelled_camera_preview_releases_capture",
+      "outcome": "passed",
+      "time": 0.015
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_dataset_storage_endpoint_rejects_traversal",
+      "outcome": "passed",
+      "time": 0.033
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_unknown_route_returns_404",
+      "outcome": "passed",
+      "time": 0.031
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_delete_calibration_config_rejects_unsafe_name[evil..name]",
+      "outcome": "passed",
+      "time": 0.032
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_delete_calibration_config_rejects_unsafe_name[..config]",
+      "outcome": "passed",
+      "time": 0.029
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_delete_calibration_config_rejects_unsafe_name[back\\\\door]",
+      "outcome": "passed",
+      "time": 0.034
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_spa_deep_link_serves_index_html",
+      "outcome": "passed",
+      "time": 0.05
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_spa_fallback_does_not_mask_api_404",
+      "outcome": "passed",
+      "time": 0.03
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_spa_fallback_respects_explicit_html_refusal",
+      "outcome": "passed",
+      "time": 0.064
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8-True]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[text/html-True]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[text/html;q=0.5-True]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[application/json-False]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[*/*-False]",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[text/html;q=0-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[application/json,text/html;q=0-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_accepts_html[text/html;q=bogus-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_connection_manager_tracks_connect_and_disconnect",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_connection_manager_broadcast_sync_does_not_block_without_loop",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_windows_cameras_uses_real_directshow_names",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_windows_cameras_falls_back_when_pygrabber_unavailable",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_v4l2_camera_name_reads_sysfs",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_v4l2_camera_name_returns_none_when_missing",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_import_model_route_returns_record",
+      "outcome": "passed",
+      "time": 0.033
+    },
+    {
+      "classname": "tests.test_server",
+      "name": "test_import_model_route_maps_value_error_to_400",
+      "outcome": "passed",
+      "time": 0.029
+    },
+    {
+      "classname": "tests.test_smoke",
+      "name": "test_lelab_has_version",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_smoke",
+      "name": "test_server_app_has_routes",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_list_remote_checkpoints_parses_and_sorts",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_run_python_keeps_secrets_out_of_argv",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_read_remote_file_returns_none_when_missing",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_stage_policy_uses_local_dir_not_hub_cache",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_stage_policy_copies_a_jetson_local_directory_atomically",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_stage_policy_reuses_a_ready_local_stage",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_stage_policy_keeps_server_only_absolute_paths_remote",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_soft_delete_moves_only_our_jobs",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ssh_ops",
+      "name": "test_soft_delete_refuses_foreign_or_missing_jobs",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_remote_layout_is_under_the_configured_root",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_start_refuses_an_unsynchronized_dataset",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_start_reports_ssh_failure_separately",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_start_writes_config_and_launches_detached",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_start_uploads_weights_file_for_weighted_composites",
+      "outcome": "passed",
+      "time": 0.006
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_weighted_start_fails_fast_when_remote_lerobot_is_old",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_start_rejects_a_second_call",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_log_lines_update_metrics_and_persist",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_partial_lines_are_joined_across_polls",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_is_running_reads_the_exit_file",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_is_running_reports_a_failed_exit_code",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_stop_sends_term_to_the_process_group",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_reattach_skips_the_existing_log",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_ssh_remote_runner",
+      "name": "test_reattach_marks_a_finished_job",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_status_websockets",
+      "name": "test_system_status_websocket_pushes_a_snapshot",
+      "outcome": "passed",
+      "time": 0.08
+    },
+    {
+      "classname": "tests.test_status_websockets",
+      "name": "test_storage_status_websocket_pushes_a_summary",
+      "outcome": "passed",
+      "time": 0.031
+    },
+    {
+      "classname": "tests.test_system_monitor",
+      "name": "test_system_snapshot_is_json_serializable_and_uses_dataset_disk",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_system_monitor",
+      "name": "test_nvidia_smi_parser_is_bounded_one_shot",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_system_monitor",
+      "name": "test_tegrastats_parser_requests_exactly_one_sample",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_system_monitor",
+      "name": "test_streaming_probe_uses_partial_output_after_timeout",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_system_monitor",
+      "name": "test_jetson_gpu_snapshot_fills_nvidia_smi_gaps_from_tegrastats",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_system_monitor",
+      "name": "test_snapshot_degrades_when_psutil_counters_fail",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_system_monitor",
+      "name": "test_temperature_snapshot_converts_named_tuples",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_system_monitor",
+      "name": "test_temperature_snapshot_normalizes_jetson_trip_point_scale",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_public_api_is_frozen_and_default_is_fail_closed",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_t4_route_methods_present_on_core_hybrid_session",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_coordinator_factory_is_fail_closed_and_has_no_rclpy_dependency",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_dual_layer_lease_rollback_on_car_failure_and_on_cancel",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_stop_precedes_release_and_new_epoch_never_auto_follows",
+      "outcome": "passed",
+      "time": 0.008
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_channel_permits_are_independent_and_not_a_global_mode_switch",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_sequence_registry_is_keyed_by_epoch_channel_source",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_deadline_queue_purges_expired_and_clears_on_epoch_change",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[session_epoch-old]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[source-maintenance]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[source-gamepad]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[calibration_bundle_hash-old]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[ttl_ms-0]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[ttl_ms-999]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[seq-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[protocol_version-2]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_bad_frames_do_not_consume_a_sequence_number[received_mono_ns-123]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_missing_or_nonfinite_data_is_rejected[target0-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_missing_or_nonfinite_data_is_rejected[target1-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_missing_or_nonfinite_data_is_rejected[target2-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_missing_or_nonfinite_data_is_rejected[target3-False]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_missing_or_nonfinite_data_is_rejected[None-True]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_expired_command_is_not_dispatched_and_forward_keeps_remaining_ttl",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_trusted_feedback_gate_refuses_cache_placeholder_synthetic_and_missing_data",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_facade_submit_intent_requires_trusted_feedback_and_never_actuates",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_gamepad_neutral_new_press_periodic_input_and_disconnect",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_two_inputs_concurrent_and_grasp_phase_locks_base",
+      "outcome": "passed",
+      "time": 0.009
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_recording_phases_emit_no_motion_and_stop_precedes_wrap_up",
+      "outcome": "passed",
+      "time": 0.009
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_reconnect_and_calibration_change_park_without_auto_follow",
+      "outcome": "passed",
+      "time": 0.006
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_calibration_strict_policy_rejects_examples_mismatch_and_over_age",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_calibration_bundle_fixture_is_complete_and_hash_bound",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_t3_wave_a",
+      "name": "test_capabilities_report_unknown_camera_and_firmware_explicitly",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[action_9d_fields]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[confirmation_levels]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[forbidden_state_sources]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[manual_results]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[phases]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[protocol_version]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[schema_names]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[state_9d_fields]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[state_joints]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[trusted_base_sources]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_two_copies_agree_on_every_pinned_value[trusted_joint_source]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_the_whole_contract_dicts_are_identical",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_column_order_is_what_the_exporter_uses",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_command_echo_is_not_a_measured_joint_on_either_side",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_an_out_of_range_raw_position_is_preserved_and_rejected_not_clamped",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_stale_joint_is_rejected_with_the_same_token",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_future_sample_is_never_used_as_current_state",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_execution_cannot_be_claimed_from_a_uart_write",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_missing_ack_reports_unavailable_rather_than_success",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_an_old_session_epoch_is_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_another_sessions_event_is_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_no_interpolation_across_a_clock_epoch",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_an_expired_event_is_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_future_event_is_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_an_untrusted_event_source_is_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_phase_boundaries_must_increase_and_not_repeat",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_manual_result_never_becomes_simulator_truth",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_complete_sample_builds_a_nine_dimension_row",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_missing_channel_rejects_instead_of_zero_filling",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_replay_rejects_but_a_latest_wins_gap_is_legal",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_an_expired_command_rejects",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_command_from_the_future_rejects",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_command_integrated_estimate_is_not_a_state",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_wrong_joint_order_and_missing_joints_reject",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_a_wrong_action_shape_rejects",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_phase_timeline_rules",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_contract_parity",
+      "name": "test_slices_are_half_open_and_carry_their_source",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_two_short_episodes_export_and_read_back_as_nine_dimensions",
+      "outcome": "passed",
+      "time": 0.709
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_a_tampered_file_fails_the_production_sync_verifier",
+      "outcome": "passed",
+      "time": 0.093
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_a_missing_action_channel_is_refused_instead_of_zero_filled",
+      "outcome": "passed",
+      "time": 0.152
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_an_expired_command_rejects_the_episode",
+      "outcome": "passed",
+      "time": 0.15
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_a_command_without_ttl_is_not_held_open_ended",
+      "outcome": "passed",
+      "time": 0.155
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_zero_base_covariance_is_kept_as_declared_evidence",
+      "outcome": "passed",
+      "time": 0.46
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_a_negative_base_covariance_rejects_the_episode",
+      "outcome": "passed",
+      "time": 0.156
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_forbidden_state_sources_are_refused_by_the_gate",
+      "outcome": "passed",
+      "time": 0.227
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_a_missing_observe_phase_is_refused",
+      "outcome": "passed",
+      "time": 0.082
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_phase_events_that_do_not_match_the_manifest_are_refused",
+      "outcome": "passed",
+      "time": 0.079
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_a_read_only_profile_is_still_refused",
+      "outcome": "passed",
+      "time": 0.079
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_an_unlabelled_episode_stays_exportable_and_a_failure_is_dropped",
+      "outcome": "passed",
+      "time": 0.336
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_explicit_simulation_identity_exports_without_claiming_hardware",
+      "outcome": "passed",
+      "time": 0.501
+    },
+    {
+      "classname": "tests.test_t4_hybrid_9d_export",
+      "name": "test_simulated_sources_without_an_identity_are_refused",
+      "outcome": "passed",
+      "time": 0.083
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_phase_events_stay_in_one_episode_and_reject_bad_time",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_hybrid_routes_pause_before_close_and_never_on_phase",
+      "outcome": "passed",
+      "time": 0.054
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_estop_returns_without_waiting_for_the_car_save",
+      "outcome": "passed",
+      "time": 0.032
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_real_sqlite_sync_export_sdk_and_viewer_two_episodes",
+      "outcome": "passed",
+      "time": 0.488
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_hybrid_fails_closed_and_old_readonly_rejected",
+      "outcome": "passed",
+      "time": 0.037
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_invalid_phase_slice_is_rejected",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_facade_without_adapters_is_honestly_unavailable",
+      "outcome": "passed",
+      "time": 0.058
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_phase_event_wrong_clock_and_missing_event_are_rejected",
+      "outcome": "passed",
+      "time": 0.039
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_six_dimensional_identity_and_unknown_schema_are_rejected",
+      "outcome": "passed",
+      "time": 0.034
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_cross_phase_hold_and_missing_sample_are_rejected",
+      "outcome": "passed",
+      "time": 0.096
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_cancel_removes_only_staging_and_leaves_raw",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_recording_needs_the_lease_and_an_open_episode",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_a_second_session_or_episode_is_refused_not_silently_reused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_phase_repetition_and_unknown_phase_are_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_phases_stay_ordered_on_the_car_clock",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_a_car_without_the_phase_route_is_reported_and_blocks_export",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_a_car_without_a_clock_domain_cannot_start_recording",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_stop_session_closes_an_open_episode_as_discarded",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_an_unreadable_manual_result_is_refused",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_the_event_journal_keeps_session_epoch_and_never_claims_output",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_estop_without_a_worker_latches_and_drains_the_save",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_estop_response_is_bounded_while_the_car_save_blocks",
+      "outcome": "passed",
+      "time": 10.002
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_estop_with_busy_lock_reports_unconfirmed_then_worker_latches",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_estop_late_save_skips_a_new_session",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_repeated_estop_posts_one_session_stop",
+      "outcome": "passed",
+      "time": 0.223
+    },
+    {
+      "classname": "tests.test_t4_hybrid_recording",
+      "name": "test_state_advancing_commands_refused_while_estop_pending",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_teleoperate_request_rejects_missing_fields",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_handle_teleoperation_status_returns_dict",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_handle_get_joint_positions_returns_dict_when_idle",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_partial_reading_is_not_padded_with_zeros",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_failed_read_is_reported_as_failed",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_get_joint_positions_maps_degrees_to_radians_without_correction",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_start_teleoperation_reports_connection_failure",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_start_teleoperation_injects_local_safety_limits",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_start_teleoperation_disconnects_follower_when_leader_fails",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_start_teleoperation_refuses_another_arms_calibration_before_opening_a_port",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_broadcast_carries_the_leader_reading_that_drove_the_follower",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_dead_follower_bus_still_streams_the_leader_without_faking_a_pose",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_the_session_stops_itself_when_the_follower_stops_answering",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_recovered_follower_read_does_not_end_the_session",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_the_failure_limit_is_configurable",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_dead_leader_bus_names_the_leader",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_follower_that_refuses_the_command_names_the_follower",
+      "outcome": "passed",
+      "time": 0.008
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_preview_session_writes_nothing_to_the_follower",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_following_session_still_configures_and_sends",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_preview_session_does_not_end_itself_when_the_follower_goes_silent",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_started_session_sends_nothing_until_the_clutch_is_engaged",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_engaging_captures_the_reference_pair_and_then_sends_relative_targets",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_engaging_is_refused_while_the_follower_cannot_be_measured",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_releasing_the_clutch_clears_the_reference_so_reengaging_realines",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_teleoperate",
+      "name": "test_a_following_request_engages_on_its_first_measured_frame",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_minimal_request_yields_well_formed_argv",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_optional_dataset_fields_only_present_when_set",
+      "outcome": "passed",
+      "time": 0.016
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_pretrained_policy_uses_path_without_conflicting_type",
+      "outcome": "passed",
+      "time": 0.005
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_tracking_block_uses_trackio_and_never_emits_wandb",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_push_to_hub_emits_repo_id_only_when_enabled",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_seed_omitted_when_none",
+      "outcome": "passed",
+      "time": 0.008
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_training_request_validates_required_field",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_env_eval_freq_flag",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_cloud_target_emits_job_flags_and_skips_push_to_hub",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_cloud_resume_omits_save_checkpoint_to_hub",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_local_target_keeps_push_to_hub",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_train",
+      "name": "test_groot_policy_flags_are_emitted_only_for_groot",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_single_dataset_request_keeps_legacy_shape",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_multi_dataset_request_needs_a_composite",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_multi_dataset_request_uses_the_composite_repo_id",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_duplicate_members_are_rejected",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_equal_weights_need_at_least_two_datasets",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_custom_weights_must_match_member_count",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_weight_modes_emit_the_sampler_file_flag",
+      "outcome": "passed",
+      "time": 0.004
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_weight_modes_require_a_weights_file",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_resolver_rejects_local_runner",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_resolver_returns_ready_composite_with_episode_weights",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_resolver_blocks_unbuilt_composite",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_resolver_reports_blockers",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_multi_dataset",
+      "name": "test_job_id_marks_multi_dataset_runs",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_parse_status_maps_everything",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_parse_status_tolerates_missing_sections",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_status_cache_reuses_and_invalidates",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_status_reports_ssh_failure",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_instance_id_defaults_to_role",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_status_endpoint_is_registered",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_marker_json_is_serialisable_in_payload",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_prune_plan_keeps_newest_and_skips_foreign",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_prune_plan_can_filter_jobs",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_train_server",
+      "name": "test_default_keep_checkpoints_is_configurable",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_parse_github_repo[https://github.com/huggingface/leLab.git-expected0]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_parse_github_repo[https://github.com/huggingface/leLab-expected1]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_parse_github_repo[git+https://github.com/huggingface/leLab.git-expected2]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_parse_github_repo[git@github.com:huggingface/leLab.git-expected3]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_parse_github_repo[https://gitlab.com/foo/bar.git-None]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_parse_github_repo[file:///home/me/leLab-None]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_parse_github_repo[-None]",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_installed_source_from_vcs",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_installed_source_editable_returns_none",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_installed_source_no_direct_url_returns_none",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_check_no_source_means_no_update",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_check_up_to_date",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_check_update_available",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_check_diverged_does_not_nag",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_check_install_ahead_of_remote_does_not_nag",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_check_compare_unavailable_does_not_nag",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_check_github_unreachable_is_silent",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_run_update_no_source",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_update_command_for_uv_tool_install",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_update",
+      "name": "test_update_command_for_pip_env",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_port_persistence_round_trips",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_get_saved_robot_port_returns_none_when_unset",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_find_available_ports_prefers_linux_by_id",
+      "outcome": "passed",
+      "time": 0.007
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_saved_robot_config_round_trips",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_get_default_robot_config_falls_back_to_first_available",
+      "outcome": "passed",
+      "time": 0.003
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_is_valid_robot_name_accepts_simple_names",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_is_valid_robot_name_rejects_empty_and_path_separators",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_is_valid_robot_name_rejects_leading_trailing_whitespace",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_robot_record_save_get_delete_round_trip",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_robot_record_allow_create_false_is_noop",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_robot_record_save_rejects_invalid_name",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_robot_record_merges_fields",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_robot_record_diagnostics_lists_missing_calibration_files",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_robot_record_diagnostics_is_complete_when_calibrations_exist",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_setup_calibration_files_copies_configs",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_with_lelab_tag_appends_to_existing_tags",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_with_lelab_tag_handles_none_and_empty",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_config",
+      "name": "test_with_lelab_tag_dedupes",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_hf_auth",
+      "name": "test_invalidate_whoami_cache_clears_cached_value",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_hf_auth",
+      "name": "test_handle_hf_auth_status_returns_dict",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_hf_auth",
+      "name": "test_status_without_token_reports_absent_token",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_hf_auth",
+      "name": "test_status_with_network_failure_keeps_the_token",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_hf_auth",
+      "name": "test_status_with_rejected_token_is_marked_rejected",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_build_install_cmd_contains_pip_and_package",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_build_install_cmd_uses_current_python_when_no_uv",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_install_manager_initial_state_is_idle",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_detect_cuda_status_flags_mismatch_when_gpu_but_cpu_torch",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_detect_cuda_status_no_mismatch_when_cuda_available",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_detect_cuda_status_no_mismatch_without_gpu",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_nvidia_gpu_present_false_when_smi_absent",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_warn_if_cuda_mismatch_logs_on_mismatch",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_warn_if_cuda_mismatch_silent_when_ok",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_cuda_status_endpoint_returns_expected_shape",
+      "outcome": "passed",
+      "time": 0.061
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_policy_extra_maps_policies_to_install_targets",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_policy_extra_core_policy_needs_nothing",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_policy_extra_available_reflects_find_spec",
+      "outcome": "passed",
+      "time": 0.002
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_policy_extra_install_is_noop_for_core_policy",
+      "outcome": "passed",
+      "time": 0.001
+    },
+    {
+      "classname": "tests.test_utils_system",
+      "name": "test_policy_extra_route_known_and_core",
+      "outcome": "passed",
+      "time": 0.038
+    }
+  ],
+  "counts": {
+    "errors": 0,
+    "failures": 9,
+    "skipped": 2,
+    "tests": 833
+  },
+  "cwd": "/home/lfy/lelab-accept/ros-restored/payload/app_ros_mobile",
+  "env_python": "/home/lfy/lelab-rmr/.venv/bin/python",
+  "exit_code": 1,
+  "junit": "/home/lfy/lelab-accept/ros-full.xml",
+  "label": "ros-full",
+  "log": "/home/lfy/lelab-accept/ros-tests-full.log",
+  "pythonpath": "/home/lfy/lelab-accept/ros-restored/payload/app_ros_mobile:/home/lfy/lelab-accept/ros-restored/payload/lelab_mobile_agent:/home/lfy/lelab-accept/ros-restored/payload/lerobot/src",
+  "seconds": 82.8
+}

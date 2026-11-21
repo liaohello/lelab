@@ -1,0 +1,252 @@
+{
+  "assets": {
+    "/assets/index-D1QziPbU.js": {
+      "bytes": 1890419,
+      "manifest_sha256": "5e6022cdbf3c5012de5b0c3711c43a98d376439802749b33cbde87a016a10179",
+      "matches_manifest": true,
+      "sha256": "5e6022cdbf3c5012de5b0c3711c43a98d376439802749b33cbde87a016a10179",
+      "status": 200
+    },
+    "/assets/index-p4FyEwDW.css": {
+      "bytes": 64590,
+      "manifest_sha256": "a39924e7789623aec0771e586acd0ce67694480e8f0dbec1ca897bfe2b29e3bf",
+      "matches_manifest": true,
+      "sha256": "a39924e7789623aec0771e586acd0ce67694480e8f0dbec1ca897bfe2b29e3bf",
+      "status": 200
+    }
+  },
+  "checks": [
+    {
+      "detail": "/home/lfy/lelab-rmr/.venv/bin/python",
+      "name": "env_python_exists",
+      "ok": true
+    },
+    {
+      "detail": "/home/lfy/lelab-accept/app-restored/payload/app/lelab/scripts/lelab.py",
+      "name": "launcher_in_packaged_tree",
+      "ok": true
+    },
+    {
+      "detail": "8020",
+      "name": "port_free_before_start",
+      "ok": true
+    },
+    {
+      "detail": {
+        "message": "FastAPI server is running",
+        "status": "ok"
+      },
+      "name": "health_endpoint",
+      "ok": true
+    },
+    {
+      "detail": {
+        "bytes": 704,
+        "content_type": "text/html; charset=utf-8",
+        "status": 200
+      },
+      "name": "index_served",
+      "ok": true
+    },
+    {
+      "detail": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-w",
+      "name": "index_has_spa_root",
+      "ok": true
+    },
+    {
+      "detail": [
+        "/assets/index-D1QziPbU.js",
+        "/assets/index-p4FyEwDW.css"
+      ],
+      "name": "assets_referenced_by_index",
+      "ok": true
+    },
+    {
+      "detail": {
+        "/assets/index-D1QziPbU.js": [
+          200,
+          true
+        ],
+        "/assets/index-p4FyEwDW.css": [
+          200,
+          true
+        ]
+      },
+      "name": "every_asset_matches_manifest",
+      "ok": true
+    },
+    {
+      "detail": {
+        "same_bytes": true,
+        "status": 200
+      },
+      "name": "client_route_falls_back_to_index",
+      "ok": true
+    },
+    {
+      "detail": {
+        "cwd": "/home/lfy/lelab-accept/app-restored/payload/app",
+        "expected": "/home/lfy/lelab-accept/app-restored/payload/app"
+      },
+      "name": "process_runs_from_the_unpacked_tree",
+      "ok": true
+    },
+    {
+      "detail": {
+        "exe": "/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/bin/python3.12",
+        "expected": "/home/lfy/lelab-rmr/.venv/bin/python"
+      },
+      "name": "process_uses_the_given_interpreter",
+      "ok": true
+    },
+    {
+      "detail": {
+        "lelab": "/home/lfy/lelab-accept/app-restored/payload/app/lelab/__init__.py",
+        "lerobot": "/home/lfy/lelab-accept/app-restored/payload/lerobot/src/lerobot/__init__.py"
+      },
+      "name": "lelab_imports_from_the_tree",
+      "ok": true
+    },
+    {
+      "detail": {
+        "lelab": "/home/lfy/lelab-accept/app-restored/payload/app/lelab/__init__.py",
+        "lerobot": "/home/lfy/lelab-accept/app-restored/payload/lerobot/src/lerobot/__init__.py"
+      },
+      "name": "lerobot_imports_from_the_tree",
+      "ok": true
+    },
+    {
+      "detail": {
+        "body": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\"],\"msg\":\"Value error, Remote inference requires remote_deployment and remote_semantics; the 0.7 server never guesses units or joint order\",\"input\":{\"policy_ref\":\"/tmp/does-not-matter\",\"follower_port\":\"/dev/null\",\"follower_config\":\"so101_follower\",\"target\":\"remote\"},\"ctx\":{\"error\":{}}}]}",
+        "mentions": true,
+        "status": 422
+      },
+      "name": "refusal_no_deployment",
+      "ok": true
+    },
+    {
+      "detail": {
+        "body": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\"],\"msg\":\"Value error, Remote inference requires explicit remote_state_dim/remote_action_dim (or a policy_contract declaring both); never inherit 7/8 defaults\",\"input\":{\"policy_ref\":\"/tmp/does-not-matter\",\"follower_port\":\"/dev/null\",\"follower_config\":\"so101_follower\",\"target\":\"remote\",\"remote_deployment\":\"so101_red\",\"remote_semantics\":\"so101-degrees-gri",
+        "mentions": true,
+        "status": 422
+      },
+      "name": "refusal_no_dimensions",
+      "ok": true
+    },
+    {
+      "detail": {
+        "body": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\"],\"msg\":\"Value error, actions_per_chunk/chunk_size_threshold belong to the retired async client and have no 0.7 equivalent; use remote_refill_seconds and remote_action_timeout_s instead\",\"input\":{\"policy_ref\":\"/tmp/does-not-matter\",\"follower_port\":\"/dev/null\",\"follower_config\":\"so101_follower\",\"target\":\"remote\",\"remote_deployment\":\"so101_red\",\"remote_s",
+        "mentions": true,
+        "status": 422
+      },
+      "name": "refusal_legacy_async",
+      "ok": true
+    },
+    {
+      "detail": {
+        "body": "{\"detail\":\"Failed to start cloud inference: Bimanual inference requires state_dim=12 and action_dim=12; got state_dim=6, action_dim=6. A single-arm ACT checkpoint (6 actions) cannot be used for two arms.\"}",
+        "mentions": true,
+        "status": 500
+      },
+      "name": "refusal_six_dim_bimanual",
+      "ok": true
+    },
+    {
+      "detail": {
+        "body": "{\"detail\":\"Failed to start cloud inference: Could not stage policy '/tmp/does-not-matter' on probe@127.0.0.1: ssh: connect to host 127.0.0.1 port 1: Connection refused\"}",
+        "status": 500
+      },
+      "name": "legal_remote_reaches_the_dispatcher",
+      "ok": true
+    },
+    {
+      "detail": {
+        "children_after": [],
+        "children_before": [],
+        "children_left_running": [],
+        "exit_code": -15,
+        "forced": false,
+        "seconds": 0.3
+      },
+      "name": "stopped_cleanly",
+      "ok": true
+    },
+    {
+      "detail": {
+        "children_after": [],
+        "children_before": [],
+        "children_left_running": [],
+        "exit_code": -15,
+        "forced": false,
+        "seconds": 0.3
+      },
+      "name": "no_children_left",
+      "ok": true
+    },
+    {
+      "detail": "8020",
+      "name": "port_released",
+      "ok": true
+    }
+  ],
+  "failed": 0,
+  "health": {
+    "body": {
+      "message": "FastAPI server is running",
+      "status": "ok"
+    },
+    "ok": true,
+    "seconds": 9.0,
+    "startup_seconds": 9.0
+  },
+  "legal_remote": {
+    "body": "{\"detail\":\"Failed to start cloud inference: Could not stage policy '/tmp/does-not-matter' on probe@127.0.0.1: ssh: connect to host 127.0.0.1 port 1: Connection refused\"}",
+    "status": 500
+  },
+  "log": "/home/lfy/lelab-accept/server-restored.log",
+  "modules": {
+    "lelab": "/home/lfy/lelab-accept/app-restored/payload/app/lelab/__init__.py",
+    "lerobot": "/home/lfy/lelab-accept/app-restored/payload/lerobot/src/lerobot/__init__.py"
+  },
+  "passed": 21,
+  "pid": 361168,
+  "port": 8020,
+  "process": {
+    "cwd": "/home/lfy/lelab-accept/app-restored/payload/app",
+    "exe": "/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/bin/python3.12"
+  },
+  "project": "/home/lfy/lelab-accept/app-restored/payload/app",
+  "refusal_status_note": "A six-dimension bimanual contract is produced by the request validator's downstream guard and surfaces as HTTP 500, not 400: the handler maps every exception to 500. The refusal is correct, the status class is not.",
+  "refusals": {
+    "legacy_async_params": {
+      "body": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\"],\"msg\":\"Value error, actions_per_chunk/chunk_size_threshold belong to the retired async client and have no 0.7 equivalent; use remote_refill_seconds and remote_action_timeout_s instead\",\"input\":{\"policy_ref\":\"/tmp/does-not-matter\",\"follower_port\":\"/dev/null\",\"follower_config\":\"so101_follower\",\"target\":\"remote\",\"remote_deployment\":\"so101_red\",\"remote_s",
+      "mentions": true,
+      "status": 422
+    },
+    "no_deployment": {
+      "body": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\"],\"msg\":\"Value error, Remote inference requires remote_deployment and remote_semantics; the 0.7 server never guesses units or joint order\",\"input\":{\"policy_ref\":\"/tmp/does-not-matter\",\"follower_port\":\"/dev/null\",\"follower_config\":\"so101_follower\",\"target\":\"remote\"},\"ctx\":{\"error\":{}}}]}",
+      "mentions": true,
+      "status": 422
+    },
+    "no_dimensions": {
+      "body": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\"],\"msg\":\"Value error, Remote inference requires explicit remote_state_dim/remote_action_dim (or a policy_contract declaring both); never inherit 7/8 defaults\",\"input\":{\"policy_ref\":\"/tmp/does-not-matter\",\"follower_port\":\"/dev/null\",\"follower_config\":\"so101_follower\",\"target\":\"remote\",\"remote_deployment\":\"so101_red\",\"remote_semantics\":\"so101-degrees-gri",
+      "mentions": true,
+      "status": 422
+    },
+    "six_dim_bimanual": {
+      "body": "{\"detail\":\"Failed to start cloud inference: Bimanual inference requires state_dim=12 and action_dim=12; got state_dim=6, action_dim=6. A single-arm ACT checkpoint (6 actions) cannot be used for two arms.\"}",
+      "mentions": true,
+      "status": 500
+    }
+  },
+  "status": "passed",
+  "stop": {
+    "children_after": [],
+    "children_before": [],
+    "children_left_running": [],
+    "exit_code": -15,
+    "forced": false,
+    "seconds": 0.3
+  },
+  "tree": "/home/lfy/lelab-accept/app-restored/payload"
+}

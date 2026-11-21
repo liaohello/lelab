@@ -1,0 +1,65 @@
+{
+  "agent_files": 49,
+  "agent_present": true,
+  "ament_prefix": null,
+  "blocking": [
+    "rclpy_importable",
+    "rosbag2_importable",
+    "ros2_cli_present"
+  ],
+  "checks": {
+    "agent_package_present": true,
+    "launch_file_present": true,
+    "rclpy_importable": false,
+    "ros2_cli_present": false,
+    "rosbag2_importable": false
+  },
+  "launch_files": [
+    "lelab_mobile_agent/launch/readonly.launch.py"
+  ],
+  "operator_command": "source /opt/ros/<distro>/setup.bash && source install/setup.bash && ros2 launch lelab_mobile_agent <launch>.launch.py use_sim_time:=true",
+  "opt_ros": [],
+  "package_xml": [
+    "lelab_mobile_agent/package.xml"
+  ],
+  "probes": {
+    "rclpy": {
+      "argv": [
+        "python3",
+        "-c",
+        "import rclpy; print(rclpy.__file__)"
+      ],
+      "exit": 1,
+      "found": true,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import rclpy; print(rclpy.__file__)\n    ^^^^^^^^^^^^\nModuleNotFoundError: No module named 'rclpy'",
+      "stdout": ""
+    },
+    "ros2_pkg_list": {
+      "argv": [
+        "ros2",
+        "pkg",
+        "list"
+      ],
+      "found": false
+    },
+    "rosbag2_py": {
+      "argv": [
+        "python3",
+        "-c",
+        "import rosbag2_py; print(rosbag2_py.__file__)"
+      ],
+      "exit": 1,
+      "found": true,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import rosbag2_py; print(rosbag2_py.__file__)\n    ^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'rosbag2_py'",
+      "stdout": ""
+    }
+  },
+  "ros_distro": null,
+  "ros_version": null,
+  "status": "blocked",
+  "which": {
+    "colcon": null,
+    "ros2": null,
+    "rosbag2": null
+  }
+}

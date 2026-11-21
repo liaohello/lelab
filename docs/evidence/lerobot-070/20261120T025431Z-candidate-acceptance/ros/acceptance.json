@@ -1,0 +1,157 @@
+{
+  "archive": {
+    "archive_member_count": 1765,
+    "bytes": 21814096,
+    "checks": {
+      "candidate_name_matches": {
+        "detail": {
+          "directory": "lelab-ros-070-20261117T160744Z",
+          "manifest": "lelab-ros-070-20261117T160744Z"
+        },
+        "ok": true
+      },
+      "file_count_matches": {
+        "detail": {
+          "entries": 1763,
+          "file_count": 1763
+        },
+        "ok": true
+      },
+      "manifest_matches_trusted_copy": {
+        "detail": "docs/evidence/lerobot-070/20261117T045658Z-verification-closure/lelab-ros-070-20261117T160744Z/MANIFEST.json",
+        "ok": true
+      },
+      "payload_bytes_match_manifest": {
+        "detail": {
+          "checked": 1763,
+          "mismatched": []
+        },
+        "ok": true
+      },
+      "payload_file_set_matches_manifest": {
+        "detail": {
+          "in_manifest": 1763,
+          "in_tar": 1763,
+          "only_in_manifest": [],
+          "only_in_tar": []
+        },
+        "ok": true
+      },
+      "profile_matches": {
+        "detail": {
+          "actual": "ros",
+          "expected": "ros"
+        },
+        "ok": true
+      },
+      "revision_matches_expected": {
+        "detail": {
+          "expected": "9f1b73cc9ff8cdf08ba689dc4cccd9a0b6b403dc",
+          "manifest": "9f1b73cc9ff8cdf08ba689dc4cccd9a0b6b403dc"
+        },
+        "ok": true
+      },
+      "sums_match_manifest": {
+        "detail": {
+          "manifest_entries": 1763,
+          "only_in_manifest": [],
+          "only_in_sums": [],
+          "sums_entries": 1763
+        },
+        "ok": true
+      },
+      "sums_matches_trusted_copy": {
+        "detail": "docs/evidence/lerobot-070/20261117T045658Z-verification-closure/lelab-ros-070-20261117T160744Z/SHA256SUMS",
+        "ok": true
+      }
+    },
+    "manifest": {
+      "branch": "codex/lerobot-070-integration",
+      "candidate": "lelab-ros-070-20261117T160744Z",
+      "created_utc": "2026-11-17T16:08:04.373802+00:00",
+      "file_count": 1763,
+      "frontend_dist": "app_ros_mobile/frontend/dist",
+      "hash_entries": 1763,
+      "manifest_sha256": "45f9e83e840aeb582774f1f444ea7f9c91fdce9710f7c8fd79d01e3e08d41c80",
+      "profile": "ros",
+      "requires": [
+        "python>=3.12",
+        "lerobot[core_scripts,feetech,training,remote]>=0.7.0,<0.8.0",
+        "ROS 2 (rclpy, rosbag2_py) on the car host",
+        "lelab_mobile_agent launch/config from ros2_ws/src/lelab_mobile_agent"
+      ],
+      "revision": "9f1b73cc9ff8cdf08ba689dc4cccd9a0b6b403dc",
+      "source": {
+        "app_ros_mobile": "app_ros_mobile",
+        "lelab_mobile_agent": "ros2_ws/src/lelab_mobile_agent",
+        "lerobot": "releases/sanitized-20261024-01/lerobot"
+      },
+      "sums_sha256": "6f95e3f9ffbae2c7f77897a4d3571b41d79b3210086e22f8639e0e81cd7464cd"
+    },
+    "mtime_utc": "2026-11-17T16:08:09.045672+00:00",
+    "ok": true,
+    "path": "/home/liaozhengyan/Desktop/lelab-lerobot070/docs/evidence/lerobot-070/20261117T045658Z-verification-closure/lelab-ros-070-20261117T160744Z/candidate.tar.gz",
+    "payload_file_count": 1763,
+    "sha256": "378ca03638e7a872a8a4b58828a209e354fdc8d5fa5e0dabacda9d0251fc9db1"
+  },
+  "dest": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/ros",
+  "host": {
+    "hostname": "liaoComputer",
+    "python": "3.12.3"
+  },
+  "payload_pristine_after": true,
+  "profile": "ros",
+  "seconds": 4.7,
+  "started_utc": "2026-11-20T03:32:44.955247+00:00",
+  "status": "passed",
+  "tamper": {
+    "byte_flip_detail": {
+      "extra": [],
+      "extra_count": 0,
+      "mismatched": [
+        "app_ros_mobile/frontend/dist/assets/index-DyZMExHr.js"
+      ],
+      "mismatched_count": 1,
+      "missing": [],
+      "missing_count": 0,
+      "ok": false
+    },
+    "byte_flip_rejected": true,
+    "deleted_victim": "app_ros_mobile/.gitattributes",
+    "deletion_rejected": true,
+    "note": "archive-level rehearsal: a flipped byte and a deleted file must each be rejected, and restoring must verify again. This is file integrity, not a service rollback (see the rollback drill).",
+    "ok": true,
+    "restore_after_delete_verified": true,
+    "restore_verified": true,
+    "victim": "app_ros_mobile/frontend/dist/assets/index-DyZMExHr.js"
+  },
+  "tool": "accept_candidate.py",
+  "unpack": {
+    "dest": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/ros/stack",
+    "ok": true,
+    "reused": true,
+    "seconds": 0.0,
+    "top_level": [
+      "MANIFEST.json",
+      "SHA256SUMS",
+      "payload"
+    ],
+    "verify": {
+      "extra": [],
+      "extra_count": 0,
+      "mismatched": [],
+      "mismatched_count": 0,
+      "missing": [],
+      "missing_count": 0,
+      "ok": true
+    }
+  },
+  "worktree": {
+    "branch": "codex/lerobot-070-integration",
+    "commits_since_revision": "14",
+    "dirty": true,
+    "head": "8ac90fcff834df986118bb9cb609098cdefc7e9f",
+    "manifest_revision_is_ancestor_of_head": true,
+    "path": "."
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "checks": [
+    {
+      "detail": "/home/lfy/lelab-rmr/.venv/bin/python",
+      "name": "env_python_exists",
+      "ok": true
+    },
+    {
+      "detail": "/home/lfy/lelab-accept/app-archived/payload/app/lelab/scripts/lelab.py",
+      "name": "launcher_in_packaged_tree",
+      "ok": true
+    },
+    {
+      "detail": "8020",
+      "name": "port_free_before_start",
+      "ok": true
+    },
+    {
+      "detail": {
+        "error": "URLError: <urlopen error [Errno 111] Connection refused>"
+      },
+      "name": "health_endpoint",
+      "ok": false
+    },
+    {
+      "detail": {
+        "children_after": [],
+        "children_before": [],
+        "children_left_running": [],
+        "exit_code": 1,
+        "forced": false,
+        "seconds": 0.0
+      },
+      "name": "stopped_cleanly",
+      "ok": true
+    },
+    {
+      "detail": {
+        "children_after": [],
+        "children_before": [],
+        "children_left_running": [],
+        "exit_code": 1,
+        "forced": false,
+        "seconds": 0.0
+      },
+      "name": "no_children_left",
+      "ok": true
+    },
+    {
+      "detail": "8020",
+      "name": "port_released",
+      "ok": true
+    }
+  ],
+  "failed": 1,
+  "health": {
+    "body": {
+      "error": "URLError: <urlopen error [Errno 111] Connection refused>"
+    },
+    "ok": false,
+    "seconds": 60.0,
+    "startup_seconds": 60.0
+  },
+  "log": "/home/lfy/lelab-accept/server-archived.log",
+  "log_tail": "  File \"/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/uvicorn/config.py\", line 511, in load\n    self.loaded_app = self.load_app()\n                      ^^^^^^^^^^^^^^^\n  File \"/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/uvicorn/config.py\", line 434, in load_app\n    return import_from_string(self.app)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/uvicorn/importer.py\", line 22, in import_from_string\n    raise exc from None\n  File \"/home/lfy/lelab-rmr/.venv/lib/python3.12/site-packages/uvicorn/importer.py\", line 19, in import_from_string\n    module = importlib.import_module(module_str)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/home/lfy/lelab-accept/app-archived/payload/app/lelab/server.py\", line 70, in <module>\n    from . import datasets as dataset_browser, record as _record\n  File \"/home/lfy/lelab-accept/app-archived/payload/app/lelab/record.py\", line 29, in <module>\n    from lerobot.datasets import LeRobotDataset\nModuleNotFoundError: No module named 'lerobot.datasets'\n",
+  "passed": 6,
+  "pid": 348402,
+  "port": 8020,
+  "process_exit": 1,
+  "project": "/home/lfy/lelab-accept/app-archived/payload/app",
+  "status": "failed",
+  "stop": {
+    "children_after": [],
+    "children_before": [],
+    "children_left_running": [],
+    "exit_code": 1,
+    "forced": false,
+    "seconds": 0.0
+  },
+  "tree": "/home/lfy/lelab-accept/app-archived/payload"
+}

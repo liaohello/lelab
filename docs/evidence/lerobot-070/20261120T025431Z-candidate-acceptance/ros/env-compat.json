@@ -1,0 +1,105 @@
+{
+  "address_space": {
+    "rlimit_as_hard": -1,
+    "rlimit_as_soft": -1,
+    "rlimit_as_soft_gib": "unlimited"
+  },
+  "cwd": "/home/lfy/lelab-accept",
+  "disk": [
+    "/dev/nvme0n1p2  3.5T  3.2T  129G  97% /"
+  ],
+  "encoders": {
+    "av1_lines": [],
+    "ffmpeg": {
+      "argv": [
+        "ffmpeg",
+        "-hide_banner",
+        "-encoders"
+      ],
+      "available": false
+    },
+    "pyav": {
+      "argv": [
+        "/home/lfy/lelab-rmr/.venv/bin/python",
+        "-c",
+        "import av; print(sorted(c for c in av.codecs_available if 'av1' in c))"
+      ],
+      "available": true,
+      "exit": 0,
+      "stderr": "",
+      "stdout": "['av1', 'av1_cuvid', 'av1_nvenc', 'libaom-av1', 'libdav1d', 'libsvtav1', 'wmav1']"
+    }
+  },
+  "env": {
+    "AMENT_PREFIX_PATH": null,
+    "HF_HOME": null,
+    "PYTHONPATH": null,
+    "ROS_DISTRO": null,
+    "ROS_VERSION": null
+  },
+  "ffmpeg_version": {
+    "argv": [
+      "ffmpeg",
+      "-version"
+    ],
+    "available": false
+  },
+  "host": "g128",
+  "imports": {
+    "argv": [
+      "/home/lfy/lelab-rmr/.venv/bin/python",
+      "-c",
+      "import json, importlib.util as u; print(json.dumps({m: (u.find_spec(m) is not None) for m in ['rclpy','rosbag2_py','lelab','lerobot','av','torch']}))"
+    ],
+    "available": true,
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\"rclpy\": false, \"rosbag2_py\": false, \"lelab\": true, \"lerobot\": true, \"av\": true, \"torch\": true}"
+  },
+  "interpreter": {
+    "argv": [
+      "/home/lfy/lelab-rmr/.venv/bin/python",
+      "-c",
+      "import sys, json; print(json.dumps({'version': sys.version.split()[0], 'executable': sys.executable, 'prefix': sys.prefix}))"
+    ],
+    "available": true,
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\"version\": \"3.12.16\", \"executable\": \"/home/lfy/lelab-rmr/.venv/bin/python\", \"prefix\": \"/home/lfy/lelab-rmr/.venv\"}"
+  },
+  "kernel": "5.8.0-63-generic",
+  "memory": {
+    "MemAvailable": "504507564 kB",
+    "MemTotal": "528015100 kB"
+  },
+  "package_python": "/home/lfy/lelab-rmr/.venv/bin/python",
+  "package_python_exists": true,
+  "python_argv0": "3.12.16",
+  "ros": {
+    "distro_env": null,
+    "rclpy_import": {
+      "argv": [
+        "/home/lfy/lelab-rmr/.venv/bin/python",
+        "-c",
+        "import rclpy; print(rclpy.__file__)"
+      ],
+      "available": true,
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'rclpy'",
+      "stdout": ""
+    },
+    "ros2": {
+      "argv": [
+        "ros2",
+        "--help"
+      ],
+      "available": false
+    }
+  },
+  "threads": {
+    "headroom": 2059296,
+    "rlimit_nproc_hard": 2062345,
+    "rlimit_nproc_soft": 2062345,
+    "system_total": 3049
+  }
+}

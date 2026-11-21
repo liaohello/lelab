@@ -1,0 +1,194 @@
+{
+  "archive": {
+    "archive_member_count": 1684,
+    "bytes": 21355800,
+    "checks": {
+      "candidate_name_matches": {
+        "detail": {
+          "directory": "lelab-app-070-20261117T160714Z",
+          "manifest": "lelab-app-070-20261117T160714Z"
+        },
+        "ok": true
+      },
+      "file_count_matches": {
+        "detail": {
+          "entries": 1682,
+          "file_count": 1682
+        },
+        "ok": true
+      },
+      "manifest_matches_trusted_copy": {
+        "detail": "docs/evidence/lerobot-070/20261117T045658Z-verification-closure/lelab-app-070-20261117T160714Z/MANIFEST.json",
+        "ok": true
+      },
+      "payload_bytes_match_manifest": {
+        "detail": {
+          "checked": 1682,
+          "mismatched": []
+        },
+        "ok": true
+      },
+      "payload_file_set_matches_manifest": {
+        "detail": {
+          "in_manifest": 1682,
+          "in_tar": 1682,
+          "only_in_manifest": [],
+          "only_in_tar": []
+        },
+        "ok": true
+      },
+      "profile_matches": {
+        "detail": {
+          "actual": "app",
+          "expected": "app"
+        },
+        "ok": true
+      },
+      "revision_matches_expected": {
+        "detail": {
+          "expected": "9f1b73cc9ff8cdf08ba689dc4cccd9a0b6b403dc",
+          "manifest": "9f1b73cc9ff8cdf08ba689dc4cccd9a0b6b403dc"
+        },
+        "ok": true
+      },
+      "sums_match_manifest": {
+        "detail": {
+          "manifest_entries": 1682,
+          "only_in_manifest": [],
+          "only_in_sums": [],
+          "sums_entries": 1682
+        },
+        "ok": true
+      },
+      "sums_matches_trusted_copy": {
+        "detail": "docs/evidence/lerobot-070/20261117T045658Z-verification-closure/lelab-app-070-20261117T160714Z/SHA256SUMS",
+        "ok": true
+      }
+    },
+    "manifest": {
+      "branch": "codex/lerobot-070-integration",
+      "candidate": "lelab-app-070-20261117T160714Z",
+      "created_utc": "2026-11-17T16:07:31.668077+00:00",
+      "file_count": 1682,
+      "frontend_dist": "releases/sanitized-20261024-01/app/frontend/dist",
+      "hash_entries": 1682,
+      "manifest_sha256": "63cb5fb7049fb76e8819324b83f1ae89064a25c126aafe0b5194c3527c9a9f74",
+      "profile": "app",
+      "requires": [
+        "python>=3.12",
+        "lerobot[core_scripts,feetech,training,remote]>=0.7.0,<0.8.0"
+      ],
+      "revision": "9f1b73cc9ff8cdf08ba689dc4cccd9a0b6b403dc",
+      "source": {
+        "app": "releases/sanitized-20261024-01/app",
+        "lerobot": "releases/sanitized-20261024-01/lerobot"
+      },
+      "sums_sha256": "4859594ad0b08d912e30e86be6f34b571aaa81b8185a424681069c1a4d915e24"
+    },
+    "mtime_utc": "2026-11-17T16:07:36.163774+00:00",
+    "ok": true,
+    "path": "/home/liaozhengyan/Desktop/lelab-lerobot070/docs/evidence/lerobot-070/20261117T045658Z-verification-closure/lelab-app-070-20261117T160714Z/candidate.tar.gz",
+    "payload_file_count": 1682,
+    "sha256": "78377a084f8f61f144fc661b02f7a05736a0a6f8fb48b34680e313a7eef091fe"
+  },
+  "dest": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3",
+  "env": {
+    "dist_from_env": true,
+    "env_dir": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/env",
+    "exit_code": null,
+    "import_error": "ModuleNotFoundError: No module named 'lerobot.datasets'",
+    "import_ok": false,
+    "lelab_from_env": true,
+    "lerobot_from_env": true,
+    "log": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/env-prepare.log",
+    "note": "environment was synced once and is reused; see the sync log",
+    "probe": {
+      "assets": [
+        "index-D1QziPbU.js",
+        "index-p4FyEwDW.css"
+      ],
+      "dist_exists": true,
+      "frontend_dist": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload/app/frontend/dist",
+      "index_html": true,
+      "lelab": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload/app/lelab/__init__.py",
+      "lerobot": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload/lerobot/src/lerobot/__init__.py",
+      "lerobot_datasets_error": "ModuleNotFoundError: No module named 'lerobot.datasets'",
+      "python": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/env/bin/python",
+      "server_import_error": "ModuleNotFoundError: No module named 'lerobot.datasets'",
+      "sys_path": [
+        "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload/app",
+        "/usr/lib/python312.zip",
+        "/usr/lib/python3.12",
+        "/usr/lib/python3.12/lib-dynload",
+        "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/env/lib/python3.12/site-packages",
+        "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload/lerobot/src",
+        "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/env/lib/python3.12/site-packages/rerun_sdk"
+      ]
+    },
+    "probe_exit": 0,
+    "probe_stderr": [],
+    "project": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload/app",
+    "seconds": 0.0,
+    "status": "failed",
+    "uv": "/home/liaozhengyan/.local/bin/uv"
+  },
+  "host": {
+    "hostname": "liaoComputer",
+    "python": "3.12.3"
+  },
+  "payload_pristine_after": true,
+  "profile": "app",
+  "seconds": 20.4,
+  "started_utc": "2026-11-20T03:32:00.291973+00:00",
+  "status": "failed",
+  "tamper": {
+    "byte_flip_detail": {
+      "extra": [],
+      "extra_count": 0,
+      "mismatched": [
+        "app/frontend/dist/assets/index-D1QziPbU.js"
+      ],
+      "mismatched_count": 1,
+      "missing": [],
+      "missing_count": 0,
+      "ok": false
+    },
+    "byte_flip_rejected": true,
+    "deleted_victim": "app/.gitattributes",
+    "deletion_rejected": true,
+    "note": "archive-level rehearsal: a flipped byte and a deleted file must each be rejected, and restoring must verify again. This is file integrity, not a service rollback (see the rollback drill).",
+    "ok": true,
+    "restore_after_delete_verified": true,
+    "restore_verified": true,
+    "victim": "app/frontend/dist/assets/index-D1QziPbU.js"
+  },
+  "tool": "accept_candidate.py",
+  "unpack": {
+    "dest": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack",
+    "ok": true,
+    "reused": true,
+    "seconds": 0.0,
+    "top_level": [
+      "MANIFEST.json",
+      "SHA256SUMS",
+      "payload"
+    ],
+    "verify": {
+      "extra": [],
+      "extra_count": 0,
+      "mismatched": [],
+      "mismatched_count": 0,
+      "missing": [],
+      "missing_count": 0,
+      "ok": true
+    }
+  },
+  "worktree": {
+    "branch": "codex/lerobot-070-integration",
+    "commits_since_revision": "14",
+    "dirty": true,
+    "head": "8ac90fcff834df986118bb9cb609098cdefc7e9f",
+    "manifest_revision_is_ancestor_of_head": true,
+    "path": "."
+  }
+}

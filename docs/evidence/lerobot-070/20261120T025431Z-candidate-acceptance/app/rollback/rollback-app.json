@@ -1,0 +1,351 @@
+{
+  "after_rollback": {
+    "asset": {
+      "assets": {
+        "/assets/index-BRxloIhH.js": {
+          "sha256": "ced8802fb5820dc96ce6dba954a4735522cadffedb45c221ae43931158fcc461",
+          "status": 200
+        },
+        "/assets/index-OI39ixo9.css": {
+          "sha256": "f464ecad06508a62d553d00da512755c02d72c25b9d1eb51193d389b61870056",
+          "status": 200
+        }
+      },
+      "index_sha256": "ea0f6c7f0b052f726188419f945ae89f3881e7badc89de04ad2e3f5a8a97184c",
+      "status": 200
+    },
+    "boot": {
+      "current": "/home/lfy/lelab-accept/rollback-app/current",
+      "current_resolved": "/home/lfy/lelab-accept/rollback-app/releases/old",
+      "frontend_dist": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app/frontend/dist",
+      "frontend_index_exists": true,
+      "lelab_file": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app/lelab/__init__.py",
+      "lerobot_file": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/lerobot/src/lerobot/__init__.py",
+      "pid": 2813775,
+      "project": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app",
+      "sys_path_head": [
+        "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app",
+        "/home/lfy/lelab-accept/rollback-app/releases/old/payload/lerobot/src",
+        "/home/lfy/lelab-accept",
+        "/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python312.zip"
+      ]
+    },
+    "healthy": true,
+    "seconds": 8.0
+  },
+  "candidate_running": {
+    "asset": {
+      "assets": {
+        "/assets/index-D1QziPbU.js": {
+          "sha256": "5e6022cdbf3c5012de5b0c3711c43a98d376439802749b33cbde87a016a10179",
+          "status": 200
+        },
+        "/assets/index-p4FyEwDW.css": {
+          "sha256": "a39924e7789623aec0771e586acd0ce67694480e8f0dbec1ca897bfe2b29e3bf",
+          "status": 200
+        }
+      },
+      "index_sha256": "bd3d73a19e90b2c7870ef4c6c92cc455673f1b8f59e9ef0d43a1bf019a9d11c8",
+      "status": 200
+    },
+    "boot": {
+      "current": "/home/lfy/lelab-accept/rollback-app/current",
+      "current_resolved": "/home/lfy/lelab-accept/rollback-app/releases/candidate",
+      "frontend_dist": "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/app/frontend/dist",
+      "frontend_index_exists": true,
+      "lelab_file": "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/app/lelab/__init__.py",
+      "lerobot_file": "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/lerobot/src/lerobot/__init__.py",
+      "pid": 2812883,
+      "project": "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/app",
+      "sys_path_head": [
+        "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/app",
+        "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/lerobot/src",
+        "/home/lfy/lelab-accept",
+        "/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python312.zip"
+      ]
+    },
+    "healthy": true,
+    "seconds": 9.0
+  },
+  "failed": 0,
+  "injected_failure": {
+    "method": "SIGSTOP (process alive, port held, no reply)",
+    "probes": [
+      {
+        "attempt": 1,
+        "body": "",
+        "ok": false,
+        "seconds": 3.0
+      },
+      {
+        "attempt": 2,
+        "body": "",
+        "ok": false,
+        "seconds": 3.0
+      },
+      {
+        "attempt": 3,
+        "body": "",
+        "ok": false,
+        "seconds": 3.0
+      }
+    ],
+    "process_alive": true,
+    "seconds": 9.0
+  },
+  "old_running": {
+    "asset": {
+      "assets": {
+        "/assets/index-BRxloIhH.js": {
+          "sha256": "ced8802fb5820dc96ce6dba954a4735522cadffedb45c221ae43931158fcc461",
+          "status": 200
+        },
+        "/assets/index-OI39ixo9.css": {
+          "sha256": "f464ecad06508a62d553d00da512755c02d72c25b9d1eb51193d389b61870056",
+          "status": 200
+        }
+      },
+      "index_sha256": "ea0f6c7f0b052f726188419f945ae89f3881e7badc89de04ad2e3f5a8a97184c",
+      "status": 200
+    },
+    "boot": {
+      "current": "/home/lfy/lelab-accept/rollback-app/current",
+      "current_resolved": "/home/lfy/lelab-accept/rollback-app/releases/old",
+      "frontend_dist": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app/frontend/dist",
+      "frontend_index_exists": true,
+      "lelab_file": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app/lelab/__init__.py",
+      "lerobot_file": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/lerobot/src/lerobot/__init__.py",
+      "pid": 2812545,
+      "project": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app",
+      "sys_path_head": [
+        "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app",
+        "/home/lfy/lelab-accept/rollback-app/releases/old/payload/lerobot/src",
+        "/home/lfy/lelab-accept",
+        "/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python312.zip"
+      ]
+    },
+    "healthy": true,
+    "seconds": 9.0
+  },
+  "passed": 16,
+  "pointer_after_rollback": "/home/lfy/lelab-accept/rollback-app/releases/old",
+  "pointer_initial": "/home/lfy/lelab-accept/rollback-app/releases/old",
+  "pointer_switched": "/home/lfy/lelab-accept/rollback-app/releases/candidate",
+  "port": 8021,
+  "project": "app",
+  "releases": {
+    "candidate": {
+      "archive": null,
+      "archive_sha256": null,
+      "candidate": "lelab-app-070-20261117T160714Z",
+      "files": 1682,
+      "note": "pre-unpacked release directory; archive hash recorded for provenance only",
+      "revision": "9f1b73cc9ff8cdf08ba689dc4cccd9a0b6b403dc",
+      "source_dir": "/home/lfy/lelab-accept/app-restored",
+      "unpack_seconds": 0.2
+    },
+    "old": {
+      "archive": null,
+      "archive_sha256": null,
+      "candidate": "lelab-app-070-20261117T070209Z",
+      "files": 1681,
+      "note": "pre-unpacked release directory; archive hash recorded for provenance only",
+      "revision": "e9671f3f442b95a8888866c35baa2f0e8171eb83",
+      "source_dir": "/home/lfy/lelab-accept/rel-old",
+      "unpack_seconds": 0.2
+    }
+  },
+  "root": "/home/lfy/lelab-accept/rollback-app",
+  "scope_note": "Service-level recovery under a test current pointer. The archive-level tamper/restore rehearsal in acceptance.json is a different check: it proves the bytes can be verified, not that traffic can be moved back.",
+  "status": "passed",
+  "steps": [
+    {
+      "detail": {
+        "seconds": 9.0
+      },
+      "name": "old_release_healthy",
+      "ok": true
+    },
+    {
+      "detail": {
+        "/assets/index-BRxloIhH.js": "ced8802fb582",
+        "/assets/index-OI39ixo9.css": "f464ecad0650"
+      },
+      "name": "old_serves_its_own_dist",
+      "ok": true
+    },
+    {
+      "detail": {
+        "current": "/home/lfy/lelab-accept/rollback-app/current",
+        "current_resolved": "/home/lfy/lelab-accept/rollback-app/releases/old",
+        "frontend_dist": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app/frontend/dist",
+        "frontend_index_exists": true,
+        "lelab_file": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app/lelab/__init__.py",
+        "lerobot_file": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/lerobot/src/lerobot/__init__.py",
+        "pid": 2812545,
+        "project": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app",
+        "sys_path_head": [
+          "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app",
+          "/home/lfy/lelab-accept/rollback-app/releases/old/payload/lerobot/src",
+          "/home/lfy/lelab-accept",
+          "/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python312.zip"
+        ]
+      },
+      "name": "old_boot_matches_pointer",
+      "ok": true
+    },
+    {
+      "detail": {
+        "exit_code": -15,
+        "seconds": 0.2
+      },
+      "name": "old_stopped",
+      "ok": true
+    },
+    {
+      "detail": null,
+      "name": "port_free_before_switch",
+      "ok": true
+    },
+    {
+      "detail": {
+        "seconds": 9.0
+      },
+      "name": "candidate_release_healthy",
+      "ok": true
+    },
+    {
+      "detail": {
+        "current": "/home/lfy/lelab-accept/rollback-app/current",
+        "current_resolved": "/home/lfy/lelab-accept/rollback-app/releases/candidate",
+        "frontend_dist": "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/app/frontend/dist",
+        "frontend_index_exists": true,
+        "lelab_file": "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/app/lelab/__init__.py",
+        "lerobot_file": "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/lerobot/src/lerobot/__init__.py",
+        "pid": 2812883,
+        "project": "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/app",
+        "sys_path_head": [
+          "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/app",
+          "/home/lfy/lelab-accept/rollback-app/releases/candidate/payload/lerobot/src",
+          "/home/lfy/lelab-accept",
+          "/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python312.zip"
+        ]
+      },
+      "name": "candidate_boot_matches_pointer",
+      "ok": true
+    },
+    {
+      "detail": {
+        "/assets/index-D1QziPbU.js": {
+          "candidate": "5e6022cdbf3c",
+          "old": ""
+        },
+        "/assets/index-p4FyEwDW.css": {
+          "candidate": "a39924e77896",
+          "old": ""
+        }
+      },
+      "name": "candidate_dist_differs_from_old",
+      "ok": true
+    },
+    {
+      "detail": {
+        "/assets/index-D1QziPbU.js": "5e6022cdbf3c",
+        "/assets/index-p4FyEwDW.css": "a39924e77896"
+      },
+      "name": "candidate_serves_its_own_dist",
+      "ok": true
+    },
+    {
+      "detail": {
+        "probes": [
+          {
+            "attempt": 1,
+            "body": "",
+            "ok": false,
+            "seconds": 3.0
+          },
+          {
+            "attempt": 2,
+            "body": "",
+            "ok": false,
+            "seconds": 3.0
+          },
+          {
+            "attempt": 3,
+            "body": "",
+            "ok": false,
+            "seconds": 3.0
+          }
+        ]
+      },
+      "name": "health_check_detects_the_hang",
+      "ok": true
+    },
+    {
+      "detail": "a dead process would free the port; a hung one does not",
+      "name": "failed_process_still_owns_the_port",
+      "ok": true
+    },
+    {
+      "detail": {
+        "readlink": "/home/lfy/lelab-accept/rollback-app/releases/old",
+        "resolved": "/home/lfy/lelab-accept/rollback-app/releases/old"
+      },
+      "name": "pointer_points_back_to_old",
+      "ok": true
+    },
+    {
+      "detail": {
+        "seconds": 8.0
+      },
+      "name": "old_release_healthy_again",
+      "ok": true
+    },
+    {
+      "detail": {
+        "current": "/home/lfy/lelab-accept/rollback-app/current",
+        "current_resolved": "/home/lfy/lelab-accept/rollback-app/releases/old",
+        "frontend_dist": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app/frontend/dist",
+        "frontend_index_exists": true,
+        "lelab_file": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app/lelab/__init__.py",
+        "lerobot_file": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/lerobot/src/lerobot/__init__.py",
+        "pid": 2813775,
+        "project": "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app",
+        "sys_path_head": [
+          "/home/lfy/lelab-accept/rollback-app/releases/old/payload/app",
+          "/home/lfy/lelab-accept/rollback-app/releases/old/payload/lerobot/src",
+          "/home/lfy/lelab-accept",
+          "/home/lfy/.local/share/uv/python/cpython-3.12.16-linux-x86_64-gnu/lib/python312.zip"
+        ]
+      },
+      "name": "loaded_release_is_the_old_one",
+      "ok": true
+    },
+    {
+      "detail": {
+        "/assets/index-BRxloIhH.js": "ced8802fb582",
+        "/assets/index-OI39ixo9.css": "f464ecad0650"
+      },
+      "name": "old_bytes_served_again",
+      "ok": true
+    },
+    {
+      "detail": null,
+      "name": "port_free_at_end",
+      "ok": true
+    }
+  ],
+  "stop_after_rollback": {
+    "exit_code": -15,
+    "seconds": 0.2
+  },
+  "stop_candidate": {
+    "exit_code": -15,
+    "seconds": 0.3
+  },
+  "stop_old": {
+    "exit_code": -15,
+    "seconds": 0.2
+  }
+}

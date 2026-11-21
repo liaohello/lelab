@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/home/lfy/lelab-rmr/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/test_t4_hybrid_recording.py",
+    "-q",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml=/home/lfy/lelab-accept/ros-archived.xml"
+  ],
+  "cases": [
+    {
+      "classname": "",
+      "message": "collection failure",
+      "name": "tests.test_t4_hybrid_recording",
+      "outcome": "error",
+      "time": 0.0
+    }
+  ],
+  "counts": {
+    "errors": 1,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 1
+  },
+  "cwd": "/home/lfy/lelab-accept/ros-archived/payload/app_ros_mobile",
+  "env_python": "/home/lfy/lelab-rmr/.venv/bin/python",
+  "exit_code": 2,
+  "junit": "/home/lfy/lelab-accept/ros-archived.xml",
+  "label": "ros-archived-smoke",
+  "log": "/home/lfy/lelab-accept/ros-tests-archived.log",
+  "pythonpath": "/home/lfy/lelab-accept/ros-archived/payload/app_ros_mobile:/home/lfy/lelab-accept/ros-archived/payload/lerobot/src",
+  "seconds": 1.1
+}

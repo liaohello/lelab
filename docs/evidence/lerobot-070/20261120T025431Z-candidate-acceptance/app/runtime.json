@@ -1,0 +1,75 @@
+{
+  "checks": [
+    {
+      "detail": "/home/liaozhengyan/Desktop/lelab-lerobot070/.venv/bin/python",
+      "name": "env_python_exists",
+      "ok": true
+    },
+    {
+      "detail": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload/app/lelab/scripts/lelab.py",
+      "name": "launcher_in_packaged_tree",
+      "ok": true
+    },
+    {
+      "detail": "8020",
+      "name": "port_free_before_start",
+      "ok": true
+    },
+    {
+      "detail": {},
+      "name": "health_endpoint",
+      "ok": false
+    },
+    {
+      "detail": {
+        "children_after": [],
+        "children_before": [],
+        "children_left_running": [],
+        "exit_code": 1,
+        "forced": false,
+        "seconds": 1.0
+      },
+      "name": "stopped_cleanly",
+      "ok": true
+    },
+    {
+      "detail": {
+        "children_after": [],
+        "children_before": [],
+        "children_left_running": [],
+        "exit_code": 1,
+        "forced": false,
+        "seconds": 1.0
+      },
+      "name": "no_children_left",
+      "ok": true
+    },
+    {
+      "detail": "8020",
+      "name": "port_released",
+      "ok": true
+    }
+  ],
+  "failed": 1,
+  "health": {
+    "body": {},
+    "ok": false,
+    "seconds": 180.2,
+    "startup_seconds": 180.2
+  },
+  "log": "docs/evidence/lerobot-070/20261120T025431Z-candidate-acceptance/app/server.log",
+  "passed": 6,
+  "pid": 285939,
+  "port": 8020,
+  "project": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload/app",
+  "status": "failed",
+  "stop": {
+    "children_after": [],
+    "children_before": [],
+    "children_left_running": [],
+    "exit_code": 1,
+    "forced": false,
+    "seconds": 1.0
+  },
+  "tree": "/home/liaozhengyan/Desktop/lelab-lerobot070/acceptance-run/app3/stack/payload"
+}
