@@ -35,12 +35,16 @@ interface DatasetInfo {
   dataset_repo_id: string;
   single_task: string;
   num_episodes: number;
+  planned_episodes?: number;
   saved_episodes?: number;
   session_elapsed_seconds?: number;
   fps?: number;
   total_frames?: number;
   robot_type?: string;
   source?: DatasetSource;
+  recording_interrupted?: boolean;
+  recording_error?: string;
+  finalize?: { state: string; verified: boolean; error?: string };
 }
 
 interface UploadConfig {
@@ -60,6 +64,8 @@ const Upload = () => {
   // State for actual dataset info (will be loaded from backend)
   const [datasetInfo, setDatasetInfo] = useState<DatasetInfo | null>(null);
   const [isLoadingDatasetInfo, setIsLoadingDatasetInfo] = useState(true);
+  const [datasetInfoError, setDatasetInfoError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   // Upload configuration state
   const [uploadConfig, setUploadConfig] = useState<UploadConfig>({
@@ -76,6 +82,8 @@ const Upload = () => {
   // Load actual dataset information from backend
   React.useEffect(() => {
     const loadDatasetInfo = async () => {
+      setIsLoadingDatasetInfo(true);
+      setDatasetInfoError(null);
       if (!initialDatasetInfo?.dataset_repo_id) {
         toast({
           title: "No Dataset Information",
@@ -99,6 +107,7 @@ const Upload = () => {
         if (response.ok && data.success) {
           // Merge the loaded dataset info with any session info we have
           setDatasetInfo({
+            ...initialDatasetInfo,
             ...data,
             saved_episodes: data.num_episodes, // Use actual episodes from dataset
             session_elapsed_seconds:
@@ -106,21 +115,26 @@ const Upload = () => {
             source: initialDatasetInfo.source,
           });
         } else {
-          // Fallback to initial dataset info if backend fails
+          const reason = data.message || data.error || data.detail || `HTTP ${response.status}`;
+          const message = typeof reason === "string" ? reason : JSON.stringify(reason);
+          setDatasetInfoError(message);
           toast({
-            title: "Warning",
-            description:
-              "Could not load complete dataset information. Using session data.",
+            title: "数据集信息读取失败",
+            description: message,
             variant: "destructive",
           });
-          setDatasetInfo(initialDatasetInfo);
+          setDatasetInfo({
+            ...initialDatasetInfo,
+            recording_error: initialDatasetInfo.recording_error || data.recording_error || data.error,
+          });
         }
       } catch (error) {
         console.error("Error loading dataset info:", error);
-        // Fallback to initial dataset info
+        const message = error instanceof Error ? error.message : "Could not connect to backend";
+        setDatasetInfoError(message);
         toast({
-          title: "Warning",
-          description: "Could not connect to backend. Using session data.",
+          title: "数据集信息读取失败",
+          description: message,
           variant: "destructive",
         });
         setDatasetInfo(initialDatasetInfo);
@@ -130,7 +144,7 @@ const Upload = () => {
     };
 
     loadDatasetInfo();
-  }, [initialDatasetInfo, navigate, toast]);
+  }, [initialDatasetInfo, navigate, toast, baseUrl, fetchWithHeaders, loadAttempt]);
 
   const openInHubViewer = (repoId: string) => {
     const spacePath = `/spaces/lerobot/visualize_dataset?path=${encodeURIComponent(`/${repoId}`)}`;
@@ -272,6 +286,8 @@ const Upload = () => {
   }
 
   const isAlreadyOnHub = datasetInfo.source === "both";
+  const verificationPending = Boolean(datasetInfo.finalize && !datasetInfo.finalize.verified);
+  const uploadBlocked = Boolean(datasetInfoError) || verificationPending;
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
@@ -310,6 +326,22 @@ const Upload = () => {
             </h1>
           </div>
         </div>
+
+        {(datasetInfoError || datasetInfo.recording_error || datasetInfo.recording_interrupted || verificationPending) && (
+          <div role="alert" className="mb-6 rounded-lg border border-amber-700 bg-amber-950/30 p-4 text-amber-100">
+            <h2 className="mb-2 font-semibold">
+              {datasetInfo.recording_error || datasetInfo.recording_interrupted ? "采集曾中断，已保存的数据保留在本地" : "数据集信息尚未核验"}
+            </h2>
+            {datasetInfo.recording_error && <p className="break-words text-sm">中断原因：{datasetInfo.recording_error}</p>}
+            {datasetInfoError && <p className="mt-2 break-words text-sm">读取失败：{datasetInfoError}</p>}
+            <p className="mt-2 text-sm">
+              {datasetInfo.saved_episodes ?? datasetInfo.num_episodes} 集已保存
+              {datasetInfo.planned_episodes !== undefined ? `（原计划 ${datasetInfo.planned_episodes} 集）` : ""}。
+              {uploadBlocked ? "完整性尚未确认，暂不允许上传。" : "已保存数据的结构和视频抽样解码校验通过，可继续查看或上传。"}
+            </p>
+            {uploadBlocked && <Button variant="outline" className="mt-3" onClick={() => setLoadAttempt((attempt) => attempt + 1)}>重新读取并核验</Button>}
+          </div>
+        )}
 
         {/* Success State */}
         {uploadSuccess && (
@@ -379,7 +411,7 @@ const Upload = () => {
                   <div>
                     <span className="text-gray-400">Episodes Recorded:</span>
                     <p className="text-white text-2xl font-bold text-green-400">
-                      {datasetInfo.saved_episodes || datasetInfo.num_episodes}
+                      {datasetInfo.saved_episodes ?? datasetInfo.num_episodes}
                     </p>
                     {datasetInfo.total_frames && (
                       <p className="text-gray-400 text-sm">
@@ -473,7 +505,7 @@ const Upload = () => {
                 <>
                   <Button
                     onClick={handleUploadToHub}
-                    disabled={isUploading}
+                    disabled={isUploading || uploadBlocked}
                     className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-8 text-lg"
                   >
                     {isUploading ? (

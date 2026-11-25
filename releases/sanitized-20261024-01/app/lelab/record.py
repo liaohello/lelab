@@ -32,6 +32,7 @@ from lerobot.datasets import LeRobotDataset
 from lerobot.scripts.lerobot_record import RecordConfig
 
 from .dataset_repair import DatasetRepairError, repair_local_dataset
+from .dataset_storage import resolve_dataset_path
 from .rig import (
     ACTION_SEMANTICS_RAW,
     JOINT_NAMES,
@@ -41,7 +42,7 @@ from .rig import (
     build_single_configs,
     validate_cameras,
 )
-from .session_diagnostics import SessionDiagnostics, build_snapshot, camera_health
+from .session_diagnostics import SessionDiagnostics, build_snapshot, camera_health, latest_recording_result
 from .utils.config import setup_calibration_files, with_lelab_tag
 from .utils.devices import connect_recording_devices, safe_disconnect_device
 
@@ -839,32 +840,55 @@ def camera_feed_frames(cam_key: str, fps: float = 15.0):
 
 
 def handle_get_dataset_info(request: DatasetInfoRequest) -> dict[str, Any]:
-    """Return dataset metadata — from the most recent session if it matches,
-    otherwise by loading the local LeRobot cache copy.
-
-    中文说明：优先返回最近一次会话的内存快照 last_recording_info；不匹配时先
-    repair_local_dataset 修复，再从本地缓存加载 LeRobotDataset 读取集数/fps/
-    特征列表等元信息。
-    """
-    if last_recording_info and last_recording_info.get("dataset_repo_id") == request.dataset_repo_id:
-        return last_recording_info
+    """Report saved data separately from the recording session's outcome."""
+    if recording_active and getattr(recording_config, "dataset_repo_id", None) == request.dataset_repo_id:
+        return {"success": False, "message": "Recording is still active; wait for dataset finalization."}
 
     try:
-        from lerobot.datasets import LeRobotDataset
+        root = resolve_dataset_path(request.dataset_repo_id)
+        if not (root / "meta" / "info.json").is_file():
+            return {"success": False, "message": f"Dataset {request.dataset_repo_id} not found locally"}
+        session = (
+            last_recording_info
+            if last_recording_info and last_recording_info.get("dataset_repo_id") == request.dataset_repo_id
+            else latest_recording_result(request.dataset_repo_id, root)
+        )
+        if session and session.get("success") and session.get("num_episodes") is not None:
+            return session
 
         repair_local_dataset(request.dataset_repo_id)
-
-        dataset = LeRobotDataset(request.dataset_repo_id)
-        return {
+        dataset = LeRobotDataset(request.dataset_repo_id, root=root, download_videos=False)
+        tasks = getattr(dataset.meta, "tasks", None)
+        task_names = list(tasks.index) if tasks is not None else []
+        info = {
             "success": True,
             "dataset_repo_id": request.dataset_repo_id,
             "num_episodes": dataset.num_episodes,
-            "single_task": getattr(dataset.meta, "single_task", "Unknown task"),
+            "saved_episodes": dataset.num_episodes,
+            "single_task": task_names[0] if len(task_names) == 1 else " / ".join(map(str, task_names)),
             "fps": dataset.fps,
             "features": list(dataset.features.keys()),
             "total_frames": dataset.num_frames,
             "robot_type": getattr(dataset.meta, "robot_type", "Unknown robot"),
         }
+        if session:
+            info["mode"] = session.get("mode", "single")
+            info["recording_interrupted"] = not session.get("success", False)
+            info["recording_error"] = session.get("error")
+            if info["recording_interrupted"]:
+                verification = verify_finalized_dataset(
+                    dataset,
+                    expected_episodes=session.get("saved_episodes") or dataset.num_episodes,
+                    expected_frames=(
+                        sum(item["frames"] for item in session["episodes"])
+                        if session.get("episodes") else dataset.num_frames
+                    ),
+                    mode=info["mode"],
+                )
+                info["finalize"] = {"state": "completed", "verified": True, "verification": verification}
+            else:
+                info["finalize"] = session.get("finalize")
+        return info
     except DatasetRepairError as e:
         logger.warning(f"Could not repair local dataset {request.dataset_repo_id}: {e}")
         return {"success": False, "message": str(e)}
@@ -873,7 +897,7 @@ def handle_get_dataset_info(request: DatasetInfoRequest) -> dict[str, Any]:
         logger.warning(f"Could not load local dataset {request.dataset_repo_id}: {e}")
         return {
             "success": False,
-            "message": f"Dataset {request.dataset_repo_id} not found locally",
+            "message": f"Could not read or verify local dataset {request.dataset_repo_id}: {e}",
         }
 
 

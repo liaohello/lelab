@@ -36,6 +36,32 @@ def _default_base() -> Path:
     ).expanduser()
 
 
+def latest_recording_result(dataset_repo_id: str, dataset_root: Path) -> dict[str, Any] | None:
+    """Read the last session outcome without changing the dataset or opening devices."""
+    safe_name = dataset_repo_id.replace("/", "__").replace(" ", "_")
+    for path in sorted((_default_base() / safe_name).glob("*/session.json"), reverse=True):
+        try:
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+            if manifest.get("dataset_repo_id") != dataset_repo_id:
+                continue
+            if Path(manifest.get("dataset_root", "")).resolve() != dataset_root.resolve():
+                continue
+            summary = manifest.get("summary") or {}
+            return {
+                "success": manifest.get("status") == "completed",
+                "error": summary.get("error"),
+                "saved_episodes": summary.get("saved_episodes"),
+                "mode": manifest.get("mode", "single"),
+                "finalize": {
+                    "state": "completed" if summary.get("verification") else "pending",
+                    "verified": bool(summary.get("verification")),
+                },
+            }
+        except (OSError, ValueError, TypeError, AttributeError):
+            continue
+    return None
+
+
 def _jsonable(value: Any) -> Any:
     if isinstance(value, dict):
         return {str(key): _jsonable(item) for key, item in value.items()}

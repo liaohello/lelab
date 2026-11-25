@@ -153,3 +153,21 @@ Ruff：改动文件全部通过。
 - 无兼容的双臂 12 维策略 checkpoint；未训练、未下载、未启动远程 GPU 或付费资源。单臂 ACT 不能用于双臂。现有 async 动作块传输也不等同于 RTC；本阶段没有改动或宣称 RTC。
 - 远程 PolicyServer 未实际启动；仅完成配置构造和契约校验。
 - 全量 40+ 测试文件的一次运行在 10 分钟内未完成（与本次改动相关测试组 109 项已全过）；未把全量挂起解释为通过。
+
+## 2026-11-25：采集中断后的数据集摘要修复
+
+现象：采集异常且已有保存集时，上传页提示 `Could not load complete dataset information. Using session data.`。原因是 `/dataset-info` 直接返回缓存的失败会话结果（`success=false`），没有读取已经收尾的磁盘数据；前端又隐藏了具体失败原因。
+
+修复：摘要接口将“读取数据集是否成功”和“采集会话是否中断”分开。失败会话的已保存数据会重新核对集数、帧数、关节契约和三路视频首帧解码；原始中断错误继续由 `recording_interrupted/recording_error` 返回。服务重启后可从与数据集 ID、真实根目录匹配的已有诊断清单恢复中断信息。正在录制的数据拒绝读取/修复，不触发远端下载。
+
+上传页保留计划集数、显示具体中断/读取错误，未核验的数据禁用上传并提供重试。保留已有数据集修复与封存保护；未改变相机帧年龄阈值，也未自动重开采集或上传 Hub。
+
+本次验证：
+
+- `PYTHONPATH=app:lerobot/src .venv/bin/python -m pytest app/tests/test_record.py app/tests/test_bimanual_recording.py app/tests/test_server.py -q`：73 passed。新增回归覆盖失败会话、服务重启后的诊断恢复、验证失败、活动采集拒绝读取和不存在的数据不触发下载。
+- 修改的 Python 文件 Ruff 通过；前端 `tsc --noEmit`、修改页面 ESLint 和 Vite 生产构建通过，`dist/` 已更新。
+- 浏览器隔离 fixture 验证“中断数据核验成功”“读取失败后重试”两种界面；未向真实服务发送录制、运动或 Hub 上传请求。
+- 真实本地中断数据：2 集、1,638 帧、12 维状态/动作、三路视频首帧解码通过。校验前后所有原始数据集文件 SHA-256 一致。
+- 当前 18186 服务在采集/遥操作停止、租约空闲时重启，保留原数据根与环境。实际 `/dataset-info` 返回 `success=true`、`finalize.verified=true`，同时保留相机旧帧约 1.19 秒超过 500 毫秒上限的中断原因。相机间歇断帧本身尚未做新的实机复验。
+
+本地命令日志、页面 fixture、截图与验证输出在忽略目录 `work/dataset-info-20261125/`；它们包含本机运行信息，不纳入源码提交。

@@ -16,8 +16,103 @@
 from __future__ import annotations
 
 from datetime import datetime
+from types import SimpleNamespace
 
 import pytest
+
+
+@pytest.fixture
+def saved_dataset_info(tmp_path, monkeypatch):
+    from lelab import record
+
+    root = tmp_path / "local" / "interrupted"
+    (root / "meta").mkdir(parents=True)
+    (root / "meta" / "info.json").write_text("{}")
+    monkeypatch.setenv("HF_LEROBOT_HOME", str(tmp_path))
+    monkeypatch.setenv("LELAB_SESSION_DIAGNOSTICS_DIR", str(tmp_path / "diagnostics"))
+    monkeypatch.setattr(record, "recording_active", False)
+    monkeypatch.setattr(record, "last_recording_info", None)
+    dataset = SimpleNamespace(
+        repo_id="local/interrupted", root=root, num_episodes=2, num_frames=42,
+        fps=30, features={"action": {}, "observation.state": {}},
+        meta=SimpleNamespace(robot_type="bi_so_follower", tasks=SimpleNamespace(index=["pick"])),
+    )
+    monkeypatch.setattr(record, "LeRobotDataset", lambda *args, **kwargs: dataset)
+    monkeypatch.setattr(record, "repair_local_dataset", lambda repo: None)
+    return record, dataset
+
+
+def test_dataset_info_reads_saved_data_after_recording_failure(saved_dataset_info, monkeypatch):
+    record, dataset = saved_dataset_info
+    failed = {"dataset_repo_id": dataset.repo_id, "success": False, "error": "camera timeout",
+              "mode": "bimanual", "saved_episodes": 2, "episodes": [{"frames": 20}, {"frames": 22}]}
+    monkeypatch.setattr(record, "last_recording_info", failed)
+    calls = []
+
+    def verify(loaded, **kwargs):
+        calls.append((loaded, kwargs))
+        return {"num_episodes": 2, "num_frames": 42}
+
+    monkeypatch.setattr(record, "verify_finalized_dataset", verify)
+    result = record.handle_get_dataset_info(record.DatasetInfoRequest(dataset_repo_id=dataset.repo_id))
+    assert result["success"] is True
+    assert result["num_episodes"] == 2
+    assert result["total_frames"] == 42
+    assert result["single_task"] == "pick"
+    assert result["recording_error"] == "camera timeout"
+    assert result["recording_interrupted"] is True
+    assert result["finalize"]["verified"] is True
+    assert calls == [(dataset, {"expected_episodes": 2, "expected_frames": 42, "mode": "bimanual"})]
+    assert failed["success"] is False  # Metadata success must not erase the failed session.
+
+
+def test_dataset_info_preserves_interruption_after_service_restart(saved_dataset_info, monkeypatch):
+    from lelab.session_diagnostics import SessionDiagnostics
+
+    record, dataset = saved_dataset_info
+    diagnostics = SessionDiagnostics(dataset_repo_id=dataset.repo_id, dataset_root=dataset.root,
+                                     mode="bimanual", metadata={}, fps=30)
+    diagnostics.close({"status": "failed", "error": "camera timeout", "saved_episodes": 2})
+    monkeypatch.setattr(record, "verify_finalized_dataset", lambda *args, **kwargs: {"num_frames": 42})
+    result = record.handle_get_dataset_info(record.DatasetInfoRequest(dataset_repo_id=dataset.repo_id))
+    assert result["success"] is True
+    assert result["recording_error"] == "camera timeout"
+    assert result["finalize"]["verified"] is True
+
+
+def test_dataset_info_reports_verification_failure(saved_dataset_info, monkeypatch):
+    record, dataset = saved_dataset_info
+    monkeypatch.setattr(record, "last_recording_info", {"dataset_repo_id": dataset.repo_id,
+                        "success": False, "saved_episodes": 2, "mode": "bimanual"})
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("video did not decode")
+
+    monkeypatch.setattr(record, "verify_finalized_dataset", fail)
+    result = record.handle_get_dataset_info(record.DatasetInfoRequest(dataset_repo_id=dataset.repo_id))
+    assert result["success"] is False
+    assert "video did not decode" in result["message"]
+
+
+def test_dataset_info_does_not_read_or_repair_active_dataset(saved_dataset_info, monkeypatch):
+    record, dataset = saved_dataset_info
+    monkeypatch.setattr(record, "recording_active", True)
+    monkeypatch.setattr(record, "recording_config", SimpleNamespace(dataset_repo_id=dataset.repo_id))
+    monkeypatch.setattr(record, "repair_local_dataset", lambda repo: pytest.fail("active data was repaired"))
+    result = record.handle_get_dataset_info(record.DatasetInfoRequest(dataset_repo_id=dataset.repo_id))
+    assert result["success"] is False
+    assert "still active" in result["message"]
+
+
+def test_dataset_info_missing_local_metadata_never_downloads(tmp_path, monkeypatch):
+    from lelab import record
+
+    monkeypatch.setenv("HF_LEROBOT_HOME", str(tmp_path))
+    monkeypatch.setattr(record, "recording_active", False)
+    monkeypatch.setattr(record, "LeRobotDataset", lambda *a, **kw: pytest.fail("unexpected download"))
+    result = record.handle_get_dataset_info(record.DatasetInfoRequest(dataset_repo_id="local/missing"))
+    assert result["success"] is False
+    assert "not found locally" in result["message"]
 
 
 def test_recording_request_rejects_missing_required_fields() -> None:
