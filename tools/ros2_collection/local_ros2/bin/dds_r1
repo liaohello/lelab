@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Isolated R1/R2 DDS offline runtime: starts only its own processes on ROS domain 94.
+# Isolated R1/R2 DDS offline runtime: default domain 94; gamepad fixture domain 95.
 #
 # It never stops or reconfigures the existing domain-93 offline stack.  The
 # container is shared, but every process here has its own state directory,
@@ -19,16 +19,32 @@ HOST_EVID="$REPO/docs/evidence/landerpi-ros2-native-r1-20261107"
 C_STATE=/work/out/dds_r1/run
 C_KEY=/work/out/dds_r1/command.key
 C_PROFILE=/work/lelab/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d-dds.json
+C_PROFILE_DEFAULT="$C_PROFILE"
 C_OPS=/work/lelab/tools/ros2_collection/local_ros2/offline/container_ops.py
 C_OFF=/work/lelab/tools/ros2_collection/local_ros2/offline
 C_VERIFY=/work/out/dds_r1/ws/install/setup.bash
-C_INIT="source /opt/ros/humble/setup.bash; source /work/out/local_humble/docker/ws/install/setup.bash; [ -f $C_VERIFY ] && source $C_VERIFY; export PYTHONPATH=/work/lelab/ros2_ws/src/lelab_mobile_agent:/work/lelab/tools/ros2_collection:/work/lelab/app_ros_mobile:\${PYTHONPATH:-} ROS_DOMAIN_ID=$DOMAIN ROS_LOCALHOST_ONLY=1 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
 PY="$REPO/app_ros_mobile/.venv/bin/python"
+CAR_SRC="$REPO/ros2_ws/src/lelab_mobile_agent"
+if [ "${LROS_DDS_GAMEPAD:-0}" = "1" ]; then
+  DOMAIN=95
+  AGENT_PORT=18142
+  STREAM_PORT=18133
+  HOST_ROOT="$REPO/work/ros2_collection/dds_gamepad"
+  HOST_STATE="$HOST_ROOT/run"
+  HOST_KEY="$HOST_ROOT/command.key"
+  HOST_EVID="$HOST_ROOT/evidence"
+  C_STATE=/work/out/dds_gamepad/run
+  C_KEY=/work/out/dds_gamepad/command.key
+  C_PROFILE=/work/out/dds_gamepad/profile.json
+fi
+C_INIT="source /opt/ros/humble/setup.bash; source /work/out/local_humble/docker/ws/install/setup.bash; [ -f $C_VERIFY ] && source $C_VERIFY; export PYTHONPATH=/work/lelab/ros2_ws/src/lelab_mobile_agent:/work/lelab/tools/ros2_collection:/work/lelab/app_ros_mobile:\${PYTHONPATH:-} ROS_DOMAIN_ID=$DOMAIN ROS_LOCALHOST_ONLY=1 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
 DRIVER="$REPO/tools/ros2_collection/local_ros2/offline/hybrid_session.py"
-BUNDLE="$($PY - <<'PY'
+BUNDLE="$("$PY" - "$REPO" <<'PY'
 import json
+import sys
 from pathlib import Path
-profile = json.loads(Path("ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d-dds.json").read_text())
+profile_path = Path(sys.argv[1]) / "ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-manual-v1-offline6d-dds.json"
+profile = json.loads(profile_path.read_text())
 print(profile["runtime"]["feedback_provenance"]["calibration_bundle_hash"])
 PY
 )"
@@ -42,9 +58,26 @@ prepare() {
     "$PY" -c 'import secrets; print(secrets.token_hex(32))' > "$HOST_KEY"
   fi
   chmod 600 "$HOST_KEY"
+  if [ "${LROS_DDS_GAMEPAD:-0}" = "1" ]; then
+    PYTHONPATH="$CAR_SRC" "$PY" - "$REPO/${C_PROFILE_DEFAULT#/work/lelab/}" "$HOST_ROOT/profile.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+from lelab_mobile_agent.local_gamepad_base import make_offline_profile
+
+source, target = map(Path, sys.argv[1:])
+profile = make_offline_profile(json.loads(source.read_text()))
+temporary = target.with_suffix(".tmp")
+temporary.write_text(json.dumps(profile, indent=2) + "\n")
+temporary.replace(target)
+PY
+  fi
 }
 
 up() {
+  local board_args=()
+  if [ "${LROS_DDS_GAMEPAD:-0}" = "1" ]; then board_args+=(--arg=--gamepad); fi
   command -v docker >/dev/null || { echo "docker is not available" >&2; return 2; }
   docker ps --format '{{.Names}}' | grep -qx "$CONTAINER" || {
     echo "container $CONTAINER is not running; start the offline stack first" >&2; return 2; }
@@ -55,11 +88,11 @@ up() {
   dexec "$C_INIT; python3 $C_OPS stop-control --state-dir $C_STATE" >/dev/null 2>&1 || true
   dexec "$C_INIT; python3 $C_OPS stop-camera --state-dir $C_STATE" >/dev/null 2>&1 || true
   dexec "$C_INIT; python3 $C_OPS stop-board --state-dir $C_STATE" >/dev/null 2>&1 || true
-  dexec "$C_INIT; python3 $C_OPS start-board --state-dir $C_STATE --script $C_OFF/sim_board_owner.py --arg=--state-path --arg=$C_STATE/sim_board_owner.json"
+  dexec "$C_INIT; python3 $C_OPS start-board --state-dir $C_STATE --script $C_OFF/sim_board_owner.py --arg=--state-path --arg=$C_STATE/sim_board_owner.json ${board_args[*]}"
   dexec "$C_INIT; python3 $C_OPS start-camera --state-dir $C_STATE --script $C_OFF/sim_camera.py --arg=--rate-hz --arg=15"
   dexec "$C_INIT; python3 $C_OPS start-control --state-dir $C_STATE --module lelab_mobile_agent.car_control_process --arg=--profile --arg=$C_PROFILE --arg=--stream-port --arg=$STREAM_PORT --arg=--licence-socket --arg=$C_STATE/licence.sock --arg=--status-path --arg=$C_STATE/car_control_status.json --arg=--control-hz --arg=10 --arg=--window-ms --arg=250 --arg=--bundle-hash --arg=$BUNDLE --arg=--dds-command-key-file --arg=$C_KEY --arg=--data-identity --arg=simulated_offline"
   sleep 1
-  dexec "$C_INIT; python3 $C_OPS start-agent --state-dir $C_STATE --module lelab_mobile_agent.agent --arg=--ros-args --arg=-p --arg=profile_path:=$C_PROFILE --arg=-p --arg=car_root:=/work/out/dds_r1 --arg=-p --arg=host:=127.0.0.1 --arg=-p --arg=port:=$AGENT_PORT --arg=-p --arg=licence_socket:=$C_STATE/licence.sock --arg=-p --arg=control_status_path:=$C_STATE/car_control_status.json"
+  dexec "$C_INIT; python3 $C_OPS start-agent --state-dir $C_STATE --module lelab_mobile_agent.agent --arg=--ros-args --arg=-p --arg=profile_path:=$C_PROFILE --arg=-p --arg=car_root:=${C_STATE%/run} --arg=-p --arg=host:=127.0.0.1 --arg=-p --arg=port:=$AGENT_PORT --arg=-p --arg=licence_socket:=$C_STATE/licence.sock --arg=-p --arg=control_status_path:=$C_STATE/car_control_status.json"
   sleep 3
   dexec "$C_INIT; python3 $C_OPS start-bridge --state-dir $C_STATE --module lelab_mobile_agent.upper_dds_bridge --arg=--socket --arg=$C_STATE/bridge.sock --arg=--command-key-file --arg=$C_KEY --arg=--simulated --arg=--no-services --arg=--socket-uid --arg=1000 --arg=--socket-gid --arg=1000"
   for _ in $(seq 1 40); do
@@ -72,6 +105,11 @@ up() {
 }
 
 verify() {
+  if [ "${LROS_DDS_GAMEPAD:-0}" = "1" ]; then
+    "$PY" "$REPO/tools/ros2_collection/local_ros2/offline/gamepad_capture_probe.py" \
+      --container "$CONTAINER" --root "$HOST_ROOT" --report "$HOST_EVID/gamepad-capture.json"
+    return
+  fi
   prepare
   echo '{}' > "$HOST_STATE/marker.json"
   chmod 600 "$HOST_STATE/marker.json"
@@ -94,6 +132,17 @@ verify() {
   echo "[dds_r1] session $sid"
 }
 
+gamepad_web() {
+  [ "${LROS_DDS_GAMEPAD:-0}" = "1" ] || { echo "web requires LROS_DDS_GAMEPAD=1" >&2; return 2; }
+  export LROS_WEB_PORT=18289 LROS_WORK_DIR="$HOST_ROOT" LROS_DOCKER_AGENT_PORT="$AGENT_PORT"
+  export LROS_DOCKER_STREAM_PORT="$STREAM_PORT" LELAB_HYBRID_TRANSPORT=dds_v1
+  export LELAB_DDS_FEEDBACK_SOCKET="$HOST_STATE/bridge.sock"
+  export LELAB_DDS_BRIDGE_SOCKET="$HOST_STATE/bridge.sock"
+  export LELAB_DDS_COMMAND_KEY_FILE="$HOST_KEY"
+  "$PY" "$REPO/tools/ros2_collection/local_ros2/offline/facade_smoke.py" --prepare
+  exec "$PY" "$REPO/tools/ros2_collection/local_ros2/offline/facade_web.py"
+}
+
 down() {
   dexec "$C_INIT; python3 $C_OPS stop-bridge --state-dir $C_STATE" || true
   dexec "$C_INIT; python3 $C_OPS stop-agent --state-dir $C_STATE" || true
@@ -105,8 +154,15 @@ down() {
 
 case "${1:-all}" in
   up) up ;;
+  web) gamepad_web ;;
   verify) verify ;;
   down) down ;;
-  all) up; verify; down ;;
-  *) echo "usage: $0 up|verify|down|all" >&2; exit 2 ;;
+  all)
+    if [ "${LROS_DDS_GAMEPAD:-0}" = "1" ]; then
+      echo "gamepad fixture requires up, web (separate terminal), verify, then down" >&2
+      exit 2
+    fi
+    up; verify; down
+    ;;
+  *) echo "usage: $0 up|web|verify|down|all" >&2; exit 2 ;;
 esac

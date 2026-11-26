@@ -10,12 +10,13 @@ BASE="${LELAB_CAR_ROOT:-$HOME/shared/lelab_car}"
 CODE="$BASE/candidates/$RID/code"
 VD="$BASE/vendor/ros_robot_controller_t2_20261108"
 KD="$BASE/ros2_native_20261108"
-STATE="$KD/state"; LOGS="$KD/logs"
+RUN_ROOT="${LELAB_CAR_RUN_ROOT:-$KD}"
+STATE="$RUN_ROOT/state"; LOGS="$RUN_ROOT/logs"
 mkdir -p "$STATE" "$LOGS"
 AGENT_PORT="${AGENT_PORT:-8110}"
 STREAM_PORT="${STREAM_PORT:-18121}"
 BUNDLE=19a1bddc0d902cc91e5ecd0e68e758ce9f929ed8bcb72af96a17e67eeadb75ba
-PROFILE="$CODE/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-follow-v1-dds.json"
+PROFILE="${LELAB_CAR_PROFILE_PATH:-$CODE/ros2_ws/src/lelab_mobile_agent/config/hardware-hybrid-follow-v1-dds.json}"
 
 source /opt/ros/humble/setup.bash
 ROS_WS="${LELAB_ROS_WS:-$HOME/ros2_ws}"
@@ -80,7 +81,7 @@ case "${1:-status}" in
       --recording-topic /lelab/recording/teleop
     sleep 2
     start_one agent python3 -m lelab_mobile_agent.agent --ros-args \
-      -p profile_path:="$PROFILE" -p car_root:="$KD/car" \
+      -p profile_path:="$PROFILE" -p car_root:="$RUN_ROOT/car" \
       -p host:=127.0.0.1 -p port:="$AGENT_PORT" \
       -p licence_socket:="$STATE/licence.sock" \
       -p control_status_path:="$STATE/car_control_status.json"

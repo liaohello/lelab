@@ -98,6 +98,7 @@ class RosServoOutputDriver:
         position_pid: dict[str, Any] | None = None,
         feedback_limits_path: Any = None,
         feedback_limits_profile: str = "",
+        hold_outside_command_range: bool = False,
     ) -> None:
         if not limits_rad:
             raise ValueError("calibrated limits are required")
@@ -122,6 +123,8 @@ class RosServoOutputDriver:
         self.last_command_mono: float | None = None
         self.last_target_rad: dict[str, float] = {}
         self.last_target_mono: dict[str, float] = {}
+        self.hold_outside_command_range = hold_outside_command_range
+        self.uncommanded_joints: list[str] = []
         self.last_publish_mono: float | None = None
         self.last_subscription_count: int | None = None
         self.publish_count = 0
@@ -282,6 +285,7 @@ class RosServoOutputDriver:
             self.homing_last_target_raw = None
             self.last_target_rad.clear()
             self.last_target_mono.clear()
+            self.uncommanded_joints = []
             self._reset_position_pid()
             self.outputs_enabled = True
             # Enable is a permission, not a command. The watchdog arms at the first
@@ -492,7 +496,7 @@ class RosServoOutputDriver:
         }
         return limited
 
-    def _publish(self, positions: list[tuple[str, float]], now: float) -> None:
+    def _publish(self, positions: list[tuple[str, float]], now: float) -> dict[str, int]:
         count_getter = getattr(self.publisher, "get_subscription_count", None)
         if callable(count_getter):
             count = int(count_getter())
@@ -501,14 +505,16 @@ class RosServoOutputDriver:
                 raise RuntimeError("no_actuator_subscriber")
         message = self.servos_position_type()
         message.duration = self.duration_s
-        for name, radians in positions:
+        raw_targets = {name: rad_to_raw(name, radians) for name, radians in positions}
+        for name, raw in raw_targets.items():
             item = self.servo_position_type()
             item.id = SERVO_IDS[name]
-            item.position = int(rad_to_raw(name, radians))
+            item.position = raw
             message.position.append(item)
         self.publisher.publish(message)
         self.last_publish_mono = now
         self.publish_count += 1
+        return raw_targets
 
     def submit(self, command: dict[str, Any]) -> dict[str, Any]:
         if self.trial_motion is not None:
@@ -575,31 +581,47 @@ class RosServoOutputDriver:
         with self.lock:
             if not self.outputs_enabled:
                 raise RuntimeError("outputs_disabled")
-            if not self._feedback_ok():
+            snapshot = self.readback.read_snapshot()
+            if not snapshot.get("available") or snapshot.get("last_error"):
                 self.last_error = "trusted_feedback_unavailable"
                 raise RuntimeError("trusted_feedback_unavailable")
             now = self.clock()
             checked: list[tuple[str, float]] = []
             normal_follow = self.trial_motion is None and self.homing_motion is None
             pid_details: dict[str, dict[str, Any]] = {}
-            pid_measured: dict[str, float] = {}
-            if normal_follow and self.position_pid["enabled"]:
-                pid_measured = self._measured_positions(self.readback.read_snapshot())
+            measured = {}
+            if normal_follow and (self.position_pid["enabled"] or not self.last_target_rad
+                                  or self.hold_outside_command_range):
+                measured = self._measured_positions(snapshot)
             if normal_follow and not self.last_target_rad:
                 # Seed the first normal-follow frame from fresh measurement so
                 # reconnecting cannot create an unbounded first jump.
-                measured = self._measured_positions(self.readback.read_snapshot())
                 self.last_target_rad = dict(measured)
                 self.last_target_mono = {
                     name: now for name in measured}
+            uncommanded = []
+            raw_min, raw_max = servo_feedback_limits.COMMAND_RAW_DOMAIN
             for name, value in targets:
                 number = self._check_position(name, value)
                 if normal_follow:
-                    if self.position_pid["enabled"]:
+                    outside_commands = (self.hold_outside_command_range and not
+                                        raw_min <= snapshot["joint_samples"][name]["raw_position"] <= raw_max)
+                    if outside_commands:
+                        # The next legal command must be within one bounded step of
+                        # the measured pose. A withheld command cannot advance the reference.
+                        self.last_target_rad[name] = measured[name]
+                        self.last_target_mono[name] = now
+                    elif self.position_pid["enabled"]:
                         number, pid_detail = self._position_pid_target(
-                            name, number, pid_measured[name], now)
+                            name, number, measured[name], now)
                         pid_details[name] = pid_detail
                     number = self._clamp_step(name, number, now)
+                    if outside_commands:
+                        try:
+                            rad_to_raw(name, number)
+                        except ValueError:
+                            uncommanded.append(name)
+                            continue
                 else:
                     self._enforce_step(name, number, now)
                 checked.append((name, number))
@@ -614,7 +636,8 @@ class RosServoOutputDriver:
                 emitted = [(name, value) for name, value in checked if name == homing_active]
             else:
                 emitted = checked
-            self._publish(emitted, now)
+            raw_targets = self._publish(emitted, now)
+            self.uncommanded_joints = uncommanded
             if self.trial_motion is not None:
                 self.trial_first_frame_pending = False
             if self.homing_motion is not None:
@@ -631,6 +654,8 @@ class RosServoOutputDriver:
                 "topic": self.command_topic,
                 "servo_ids": [SERVO_IDS[name] for name, _ in emitted],
                 "combined": len(emitted) == len(JOINTS) + 1,
+                "uncommanded_joints": uncommanded,
+                "published_positions_raw": raw_targets,
                 "single_axis_trial": self.trial_motion is not None,
                 "single_axis_homing": self.homing_motion is not None,
                 "homing_active_joint": homing_active,
@@ -650,6 +675,9 @@ class RosServoOutputDriver:
             low, high = self.feedback_limits["ranges"][name]
             if (isinstance(raw, bool) or not isinstance(raw, (int, float))
                     or not math.isfinite(raw) or not low <= raw <= high):
+                if self.hold_outside_command_range:
+                    raise RuntimeError(
+                        f"frame_emitter_feedback_out_of_range:{name}:raw={raw}:allowed={low}..{high}")
                 raise RuntimeError(f"trial_feedback_invalid:{name}")
             measured[name] = (float(raw) - 500.0) * RADIANS_PER_TICK * DIRECTIONS[name]
         return measured
@@ -718,25 +746,32 @@ class RosServoOutputDriver:
             raise RuntimeError(f"homing_first_frame_discontinuous:{active}")
         return active, target_raw[active]
 
-    def _hold_positions_locked(self) -> bool:
+    def _hold_positions_locked(self, uncommanded: list[str], allow_partial: bool) -> bool:
         snapshot = self.readback.read_snapshot()
         samples = snapshot.get("joint_samples")
         if not snapshot.get("available") or not isinstance(samples, dict):
             return False
+        excluded = set(uncommanded)
         for name in (*JOINTS, GRIPPER):
+            if name in excluded:
+                continue
             sample = samples.get(name)
             raw = sample.get("raw_position") if isinstance(sample, dict) else None
-            if (isinstance(raw, bool) or not isinstance(raw, (int, float))
-                    or not math.isfinite(raw) or not 0 <= raw <= 1000):
+            if (isinstance(raw, bool) or not isinstance(raw, (int, float)) or not math.isfinite(raw)):
+                return False
+            if not 0 <= raw <= 1000:
                 # Observation tolerance does not make a negative pulse encodable.
                 # Never send an unsigned-wrapped hold packet or claim it was held.
-                return False
+                low, high = self.feedback_limits["ranges"][name]
+                if not allow_partial or not low <= raw <= high:
+                    return False
+                excluded.add(name)
         # Publish measured raw directly rather than reconstructing it through rad.
         message = self.servos_position_type()
         message.duration = 0.05
         homing_names = {self.homing_active_joint} if self.homing_active_joint else set()
         for name, sample in samples.items():
-            if name not in SERVO_IDS:
+            if name not in SERVO_IDS or name in excluded:
                 continue
             if self.trial_motion is not None and name not in self.trial_motion["allowed_joints"]:
                 continue
@@ -754,16 +789,19 @@ class RosServoOutputDriver:
 
     def _stop_locked(self, reason: str) -> dict[str, Any]:
         was_enabled = self.outputs_enabled
+        uncommanded = self.uncommanded_joints
+        allow_partial = self.hold_outside_command_range and self.last_command_mono is not None
         self.outputs_enabled = False
         self.last_command_mono = None
         self.last_target_rad.clear()
         self.last_target_mono.clear()
+        self.uncommanded_joints = []
         self._reset_position_pid()
         self.trial_first_frame_pending = self.trial_motion is not None
         self.homing_first_frame_pending = self.homing_motion is not None
         hold_published = False
         if was_enabled and self._feedback_ok():
-            hold_published = self._hold_positions_locked()
+            hold_published = self._hold_positions_locked(uncommanded, allow_partial)
         self.homing_active_joint = None
         self.homing_last_target_raw = None
         self.stop_count += 1

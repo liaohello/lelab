@@ -47,12 +47,16 @@ class Episode:
 
 class SessionRecorder:
     def __init__(self, car_root: str | Path, profile: dict[str, Any], logger):
-        self.root = Path(car_root).expanduser() / "sessions"
-        self.root.mkdir(parents=True, exist_ok=True)
         self.profile = profile
         self.logger = logger
         self.lock = threading.RLock()
         recording = profile.get("recording", {})
+        self.upper_mount = (Path(os.environ.get("LELAB_CAR_UPPER_RECORDINGS_MOUNT", "/tmp/lelab-upper-storage"))
+                            if recording.get("storage_location") == "upper_computer" else None)
+        self.root = (self.upper_mount if self.upper_mount is not None else Path(car_root).expanduser()) / "sessions"
+        if self.upper_mount is None:
+            self.root.mkdir(parents=True, exist_ok=True)
+        self._upper_free: int | None = None
         self.required_topics = list(recording.get("required_topics", []))
         self.min_free_bytes = int(recording.get("min_free_bytes", 512 * 1024 * 1024))
         self.stream_stale_s = float(recording.get("stream_stale_s", 1.5))
@@ -113,19 +117,48 @@ class SessionRecorder:
         return event
 
     def _set_error(self, reason: str, detail: str = "", *, stop_bag: bool = False):
-        if self.error is None:
-            self.error = reason
-            self.error_detail = detail
-            self.status_value = "error"
-            self._event("recording_error", reason=reason, detail=detail)
         if stop_bag and self.bag_proc is not None and self.bag_proc.poll() is None:
             try:
                 os.killpg(self.bag_proc.pid, signal.SIGINT)
             except ProcessLookupError:
                 pass
+        if self.error is None:
+            self.error = reason
+            self.error_detail = detail
+            self.status_value = "error"
+            try:
+                self._event("recording_error", reason=reason, detail=detail)
+            except OSError:
+                if self.upper_mount is None:
+                    raise
+
+    def _upper_mount_present(self) -> bool:
+        try:
+            mountinfo = Path("/proc/self/mountinfo").read_text().splitlines()
+        except OSError:
+            return False
+        for line in mountinfo:
+            prefix, _, fs = line.partition(" - ")
+            fields = prefix.split()
+            if (len(fields) >= 5 and fields[4] == str(self.upper_mount)
+                    and fs.split()[:2] == ["fuse.sshfs", "lelab-upper-recordings"]):
+                return True
+        return False
 
     def _disk_free(self) -> int:
-        return shutil.disk_usage(self.root).free
+        if self.upper_mount is None:
+            return shutil.disk_usage(self.root).free
+        self._upper_free = None
+        if not self._upper_mount_present():
+            raise RuntimeError("upper_recording_storage_unavailable")
+        try:
+            # `sessions/` may not exist yet on a freshly mounted upper directory; the
+            # mount point itself always does, and both report the same filesystem.
+            target = self.root if self.root.exists() else self.upper_mount
+            self._upper_free = shutil.disk_usage(target).free
+        except OSError as exc:
+            raise RuntimeError("upper_recording_storage_unavailable") from exc
+        return self._upper_free
 
     def note_clock_jump(self, detail: str) -> bool:
         with self.lock:
@@ -156,6 +189,13 @@ class SessionRecorder:
         with self.lock:
             if self.active:
                 raise RuntimeError("a recording session is already active")
+            if self.upper_mount is not None:
+                free = self._disk_free()
+                if free < self.min_free_bytes:
+                    raise RuntimeError("upper_recording_disk_low")
+                # `_disk_free()` has just proved the mount is real, so creating the
+                # sessions directory here cannot silently fall back to local storage.
+                self.root.mkdir(parents=True, exist_ok=True)
             if not isinstance(metadata, dict):
                 raise ValueError("session metadata must be an object")
             session_epoch = metadata.get("session_epoch")
@@ -188,11 +228,11 @@ class SessionRecorder:
             self.episodes = {}
             self.current_episode = None
             self.session_dir = self.root / session_id
-            self.session_dir.mkdir(parents=True, exist_ok=False)
+            self.session_dir.mkdir(exist_ok=False)
             self.bag_dir = self.session_dir / "raw" / "bag"
-            self.bag_dir.parent.mkdir(parents=True, exist_ok=True)
+            self.bag_dir.parent.mkdir()
             (self.session_dir / "episodes").mkdir()
-            if self._disk_free() < self.min_free_bytes:
+            if self.upper_mount is None and self._disk_free() < self.min_free_bytes:
                 self._set_error("disk_low", f"free={self._disk_free()} required={self.min_free_bytes}")
                 self.session_id = None
                 self.session_dir = None
@@ -247,6 +287,7 @@ class SessionRecorder:
                 "session_id": session_id,
                 "task": task,
                 "status": "recording",
+                "storage_location": "upper_computer" if self.upper_mount is not None else "car",
                 "started_wall": self.started_wall,
                 "started_time_ns": time_ns,
                 "clock_domain": self.clock_domain,
@@ -377,9 +418,16 @@ class SessionRecorder:
             if self.bag_proc is not None and self.bag_proc.poll() is not None and not self._stopping:
                 self.bag_exit_code = self.bag_proc.returncode
                 self._set_error("bag_exited_early", f"exit={self.bag_exit_code}")
-            free = self._disk_free()
+            try:
+                free = self._disk_free()
+            except RuntimeError as exc:
+                if self.upper_mount is None:
+                    raise
+                self._set_error(str(exc), stop_bag=True)
+                return {"active": self.active, "error": self.error, "disk_free": None}
             if free < self.min_free_bytes:
-                self._set_error("disk_low", f"free={free} required={self.min_free_bytes}", stop_bag=True)
+                reason = "upper_recording_disk_low" if self.upper_mount is not None else "disk_low"
+                self._set_error(reason, f"free={free} required={self.min_free_bytes}", stop_bag=True)
             if required_ages:
                 missing = [
                     t for t in self.required_topics
@@ -517,6 +565,7 @@ class SessionRecorder:
                 "task": self.task,
                 "status": "raw_ready" if normal else "error",
                 "profile": self.profile.get("profile"),
+                "storage_location": session.get("storage_location", "car"),
                 "profile_sha256": session.get("metadata", {}).get("profile_sha256"),
                 "metadata": session.get("metadata", {}),
                 "clock_domain": self.clock_domain,
@@ -585,7 +634,10 @@ class SessionRecorder:
                 "error": self.error, "error_detail": self.error_detail,
                 "ready": self.ready, "status": self.status_value,
                 "bag_exit_code": self.bag_exit_code, "bag_readable": self.bag_readable,
-                "clock_domain": self.clock_domain, "disk_free_bytes": self._disk_free(),
+                "clock_domain": self.clock_domain,
+                "storage_location": "upper_computer" if self.upper_mount is not None else "car",
+                "storage_mounted": self._upper_mount_present() if self.upper_mount is not None else True,
+                "disk_free_bytes": self._upper_free if self.upper_mount is not None else self._disk_free(),
                 "stream_gap_count": self.stream_gap_count, "stream_gap_topics": self.stream_gap_topics,
                 "required_topics": self.required_topics,
             }
@@ -634,6 +686,8 @@ class SessionRecorder:
         marks such a session READY: an unfinished bag is kept for forensics, not for training.
         """
         closed: list[dict] = []
+        if self.upper_mount is not None and not self._upper_mount_present():
+            return closed
         if not self.root.is_dir():
             return closed
         for session_dir in sorted(p for p in self.root.iterdir() if p.is_dir()):

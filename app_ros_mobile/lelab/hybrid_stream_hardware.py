@@ -220,6 +220,18 @@ class StreamHardwareObserver(HardwareObserver):
                                         else self.dds_feedback.get("age_bound_s")),
                     "comparison": copy.deepcopy(self.dds_comparison)}
 
+    def cached_frame_process(self) -> dict[str, Any] | None:
+        with self._cache_lock:
+            captured = self._cache_started_at
+            process = (self._cached_facts or {}).get("frame_process")
+            if captured is None or not isinstance(process, dict):
+                return None
+            elapsed = time.monotonic() - captured
+            age = process.get("age_s")
+            if (not isinstance(age, (float, int)) or elapsed + age > 1.0):
+                return None
+            return {**copy.deepcopy(process), "age_s": elapsed + age}
+
     def snapshot(self, **kwargs: Any) -> dict[str, Any]:
         if self._poll_thread is None:
             return super().snapshot(**kwargs)
@@ -1240,6 +1252,10 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
             raise HardwareCompositionError("phase_control_confirmation_stale")
         return process
 
+    def validate_follow_readback(self) -> None:
+        if isinstance(self.driver, FrameStreamDriver):
+            self.driver._preflight_emitter_feedback()
+
     def prepare_recording_phase(self) -> None:
         """Stop new output and require a later, quiescent control-process sample."""
         try:
@@ -1252,10 +1268,17 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
             raise HardwareCompositionError("phase_control_tick_missing")
         self.set_arm_state("pause_all")
         deadline = time.monotonic() + 2.5
+        joint_capture = getattr(self.car, "expected_profile", None) == "hardware_hybrid_joint_capture_v1"
         while time.monotonic() < deadline:
             process = self._phase_process()
+            base = process.get("base_gamepad") or {}
+            base_parked = (not joint_capture
+                           or (base.get("output_mode") == "hardware_set_motor"
+                               and base.get("permitted") is False
+                               and base.get("target_si") in (None, [0.0, 0.0, 0.0])))
             if (isinstance(process.get("ticks"), int) and process["ticks"] > baseline and
-                    process.get("outputs_enabled") is False and process.get("queue_depth") == 0):
+                    process.get("outputs_enabled") is False and process.get("queue_depth") == 0
+                    and base_parked):
                 return
             time.sleep(0.05)
         raise HardwareCompositionError("phase_control_stop_unconfirmed")
@@ -1758,6 +1781,8 @@ class FrameStreamHardwareFacade(HardwarePreviewFacade):
         out["source_comparison"] = cache.get("comparison")
         out["stop_stage"] = getattr(self, "_stop_stage", None)
         out["car_clear"] = getattr(self, "_car_clear_last", None)
+        if self._is_simulated() and isinstance(self.observer, StreamHardwareObserver):
+            out["frame_process"] = self.observer.cached_frame_process()
         homing = self.home_status()
         process = out.get("frame_process") or {}
         # The car emitter is the only place that can prove a per-ID torque load; the

@@ -197,6 +197,7 @@ def simulation_agent():
     node.hybrid_control_token = None
     node.hybrid_no_output = False
     node.output_transport = "legacy"
+    node.frame_transport = False
     node.frame_outputs_enabled = False
     node.licence_bridge = None
     node.lock = threading.RLock()
@@ -821,6 +822,42 @@ def test_hybrid_command_rejects_stale_identity_without_consuming_sequence():
         stop_server(server, thread)
 
 
+def test_rgb_stall_replaces_only_the_subscription_when_a_publisher_is_present(monkeypatch):
+    node = preview_agent()
+    now = 10.0
+    monkeypatch.setattr("lelab_mobile_agent.agent.time.monotonic", lambda: now)
+    node.rgb_qos = object()
+    node.rgb_retry_after = 0.0
+    node.rgb_subscription_restarts = 0
+    old, replacement = object(), object()
+    node.rgb_subscription = old
+    node.image_wall = 9.0
+    publishers = 1
+    destroyed = []
+    node.count_publishers = lambda _topic: publishers
+    node.create_subscription = lambda *_args: replacement
+    node.destroy_subscription = destroyed.append
+    node.get_logger = lambda: types.SimpleNamespace(warning=lambda _message: None)
+    node._recover_rgb_subscription()
+    assert node.rgb_subscription is old and not destroyed
+
+    now = 12.0
+    publishers = 0
+    node._recover_rgb_subscription()
+    assert node.rgb_subscription is old and not destroyed
+
+    publishers = 1
+    node._recover_rgb_subscription()
+    assert node.rgb_subscription is replacement
+    assert destroyed == [old]
+    assert node.rgb_subscription_restarts == 1
+    assert node.image_wall == 9.0  # A resubscribe alone supplies no fresh image.
+
+    now = 13.0
+    node._recover_rgb_subscription()
+    assert destroyed == [old]
+
+
 def test_preview_jpeg_headers_and_status_share_the_same_source_frame():
     node = preview_agent(source_age_s=0.125)
     server, thread = serve(node)
@@ -920,6 +957,20 @@ def test_mjpeg_parts_carry_the_same_source_identity_without_blocking_http():
     finally:
         stream.close()
         stop_server(server, thread)
+
+
+def test_upper_recording_has_no_fallback_when_mount_is_missing(tmp_path, monkeypatch):
+    mount = tmp_path / "mount"
+    mount.mkdir()
+    monkeypatch.setenv("LELAB_CAR_UPPER_RECORDINGS_MOUNT", str(mount))
+    logger = types.SimpleNamespace(warning=lambda message: None)
+    recorder = recorder_module.SessionRecorder(
+        tmp_path / "car", {"recording": {"storage_location": "upper_computer"}}, logger)
+    with pytest.raises(RuntimeError, match="upper_recording_storage_unavailable"):
+        recorder.start_session("ros_test", "failed mount", {}, 1)
+    assert not (tmp_path / "car").exists()
+    assert not list(mount.iterdir())
+    assert recorder.status()["storage_mounted"] is False
 
 
 def test_real_http_phase_route_appends_to_session_recorder_timeline(tmp_path):

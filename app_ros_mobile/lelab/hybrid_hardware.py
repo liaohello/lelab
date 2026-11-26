@@ -714,6 +714,7 @@ class HardwareObserver:
             "feedback": feedback,
             "preview": preview,
             "frame_process": frame_process,
+            "base_capture_raw_only": car.get("base_capture_raw_only") is True,
             "trial_motion": (frame_process or {}).get("trial_motion"),
             "devices": {
                 "leader": {"connected": bool(leader.get("connected")),
@@ -1035,6 +1036,7 @@ class HardwarePreviewFacade(HybridPublicFacade):
         out["leader"] = facts.get("leader")
         out["hardware_preview"] = facts.get("preview")
         out["frame_process"] = facts.get("frame_process")
+        out["base_capture_raw_only"] = facts.get("base_capture_raw_only") is True
         out["trial_motion"] = facts.get("trial_motion")
         out["hardware_probe"] = {
             "available": True,
@@ -1054,9 +1056,9 @@ class HardwarePreviewFacade(HybridPublicFacade):
 
         Relative axes must remain continuous. An absolute axis may intentionally
         start far from its mapped target because the operator selected that mapping;
-        the car-side output driver still limits every emitted step. A small soft-limit
-        clip is accepted when the resulting target is already within continuity
-        tolerance of the measured axis.
+        the car-side output driver still limits every emitted step. Saturating the
+        leader input at a calibrated anchor still gives a valid absolute target.
+        A soft-limit clip must stay within continuity tolerance of the measured axis.
         """
         errors: list[str] = []
         approach: list[str] = []
@@ -1069,6 +1071,8 @@ class HardwarePreviewFacade(HybridPublicFacade):
                 continue
             absolute = target.get("mapping_mode") == "absolute_raw_linear"
             clipped = target.get("clipped") is True
+            anchor_only = (absolute and target.get("anchor_clipped") is True
+                           and target.get("limit_clipped") is False)
             pre_clip = target.get("pre_clip_rad")
             intended = (
                 float(pre_clip)
@@ -1078,7 +1082,7 @@ class HardwarePreviewFacade(HybridPublicFacade):
             )
             difference = abs(intended - float(feedback[name]))
             if difference > cls.ENGAGE_CONTINUITY_RAD:
-                if clipped:
+                if clipped and not anchor_only:
                     errors.append(f"arm:{name}")
                 elif absolute:
                     approach.append(str(name))

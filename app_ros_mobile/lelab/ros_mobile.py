@@ -1730,10 +1730,16 @@ def _verify_synced_session(session_dir: Path, manifest: dict) -> dict:
 def sync_session(session_id: str) -> dict:
     if not session_id or "/" in session_id or ".." in session_id:
         raise HTTPException(status_code=400, detail="invalid session id")
+    final = UPPER_SESSIONS / session_id
+    manifest_path = final / "manifest.json"
+    if (final / "READY").is_file() and manifest_path.is_file():
+        local = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if local.get("storage_location") == "upper_computer" and local.get("session_id") == session_id:
+            verification = _guard(lambda: _verify_synced_session(final, local))
+            return {"session_id": session_id, "status": "already_synced", "path": str(final), **verification}
     manifest = _guard(lambda: _http("GET", f"/sessions/{session_id}/manifest", timeout=10.0))
     if manifest.get("status") != "raw_ready" or manifest.get("ready_eligible") is not True:
         raise HTTPException(status_code=409, detail=f"agent session is not ready: {manifest.get('status')}/{manifest.get('error')}")
-    final = UPPER_SESSIONS / session_id
     if final.exists():
         try:
             verification = _verify_synced_session(final, manifest)
@@ -2554,6 +2560,8 @@ def _check_exportable(session_id: str, simulated_offline: bool = False) -> tuple
     if manifest.get("status") != "raw_ready" or manifest.get("ready_eligible") is not True:
         raise HTTPException(status_code=409, detail=f"session is not ready for export: {manifest.get('status')}/{manifest.get('error')}")
     meta = manifest.get("metadata", {})
+    if meta.get("base_capture_raw_only") is True:
+        raise HTTPException(status_code=409, detail="底盘采集只有原始记录，尚无经验证的底盘状态")
     declared_schema = meta.get("export_schema")
     if declared_schema not in (None, ARM_GRIPPER_SCHEMA, HYBRID_SCHEMA, "mobile_9dof_sim"):
         raise HTTPException(status_code=409, detail=f"unknown export schema: {declared_schema}")

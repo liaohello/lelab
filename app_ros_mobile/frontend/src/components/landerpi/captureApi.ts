@@ -29,6 +29,7 @@ export type CaptureTask = {
   attempt_count: number;
   attempts: CaptureAttempt[];
   review_pending: boolean;
+  base_capture_raw_only?: boolean;
   awaiting_reset: boolean;
   car_recording_id: string | null;
   pipeline: {
@@ -103,11 +104,13 @@ export type ErrorText = { title: string; next: string };
 const REASON_TEXT: Array<[string, string, string]> = [
   ["camera_frame_stale", "相机画面过期", "输出已停止，REC 被阻止。检查相机连接（诊断页），画面恢复新鲜后再开始本集。"],
   ["feedback_untrusted", "六路实测反馈不满足安全门限", "输出已停止。检查从臂反馈年龄与标定绑定，不要继续发送目标。"],
+  ["engage_target_not_continuous", "主从臂目标与当前姿态偏差过大", "把主臂调整到接近从臂的姿态，或先检查当前映射，再接合。"],
   ["control_session_changed", "控制会话已换代", "旧集已标记中断并保留证据。先收尾旧采集，再开始新数据集；不会自动续动。"],
   ["service_restarted", "服务重启，旧录制已中断", "旧集保留在车端。点击收尾旧采集后再开始新数据集。"],
   ["review_pending", "还有其他集待审核", "输出已停止。先保存 / 丢弃 / 重录待审核的集，再结束数据集。"],
   ["episode_paused_before_follow", "本集已打开，但跟随未接合", "输出保持关闭。点击恢复跟随会重新对齐并显式接合；不会自动续动。"],
   ["grasp_paused", "抓取边界已记录，跟随已暂停", "输出保持关闭。点击恢复跟随重新对齐并接合，或结束本集。"],
+  ["observe_paused", "观察边界已记录，跟随已暂停", "点击恢复跟随，或结束本集。"],
   ["attempt_paused", "本集输出已暂停", "输出保持关闭。恢复跟随需要显式点击；也可以直接结束本集。"],
   ["task_interrupted", "旧采集已中断", "先收尾旧采集（车端原始包保留），再开始新数据集。"],
   ["estop_latched", "急停已锁存", "确认现场安全后清除急停；清除不会自动恢复运动，需要重新获取控制并显式开始。"],
@@ -125,6 +128,8 @@ const REASON_TEXT: Array<[string, string, string]> = [
   ["leader_serial_missing", "没有检测到 SO-101 主臂", "检查上位机 USB 与主臂连接后重新获取控制。"],
   ["session_not_ready", "控制会话未就绪", "重新获取控制权；页面会自动完成预览与对齐。"],
   ["frame_admission_timeout", "跟随帧未在时限内获得车端确认", "输出已停止。释放故障会话并重新获取控制。"],
+  ["upper_recording_storage_unavailable", "上位机录制存储未连接", "连接上位机录制目录后再开始数据集。"],
+  ["upper_recording_disk_low", "上位机录制磁盘空间不足", "释放上位机录制目录所在磁盘的空间后再开始数据集。"],
   ["disk_low", "车端磁盘不足", "清理车端空间后再开始数据集；原始包不会被写入。"],
   ["device-bound feedback-limit", "反馈范围版本尚未生效", "输出未开启。到“标定 / 映射 / 范围”保存一次允许范围，再在诊断页完成一次显式接合使版本生效，然后回来开始数据集。"],
   ["feedback_limits_reenable_required", "反馈范围版本与驱动加载不一致", "输出未开启。重新获取控制并显式接合一次，使驱动加载最新保存的范围版本。"],
@@ -132,6 +137,15 @@ const REASON_TEXT: Array<[string, string, string]> = [
 
 export function reasonText(raw: unknown): ErrorText & { detail: string } {
   const detail = typeof raw === "string" ? raw : raw == null ? "" : JSON.stringify(raw);
+  const jointRange = /frame_emitter_feedback_out_of_range:(\w+):raw=([^:\s]+):allowed=(-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)/.exec(detail);
+  if (jointRange) {
+    const [, joint, position, min, max] = jointRange;
+    return {
+      title: `从臂 ${joint} 超出接合范围`,
+      next: `当前读数 ${position}，允许 ${min} 至 ${max}。检查从臂姿态，读数回到范围后再接合。`,
+      detail,
+    };
+  }
   for (const [needle, title, next] of REASON_TEXT) {
     if (detail.includes(needle)) return { title, next, detail };
   }

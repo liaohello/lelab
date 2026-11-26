@@ -153,6 +153,7 @@ export default function LanderpiWorkspace() {
   const { baseUrl, fetchWithHeaders, clientId } = useApi();
   const [capture, setCapture] = useState<CaptureStatus | null>(null);
   const [lastOk, setLastOk] = useState<number | null>(null);
+  const [statusError, setStatusError] = useState<{ raw: unknown } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<{ raw: unknown; action?: string } | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -173,6 +174,7 @@ export default function LanderpiWorkspace() {
         const next = await captureStatus(baseUrl, fetchWithHeaders);
         setCapture(next);
         setLastOk(Date.now());
+        setStatusError(null);
         if (next.recording_active && next.elapsed_s != null) {
           lastElapsedRef.current = { at: Date.now(), value: next.elapsed_s };
           setDisplayElapsed(next.elapsed_s);
@@ -192,8 +194,7 @@ export default function LanderpiWorkspace() {
           }),
         }].slice(-HISTORY_LEN));
       } catch (exc) {
-        setLastOk(null);
-        setError({ raw: (exc as any)?.detail ?? (exc as any)?.message ?? exc });
+        setStatusError({ raw: (exc as any)?.detail ?? (exc as any)?.message ?? exc });
       }
     })();
     refreshing.current = task.finally(() => { refreshing.current = null; });
@@ -202,7 +203,9 @@ export default function LanderpiWorkspace() {
 
   useEffect(() => {
     void refresh();
-    const poll = window.setInterval(() => void refresh(), 1000);
+    const poll = window.setInterval(() => {
+      if (!refreshing.current) void refresh();
+    }, 1000);
     return () => window.clearInterval(poll);
   }, [refresh]);
 
@@ -233,6 +236,7 @@ export default function LanderpiWorkspace() {
       pending = true;
       try {
         await request("/ros-mobile/hybrid/heartbeat", identity);
+        setError((current) => current?.action === "heartbeat" ? null : current);
       } catch (exc) {
         setError({ raw: (exc as any)?.detail ?? (exc as any)?.message ?? exc, action: "heartbeat" });
       } finally {
@@ -247,7 +251,9 @@ export default function LanderpiWorkspace() {
   const applyResponse = useCallback((response: CaptureResponse) => {
     if (response.capture) setCapture(response.capture);
     if (response.state === "failed") {
-      setError({ raw: `${response.error?.reason ?? "unknown"}: ${response.error?.detail ?? ""}`, action: response.action });
+      const reason = response.error?.reason ?? "unknown";
+      const detail = response.error?.detail;
+      setError({ raw: detail && detail !== reason ? `${reason}: ${detail}` : reason, action: response.action });
     } else {
       setError(null);
     }
@@ -302,10 +308,16 @@ export default function LanderpiWorkspace() {
   const cameraOk = video.available === true && video.stale === false
     && typeof video.age_s === "number" && video.age_s <= 1;
   const outputsOn = control.outputs_enabled === true;
+  const baseGamepad = online && typeof control.frame_process?.age_s === "number"
+    && control.frame_process.age_s <= 1 ? control.frame_process.base_gamepad : null;
   const estopLatched = control.estop_latched === true || control.state === "estop";
 
   const errorInfo = useMemo(() => {
+    if (!online && statusError) return reasonText(statusError.raw);
     if (error) return reasonText(error.raw);
+    if (stage === "paused" && attempt?.pause_reason?.startsWith("frame_emitter_feedback_out_of_range:")) {
+      return reasonText(attempt.pause_reason);
+    }
     if (stage === "interrupted" && attempt?.interrupt_reason) {
       return reasonText(attempt.interrupt_reason);
     }
@@ -313,7 +325,7 @@ export default function LanderpiWorkspace() {
     if (stage === "pipeline_failed" && task?.pipeline?.error) return reasonText(task.pipeline.error);
     if (capture?.control_error) return reasonText(capture.control_error.reason);
     return null;
-  }, [error, stage, attempt, control, task, capture]);
+  }, [online, statusError, error, stage, attempt, control, task, capture]);
 
   const primary = useMemo((): { label: string; run: () => void; disabled?: boolean; hint: string; hide?: boolean } => {
     switch (stage) {
@@ -379,7 +391,8 @@ export default function LanderpiWorkspace() {
         return { label: "重试同步导出", run: () => void run("重试同步导出", "retry_pipeline"), hint: "原始数据已保留；也可到数据页手动处理。" };
       case "done":
         return {
-          label: "开始新数据集", hint: "本数据集已导出；可回看或开始新的采集。",
+          label: "开始新数据集", hint: task?.base_capture_raw_only
+            ? "原始录包已同步。" : "本数据集已导出；可回看或开始新的采集。",
           run: () => void (async () => {
             if (!sessionReady) {
               const response = await run("获取控制", "acquire", { owner: clientId });
@@ -392,10 +405,11 @@ export default function LanderpiWorkspace() {
       default:
         return { label: "等待状态", run: () => {}, disabled: true, hint: "" };
     }
-  }, [stage, run, clientId, cameraOk, feedbackOk, resultLabel, sessionReady, sessionId, sessionEpoch, request, refresh, baseUrl, fetchWithHeaders, applyResponse]);
+  }, [stage, run, clientId, cameraOk, feedbackOk, resultLabel, sessionReady, sessionId, sessionEpoch, request, refresh, baseUrl, fetchWithHeaders, applyResponse, task?.base_capture_raw_only]);
 
   const reviewAttempt = stage === "review" ? attempt : null;
-  const phaseLabel = attempt?.phase === "grasp" ? "抓取" : attempt?.phase === "observe" ? "观察" : "—";
+  const phaseLabel = attempt?.phase === "drive" ? "驶近"
+    : attempt?.phase === "grasp" ? "抓取" : attempt?.phase === "observe" ? "观察" : "—";
   const cameraState = !online ? "不可确认" : !sessionId ? "只读检查" : cameraOk ? "实时" : "画面过期";
 
   return (
@@ -421,7 +435,7 @@ export default function LanderpiWorkspace() {
               <div className="min-w-0 flex-1">
                 <p className="font-medium">{errorInfo.title}</p>
                 <p className="mt-1 text-xs text-red-200/80">
-                  {outputsOn ? "注意：输出仍开启，请先暂停。" : "当前输出已停止。"}{" "}{errorInfo.next}
+                  {!online ? "车端输出状态不可确认。" : outputsOn ? "注意：输出仍开启，请先暂停。" : "当前输出已停止。"}{" "}{errorInfo.next}
                 </p>
                 <details className="mt-2 text-xs">
                   <summary className="cursor-pointer">查看详情</summary>
@@ -501,6 +515,36 @@ export default function LanderpiWorkspace() {
                   <span className="text-slate-400">本集阶段</span>
                   <span className="font-medium text-slate-100" data-testid="attempt-phase">{phaseLabel}</span>
                 </div>
+                {outputsOn && control.frame_process?.uncommanded_joints?.length > 0 && (
+                  <p className="mt-2 text-amber-200">
+                    {control.frame_process.uncommanded_joints.join("、")} 暂无可发送的限速目标，其余轴继续跟随。
+                  </p>
+                )}
+                {task?.base_capture_raw_only && (
+                  <p className="mt-2 text-slate-300" data-testid="base-gamepad-status">
+                    {baseGamepad?.output_mode === "linux_preview" ? "实机只读 · 底盘输出锁定"
+                      : baseGamepad?.armed ? (baseGamepad.output_mode === "hardware_set_motor" ? "实机底盘 · 摇杆可驾驶" : "模拟底盘 · 摇杆可驾驶")
+                      : baseGamepad?.reauthorization_required ? "底盘待重新授权"
+                      : baseGamepad?.permitted
+                      ? (baseGamepad.activation === "stick_only" ? "摇杆回中后可驾驶" : "摇杆回中后按住使能键")
+                      : baseGamepad ? "底盘锁定" : "底盘状态未知"}
+                    {baseGamepad?.input_age_s != null && ` · 输入年龄 ${baseGamepad.input_age_s.toFixed(2)} s`}
+                  </p>
+                )}
+                {stage === "recording" && attempt.phase === "drive" && baseGamepad?.reauthorization_required && (
+                  <button type="button" data-testid="reauthorize-drive" disabled={!!busy}
+                    onClick={() => void run("重新授权底盘", "resume_follow")}
+                    className="mt-2 w-full rounded-lg border border-sky-600 bg-sky-950/40 px-3 py-2 text-sm text-sky-100 disabled:opacity-40">
+                    重新授权底盘
+                  </button>
+                )}
+                {stage === "recording" && attempt.phase === "drive" && (
+                  <button type="button" data-testid="mark-observe" disabled={!!busy}
+                    onClick={() => void run("停车并开始观察", "mark_observe")}
+                    className="mt-2 w-full rounded-lg border border-sky-600 bg-sky-950/40 px-3 py-2 text-sm text-sky-100 disabled:opacity-40">
+                    停车并开始观察
+                  </button>
+                )}
                 {stage === "recording" && attempt.phase === "observe" && (
                   <button type="button" data-testid="mark-grasp" disabled={!!busy}
                     onClick={() => void run("标记抓取", "mark_grasp")}
@@ -559,15 +603,15 @@ export default function LanderpiWorkspace() {
 
             {stage === "pipeline" && task && (
               <div className="mt-3 rounded-lg border border-slate-700 bg-slate-950/70 p-3 text-xs text-slate-300" data-testid="pipeline-progress">
-                <p>原始录包收尾 → 校验同步 → LeRobot 导出</p>
+                <p>{task.base_capture_raw_only ? "原始录包收尾 → 校验同步" : "原始录包收尾 → 校验同步 → LeRobot 导出"}</p>
                 <p className="mt-1 text-slate-400">当前：{task.pipeline?.stage ?? "stopping"}{task.pipeline?.job_id ? ` · ${task.pipeline.job_id}` : ""}</p>
                 <Link to="/landerpi/data" className="mt-1 inline-block text-sky-300 underline">到数据页查看</Link>
               </div>
             )}
             {stage === "done" && task && (
               <div className="mt-3 rounded-lg border border-emerald-800/70 bg-emerald-950/20 p-3 text-xs text-emerald-100" data-testid="pipeline-done">
-                <p>数据集已导出：{task.pipeline?.repo_id ?? "—"}</p>
-                <p className="mt-1 text-emerald-300/70">{task.pipeline?.total_episodes ?? "—"} 集 · {task.pipeline?.total_frames ?? "—"} 帧</p>
+                <p>{task.base_capture_raw_only ? "原始录包已同步" : `数据集已导出：${task.pipeline?.repo_id ?? "—"}`}</p>
+                {!task.base_capture_raw_only && <p className="mt-1 text-emerald-300/70">{task.pipeline?.total_episodes ?? "—"} 集 · {task.pipeline?.total_frames ?? "—"} 帧</p>}
                 <Link to="/landerpi/data" className="mt-1 inline-block text-sky-300 underline">回看数据</Link>
               </div>
             )}

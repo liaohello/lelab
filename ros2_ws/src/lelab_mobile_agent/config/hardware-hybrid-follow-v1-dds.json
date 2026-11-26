@@ -188,7 +188,8 @@
     "stream_stale_s": 1.5,
     "clock_domain": "hardware_system_time",
     "feedback_provenance_required": true,
-    "configuration_status": "real_follow_acceptance_pending"
+    "configuration_status": "real_follow_acceptance_pending",
+    "storage_location": "upper_computer"
   },
   "training_export": {
     "enabled": true,

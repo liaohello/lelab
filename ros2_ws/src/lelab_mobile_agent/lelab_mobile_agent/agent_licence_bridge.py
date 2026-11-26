@@ -324,7 +324,9 @@ class AgentLicenceBridge:
             "frames_emitted": (document.get("counters") or {}).get("frames_emitted"),
             "frames_refused": (document.get("counters") or {}).get("frames_refused"),
             "last_refusal": document.get("last_refusal"),
+            "uncommanded_joints": document.get("uncommanded_joints", []),
             "feedback_raw_limits": document.get("feedback_raw_limits"),
+            "base_gamepad": document.get("base_gamepad"),
             "paused": document.get("paused"),
             "outputs_enabled": document.get("outputs_enabled"),
             # The emitter's own stop state. The agent's latch says nobody may grant

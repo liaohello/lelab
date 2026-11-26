@@ -14,7 +14,9 @@ producing a plausible-looking training row.
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -59,6 +61,29 @@ class _Bytes:
 
     def read(self, *args):
         return self._stream.read(*args)
+
+
+def test_verify_direct_upper_session_while_car_is_offline(tmp_path, monkeypatch):
+    built = _prepare(tmp_path, monkeypatch, episodes=1, seconds=0.5)
+    upper = ros_mobile.UPPER_SESSIONS / SESSION_ID
+    shutil.copytree(built["session_dir"], upper)
+    manifest_path = upper / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest.update(storage_location="upper_computer", session_id=SESSION_ID)
+    manifest_path.write_text(json.dumps(manifest))
+    ready_path = upper / "READY"
+    ready = json.loads(ready_path.read_text())
+    ready["manifest_sha256"] = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    ready_path.write_text(json.dumps(ready))
+
+    def offline(*args, **kwargs):
+        pytest.fail("Verifying an upper-computer recording must not contact the car")
+
+    monkeypatch.setattr(ros_mobile, "_http", offline)
+    monkeypatch.setattr(ros_mobile.urllib.request, "urlopen", offline)
+    result = ros_mobile.sync_session(SESSION_ID)
+    assert result["status"] == "already_synced"
+    assert result["verified_files"] == len(manifest["files"])
 
 
 def test_two_short_episodes_export_and_read_back_as_nine_dimensions(tmp_path, monkeypatch):

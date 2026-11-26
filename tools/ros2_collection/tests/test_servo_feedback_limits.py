@@ -81,6 +81,39 @@ def test_driver_accepts_configured_negative_readback_but_never_sends_negative_ho
         rad_to_raw("joint3", (-50 - 500) * RADIANS_PER_ENCODER_TICK)
 
 
+def test_joint_capture_follows_at_negative_readback_limit_without_jumping():
+    readback = Readback({**RAW, "joint3": -50})
+    publisher = Publisher()
+    clock = Clock()
+    driver = RosServoOutputDriver(
+        Node(), publisher, servos_position_type=Positions, servo_position_type=Position,
+        readback=readback, limits_rad={name: (-2.5, 2.5) for name in RAW},
+        clock=clock, max_step_rad_s=0.15, hold_outside_command_range=True)
+    targets = [(name, -500 * RADIANS_PER_ENCODER_TICK if name == "joint3" else 0.0)
+               for name in RAW]
+    driver.enable()
+
+    for _ in range(3):
+        clock.now += 0.15
+        result = driver.submit_frame(targets)
+        assert result["uncommanded_joints"] == ["joint3"]
+        assert result["servo_ids"] == [1, 2, 4, 5, 10]
+        assert "joint3" not in result["published_positions_raw"]
+
+    assert driver.stop("paused")["hold_published"] is True
+    assert [item.id for item in publisher.messages[-1].position] == [1, 2, 4, 5, 10]
+
+    driver.enable()
+    readback.raw["joint3"] = -3
+    result = driver.submit_frame(targets)
+    assert result["combined"] is True
+    assert result["uncommanded_joints"] == []
+    assert result["published_positions_raw"]["joint3"] == 0
+    readback.raw["joint3"] = -51
+    with pytest.raises(RuntimeError, match="frame_emitter_feedback_out_of_range:joint3:raw=-51:"):
+        driver.submit_frame(targets)
+
+
 def test_agent_configuration_requires_token_and_stopped_unbound_emitter(tmp_path):
     from lelab_mobile_agent.agent import MobileAgent, ApiError
     agent = object.__new__(MobileAgent)

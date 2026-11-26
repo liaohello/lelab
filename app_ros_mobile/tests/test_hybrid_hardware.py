@@ -305,3 +305,15 @@ def test_engage_still_rejects_relative_jump_and_large_clipped_absolute_target():
 
     assert errors == ["arm:joint1", "arm:joint2"]
     assert approach == []
+
+
+def test_engage_treats_calibrated_anchor_saturation_as_bounded_absolute_approach():
+    target = {
+        "joint": "joint3", "target_rad": -1.968731, "pre_clip_rad": -1.968731,
+        "mapping_mode": "absolute_raw_linear", "clipped": True,
+        "anchor_clipped": True, "limit_clipped": False,
+    }
+    feedback = {"joint3": -2.060885}
+    gate = hybrid_hardware.HardwarePreviewFacade._engage_target_plan
+    assert gate([target], feedback) == ([], ["joint3"])
+    assert gate([{**target, "limit_clipped": True}], feedback) == (["arm:joint3"], [])

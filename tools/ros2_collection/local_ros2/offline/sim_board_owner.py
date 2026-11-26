@@ -47,6 +47,7 @@ from ros_robot_controller_msgs.msg import (
     BusServoState, ServoPosition, ServosPosition, SetBusServoState,
 )
 from ros_robot_controller_msgs.srv import GetBusServoState
+from lelab_mobile_agent.local_gamepad_base import MOTOR_IDS, OFFLINE_MOTOR_TOPIC
 
 SERVO_IDS = (1, 2, 3, 4, 5, 10)
 NAMES = {1: "joint1", 2: "joint2", 3: "joint3", 4: "joint4", 5: "joint5", 10: "r_joint"}
@@ -101,6 +102,36 @@ class SimBoardOwner(Node):
         self.health = self.create_publisher(String, args.health_topic, 10)
         self.create_timer(args.scan_period_s, self._scan)
         self.create_timer(0.2, self._write_state)
+        self.base = None
+        if args.gamepad:
+            from ros_robot_controller_msgs.msg import MotorsState
+
+            self.base = {"target_rps": [0.0] * 4, "received": 0,
+                         "last_receive_mono": None, "last_zero_mono": None,
+                         "zero_source": None, "watchdog_trips": 0}
+            self.create_subscription(MotorsState, OFFLINE_MOTOR_TOPIC, self._on_base, qos)
+            self.create_timer(0.02, self._base_watchdog)
+
+    def _on_base(self, message):
+        ids = tuple(int(item.id) for item in message.data)
+        values = [float(item.rps) for item in message.data]
+        if ids != MOTOR_IDS or not all(math.isfinite(value) and abs(value) <= 3 for value in values):
+            return
+        now = time.monotonic()
+        with self.lock:
+            self.base["received"] += 1
+            self.base["last_receive_mono"] = now
+            self.base["target_rps"] = values
+            if not any(values):
+                self.base.update(last_zero_mono=now, zero_source="received_zero_command")
+
+    def _base_watchdog(self):
+        now = time.monotonic()
+        with self.lock:
+            if any(self.base["target_rps"]) and now - self.base["last_receive_mono"] >= 0.35:
+                self.base["watchdog_trips"] += 1
+                self.base.update(target_rps=[0.0] * 4, last_zero_mono=now,
+                                 zero_source="simulated_owner_watchdog")
 
     def _on_command(self, message: ServosPosition) -> None:
         ids = [int(item.id) for item in message.position]
@@ -283,6 +314,7 @@ class SimBoardOwner(Node):
                 "target": {NAMES[servo_id]: self.target[servo_id] for servo_id in SERVO_IDS
                            if servo_id in self.target},
                 "last_command": self.last_command,
+                "base_motor_command": self.base,
                 "faults": {"reject_commands": bool(self.args.reject_commands),
                            "stall_after_s": self.args.stall_after_s,
                            "extra_servo_id": self.args.extra_servo_id,
@@ -313,6 +345,7 @@ def main() -> int:
     parser.add_argument("--initial-raw", default="",
                         help="e.g. joint1=527,joint2=632 (clamped 0-1000)")
     parser.add_argument("--state-path", default="/out/state/sim_board_owner.json")
+    parser.add_argument("--gamepad", action="store_true")
     args = parser.parse_args()
     if "serial" in sys.modules:
         print("refusing to start: a serial module is already loaded", file=sys.stderr)

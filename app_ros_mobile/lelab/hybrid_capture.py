@@ -30,7 +30,7 @@ from typing import Any, Callable
 from .hybrid_recording import RecordingError
 
 CAPTURE_ACTIONS = (
-    "acquire", "open_dataset", "start_episode", "mark_grasp", "end_episode",
+    "acquire", "open_dataset", "start_episode", "mark_observe", "mark_grasp", "end_episode",
     "review", "next_episode", "resume_follow", "close_dataset", "recover",
     "retry_pipeline",
 )
@@ -347,7 +347,7 @@ class CaptureOrchestrator:
             "calibration_bundle_hash", "car_recording_id", "car_session_path",
             "clock_domain", "clock_epoch", "profile", "simulated", "offline_6d",
             "saved_count", "awaiting_reset", "interrupt_reason", "pipeline",
-            "feedback_limits_version")}
+            "feedback_limits_version", "base_capture_raw_only")}
         view["attempt_count"] = len(task.get("attempts", []))
         view["attempts"] = [{key: attempt.get(key) for key in (
             "attempt_id", "episode_id", "state", "phase", "result",
@@ -499,6 +499,12 @@ class CaptureOrchestrator:
                 or not 1 <= target_episodes <= 10000):
             raise CaptureError("invalid_target_episodes", repr(target_episodes), status_code=400)
         append_to = None
+        base = (status.get("frame_process") or {}).get("base_gamepad") or {}
+        raw_only = status.get("base_capture_raw_only") is True or (
+            base.get("available") is True and (
+                base.get("capture_raw_only") is True or base.get("data_identity") == "simulated_offline"))
+        if raw_only and mode == "append":
+            raise CaptureError("base_capture_raw_only", "底盘试验仅保留原始记录，无法追加到 LeRobot 数据集")
         if mode == "append":
             repo_id = str(payload.get("repo_id") or "").strip()
             if not repo_id or "/" not in repo_id or ".." in repo_id:
@@ -529,6 +535,7 @@ class CaptureOrchestrator:
             "profile": status.get("profile"),
             "simulated": status.get("simulated") is True,
             "offline_6d": bool(getattr(self.facade, "offline_agent_recording", False)),
+            "base_capture_raw_only": raw_only,
             "feedback_limits_version": limits.get("version"),
             "saved_count": 0, "awaiting_reset": False,
             "attempts": [], "pipeline": {"stage": "idle"},
@@ -617,6 +624,11 @@ class CaptureOrchestrator:
         self.facade.set_arm_state({"action": "arm", **identity})
         self.facade.set_arm_state({"action": "engage", **identity})
 
+    def _validate_follow_readback(self) -> None:
+        validate = getattr(self.facade, "validate_follow_readback", None)
+        if callable(validate):
+            validate()
+
     def _act_start_episode(self, payload: dict[str, Any]) -> dict[str, Any]:
         status = self._facade_status()
         task = self._require_task(status)
@@ -628,6 +640,7 @@ class CaptureOrchestrator:
             if task.get("awaiting_reset"):
                 raise CaptureError("reset_not_acknowledged",
                                    "acknowledge the reset step before the next episode")
+        self._validate_follow_readback()
         attempt_id = f"att_{uuid.uuid4().hex[:12]}"
         attempt = {
             "attempt_id": attempt_id, "episode_id": attempt_id,
@@ -643,11 +656,12 @@ class CaptureOrchestrator:
             self._journal(task, "attempt_starting", attempt_id=attempt_id)
             self._save_task(task)
         identity = {"session_id": task["session_id"], "session_epoch": task["session_epoch"]}
+        initial_phase = "drive" if task.get("base_capture_raw_only") else "observe"
         try:
             out = self.recording.dispatch("start_episode", {
                 "episode_id": attempt_id, "task": task["description"], **identity})
             started_ns = out.get("episode_started_time_ns")
-            self.recording.dispatch("set_phase", {"phase": "observe", **identity})
+            self.recording.dispatch("set_phase", {"phase": initial_phase, **identity})
         except Exception as exc:
             with self.lock:
                 attempt["state"] = "failed"
@@ -664,7 +678,7 @@ class CaptureOrchestrator:
         except Exception as exc:
             with self.lock:
                 attempt["state"] = "paused"
-                attempt["phase"] = "observe"
+                attempt["phase"] = initial_phase
                 attempt["started_time_ns"] = started_ns
                 attempt["started_upper_mono_ns"] = self.clock_ns()
                 attempt["pause_reason"] = _reason_of(exc)["reason"]
@@ -677,7 +691,7 @@ class CaptureOrchestrator:
                                f"{attempt['pause_reason']}; resume explicitly") from exc
         with self.lock:
             attempt["state"] = "recording"
-            attempt["phase"] = "observe"
+            attempt["phase"] = initial_phase
             attempt["started_time_ns"] = started_ns
             attempt["started_upper_mono_ns"] = self.clock_ns()
             attempt["eligibility_reasons"] = []
@@ -717,26 +731,34 @@ class CaptureOrchestrator:
                 return
             raise
 
+    def _act_mark_observe(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return self._change_phase("observe", previous="drive")
+
     def _act_mark_grasp(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return self._change_phase("grasp", previous="observe")
+
+    def _change_phase(self, phase: str, *, previous: str) -> dict[str, Any]:
         status = self._facade_status()
         task = self._require_task(status)
         with self.lock:
             attempt = self._open_attempt(task)
             if attempt is None or attempt["state"] not in ("recording", "paused"):
                 raise CaptureError("episode_not_open")
-            if attempt.get("phase") == "grasp":
-                raise CaptureError("phase_already_active", "grasp")
+            if attempt.get("phase") == phase:
+                raise CaptureError("phase_already_active", phase)
+            if attempt.get("phase") != previous:
+                raise CaptureError("phase_transition_invalid", f"{attempt.get('phase')} → {phase}")
             was_following = attempt["state"] == "recording"
         identity = {"session_id": task["session_id"], "session_epoch": task["session_epoch"]}
-        self.recording.dispatch("set_phase", {"phase": "grasp", **identity})
+        self.recording.dispatch("set_phase", {"phase": phase, **identity})
         with self.lock:
-            attempt["phase"] = "grasp"
+            attempt["phase"] = phase
             self._journal(task, "phase_marked", attempt_id=attempt["attempt_id"],
-                          phase="grasp")
+                          phase=phase)
             self._save_task(task)
         if not was_following:
             # Marking a phase while paused never sneaks motion back on.
-            return {"attempt_id": attempt["attempt_id"], "phase": "grasp",
+            return {"attempt_id": attempt["attempt_id"], "phase": phase,
                     "outputs_enabled": False}
         try:
             self._engage_follow(identity)
@@ -747,13 +769,13 @@ class CaptureOrchestrator:
                 self._journal(task, "attempt_paused", attempt_id=attempt["attempt_id"],
                               reason=attempt["pause_reason"])
                 self._save_task(task)
-            raise CaptureError("grasp_paused",
-                               f"grasp boundary recorded; follow paused: "
+            raise CaptureError(f"{phase}_paused",
+                               f"{phase} boundary recorded; follow paused: "
                                f"{attempt['pause_reason']}; resume explicitly") from exc
         with self.lock:
             attempt["state"] = "recording"
             self._save_task(task)
-        return {"attempt_id": attempt["attempt_id"], "phase": "grasp",
+        return {"attempt_id": attempt["attempt_id"], "phase": phase,
                 "outputs_enabled": True}
 
     def _act_end_episode(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -810,8 +832,9 @@ class CaptureOrchestrator:
             attempt["decided_wall"] = time.time()
             if decision == "save":
                 task["saved_count"] = int(task.get("saved_count", 0)) + 1
-                attempt["export_eligible"] = True
-                attempt["eligibility_reasons"] = []
+                attempt["export_eligible"] = not task.get("base_capture_raw_only")
+                attempt["eligibility_reasons"] = ([] if attempt["export_eligible"]
+                                                  else ["base_capture_raw_only"])
             else:
                 attempt["export_eligible"] = False
                 attempt["eligibility_reasons"] = [f"operator_{decision}"]
@@ -843,9 +866,22 @@ class CaptureOrchestrator:
             self._reconcile(status)
             task = self._active_task()
             attempt = self._open_attempt(task)
+        base = (status.get("frame_process") or {}).get("base_gamepad") or {}
+        if (attempt is not None and attempt.get("phase") == "drive"
+                and attempt.get("state") == "recording"
+                and base.get("reauthorization_required") is True):
+            self.facade.prepare_recording_phase()
         identity = {"session_id": status["session_id"],
                     "session_epoch": status.get("session_epoch")}
-        self._engage_follow(identity)
+        try:
+            self._validate_follow_readback()
+            self._engage_follow(identity)
+        except Exception as exc:
+            with self.lock:
+                if attempt is not None and task is not None and attempt["state"] == "paused":
+                    attempt["pause_reason"] = _reason_of(exc)["reason"]
+                    self._save_task(task)
+            raise
         with self.lock:
             if attempt is not None and task is not None:
                 attempt["state"] = "recording"
@@ -998,7 +1034,8 @@ class CaptureOrchestrator:
         try:
             if not session_id:
                 raise CaptureError("car_recording_id_missing")
-            if self.sync_fn is None or self.export_spawn is None or self.export_status is None:
+            raw_only = task.get("base_capture_raw_only")
+            if self.sync_fn is None or (not raw_only and (self.export_spawn is None or self.export_status is None)):
                 raise CaptureError("pipeline_not_wired", status_code=503)
             with self.lock:
                 task["pipeline"] = {"stage": "syncing", "updated_wall": time.time()}
@@ -1011,6 +1048,11 @@ class CaptureOrchestrator:
                 self._journal(task, "sync_completed", session_id=session_id)
                 self._save_task(task)
                 self._write_review_file(task)
+                if raw_only:
+                    task["stage"] = "done"
+                    task["pipeline"]["stage"] = "raw_synced"
+                    self._save_task(task)
+                    return
             job = self.export_spawn(session_id, False, bool(task.get("offline_6d")))
             job_id = job.get("job_id")
             with self.lock:

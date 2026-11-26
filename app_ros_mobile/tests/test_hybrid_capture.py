@@ -29,6 +29,7 @@ class FakeFacade:
         self._next_epoch = 100
         self.prepare_calls = 0
         self.acquire_calls = 0
+        self.frame_process = {}
 
     def status(self):
         return {"state": self.state, "session_id": self.session_id,
@@ -37,7 +38,7 @@ class FakeFacade:
                 "channels": {"arm": {"state": self.arm_state}},
                 "video": dict(self.video), "feedback": dict(self.feedback),
                 "last_error": None, "calibration_bundle_hash": "bundle-test",
-                "profile": "test-profile", "simulated": False, "frame_process": {}}
+                "profile": "test-profile", "simulated": False, "frame_process": self.frame_process}
 
     def acquire_session(self, request):
         self.acquire_calls += 1
@@ -198,6 +199,27 @@ def test_two_episode_full_flow(rig):
     assert review["session_epoch"] == task["session_epoch"]
 
 
+def test_gamepad_drive_requires_observe_and_closes_raw_only(rig):
+    orch = rig["orch"]
+    rig["facade"].frame_process = {
+        "base_gamepad": {"available": True, "data_identity": "simulated_offline"},
+    }
+    open_task(rig)
+    assert orch.status()["task"]["base_capture_raw_only"] is True
+    ok(call(orch, "start_episode"))
+    assert orch.status()["attempt"]["phase"] == "drive"
+    assert call(orch, "mark_grasp")["state"] == "failed"
+    ok(call(orch, "mark_observe"))
+    assert orch.status()["attempt"]["phase"] == "observe"
+    ok(call(orch, "mark_grasp"))
+    ended = ok(call(orch, "end_episode", result="unknown"))
+    ok(call(orch, "review", attempt_id=ended["result"]["attempt_id"], decision="save"))
+    ok(call(orch, "close_dataset"))
+    assert orch.status()["task"]["pipeline"]["stage"] == "raw_synced"
+    assert len(rig["sync_calls"]) == 1
+    assert rig["export_calls"] == []
+
+
 def test_discard_and_rerecord_keep_old_attempts(rig):
     orch = rig["orch"]
     open_task(rig)
@@ -344,6 +366,21 @@ def test_camera_gate_blocks_rec_before_attempt_exists(rig):
     refused = call(orch, "start_episode")
     assert refused["state"] == "failed"
     assert refused["error"]["reason"] == "camera_frame_stale"
+    assert orch.status()["task"]["attempts"] == []
+    assert orch.status()["recording_active"] is False
+
+
+def test_follower_observation_limit_blocks_rec_before_attempt_exists(rig):
+    orch = rig["orch"]
+    open_task(rig)
+
+    def validate():
+        raise RuntimeError("frame_emitter_feedback_out_of_range:joint3:raw=-63.0:allowed=-50..1000")
+
+    rig["facade"].validate_follow_readback = validate
+    refused = call(orch, "start_episode")
+    assert refused["state"] == "failed"
+    assert refused["error"]["reason"].startswith("frame_emitter_feedback_out_of_range:joint3")
     assert orch.status()["task"]["attempts"] == []
     assert orch.status()["recording_active"] is False
 

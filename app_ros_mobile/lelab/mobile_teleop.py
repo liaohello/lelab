@@ -345,12 +345,15 @@ class TeleopMapper:
             limited = min(filtered, last + step_limit) if filtered > last else max(filtered, last - step_limit)
         self._filtered[follower] = limited
         self._last_target[follower] = limited
+        limit_clipped = abs(raw - clipped) > 1e-9
+        anchor_clipped = absolute_raw is not None and abs(absolute_raw - anchor_raw) > 1e-9
         return {
             "joint": follower,
             "pre_clip_rad": round(raw, 6),
             "target_rad": round(limited, 6),
-            "clipped": (abs(raw - clipped) > 1e-9 or
-                        (absolute_raw is not None and abs(absolute_raw - anchor_raw) > 1e-9)),
+            "clipped": limit_clipped or anchor_clipped,
+            "limit_clipped": limit_clipped,
+            "anchor_clipped": anchor_clipped,
             "soft_limits_rad": [soft_low, soft_high],
             "hardware_limits_rad": [low, high],
             "direction": direction,

@@ -34,6 +34,7 @@ from typing import Any
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
+from rclpy.signals import SignalHandlerOptions
 from std_msgs.msg import Int32MultiArray, String
 
 from ros_robot_controller_msgs.msg import (
@@ -42,6 +43,7 @@ from ros_robot_controller_msgs.msg import (
 from ros_robot_controller_msgs.srv import GetBusServoState
 
 from .licence_ipc import LicenceMirror
+from . import local_gamepad_base as gamepad_base
 from .ros_servo_output import RosServoOutputDriver
 from .ros_servo_readback import RosServoFeedbackTopicDriver, TorqueStateReadback
 from .teleop_frame_v1 import (
@@ -193,6 +195,13 @@ class CarControlRuntime:
                          "hold_frames": 0, "window_issues": 0, "licences_lost": 0,
                          "contexted_rows": 0, "uncontexted_rows": 0}
         self.last_emit_mono: float | None = None
+        self.last_emit_stream_epoch: int | None = None
+        self.local_base = None
+        self.gamepad_preview = None
+        self.gamepad_input = None
+        self.gamepad_generation = None
+        self.base_motor_topic = None
+        self.base_trace = None
         # Interval between emitted frames, kept so a benchmark can report publish
         # interval percentiles without re-deriving them from counters.
         self.emit_intervals_ms: collections.deque = collections.deque(maxlen=2000)
@@ -250,7 +259,123 @@ class CarControlRuntime:
     # -- the loop ----------------------------------------------------------
     def _tick(self) -> None:
         with self.control_lock:
-            self._tick_locked()
+            try:
+                self._tick_locked()
+                self._tick_base()
+            except Exception:
+                self._stop_base("control_tick_failed")
+                raise
+
+    def _on_local_joy(self, message):
+        stamp = message.header.stamp
+        with self.control_lock:
+            self.local_base.ingest(message.axes, message.buttons, now_ns=time.monotonic_ns(),
+                                   source_ns=stamp.sec * 1_000_000_000 + stamp.nanosec,
+                                   ros_now_ns=self.node.get_clock().now().nanoseconds)
+
+    def _stop_base(self, reason):
+        base = getattr(self, "local_base", None)
+        if base is not None:
+            try:
+                base.stop(reason, time.monotonic_ns())
+            except Exception as exc:
+                # The isolated base publisher must not block the arm stop.
+                base.reason = "base_zero_publish_failed"
+                self.node.get_logger().error(f"{base.reason}: {type(exc).__name__}")
+
+    def _tick_base(self):
+        base = getattr(self, "local_base", None)
+        preview = getattr(self, "gamepad_preview", None)
+        if base is None and preview is None:
+            return
+        reader = getattr(self, "gamepad_input", None)
+        raw_gamepad = None if reader is None else reader.snapshot()
+        now = time.monotonic_ns()
+        lease = self.licence.current() or {}
+        context = self.licence.context() or {}
+        if (not lease or str(context.get("session_epoch")) != str(lease.get("session_epoch"))
+                or context.get("calibration_bundle_hash") != lease.get("calibration_bundle_hash")):
+            context = {}
+        admission = self.admission
+        scope = None
+        reason = "base_licence_missing"
+        if base is not None and base.trial:
+            # Chassis-only trial.  There are no arm frames and no episode to bind to,
+            # so the licence itself is the authority: a base permit inside a bound
+            # session/bundle.  The arm has no driver here and stays locked; the base
+            # keeps its own owner/HID/neutral gates inside LocalGamepadBase.
+            if ((lease.get("permits") or {}).get("base") is True
+                    and lease.get("estop_latched") is not True
+                    and lease.get("session_id") and lease.get("session_epoch") is not None
+                    and lease.get("calibration_bundle_hash") == self.bundle_hash):
+                reason = "base_trial_waiting_unlock"
+                if not (self.paused or self.latched_fault or self.reengage_required):
+                    scope = (lease["session_id"], lease["session_epoch"], self.bundle_hash,
+                             self.stream_epoch, "base_trial")
+            else:
+                reason = "base_trial_licence_incomplete"
+        elif (base is not None and admission is not None and lease.get("outputs_enabled") is True
+                and (lease.get("permits") or {}).get("base") is True
+                and lease.get("session_id") == admission.session_id
+                and str(lease.get("session_epoch")) == str(admission.session_epoch)
+                and lease.get("calibration_bundle_hash") == self.bundle_hash):
+            reason = "base_requires_live_arm_follow"
+            if (not (self.paused or self.latched_fault or self.reengage_required)
+                    and self.driver.outputs_enabled and self.last_emit_mono is not None
+                    and self.last_emit_stream_epoch == self.stream_epoch
+                    and 0 <= now / 1e9 - self.last_emit_mono < base.timeout_ns / 1e9
+                    and self.readback.read_snapshot().get("available") is True):
+                reason = "base_locked_outside_drive"
+                if (context.get("phase") == "drive" and context.get("episode_id")
+                        and context.get("clock_epoch") and context.get("session_id")):
+                    scope = (admission.session_id, admission.session_epoch, self.bundle_hash,
+                             self.stream_epoch, context.get("session_id"), context["episode_id"],
+                             context["clock_epoch"])
+        if base is not None:
+            odom_episode = tuple(context.get(key) for key in ("session_id", "episode_id", "clock_epoch"))
+            if all(odom_episode):
+                base.set_odom_episode(odom_episode)
+            if raw_gamepad is not None:
+                input_scope, input_reason = self._joint_base_input(base, raw_gamepad, now, scope, reason)
+                if scope is not None and input_scope is None:
+                    base.stop(input_reason, now)
+                scope, reason = input_scope, input_reason
+            base.tick(now, scope, reason)
+        row = {**(base or preview).status(now), "kind": "base_gamepad_diagnostic", "source": "gamepad",
+               "stamp_ns": self.node.get_clock().now().nanoseconds, "control_mono_ns": now,
+               "clock_domain": self.clock_domain, "session_id": lease.get("session_id"),
+               "session_epoch": lease.get("session_epoch"), "recording_session_id": context.get("session_id"),
+               "calibration_bundle_hash": lease.get("calibration_bundle_hash"),
+               **{key: context.get(key) for key in ("episode_id", "phase", "clock_epoch", "context_seq")}}
+        if raw_gamepad is not None:
+            row["raw_gamepad"] = raw_gamepad
+        if self.base_trace is not None:
+            self.base_trace.publish(String(data=json.dumps(row, allow_nan=False)))
+
+    def _joint_base_input(self, base, sample, now, scope, reason):
+        generation = sample["generation"]
+        changed = self.gamepad_generation is not None and generation != self.gamepad_generation
+        self.gamepad_generation = generation
+        if scope is None:
+            return scope, reason
+        if changed or not sample["connected"]:
+            return None, "base_receiver_disconnected_or_changed"
+        axes, buttons = sample["axes_raw"], sample["buttons_raw"]
+        report_ns = sample.get("usb_report_mono_ns")
+        if (report_ns is None or not 0 <= now - report_ns < base.timeout_ns
+                or any(axis.index >= len(axes) for axis in base.axes)
+                or any(value is None for value in (*axes, *buttons))):
+            return None, "base_waiting_for_usb_input"
+        owners = self.node.get_subscriptions_info_by_topic(self.base_motor_topic)
+        if (self.node.count_publishers(self.base_motor_topic) != 1
+                or sum(owner.node_name == "ros_robot_controller" for owner in owners) != 1):
+            return None, "base_motor_owner_or_publisher_conflict"
+        # HID receive time describes USB transport. RF state remains unknown.
+        if base.scope == scope and (base.source_stamp_ns is None or report_ns > base.source_stamp_ns):
+            base.ingest([max(-1.0, value / 32767) for value in axes], buttons,
+                        now_ns=now, source_ns=report_ns, ros_now_ns=now,
+                        source_clock="car_monotonic_usb_receive")
+        return scope, reason
 
     def _adopt_licensed_bundle_locked(self) -> bool:
         """Adopt a new authenticated mapping bundle while outputs are closed.
@@ -409,7 +534,7 @@ class CarControlRuntime:
             return
         targets = self._targets(pending["decoded"])
         try:
-            self.driver.submit_frame(targets)
+            dispatch = self.driver.submit_frame(targets)
         except (RuntimeError, ValueError) as error:
             self.counters["frames_refused"] += 1
             self.last_refusal = {"frame_seq": str(pending["frame"]["frame_seq"]),
@@ -426,14 +551,17 @@ class CarControlRuntime:
                 self._write_status()
                 return
             self._require_explicit_reengage(str(error), pending["frame"]["frame_seq"])
+            self._publish_receipt(pending["frame"], state="refused", reason="emitter_stopped",
+                                  detail=str(error), admitted=True, accepted=pending)
             return
         now_mono = time.monotonic()
         if self.last_emit_mono is not None:
             self.emit_intervals_ms.append(round((now_mono - self.last_emit_mono) * 1000, 2))
         self.counters["frames_emitted"] += 1
         self.last_emit_mono = now_mono
+        self.last_emit_stream_epoch = self.stream_epoch
         self.last_refusal = None
-        self._record_frame(pending)
+        self._record_frame(pending, dispatch)
         self._publish_receipt(pending["frame"], state="emitted", admitted=True,
                               emitted=True, accepted=pending)
 
@@ -456,7 +584,7 @@ class CarControlRuntime:
             return False, "licence_output_permission_withdrawn"
         return True, "ok"
 
-    def _record_frame(self, accepted: dict[str, Any]) -> None:
+    def _record_frame(self, accepted: dict[str, Any], dispatch: dict[str, Any] | None = None) -> None:
         """One row per emitted frame, on the car clock, with its own identity.
 
         action is the post-admission target and state is the readback: the command
@@ -535,6 +663,9 @@ class CarControlRuntime:
             "execution_observed": "unavailable",
             "hardware_effect": "unverified",
         }
+        if getattr(self.driver, "hold_outside_command_range", False) and dispatch is not None:
+            row["published_positions_raw"] = dispatch["published_positions_raw"]
+            row["uncommanded_joints"] = dispatch["uncommanded_joints"]
         message = String()
         message.data = json.dumps(row, sort_keys=True, default=str)
         self.recording_publisher.publish(message)
@@ -544,6 +675,7 @@ class CarControlRuntime:
                 for entry in six_axis_targets(decoded)]
 
     def _stop_following(self, reason: str) -> None:
+        self._stop_base(reason)
         if self.admission is not None:
             self.admission.clear(reason)
         if not self._licence_was_present:
@@ -560,6 +692,7 @@ class CarControlRuntime:
 
     def _require_explicit_reengage(self, reason: str, frame_seq: Any = None) -> None:
         """Park on an emitter failure; a still-live permission cannot restart motion."""
+        self._stop_base(reason)
         self.reengage_required = True
         if self.admission is not None:
             self.admission.clear(reason)
@@ -815,6 +948,8 @@ class CarControlRuntime:
             return self._preempt_locked(action, reason_text)
 
     def _preempt_locked(self, action, reason_text: str) -> dict[str, Any]:
+        if action in ("estop", "pause", "pause_all"):
+            self._stop_base(reason_text)
         if action == "estop":
             self.latched_fault = "estop"
             # Recovery is the agent's to grant, not ours: it must clear the stop and
@@ -852,6 +987,14 @@ class CarControlRuntime:
         self.latched_fault = None
 
     def stop(self) -> None:
+        with self.control_lock:
+            self._stop_base("control_shutdown")
+        if self.gamepad_input is not None:
+            self.gamepad_input.close()
+        if self.gamepad_preview is not None:
+            self.gamepad_preview.close()
+        if self.base_trace is not None:
+            self.base_trace.stop(timeout_s=1.0)
         publisher = self.recording_publisher
         if publisher is not None and hasattr(publisher, "stop"):
             publisher.stop(timeout_s=1.0)
@@ -860,8 +1003,10 @@ class CarControlRuntime:
     def state(self) -> dict[str, Any]:
         admission = self.admission.state() if self.admission else {}
         snapshot = self.readback.read_snapshot()
+        base = self.local_base or self.gamepad_preview
         return {
             "data_identity": self.data_identity,
+            "base_gamepad": None if base is None else base.status(time.monotonic_ns()),
             "configured_bundle_hash": self.bundle_hash,
             "launch_bundle_hash": self.launch_bundle_hash,
             "bundle_hash_source": self.bundle_hash_source,
@@ -875,6 +1020,7 @@ class CarControlRuntime:
             "paused": self.paused,
             "latched_fault": self.latched_fault,
             "reengage_required": self.reengage_required,
+            "uncommanded_joints": getattr(self.driver, "uncommanded_joints", []),
             "last_clear": self.last_clear,
             "outputs_enabled": self.driver.outputs_enabled,
             "trial_motion": getattr(self.driver, "trial_motion", None),
@@ -963,6 +1109,9 @@ class CarControlRuntime:
 
     def _write_status(self) -> None:
         document = self.state()
+        # Why the base is (not) permitted is usually a licence question; keep the
+        # mirror's own verdict in the status file instead of guessing from the car.
+        document["licence"] = self.licence.state()
         if self.stream is not None:
             document["stream"] = self.stream.state()
         self.status_path.parent.mkdir(parents=True, exist_ok=True)
@@ -974,6 +1123,18 @@ class CarControlRuntime:
 
 def build(profile: dict[str, Any], args: argparse.Namespace) -> tuple[Node, CarControlRuntime,
                                                                       LicenceMirror, StreamServer]:
+    trial_settings = gamepad_base.hardware_trial_settings(profile)
+    joint_settings = gamepad_base.hardware_joint_settings(profile)
+    base_settings = (None if trial_settings is not None or joint_settings is not None
+                     else gamepad_base.offline_settings(profile))
+    preview_settings = gamepad_base.preview_settings(profile)
+    if base_settings is not None and (args.data_identity != "simulated_offline"
+            or args.output_topic != "/lelab_offline/ros_robot_controller/bus_servo/set_position"):
+        raise ValueError("local_gamepad_base_requires_simulated_output")
+    if (trial_settings is not None or joint_settings is not None) and args.data_identity != "hardware":
+        raise ValueError("local_gamepad_requires_hardware_identity")
+    if preview_settings is not None and args.data_identity != "hardware":
+        raise ValueError("local_gamepad_preview_requires_hardware_identity")
     node = Node("lelab_car_control")
     feedback = profile["follower_feedback"]
     qos = QoSProfile(reliability=QoSReliabilityPolicy.RELIABLE,
@@ -1039,7 +1200,8 @@ def build(profile: dict[str, Any], args: argparse.Namespace) -> tuple[Node, CarC
         torque_readback=torque_readback,
         position_pid=teleop.get("position_pid"),
         feedback_limits_path=Path(args.status_path).with_name("feedback-raw-limits.json"),
-        feedback_limits_profile=profile["profile"])
+        feedback_limits_profile=profile["profile"],
+        hold_outside_command_range=joint_settings is not None)
     licence = LicenceMirror(Path(args.licence_socket))
     licence.start()
     runtime = CarControlRuntime(
@@ -1050,6 +1212,56 @@ def build(profile: dict[str, Any], args: argparse.Namespace) -> tuple[Node, CarC
         recording_publisher=recording, typed_control=typed_control,
         typed_feedback=typed_feedback)
     readback.on_owner_changed = runtime._on_feedback_owner_changed
+    if base_settings is not None or trial_settings is not None or joint_settings is not None:
+        from ros_robot_controller_msgs.msg import MotorState, MotorsState
+        from sensor_msgs.msg import Joy
+
+        if trial_settings is not None or joint_settings is not None:
+            # The vendor ros_robot_controller stays the only /dev/rrc owner; this
+            # process only publishes its set_motor topic. joy_node feeds /joy.
+            motor_output = node.create_publisher(MotorsState, gamepad_base.HARDWARE_TRIAL_TOPIC, qos)
+            joy_qos = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT,
+                                 history=QoSHistoryPolicy.KEEP_LAST, depth=1)
+
+            def publish_base(target):
+                motor_output.publish(gamepad_base.motor_message(target, MotorState, MotorsState))
+
+            mode, joy_topic = "hardware_trial", gamepad_base.HARDWARE_JOY_TOPIC
+            trace_topic, sub_qos = gamepad_base.PREVIEW_TOPIC, joy_qos
+            if joint_settings is not None:
+                mode = "hardware_joint"
+                trace_topic = gamepad_base.JOINT_TRACE_TOPIC
+                runtime.base_motor_topic = motor_output.topic_name
+        else:
+            from geometry_msgs.msg import Twist
+            output = node.create_publisher(Twist, gamepad_base.TWIST_TOPIC, qos)
+            motor_output = node.create_publisher(MotorsState, gamepad_base.OFFLINE_MOTOR_TOPIC, qos)
+
+            def publish_base(target):
+                motor_output.publish(gamepad_base.motor_message(target, MotorState, MotorsState))
+                message = Twist()
+                message.linear.x, message.linear.y, message.angular.z = target
+                try:
+                    output.publish(message)
+                except Exception as exc:
+                    node.get_logger().error(f"base Twist diagnostic failed: {type(exc).__name__}")
+
+            mode, joy_topic = "offline", gamepad_base.JOY_TOPIC
+            trace_topic, sub_qos = gamepad_base.TRACE_TOPIC, qos
+
+        settings = ({key: value for key, value in joint_settings.items() if key != "usb_port"}
+                    if joint_settings is not None else trial_settings or base_settings)
+        runtime.local_base = gamepad_base.LocalGamepadBase(settings, publish_base, mode=mode)
+        runtime.base_trace = BoundedRecordingPublisher(node.create_publisher(String, trace_topic, 10))
+        if joint_settings is None:
+            node.create_subscription(Joy, joy_topic, runtime._on_local_joy, sub_qos)
+        else:
+            runtime.gamepad_input = gamepad_base.LinuxGamepadPreview(
+                joint_settings["usb_port"], monitor_usb=True)
+    if preview_settings is not None:
+        runtime.gamepad_preview = gamepad_base.LinuxGamepadPreview(preview_settings["usb_port"])
+        runtime.base_trace = BoundedRecordingPublisher(
+            node.create_publisher(String, gamepad_base.PREVIEW_TOPIC, 10))
     if args.dds_command and typed_control is not None:
         from .dds_command_receiver import DdsCommandReceiver
         runtime.dds_receiver = DdsCommandReceiver(
@@ -1082,7 +1294,7 @@ def validate_hardware_trial(profile: dict[str, Any], args: argparse.Namespace) -
                 or args.stream_host not in ("127.0.0.1", "localhost")):
             raise ValueError("offline_dds_profile_configuration_mismatch")
         return
-    if profile_name == "hardware_hybrid_follow_v1_dds":
+    if profile_name in ("hardware_hybrid_follow_v1_dds", gamepad_base.HARDWARE_JOINT_PROFILE):
         runtime = profile.get("runtime") or {}
         teleop = profile.get("teleop") or {}
         safety = profile.get("safety") or {}
@@ -1102,6 +1314,8 @@ def validate_hardware_trial(profile: dict[str, Any], args: argparse.Namespace) -
                 or args.readback_topic != "/lelab/ros_robot_controller/servo_readback"
                 or args.state_topic != "/ros_robot_controller/bus_servo/set_state"
                 or args.state_service != "/ros_robot_controller/bus_servo/get_state"
+                or (profile_name == gamepad_base.HARDWARE_JOINT_PROFILE
+                    and args.recording_topic != "/lelab/recording/teleop")
                 or not args.bundle_hash
                 or args.bundle_hash != safety.get("calibration_bundle_hash")
                 or not args.dds_command_key_file
@@ -1163,6 +1377,25 @@ def validate_hardware_trial(profile: dict[str, Any], args: argparse.Namespace) -
                 or not args.bundle_hash
                 or args.bundle_hash != safety.get("calibration_bundle_hash")):
             raise ValueError("hardware_homing_configuration_mismatch")
+        return
+    if profile_name == "hardware_hybrid_base_trial_v1":
+        runtime = profile.get("runtime") or {}
+        teleop = profile.get("teleop") or {}
+        if (runtime.get("mode") != "hardware_base_trial"
+                or runtime.get("output_transport") != "dds_v1"
+                or runtime.get("allowed_transports") != ["dds_v1"]
+                or runtime.get("actuator_outputs") is not True
+                or runtime.get("data_source") != "hardware"
+                or teleop.get("chassis_locked") is not True
+                or teleop.get("trial_motion") is not None
+                or args.data_identity != "hardware"
+                or args.output_topic != "/ros_robot_controller/bus_servo/set_position"
+                or args.stream_host not in ("127.0.0.1", "localhost")
+                # The arm stays locked in this profile, so the chassis trial does not
+                # depend on which arm calibration bundle the upper announces; it only
+                # has to be a real, non-empty hash that the licence will echo back.
+                or not args.bundle_hash):
+            raise ValueError("hardware_base_trial_configuration_mismatch")
         return
     expected_axis = {"hardware_hybrid_arm_trial_v1": "joint1",
                      "hardware_hybrid_arm2_trial_v1": "joint2",
@@ -1231,6 +1464,10 @@ def main() -> int:
     profile = json.loads(Path(args.profile).read_text(encoding="utf-8"))
     try:
         validate_hardware_trial(profile, args)
+        if (gamepad_base.hardware_trial_settings(profile) is None
+                and gamepad_base.hardware_joint_settings(profile) is None):
+            gamepad_base.offline_settings(profile)
+        gamepad_base.preview_settings(profile)
     except (TypeError, ValueError) as error:
         print(f"refusing to start: {error}", file=sys.stderr)
         return 2
@@ -1241,16 +1478,19 @@ def main() -> int:
     if args.max_ttl_ms > 200:
         print("the command TTL ceiling stays at the car gate's 200 ms", file=sys.stderr)
         return 2
-    rclpy.init()
+    shutdown_requested = threading.Event()
+    rclpy.init(signal_handler_options=SignalHandlerOptions.NO)
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(sig, lambda *_: shutdown_requested.set())
     node, runtime, licence, server = build(profile, args)
     server.start()
     print(json.dumps({"started": True, "stream_port": server.port,
                       "control_hz": args.control_hz, "data_identity": args.data_identity,
                       "output_topic": args.output_topic,
                       "readback_topic": args.readback_topic}), flush=True)
-    signal.signal(signal.SIGTERM, lambda *_: rclpy.shutdown())
     try:
-        rclpy.spin(node)
+        while rclpy.ok() and not shutdown_requested.is_set():
+            rclpy.spin_once(node, timeout_sec=0.1)
     except (KeyboardInterrupt, RuntimeError):
         pass
     finally:
@@ -1260,6 +1500,7 @@ def main() -> int:
         server.stop()
         licence.stop()
         node.destroy_node()
+        rclpy.try_shutdown()
     return 0
 
 

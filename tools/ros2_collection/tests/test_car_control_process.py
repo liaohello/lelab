@@ -13,8 +13,8 @@ import sys
 import tempfile
 import time
 import unittest
-from unittest import mock
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "ros2_ws" / "src" / "lelab_mobile_agent"), str(ROOT / "app_ros_mobile")]
@@ -146,7 +146,9 @@ class EntrypointLifecycle(unittest.TestCase):
                  mock.patch.dict(sys.modules, {"serial": None}), \
                  mock.patch.object(module, "build", return_value=(node, object(), licence, server)) as build, \
                  mock.patch.object(module.rclpy, "init"), \
-                 mock.patch.object(module.rclpy, "spin", side_effect=KeyboardInterrupt), \
+                 mock.patch.object(module.rclpy, "ok", return_value=True), \
+                 mock.patch.object(module.rclpy, "spin_once", side_effect=KeyboardInterrupt), \
+                 mock.patch.object(module.rclpy, "try_shutdown"), \
                  mock.patch.object(module.signal, "signal"):
                 # The production process deliberately refuses any imported serial module.
                 del sys.modules["serial"]
@@ -335,6 +337,57 @@ class Fixture(unittest.TestCase):
         receipt = self.runtime._on_frame_locked(self.frame(frame_seq=frame_seq))
         self.runtime._tick_locked()
         return receipt
+
+
+class BaseArbitration(Fixture):
+    def start_base(self):
+        from lelab_mobile_agent.local_gamepad_base import LocalGamepadBase, stick_settings
+
+        targets = []
+        base = self.runtime.local_base = LocalGamepadBase(stick_settings(), targets.append)
+        self.mirror.apply(licence_record(
+            control_generation=1, session_id="sess-1", session_epoch=77,
+            calibration_bundle_hash=BUNDLE,
+            permits={"arm": True, "gripper": True, "base": True}, outputs_enabled=True,
+            token_sha256=token_digest(TOKEN), ttl_ms=300))
+        self.context(phase="drive", session_epoch=77)
+        self.assertTrue(self.hello()[0])
+        self.emit_one()
+        self.runtime._tick_base()
+        now = time.monotonic_ns()
+        for offset, axes in ((400, [0, 0, 0]), (150, [0, 0, 0]), (100, [0, -1, 0])):
+            at = now - offset * 1_000_000
+            base.ingest(axes, [], now_ns=at, source_ns=at, ros_now_ns=at)
+            base.tick(at, base.scope, "drive")
+        self.runtime._tick_base()
+        self.assertGreater(targets[-1][0], 0)
+        return base, targets
+
+    def test_expired_lease_stops_four_wheel_target(self):
+        base, targets = self.start_base()
+        self.mirror._current["deadline_ns"] = self.mirror._clock() - 1
+        self.runtime._tick()
+        self.assertFalse(base.armed)
+        self.assertEqual(targets[-1], (0.0, 0.0, 0.0))
+
+    def test_emergency_stop_stops_base_before_receipt(self):
+        base, targets = self.start_base()
+        receipt = self.runtime.on_preempt("estop", "test")
+        self.assertEqual(receipt["hardware_effect"], "unverified")
+        self.assertFalse(base.armed)
+        self.assertEqual(targets[-1], (0.0, 0.0, 0.0))
+
+    def test_pause_stops_base(self):
+        base, targets = self.start_base()
+        self.runtime.on_preempt("pause_all", "test")
+        self.assertFalse(base.armed)
+        self.assertEqual(targets[-1], (0.0, 0.0, 0.0))
+
+    def test_graceful_shutdown_stops_base(self):
+        base, targets = self.start_base()
+        self.runtime.stop()
+        self.assertFalse(base.armed)
+        self.assertEqual(targets[-1], (0.0, 0.0, 0.0))
 
 
 class ContextedRows(Fixture):
@@ -539,8 +592,14 @@ class LatchRules(Fixture):
     def test_emitter_refusal_parks_the_driver_and_discards_pending_targets(self):
         self.licence()
         self.hello()
+        self.runtime.typed_control = mock.Mock()
         with mock.patch.object(self.driver, "submit_frame", side_effect=RuntimeError("bad_target")):
             self.emit_one(frame_seq=1)
+        receipt = self.runtime.typed_control.publish_receipt.call_args.kwargs
+        self.assertEqual((receipt["frame_seq"], receipt["reason"], receipt["detail"]),
+                         (1, "emitter_stopped", "bad_target"))
+        self.assertTrue(receipt["admitted"])
+        self.assertFalse(receipt["emitted"])
         self.assertTrue(self.runtime.reengage_required)
         self.assertFalse(self.driver.outputs_enabled)
         self.assertEqual(self.driver.stop_count, 1)

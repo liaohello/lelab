@@ -16,6 +16,10 @@ from collections import deque
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from .local_gamepad_base import (
+    JOINT_TRACE_TOPIC, hardware_joint_settings, hardware_trial_settings,
+    offline_settings as local_base_settings, preview_settings,
+)
 from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
@@ -37,7 +41,7 @@ try:  # both the car container's Humble and this host's Jazzy are expected to sh
     PLANNED_STOP_ERRORS = (KeyboardInterrupt, ExternalShutdownException)
 except ImportError:
     PLANNED_STOP_ERRORS = (KeyboardInterrupt,)
-from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, qos_profile_sensor_data
 from sensor_msgs.msg import CameraInfo, Image as RosImage
 from sensor_msgs.msg import JointState, LaserScan, Imu
 from rosgraph_msgs.msg import Clock
@@ -273,6 +277,16 @@ class MobileAgent(Node):
         if not profile_path:
             profile_path = str(Path(get_package_share_directory("lelab_mobile_agent")) / "config" / "runtime-profile-v1.json")
         self.profile = load_profile(profile_path)
+        base_trial = hardware_trial_settings(self.profile)
+        joint_capture = hardware_joint_settings(self.profile)
+        self.local_base_trial = base_trial is not None
+        self.local_gamepad_base = (
+            False if self.local_base_trial or joint_capture is not None
+            else local_base_settings(self.profile) is not None)
+        gamepad_preview = preview_settings(self.profile) is not None
+        self.base_channel_offered = (self.local_gamepad_base or self.local_base_trial
+                                     or joint_capture is not None)
+        self.base_capture_raw_only = self.base_channel_offered or gamepad_preview
         # Hybrid profiles use one ROS-free, adapter-free gateway. It stays at zero
         # output even when the explicit simulation profile publishes simulated data.
         self.hybrid_gateway = None
@@ -285,14 +299,14 @@ class MobileAgent(Node):
                 "hardware_hybrid_arm_trial_v1", "hardware_hybrid_arm2_trial_v1",
                 "hardware_hybrid_arm3_trial_v1", "hardware_hybrid_arm4_trial_v1",
                 "hardware_hybrid_arm5_trial_v1", "hardware_hybrid_homing_v1",
-                "hardware_hybrid_follow_v1",
+                "hardware_hybrid_follow_v1", "hardware_hybrid_base_trial_v1",
                 # The offline Humble profile is the same gateway with a simulated board
                 # behind it and the frame transport in front; it is recognised here so
                 # the offline loop exercises the production routes, not a fixture.
                 "hardware_hybrid_manual_v1_offline6d",
                 } or profile_mode in {
                     "hardware_hybrid_manual", "hybrid_manual_sim",
-                    "hardware_hybrid_follow",
+                    "hardware_hybrid_follow", "hardware_base_trial",
                     "simulated_hybrid_manual", "offline_humble_simulated_board",
                 }:
             self.hybrid_gateway = self._new_hybrid_gateway()
@@ -351,6 +365,8 @@ class MobileAgent(Node):
         self.model_sdf = Path(self.get_parameter("model_sdf").value or (self.car_root / "runtime" / "lelab_mobile.sdf"))
         self.lock = threading.RLock()
         self.sessions = SessionRecorder(self.car_root, self.profile, self.get_logger())
+        self._remote_recording_health = (queue.Queue(maxsize=1)
+                                         if self.sessions.upper_mount is not None else None)
         # A container that was SIGKILLed leaves its `ros2 bag record` running with the session still
         # marked open, so the first thing this process does is close what its predecessor left.
         self.recovered_sessions = self.sessions.recover_interrupted_sessions()
@@ -386,6 +402,9 @@ class MobileAgent(Node):
         self.image_wall = 0.0
         self.image_count = 0
         self.image_window: deque[float] = deque(maxlen=30)
+        self.rgb_subscription = None
+        self.rgb_subscription_restarts = 0
+        self.rgb_retry_after = time.monotonic() + 3.0
         self.preview_jpeg: bytes | None = None
         self.preview_seq = 0
         self.preview_wall = 0.0
@@ -465,6 +484,10 @@ class MobileAgent(Node):
         self.task_record_pubs: dict[str, Any] = {}
         self.task_record_last: dict[str, float] = {}
         self.event_pub = self.create_publisher(String, "/lelab/events", 20)
+        if joint_capture is not None:
+            self.create_subscription(
+                String, JOINT_TRACE_TOPIC,
+                lambda _message: self.last_rx.__setitem__(JOINT_TRACE_TOPIC, time.monotonic()), 10)
         # The control tick is the lease reaper: it drops the token, the owner identity and
         # any queued targets the moment a control lease expires. It therefore has to run in
         # every profile - frame mode creates none of the actuator publishers below, and with
@@ -499,7 +522,14 @@ class MobileAgent(Node):
         if self.wheel_topic:
             self.create_subscription(Odometry, self.wheel_topic, self._on_odom, 10)
         if self.rgb_topic:
-            self.create_subscription(RosImage, self.rgb_topic, self._on_image, qos_profile_sensor_data)
+            # The joint capture source is the reliable Aurora RGB publisher. A
+            # single-frame queue keeps the preview from processing a stale backlog.
+            self.rgb_qos = (QoSProfile(depth=1, reliability=QoSReliabilityPolicy.RELIABLE)
+                            if joint_capture is not None else qos_profile_sensor_data)
+            self.rgb_subscription = self.create_subscription(
+                RosImage, self.rgb_topic, self._on_image, self.rgb_qos)
+            if joint_capture is not None:
+                self.create_timer(0.5, self._recover_rgb_subscription)
         else:
             self.get_logger().error("no wrist camera topic configured; read-only health will be unavailable")
         if self.camera_info_topic:
@@ -604,6 +634,8 @@ class MobileAgent(Node):
         self._preview_stop = threading.Event()
         self._preview_thread = threading.Thread(target=self._preview_loop, daemon=True)
         self._preview_thread.start()
+        if self._remote_recording_health is not None:
+            threading.Thread(target=self._poll_remote_recording_health, daemon=True).start()
         self.create_timer(0.05, self._hybrid_gateway_tick)
         self.get_logger().info(f"agent ready; profile={self.profile['profile']} car_root={self.car_root}")
 
@@ -679,6 +711,24 @@ class MobileAgent(Node):
             if publisher is not None and now - self.task_record_last.get(name, 0.0) >= 0.05:
                 self.task_record_last[name] = now
                 publisher.publish(msg)
+
+    def _recover_rgb_subscription(self) -> None:
+        now = time.monotonic()
+        if now < self.rgb_retry_after or now - self.image_wall <= 1.5:
+            return
+        if not self.count_publishers(self.rgb_topic):
+            return
+        self.rgb_retry_after = now + 4.0
+        try:
+            replacement = self.create_subscription(
+                RosImage, self.rgb_topic, self._on_image, self.rgb_qos)
+        except Exception as exc:  # noqa: BLE001 - the existing subscription remains installed
+            self.get_logger().warning(f"camera subscription recovery failed: {exc}")
+            return
+        self.destroy_subscription(self.rgb_subscription)
+        self.rgb_subscription = replacement
+        self.rgb_subscription_restarts += 1
+        self.get_logger().warning(f"recreated stalled RGB subscription: {self.rgb_topic}")
 
     def _on_image(self, msg: RosImage):
         now = time.monotonic()
@@ -2020,6 +2070,8 @@ class MobileAgent(Node):
             raise ApiError(409, "hybrid_gateway_unavailable",
                            "the loaded profile has no hybrid gateway")
 
+        if getattr(self, "base_channel_offered", False) and set(channels) == {"arm", "gripper"}:
+            channels = [*channels, "base"]
         previous = self.hybrid_gateway
         previous_stop = previous.stop("hybrid_epoch_replaced")
         dropped = int(previous_stop.get("queue_dropped", 0))
@@ -2391,7 +2443,21 @@ class MobileAgent(Node):
                     self.episode_max_lift = max(self.episode_max_lift, cube[2])
             ages = self._topic_ages(time.monotonic())
         if self.sessions.session_id is not None:
-            self.sessions.poll_health(ages)
+            if self._remote_recording_health is None:
+                self.sessions.poll_health(ages)
+            else:
+                try:
+                    self._remote_recording_health.put_nowait(ages)
+                except queue.Full:
+                    pass
+
+    def _poll_remote_recording_health(self):
+        while True:
+            ages = self._remote_recording_health.get()
+            try:
+                self.sessions.poll_health(ages)
+            except OSError as exc:
+                self.get_logger().warning(f"upper recording health check failed: {exc}")
 
     def _check_clock_jump(self):
         if not self.read_only:
@@ -2482,6 +2548,7 @@ class MobileAgent(Node):
             "camera_extrinsics": self.camera_extrinsics,
             "task_name": self.task_name,
             "training_export": bool(self.profile.get("training_export", {}).get("enabled")) and not self.read_only,
+            "base_capture_raw_only": getattr(self, "base_capture_raw_only", False),
             "export_schema": export_schema,
             "features": self.profile.get("features"),
             "base_velocity_topic": self.runtime.get("base_velocity_topic"),
@@ -3169,6 +3236,7 @@ class MobileAgent(Node):
                 "agent_version": self.agent_version,
                 "profile": self.profile["profile"],
                 "task": self.profile["task"],
+                "base_capture_raw_only": getattr(self, "base_capture_raw_only", False),
                 "sim_time_ns": self._sim_ns() if not self.read_only else None,
                 "time_ns": self._sim_ns(),
                 "clock_domain": self.clock_domain,
@@ -3255,6 +3323,7 @@ class MobileAgent(Node):
                             "preview_age_s": preview.source_age_s,
                             "preview_source_topic": preview.source_topic,
                             "preview_backend": preview.backend,
+                            "subscription_restarts": getattr(self, "rgb_subscription_restarts", 0),
                             "stale": (ages.get(self.rgb_topic) is None or ages.get(self.rgb_topic) > 1.5) if self.rgb_topic else True},
                     "camera_info": {**self.camera_info_meta, "topic": self.camera_info_topic,
                                     "age_s": ages.get(self.camera_info_topic) if self.camera_info_topic else None},
